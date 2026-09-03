@@ -105,4 +105,4 @@ If you have an idea for a rendering algorithm, optimization, glyph system, bench
 
 ## License
 
-Luma is released under the MIT License.
+Luma is released under the AGPL License.
