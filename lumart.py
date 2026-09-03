@@ -40,7 +40,7 @@ TRANSLATIONS = {
         "help_raw_colors": "Disable the Epic Color Engine and use the original raw image colors.",
         "help_os_style": "Use classic Neofetch/OS style characters (dots, letters, shapes).",
         "help_swap": "Swap colors using names (e.g. --swap purple pink blue red). Must provide an even number of arguments.",
-        "help_lang": "Force a specific language (en, es, pt).",
+        "help_lang": "Force a specific language (en, es, pt, ru).",
         "error_open": "Error opening image: {}",
         "error_swap": "Error: --swap requires pairs of colors (e.g. --swap purple pink).",
         "saved_to": "ASCII art saved to {}",
@@ -64,7 +64,7 @@ TRANSLATIONS = {
         "help_raw_colors": "Desactiva el Motor Épico y utiliza los colores originales sin procesar.",
         "help_os_style": "Usar caracteres clásicos estilo Neofetch/OS (puntos, letras, formas).",
         "help_swap": "Intercambiar colores por nombre (ej. --swap purple pink blue red). Debe ser un número par de argumentos.",
-        "help_lang": "Forzar un idioma específico (en, es, pt).",
+        "help_lang": "Forzar un idioma específico (en, es, pt, ru).",
         "error_open": "Error abriendo imagen: {}",
         "error_swap": "Error: --swap requiere pares de colores (ej: --swap purple pink).",
         "saved_to": "Arte ASCII guardado en {}",
@@ -88,13 +88,37 @@ TRANSLATIONS = {
         "help_raw_colors": "Desativar o Motor Épico e usar as cores originais sem processamento.",
         "help_os_style": "Usar caracteres clássicos estilo Neofetch/OS (pontos, letras, formas).",
         "help_swap": "Trocar cores usando nomes (ex: --swap purple pink blue red). Deve fornecer um número par de argumentos.",
-        "help_lang": "Forçar um idioma específico (en, es, pt).",
+        "help_lang": "Forçar um idioma específico (en, es, pt, ru).",
         "error_open": "Erro ao abrir a imagem: {}",
         "error_swap": "Erro: --swap requer pares de cores (ex: --swap purple pink).",
         "saved_to": "Arte ASCII salva em {}",
         "error_save": "Erro ao salvar o arquivo: {}",
         "lang_success": "Idioma alterado com sucesso para '{}'.",
         "lang_error": "Erro: O idioma '{}' não é suportado."
+    },
+    "ru": {
+        "pillow_not_found": "[luma] Pillow не найден. Установка зависимостей...",
+        "usage": "Использование: lumart [опции] <путь_к_изображению>\n\nПопробуйте 'lumart --help' для дополнительных опций.",
+        "desc": "Lumart - Эпический движок терминального искусства",
+        "help_image_path": "Путь к исходному файлу изображения.",
+        "help_width": "Ширина выходного ASCII-арта (в символах). По умолчанию: 100",
+        "help_color": "Выводить ASCII-арт в цвете.",
+        "help_invert": "Инвертировать символы ASCII (полезно для темных терминалов).",
+        "help_output": "Сохранить ASCII-арт в файл вместо вывода в консоль.",
+        "help_binary": "Использовать только 1 и 0 для символов ASCII.",
+        "help_blocks": "Использовать полублоки для высокого разрешения (переопределяет binary и ascii).",
+        "help_braille": "Использовать шрифт Брайля для сглаженных краев и высокого разрешения.",
+        "help_epic": "(Устарело) Эпический цветовой движок теперь включен по умолчанию.",
+        "help_raw_colors": "Отключить Эпический движок и использовать исходные цвета без обработки.",
+        "help_os_style": "Использовать классические символы в стиле Neofetch/OS (точки, буквы, формы).",
+        "help_swap": "Менять цвета по названию (напр. --swap purple pink blue red). Должно быть четное количество аргументов.",
+        "help_lang": "Принудительно установить язык (en, es, pt, ru).",
+        "error_open": "Ошибка при открытии изображения: {}",
+        "error_swap": "Ошибка: --swap требует пары цветов (напр. --swap purple pink).",
+        "saved_to": "ASCII-арт сохранен в {}",
+        "error_save": "Ошибка при сохранении в файл: {}",
+        "lang_success": "Язык успешно изменен на '{}'.",
+        "lang_error": "Ошибка: Язык '{}' не поддерживается."
     }
 }
 
@@ -108,6 +132,8 @@ def set_language(lang_code):
         CURRENT_LANG = "es"
     elif lang_code and lang_code.startswith("pt"):
         CURRENT_LANG = "pt"
+    elif lang_code and lang_code.startswith("ru"):
+        CURRENT_LANG = "ru"
     else:
         CURRENT_LANG = "en"
 
