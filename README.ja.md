@@ -56,9 +56,11 @@ chmod +x build_packages.sh
 - **Fedora/RHEL**: `sudo dnf install ./dist/lumart-2.0.0.rpm`
 - **Arch Linux**: `cd dist/arch && makepkg -si`
 
-## 使用方法
+## 使用法
 
-パッケージをインストールした場合は、どこからでも `lumart` または `luma` を実行できます。そうでない場合は、pythonスクリプトを直接実行します。
+パッケージをインストールした場合、どこからでも `lumart` または `luma` を実行できます。そうでない場合は、直接pythonスクリプトを実行してください。
+
+> **💡 プロのヒント:** Luma は背景が透明な画像で最もよく機能します！ エンジンは透明なピクセルを自動的に無視するため、ロゴやキャラクターがターミナルの背景に完璧に浮かび上がります。
 
 ```bash
 # 基本的な使用方法

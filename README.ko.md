@@ -60,6 +60,8 @@ chmod +x build_packages.sh
 
 패키지를 설치한 경우 어디서나 `lumart` 또는 `luma`를 실행할 수 있습니다. 그렇지 않으면 python 스크립트를 직접 실행합니다.
 
+> **💡 꿀팁:** Luma는 배경이 투명한 이미지에서 가장 잘 작동합니다! 엔진이 투명 픽셀을 자동으로 무시하므로 로고와 캐릭터가 터미널 배경과 완벽하게 조화를 이룹니다.
+
 ```bash
 # 기본 사용법
 python3 lumart.py image.png

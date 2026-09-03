@@ -60,6 +60,8 @@ Después de compilar, puedes instalarlo globalmente a través de tu administrado
 
 Si instalaste el paquete, puedes ejecutar `lumart` o `luma` desde cualquier lugar. De lo contrario, ejecuta el script de python directamente.
 
+> **💡 Consejo Pro:** ¡Luma funciona de maravilla con imágenes sin fondo (transparentes)! El motor ignora automáticamente los píxeles transparentes, lo que hace que los logos y personajes resalten perfectamente contra el fondo de tu terminal.
+
 ```bash
 # Uso básico
 python3 lumart.py image.png

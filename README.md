@@ -60,6 +60,8 @@ After compiling, you can install it globally via your package manager:
 
 If you installed the package, you can run `lumart` or `luma` from anywhere. Otherwise, run the python script directly.
 
+> **💡 Pro Tip:** Luma works beautifully with transparent backgrounds! The engine automatically ignores transparent pixels, which makes logos and characters pop perfectly against your terminal's background.
+
 ```bash
 # Basic usage
 python3 lumart.py image.png

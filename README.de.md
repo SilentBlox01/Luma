@@ -60,6 +60,8 @@ Nach dem Kompilieren können Sie es über Ihren Paketmanager global installieren
 
 Wenn Sie das Paket installiert haben, können Sie `lumart` oder `luma` von überall aus ausführen. Andernfalls führen Sie das Python-Skript direkt aus.
 
+> **💡 Profi-Tipp:** Luma funktioniert am besten mit Bildern ohne Hintergrund (transparent)! Die Engine ignoriert automatisch transparente Pixel, wodurch Logos und Charaktere perfekt vor dem Hintergrund Ihres Terminals hervortreten.
+
 ```bash
 # Grundlegende Verwendung
 python3 lumart.py image.png

@@ -58,7 +58,9 @@ Após compilar, você pode instalá-lo globalmente através do seu gerenciador d
 
 ## Uso
 
-Se você instalou o pacote, pode executar `lumart` ou `luma` de qualquer lugar. Caso contrário, execute o script Python diretamente.
+Se você instalou o pacote, pode executar `lumart` ou `luma` de qualquer lugar. Caso contrário, execute o script python diretamente.
+
+> **💡 Dica Pro:** O Luma funciona perfeitamente com imagens sem fundo (transparentes)! O motor ignora automaticamente os pixels transparentes, fazendo com que logotipos e personagens se destaquem contra o fundo do seu terminal.
 
 ```bash
 # Uso básico
