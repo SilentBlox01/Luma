@@ -36,7 +36,7 @@ Always pass them in pairs: `--swap [color_to_replace] [new_color]`.
 Example: `--swap red blue green yellow`.
 
 ## 6. "Luma is stuck in Russian and I don't speak Russian"
-**The problem:** You tested `--lang ru` once, and now it saved that to the config file at `~/.config/luma/config.json`.
+**The problem:** You tested `--lang ru` once, and now it saved that to the config file at `~/.config/luma/config.json`. (Happened to me actually lol 🤓☝️)
 **The fix:**
 Just force it back to your language with `luma --lang en` (or `es`, `ja`, etc.). Or you can just nuke the config file entirely. I probably should have made a `reset` command, but deleting the file works fine for now.
 

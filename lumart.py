@@ -43,6 +43,7 @@ TRANSLATIONS = {
         "help_raw_colors": "Disable the Epic Color Engine and use the original raw image colors.",
         "help_os_style": "Use classic Neofetch/OS style characters (dots, letters, shapes).",
         "help_swap": "Swap colors using names (e.g. --swap purple pink blue red). Must provide an even number of arguments.",
+        "help_dither": "Apply ordered dithering (Bayer matrix) for retro shading effects.",
         "help_lang": "Force a specific language (en, es, pt, ru, ja, de, ko).",
         "error_open": "Error opening image: {}",
         "error_swap": "Error: --swap requires pairs of colors (e.g. --swap purple pink).",
@@ -67,6 +68,7 @@ TRANSLATIONS = {
         "help_raw_colors": "Desactiva el Motor Épico y utiliza los colores originales sin procesar.",
         "help_os_style": "Usar caracteres clásicos estilo Neofetch/OS (puntos, letras, formas).",
         "help_swap": "Intercambiar colores por nombre (ej. --swap purple pink blue red). Debe ser un número par de argumentos.",
+        "help_dither": "Aplicar difuminado ordenado (matriz de Bayer) para efectos de sombreado retro.",
         "help_lang": "Forzar un idioma específico (en, es, pt, ru, ja, de, ko).",
         "error_open": "Error abriendo imagen: {}",
         "error_swap": "Error: --swap requiere pares de colores (ej: --swap purple pink).",
@@ -91,6 +93,7 @@ TRANSLATIONS = {
         "help_raw_colors": "Desativar o Motor Épico e usar as cores originais sem processamento.",
         "help_os_style": "Usar caracteres clássicos estilo Neofetch/OS (pontos, letras, formas).",
         "help_swap": "Trocar cores usando nomes (ex: --swap purple pink blue red). Deve fornecer um número par de argumentos.",
+        "help_dither": "Aplicar pontilhamento ordenado (matriz de Bayer) para efeitos de sombreamento retrô.",
         "help_lang": "Forçar um idioma específico (en, es, pt, ru, ja, de, ko).",
         "error_open": "Erro ao abrir a imagem: {}",
         "error_swap": "Erro: --swap requer pares de cores (ex: --swap purple pink).",
@@ -115,6 +118,7 @@ TRANSLATIONS = {
         "help_raw_colors": "Отключить Эпический движок и использовать исходные цвета без обработки.",
         "help_os_style": "Использовать классические символы в стиле Neofetch/OS (точки, буквы, формы).",
         "help_swap": "Менять цвета по названию (напр. --swap purple pink blue red). Должно быть четное количество аргументов.",
+        "help_dither": "Применить упорядоченное сглаживание (матрица Байера) для эффектов ретро-затенения.",
         "help_lang": "Принудительно установить язык (en, es, pt, ru, ja, de, ko).",
         "error_open": "Ошибка при открытии изображения: {}",
         "error_swap": "Ошибка: --swap требует пары цветов (напр. --swap purple pink).",
@@ -139,6 +143,7 @@ TRANSLATIONS = {
         "help_raw_colors": "エピックエンジンを無効にし、元の画像の色を処理なしで使用します。",
         "help_os_style": "クラシックなNeofetch/OSスタイルの文字（ドット、文字、図形）を使用します。",
         "help_swap": "名前を使用して色を交換します（例: --swap purple pink blue red）。偶数個の引数を指定する必要があります。",
+        "help_dither": "レトロなシェーディング効果のために、組織的ディザリング（Bayerマトリックス）を適用します。",
         "help_lang": "特定の言語を強制します（en, es, pt, ru, ja, de, ko）。",
         "error_open": "画像を開く際のエラー: {}",
         "error_swap": "エラー: --swapには色のペアが必要です（例: --swap purple pink）。",
@@ -163,6 +168,7 @@ TRANSLATIONS = {
         "help_raw_colors": "Epische Engine deaktivieren und die ursprünglichen Bildfarben ohne Bearbeitung verwenden.",
         "help_os_style": "Klassische Neofetch/OS-Zeichen (Punkte, Buchstaben, Formen) verwenden.",
         "help_swap": "Farben nach Name tauschen (z.B. --swap purple pink blue red). Es muss eine gerade Anzahl von Argumenten angegeben werden.",
+        "help_dither": "Geordnetes Dithering (Bayer-Matrix) für Retro-Schattierungseffekte anwenden.",
         "help_lang": "Eine bestimmte Sprache erzwingen (en, es, pt, ru, ja, de, ko).",
         "error_open": "Fehler beim Öffnen des Bildes: {}",
         "error_swap": "Fehler: --swap benötigt Farbpaare (z.B. --swap purple pink).",
@@ -187,6 +193,7 @@ TRANSLATIONS = {
         "help_raw_colors": "에픽 엔진을 비활성화하고 처리 없이 원래 이미지 색상을 사용합니다.",
         "help_os_style": "클래식 Neofetch/OS 스타일 문자(점, 글자, 도형)를 사용합니다.",
         "help_swap": "이름을 사용하여 색상을 교환합니다(예: --swap purple pink blue red). 짝수 개의 인수를 제공해야 합니다.",
+        "help_dither": "레트로 셰이딩 효과를 위해 정렬된 디더링(Bayer 행렬)을 적용합니다.",
         "help_lang": "특정 언어를 강제 적용합니다(en, es, pt, ru, ja, de, ko).",
         "error_open": "이미지 열기 오류: {}",
         "error_swap": "오류: --swap에는 색상 쌍이 필요합니다(예: --swap purple pink).",
@@ -273,6 +280,40 @@ def apply_color_swap(image, swap_args):
                     pixels[x, y] = (new_r, new_g, new_b, a)
                     break
                     
+    return img
+
+# 4x4 Bayer matrix for ordered dithering
+BAYER_MATRIX = [
+    [ 0,  8,  2, 10],
+    [12,  4, 14,  6],
+    [ 3, 11,  1,  9],
+    [15,  7, 13,  5]
+]
+
+def apply_bayer_dither(image):
+    """Applies ordered dithering using a 4x4 Bayer matrix for retro shading."""
+    width, height = image.size
+    has_alpha = image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info)
+    img = image.convert("RGBA") if has_alpha else image.convert("RGB")
+    
+    pixels = img.load()
+    spread = 64 # intensity of the dithering
+    
+    for y in range(height):
+        for x in range(width):
+            factor = (BAYER_MATRIX[y % 4][x % 4] / 16.0) - 0.5
+            offset = int(factor * spread)
+            
+            p = pixels[x, y]
+            r = max(0, min(255, p[0] + offset))
+            g = max(0, min(255, p[1] + offset))
+            b = max(0, min(255, p[2] + offset))
+            
+            if has_alpha:
+                pixels[x, y] = (r, g, b, p[3])
+            else:
+                pixels[x, y] = (r, g, b)
+                
     return img
 
 def resize_image(image, new_width=90, is_blocks=False, is_braille=False):
@@ -642,6 +683,7 @@ def main():
 
     parser.add_argument("image_path", help=_("help_image_path"))
     parser.add_argument("-w", "--width", type=int, default=90, help=_("help_width"))
+    parser.add_argument("-d", "--dither", action="store_true", help=_("help_dither"))
     parser.add_argument("-c", "--color", action="store_true", help=_("help_color"))
     parser.add_argument("-i", "--invert", action="store_true", help=_("help_invert"))
     parser.add_argument("-o", "--output", help=_("help_output"))
@@ -677,8 +719,12 @@ def main():
         image = ImageEnhance.Color(image).enhance(1.5)
         image = ImageEnhance.Contrast(image).enhance(1.2)
         image = ImageEnhance.Sharpness(image).enhance(1.5)
-
-    image = resize_image(image, args.width, is_blocks=args.blocks, is_braille=args.braille)
+        
+    image = resize_image(image, args.width, args.blocks, args.braille)
+    
+    # Apply Ordered Dithering (Bayer Matrix) for retro shading
+    if args.dither:
+        image = apply_bayer_dither(image)
     
     if args.braille:
         ascii_art = convert_image_to_braille(image, args.color)
