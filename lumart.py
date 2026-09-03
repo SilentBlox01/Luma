@@ -7,22 +7,25 @@ try:
     from PIL import Image, ImageEnhance
 except ImportError:
     import subprocess
-    print("[luma] Pillow no encontrado. Instalando dependencias...")
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "Pillow", "-q"]
-    )
+    # lazy auto-install bc who reads docs anyway
+    print("Installing Pillow because you forgot...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "Pillow", "-q"])
     from PIL import Image, ImageEnhance
 
-# ASCII shading chars (dark to light)
+# magic string do not touch
 ASCII_CHARS = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
 
+# basic colors
 COLOR_MAP = {
     "red": (255, 0, 0), "green": (0, 255, 0), "blue": (0, 0, 255),
-    "yellow": (255, 255, 0), "purple": (128, 0, 128), "pink": (255, 192, 203),
-    "cyan": (0, 255, 255), "orange": (255, 165, 0), "white": (255, 255, 255),
-    "black": (0, 0, 0), "gray": (128, 128, 128), "magenta": (255, 0, 255)
+    "yellow": (255, 255, 0), "purple": (128, 0, 128), 
+    "pink": (255, 192, 203), "cyan": (0, 255, 255), 
+    "orange": (255, 165, 0), "white": (255, 255, 255),
+    "black": (0, 0, 0), "gray": (128, 128, 128), "magenta": (255, 0, 255),
+    "blurple": (88, 101, 242) # discord lol
 }
 
+# TODO: move this to a json file someday. this is getting huge
 TRANSLATIONS = {
     "en": {
         "pillow_not_found": "[luma] Pillow not found. Installing dependencies...",
@@ -195,7 +198,7 @@ def apply_color_swap(image, swap_args):
     pixels = img.load()
     width, height = img.size
     
-    # color distance threshold (max is ~441)
+    # idk why 150 works but it does
     THRESHOLD = 150
     
     for y in range(height):
@@ -221,7 +224,7 @@ def apply_color_swap(image, swap_args):
     return img
 
 def resize_image(image, new_width=100, is_blocks=False, is_braille=False):
-    # keep aspect ratio, use LANCZOS
+    # keep aspect ratio
     width, height = image.size
     aspect_ratio = height / width
     
@@ -253,7 +256,7 @@ def reset_ansi_color_code():
     return "\033[0m"
 
 def convert_image_to_blocks(image):
-    # 2x2 subpixels. using RMSE in premultiplied RGBA for best precision
+    # 2x2 subpixels. heavy math incoming
     img = image.convert("RGBA")
     width, height = img.size
     
@@ -379,7 +382,7 @@ def _linear_to_srgb(c):
     return round((c * 12.92 if c <= 0.0031308 else 1.055 * c ** (1/2.4) - 0.055) * 255)
 
 def convert_image_to_braille(image, use_color=False):
-    # braille for curves, half-blocks for gradients
+    # braille magic
     has_alpha = image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info)
     img = image.convert("RGBA") if has_alpha else image.convert("RGB")
     
