@@ -78,6 +78,27 @@ Force retro OS-style character rendering (useful for OS logos):
 python3 lumart.py image.png --os-style -c
 ```
 
+## Uninstallation
+
+If you want to remove Luma from your system, the command depends on how you installed it:
+
+**If installed via Package Manager (.deb, .rpm, PKGBUILD):**
+- **Debian/Ubuntu**: `sudo apt remove lumart`
+- **Fedora/RHEL**: `sudo dnf remove lumart`
+- **Arch Linux**: `sudo pacman -Rns lumart`
+
+**If installed via pip:**
+```bash
+pip uninstall lumart
+```
+
+**If installed manually:**
+You can run the provided uninstaller script:
+```bash
+chmod +x uninstall.sh
+./uninstall.sh
+```
+
 ## Philosophy
 
 Terminal rendering is a form of visual compression.
