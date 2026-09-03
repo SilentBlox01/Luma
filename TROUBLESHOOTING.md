@@ -24,7 +24,7 @@ pip3 install Pillow
 *Note: If you get a "managed environment" error on newer Linux distros, use a virtual environment (`python3 -m venv venv && source venv/bin/activate`) before running pip.*
 
 ## 4. "The image is way too massive and it broke my terminal history"
-**The problem:** By default, Luma tries to render at a width of 100 characters. If you passed a massive image and your terminal window is small, it wraps the text and ruins the illusion.
+**The problem:** By default, Luma tries to render at a width of 90 characters. If you passed a massive image and your terminal window is small, it wraps the text and ruins the illusion.
 **The fix:**
 Use `-w` to shrink it down to fit your window. 
 Example: `luma image.png -w 50`

@@ -32,7 +32,7 @@ TRANSLATIONS = {
         "usage": "Usage: lumart [options] <image_path>\n\nTry 'lumart --help' for more options.",
         "desc": "Lumart - Epic Terminal Art Engine",
         "help_image_path": "Path to the input image file.",
-        "help_width": "Width of the output ASCII art (in characters). Default: 100",
+        "help_width": "Width of the output ASCII art (in characters). Default: 90",
         "help_color": "Output ASCII art in color.",
         "help_invert": "Invert the ASCII characters (useful for dark terminals).",
         "help_output": "Save the ASCII art to a file instead of printing to the console.",
@@ -56,7 +56,7 @@ TRANSLATIONS = {
         "usage": "Uso: lumart [opciones] <ruta_imagen>\n\nIntenta 'lumart --help' para más opciones.",
         "desc": "Lumart - Motor Épico de Arte de Terminal",
         "help_image_path": "Ruta al archivo de imagen de entrada.",
-        "help_width": "Ancho del arte ASCII de salida (en caracteres). Por defecto: 100",
+        "help_width": "Ancho del arte ASCII de salida (en caracteres). Por defecto: 90",
         "help_color": "Generar arte ASCII en color.",
         "help_invert": "Invertir los caracteres ASCII (útil para terminales oscuras).",
         "help_output": "Guardar el arte ASCII en un archivo en lugar de imprimirlo en consola.",
@@ -80,7 +80,7 @@ TRANSLATIONS = {
         "usage": "Uso: lumart [opções] <caminho_imagem>\n\nTente 'lumart --help' para mais opções.",
         "desc": "Lumart - Motor Épico de Arte de Terminal",
         "help_image_path": "Caminho para o arquivo de imagem de entrada.",
-        "help_width": "Largura da arte ASCII de saída (em caracteres). Padrão: 100",
+        "help_width": "Largura da arte ASCII de saída (em caracteres). Padrão: 90",
         "help_color": "Gerar arte ASCII em cores.",
         "help_invert": "Inverter os caracteres ASCII (útil para terminais escuros).",
         "help_output": "Salvar a arte ASCII em um arquivo em vez de imprimir no console.",
@@ -104,7 +104,7 @@ TRANSLATIONS = {
         "usage": "Использование: lumart [опции] <путь_к_изображению>\n\nПопробуйте 'lumart --help' для дополнительных опций.",
         "desc": "Lumart - Эпический движок терминального искусства",
         "help_image_path": "Путь к исходному файлу изображения.",
-        "help_width": "Ширина выходного ASCII-арта (в символах). По умолчанию: 100",
+        "help_width": "Ширина выходного ASCII-арта (в символах). По умолчанию: 90",
         "help_color": "Выводить ASCII-арт в цвете.",
         "help_invert": "Инвертировать символы ASCII (полезно для темных терминалов).",
         "help_output": "Сохранить ASCII-арт в файл вместо вывода в консоль.",
@@ -128,7 +128,7 @@ TRANSLATIONS = {
         "usage": "使用法: lumart [オプション] <画像パス>\n\n詳細なオプションについては 'lumart --help' をお試しください。",
         "desc": "Lumart - エピックターミナルアートエンジン",
         "help_image_path": "入力画像ファイルへのパス。",
-        "help_width": "出力するASCIIアートの幅（文字数）。デフォルト: 100",
+        "help_width": "出力するASCIIアートの幅（文字数）。デフォルト: 90",
         "help_color": "ASCIIアートをカラーで出力します。",
         "help_invert": "ASCII文字を反転します（暗いターミナルで便利です）。",
         "help_output": "コンソールに出力する代わりに、ASCIIアートをファイルに保存します。",
@@ -152,7 +152,7 @@ TRANSLATIONS = {
         "usage": "Verwendung: lumart [Optionen] <bildpfad>\n\nVersuche 'lumart --help' für weitere Optionen.",
         "desc": "Lumart - Epische Terminal-Kunst-Engine",
         "help_image_path": "Pfad zur Eingabebilddatei.",
-        "help_width": "Breite der ASCII-Kunst (in Zeichen). Standard: 100",
+        "help_width": "Breite der ASCII-Kunst (in Zeichen). Standard: 90",
         "help_color": "ASCII-Kunst in Farbe ausgeben.",
         "help_invert": "ASCII-Zeichen umkehren (nützlich für dunkle Terminals).",
         "help_output": "ASCII-Kunst in einer Datei speichern, anstatt sie auf der Konsole auszugeben.",
@@ -176,7 +176,7 @@ TRANSLATIONS = {
         "usage": "사용법: lumart [옵션] <이미지_경로>\n\n자세한 옵션은 'lumart --help'를 시도해 보세요.",
         "desc": "Lumart - 에픽 터미널 아트 엔진",
         "help_image_path": "입력 이미지 파일의 경로입니다.",
-        "help_width": "출력 ASCII 아트의 너비(문자 수)입니다. 기본값: 100",
+        "help_width": "출력 ASCII 아트의 너비(문자 수)입니다. 기본값: 90",
         "help_color": "컬러로 ASCII 아트를 출력합니다.",
         "help_invert": "ASCII 문자를 반전시킵니다(어두운 터미널에 유용).",
         "help_output": "콘솔에 출력하는 대신 ASCII 아트를 파일에 저장합니다.",
@@ -275,7 +275,7 @@ def apply_color_swap(image, swap_args):
                     
     return img
 
-def resize_image(image, new_width=100, is_blocks=False, is_braille=False):
+def resize_image(image, new_width=90, is_blocks=False, is_braille=False):
     # keep aspect ratio
     width, height = image.size
     aspect_ratio = height / width
@@ -641,7 +641,7 @@ def main():
     parser.add_argument("-v", "--version", action="version", version=f"{banner}")
 
     parser.add_argument("image_path", help=_("help_image_path"))
-    parser.add_argument("-w", "--width", type=int, default=100, help=_("help_width"))
+    parser.add_argument("-w", "--width", type=int, default=90, help=_("help_width"))
     parser.add_argument("-c", "--color", action="store_true", help=_("help_color"))
     parser.add_argument("-i", "--invert", action="store_true", help=_("help_invert"))
     parser.add_argument("-o", "--output", help=_("help_output"))
