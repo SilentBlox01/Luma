@@ -562,6 +562,9 @@ def main():
         print(banner)
         print(_("usage"))
         sys.exit(1)
+        
+    if "-h" in sys.argv or "--help" in sys.argv:
+        print(banner)
 
     parser = argparse.ArgumentParser(prog="lumart", description=_( "desc" ))
     parser.add_argument("-v", "--version", action="version", version=f"{banner}")
