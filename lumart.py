@@ -580,6 +580,7 @@ def main():
     if "-h" in sys.argv or "--help" in sys.argv:
         print(banner)
 
+    # boilerplate command line crap
     parser = argparse.ArgumentParser(prog="lumart", description=_( "desc" ))
     parser.add_argument("-v", "--version", action="version", version=f"{banner}")
 
@@ -602,6 +603,7 @@ def main():
     try:
         image = Image.open(args.image_path)
     except Exception as e:
+        # shit broke
         print(_("error_open", e))
         sys.exit(1)
         
@@ -611,9 +613,10 @@ def main():
             sys.exit(1)
         image = apply_color_swap(image, args.swap)
 
-    # Epic Color Engine is now default!
+    # Epic Color Engine is now default because it looks fucking awesome
     if not args.raw_colors:
         # Convert to RGBA first because ImageEnhance fails on palettized ('P' mode) images
+        # fucking PIL...
         image = image.convert("RGBA")
         image = ImageEnhance.Color(image).enhance(1.5)
         image = ImageEnhance.Contrast(image).enhance(1.2)
@@ -634,8 +637,10 @@ def main():
                 f.write(ascii_art)
             print(_("saved_to", args.output))
         except Exception as e:
+            # well damn
             print(_("error_save", e))
     else:
+        # just print it to the damn screen
         print(ascii_art)
 
 if __name__ == "__main__":
