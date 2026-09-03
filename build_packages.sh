@@ -28,7 +28,7 @@ Name:           lumart
 Version:        $VERSION
 Release:        1
 Summary:        Epic Terminal Art Engine
-License:        MIT
+License:        AGPL
 %description
 Epic Terminal Art Engine (Color Swap & Neofetch OS Style)
 %install
@@ -49,7 +49,7 @@ pkgver=$VERSION
 pkgrel=1
 pkgdesc="Epic Terminal Art Engine (Color Swap & Neofetch OS Style)"
 arch=('x86_64')
-license=('MIT')
+license=('AGPL')
 source=("lumart")
 sha256sums=('SKIP')
 package() {
