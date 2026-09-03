@@ -44,7 +44,9 @@ TRANSLATIONS = {
         "error_open": "Error opening image: {}",
         "error_swap": "Error: --swap requires pairs of colors (e.g. --swap purple pink).",
         "saved_to": "ASCII art saved to {}",
-        "error_save": "Error saving to file: {}"
+        "error_save": "Error saving to file: {}",
+        "lang_success": "Language successfully set to '{}'.",
+        "lang_error": "Error: Language '{}' is not supported."
     },
     "es": {
         "pillow_not_found": "[luma] Pillow no encontrado. Instalando dependencias...",
@@ -66,7 +68,9 @@ TRANSLATIONS = {
         "error_open": "Error abriendo imagen: {}",
         "error_swap": "Error: --swap requiere pares de colores (ej: --swap purple pink).",
         "saved_to": "Arte ASCII guardado en {}",
-        "error_save": "Error guardando en archivo: {}"
+        "error_save": "Error guardando en archivo: {}",
+        "lang_success": "Idioma cambiado exitosamente a '{}'.",
+        "lang_error": "Error: El idioma '{}' no está soportado."
     },
     "pt": {
         "pillow_not_found": "[luma] Pillow não encontrado. Instalando dependências...",
@@ -88,7 +92,9 @@ TRANSLATIONS = {
         "error_open": "Erro ao abrir a imagem: {}",
         "error_swap": "Erro: --swap requer pares de cores (ex: --swap purple pink).",
         "saved_to": "Arte ASCII salva em {}",
-        "error_save": "Erro ao salvar o arquivo: {}"
+        "error_save": "Erro ao salvar o arquivo: {}",
+        "lang_success": "Idioma alterado com sucesso para '{}'.",
+        "lang_error": "Erro: O idioma '{}' não é suportado."
     }
 }
 
@@ -474,7 +480,9 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
     return ascii_str
 
 def main():
-    # First pass to just detect the --lang argument early, before argparse initializes its strings
+    import json
+    
+    # Parse language override early
     lang_override = None
     if "--lang" in sys.argv:
         try:
@@ -483,8 +491,37 @@ def main():
         except IndexError:
             pass
             
+    # Config file for persistence
+    config_dir = os.path.expanduser("~/.config/luma")
+    config_file = os.path.join(config_dir, "config.json")
+    
+    # Intercept standalone language change (e.g. lumart --lang es)
+    if len(sys.argv) == 3 and "--lang" in sys.argv:
+        if lang_override in TRANSLATIONS:
+            os.makedirs(config_dir, exist_ok=True)
+            with open(config_file, "w") as f:
+                json.dump({"lang": lang_override}, f)
+            set_language(lang_override)
+            print(_("lang_success", lang_override))
+            sys.exit(0)
+        else:
+            set_language("en") # fallback to english to show the error
+            print(_("lang_error", lang_override))
+            sys.exit(1)
+            
+    # Load saved config
+    saved_lang = None
+    if os.path.exists(config_file):
+        try:
+            with open(config_file, "r") as f:
+                saved_lang = json.load(f).get("lang")
+        except Exception:
+            pass
+
     if lang_override:
         set_language(lang_override)
+    elif saved_lang:
+        set_language(saved_lang)
     else:
         auto_detect_language()
 
