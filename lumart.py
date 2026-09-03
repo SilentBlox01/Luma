@@ -40,7 +40,7 @@ TRANSLATIONS = {
         "help_raw_colors": "Disable the Epic Color Engine and use the original raw image colors.",
         "help_os_style": "Use classic Neofetch/OS style characters (dots, letters, shapes).",
         "help_swap": "Swap colors using names (e.g. --swap purple pink blue red). Must provide an even number of arguments.",
-        "help_lang": "Force a specific language (en, es).",
+        "help_lang": "Force a specific language (en, es, pt).",
         "error_open": "Error opening image: {}",
         "error_swap": "Error: --swap requires pairs of colors (e.g. --swap purple pink).",
         "saved_to": "ASCII art saved to {}",
@@ -62,11 +62,33 @@ TRANSLATIONS = {
         "help_raw_colors": "Desactiva el Motor Épico y utiliza los colores originales sin procesar.",
         "help_os_style": "Usar caracteres clásicos estilo Neofetch/OS (puntos, letras, formas).",
         "help_swap": "Intercambiar colores por nombre (ej. --swap purple pink blue red). Debe ser un número par de argumentos.",
-        "help_lang": "Forzar un idioma específico (en, es).",
+        "help_lang": "Forzar un idioma específico (en, es, pt).",
         "error_open": "Error abriendo imagen: {}",
         "error_swap": "Error: --swap requiere pares de colores (ej: --swap purple pink).",
         "saved_to": "Arte ASCII guardado en {}",
         "error_save": "Error guardando en archivo: {}"
+    },
+    "pt": {
+        "pillow_not_found": "[luma] Pillow não encontrado. Instalando dependências...",
+        "usage": "Uso: lumart [opções] <caminho_imagem>\n\nTente 'lumart --help' para mais opções.",
+        "desc": "Lumart - Motor Épico de Arte de Terminal",
+        "help_image_path": "Caminho para o arquivo de imagem de entrada.",
+        "help_width": "Largura da arte ASCII de saída (em caracteres). Padrão: 100",
+        "help_color": "Gerar arte ASCII em cores.",
+        "help_invert": "Inverter os caracteres ASCII (útil para terminais escuros).",
+        "help_output": "Salvar a arte ASCII em um arquivo em vez de imprimir no console.",
+        "help_binary": "Usar apenas 1s e 0s para os caracteres ASCII.",
+        "help_blocks": "Usar meios-blocos para cores reais de alta resolução (sobrescreve binary e ascii).",
+        "help_braille": "Usar caracteres Braille para bordas suaves e formas de alta resolução.",
+        "help_epic": "(Obsoleto) O Motor Épico de Cor agora está ativado por padrão.",
+        "help_raw_colors": "Desativar o Motor Épico e usar as cores originais sem processamento.",
+        "help_os_style": "Usar caracteres clássicos estilo Neofetch/OS (pontos, letras, formas).",
+        "help_swap": "Trocar cores usando nomes (ex: --swap purple pink blue red). Deve fornecer um número par de argumentos.",
+        "help_lang": "Forçar um idioma específico (en, es, pt).",
+        "error_open": "Erro ao abrir a imagem: {}",
+        "error_swap": "Erro: --swap requer pares de cores (ex: --swap purple pink).",
+        "saved_to": "Arte ASCII salva em {}",
+        "error_save": "Erro ao salvar o arquivo: {}"
     }
 }
 
@@ -78,6 +100,8 @@ def set_language(lang_code):
         CURRENT_LANG = lang_code
     elif lang_code and lang_code.startswith("es"):
         CURRENT_LANG = "es"
+    elif lang_code and lang_code.startswith("pt"):
+        CURRENT_LANG = "pt"
     else:
         CURRENT_LANG = "en"
 
