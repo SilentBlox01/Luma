@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 import sys
+import locale
+import os
 try:
     from PIL import Image, ImageEnhance
 except ImportError:
@@ -20,6 +22,78 @@ COLOR_MAP = {
     "cyan": (0, 255, 255), "orange": (255, 165, 0), "white": (255, 255, 255),
     "black": (0, 0, 0), "gray": (128, 128, 128), "magenta": (255, 0, 255)
 }
+
+TRANSLATIONS = {
+    "en": {
+        "pillow_not_found": "[luma] Pillow not found. Installing dependencies...",
+        "usage": "Usage: lumart [options] <image_path>\n\nTry 'lumart --help' for more options.",
+        "desc": "Lumart - Epic Terminal Art Engine",
+        "help_image_path": "Path to the input image file.",
+        "help_width": "Width of the output ASCII art (in characters). Default: 100",
+        "help_color": "Output ASCII art in color.",
+        "help_invert": "Invert the ASCII characters (useful for dark terminals).",
+        "help_output": "Save the ASCII art to a file instead of printing to the console.",
+        "help_binary": "Use only 1s and 0s for the ASCII characters.",
+        "help_blocks": "Use half-blocks for high resolution true-color (overrides binary and ascii).",
+        "help_braille": "Use Braille characters for smooth edges and high resolution shape (overrides binary).",
+        "help_epic": "(Deprecated) Epic Color Engine is now enabled by default.",
+        "help_raw_colors": "Disable the Epic Color Engine and use the original raw image colors.",
+        "help_os_style": "Use classic Neofetch/OS style characters (dots, letters, shapes).",
+        "help_swap": "Swap colors using names (e.g. --swap purple pink blue red). Must provide an even number of arguments.",
+        "help_lang": "Force a specific language (en, es).",
+        "error_open": "Error opening image: {}",
+        "error_swap": "Error: --swap requires pairs of colors (e.g. --swap purple pink).",
+        "saved_to": "ASCII art saved to {}",
+        "error_save": "Error saving to file: {}"
+    },
+    "es": {
+        "pillow_not_found": "[luma] Pillow no encontrado. Instalando dependencias...",
+        "usage": "Uso: lumart [opciones] <ruta_imagen>\n\nIntenta 'lumart --help' para más opciones.",
+        "desc": "Lumart - Motor Épico de Arte de Terminal",
+        "help_image_path": "Ruta al archivo de imagen de entrada.",
+        "help_width": "Ancho del arte ASCII de salida (en caracteres). Por defecto: 100",
+        "help_color": "Generar arte ASCII en color.",
+        "help_invert": "Invertir los caracteres ASCII (útil para terminales oscuras).",
+        "help_output": "Guardar el arte ASCII en un archivo en lugar de imprimirlo en consola.",
+        "help_binary": "Usar solo 1s y 0s para los caracteres ASCII.",
+        "help_blocks": "Usar medio-bloques para alta resolución (sobrescribe binary y ascii).",
+        "help_braille": "Usar caracteres Braille para bordes suaves y formas de alta resolución.",
+        "help_epic": "(Obsoleto) El Motor Épico de Color ahora está activado por defecto.",
+        "help_raw_colors": "Desactiva el Motor Épico y utiliza los colores originales sin procesar.",
+        "help_os_style": "Usar caracteres clásicos estilo Neofetch/OS (puntos, letras, formas).",
+        "help_swap": "Intercambiar colores por nombre (ej. --swap purple pink blue red). Debe ser un número par de argumentos.",
+        "help_lang": "Forzar un idioma específico (en, es).",
+        "error_open": "Error abriendo imagen: {}",
+        "error_swap": "Error: --swap requiere pares de colores (ej: --swap purple pink).",
+        "saved_to": "Arte ASCII guardado en {}",
+        "error_save": "Error guardando en archivo: {}"
+    }
+}
+
+CURRENT_LANG = "en"
+
+def set_language(lang_code):
+    global CURRENT_LANG
+    if lang_code in TRANSLATIONS:
+        CURRENT_LANG = lang_code
+    elif lang_code and lang_code.startswith("es"):
+        CURRENT_LANG = "es"
+    else:
+        CURRENT_LANG = "en"
+
+def _(key, *args):
+    text = TRANSLATIONS.get(CURRENT_LANG, TRANSLATIONS["en"]).get(key, TRANSLATIONS["en"].get(key, key))
+    if args:
+        return text.format(*args)
+    return text
+
+def auto_detect_language():
+    try:
+        lang, _ = locale.getdefaultlocale()
+        if lang:
+            set_language(lang[:2])
+    except Exception:
+        pass
 
 def apply_color_swap(image, swap_args):
     if not swap_args or len(swap_args) % 2 != 0:
@@ -376,6 +450,20 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
     return ascii_str
 
 def main():
+    # First pass to just detect the --lang argument early, before argparse initializes its strings
+    lang_override = None
+    if "--lang" in sys.argv:
+        try:
+            lang_idx = sys.argv.index("--lang")
+            lang_override = sys.argv[lang_idx + 1]
+        except IndexError:
+            pass
+            
+    if lang_override:
+        set_language(lang_override)
+    else:
+        auto_detect_language()
+
     banner = """\033[1;36m
  █    █ █ █▄ ▄█ ▄▀▄ █▀▄ ▀█▀
  █▄▄▄ ▀▄█ █ ▀ █ █▀█ █▀▄  █
@@ -385,37 +473,37 @@ def main():
     # Custom help and banner intercept
     if len(sys.argv) == 1:
         print(banner)
-        print("Usage: lumart [options] <image_path>")
-        print("\nTry 'lumart --help' for more options.")
+        print(_("usage"))
         sys.exit(1)
 
-    parser = argparse.ArgumentParser(prog="lumart", description="Lumart - Epic Terminal Art Engine")
+    parser = argparse.ArgumentParser(prog="lumart", description=_( "desc" ))
     parser.add_argument("-v", "--version", action="version", version=f"{banner}")
 
-    parser.add_argument("image_path", help="Path to the input image file.")
-    parser.add_argument("-w", "--width", type=int, default=100, help="Width of the output ASCII art (in characters). Default: 100")
-    parser.add_argument("-c", "--color", action="store_true", help="Output ASCII art in color.")
-    parser.add_argument("-i", "--invert", action="store_true", help="Invert the ASCII characters (useful for dark terminals).")
-    parser.add_argument("-o", "--output", help="Save the ASCII art to a file instead of printing to the console.")
-    parser.add_argument("-b", "--binary", action="store_true", help="Use only 1s and 0s for the ASCII characters.")
-    parser.add_argument("--blocks", action="store_true", help="Use half-blocks for high resolution true-color (overrides binary and ascii).")
-    parser.add_argument("--braille", action="store_true", help="Use Braille characters for smooth edges and high resolution shape (overrides binary).")
-    parser.add_argument("--epic", action="store_true", help="(Deprecated) Epic Color Engine is now enabled by default.")
-    parser.add_argument("--raw-colors", action="store_true", help="Disable the Epic Color Engine and use the original raw image colors.")
-    parser.add_argument("--os-style", action="store_true", help="Use classic Neofetch/OS style characters (dots, letters, shapes).")
-    parser.add_argument("--swap", nargs="+", help="Swap colors using names (e.g. --swap purple pink blue red). Must provide an even number of arguments.")
+    parser.add_argument("image_path", help=_("help_image_path"))
+    parser.add_argument("-w", "--width", type=int, default=100, help=_("help_width"))
+    parser.add_argument("-c", "--color", action="store_true", help=_("help_color"))
+    parser.add_argument("-i", "--invert", action="store_true", help=_("help_invert"))
+    parser.add_argument("-o", "--output", help=_("help_output"))
+    parser.add_argument("-b", "--binary", action="store_true", help=_("help_binary"))
+    parser.add_argument("--blocks", action="store_true", help=_("help_blocks"))
+    parser.add_argument("--braille", action="store_true", help=_("help_braille"))
+    parser.add_argument("--epic", action="store_true", help=_("help_epic"))
+    parser.add_argument("--raw-colors", action="store_true", help=_("help_raw_colors"))
+    parser.add_argument("--os-style", action="store_true", help=_("help_os_style"))
+    parser.add_argument("--swap", nargs="+", help=_("help_swap"))
+    parser.add_argument("--lang", help=_("help_lang"))
     
     args = parser.parse_args()
     
     try:
         image = Image.open(args.image_path)
     except Exception as e:
-        print(f"Error opening image: {e}")
+        print(_("error_open", e))
         sys.exit(1)
         
     if args.swap:
         if len(args.swap) % 2 != 0:
-            print("Error: --swap requiere pares de colores (ej: --swap purple pink).")
+            print(_("error_swap"))
             sys.exit(1)
         image = apply_color_swap(image, args.swap)
 
@@ -440,9 +528,9 @@ def main():
         try:
             with open(args.output, "w") as f:
                 f.write(ascii_art)
-            print(f"Arte ASCII guardado en {args.output}")
+            print(_("saved_to", args.output))
         except Exception as e:
-            print(f"Error saving to file: {e}")
+            print(_("error_save", e))
     else:
         print(ascii_art)
 

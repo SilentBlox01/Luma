@@ -1,3 +1,5 @@
+[English](README.md) | [Español](README.es.md)
+
 # Luma
 
 **A high-fidelity image-to-terminal renderer written in Python.**
