@@ -7,12 +7,12 @@ try:
     from PIL import Image, ImageEnhance
 except ImportError:
     import subprocess
-    # lazy auto-install bc who reads docs anyway
-    print("Installing Pillow because you forgot...")
+    # lazy auto-install bc who reads the fucking docs anyway
+    print("Installing fucking Pillow because you forgot...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "Pillow", "-q"])
     from PIL import Image, ImageEnhance
 
-# magic string do not touch
+# magic string do not fucking touch
 ASCII_CHARS = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
 
 # basic colors
@@ -25,7 +25,7 @@ COLOR_MAP = {
     "blurple": (88, 101, 242) # discord lol
 }
 
-# TODO: move this to a json file someday. this is getting huge
+# TODO: move this shit to a json file someday. this is getting huge
 TRANSLATIONS = {
     "en": {
         "pillow_not_found": "[luma] Pillow not found. Installing dependencies...",
@@ -198,7 +198,7 @@ def apply_color_swap(image, swap_args):
     pixels = img.load()
     width, height = img.size
     
-    # idk why 150 works but it does
+    # idk why the fuck 150 works but it does
     THRESHOLD = 150
     
     for y in range(height):
@@ -522,7 +522,7 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
 def main():
     import json
     
-    # Parse language override early
+    # hacky shit to parse language override early
     lang_override = None
     if "--lang" in sys.argv:
         try:
