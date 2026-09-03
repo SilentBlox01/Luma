@@ -574,6 +574,10 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
 def main():
     import json
     
+    # Windows requires this dirty hack to enable ANSI colors in cmd.exe
+    if os.name == "nt":
+        os.system("")
+    
     # hacky shit to parse language override early
     lang_override = None
     if "--lang" in sys.argv:
