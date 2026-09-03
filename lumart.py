@@ -13,7 +13,7 @@ except ImportError:
     )
     from PIL import Image, ImageEnhance
 
-# Extended ASCII character set for better shading (from darkest to lightest)
+# ASCII shading chars (dark to light)
 ASCII_CHARS = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
 
 COLOR_MAP = {
@@ -195,7 +195,7 @@ def apply_color_swap(image, swap_args):
     pixels = img.load()
     width, height = img.size
     
-    # Euclidean distance threshold (out of max distance ~441)
+    # color distance threshold (max is ~441)
     THRESHOLD = 150
     
     for y in range(height):
@@ -206,7 +206,7 @@ def apply_color_swap(image, swap_args):
             for src_rgb, dst_rgb in swaps:
                 dist = ((r - src_rgb[0])**2 + (g - src_rgb[1])**2 + (b - src_rgb[2])**2)**0.5
                 if dist < THRESHOLD:
-                    # Blend towards destination color based on brightness
+                    # blend towards destination color
                     orig_brightness = max((r + g + b) / 765.0, 0.05)
                     dst_brightness = max((dst_rgb[0] + dst_rgb[1] + dst_rgb[2]) / 765.0, 0.05)
                     
@@ -221,9 +221,7 @@ def apply_color_swap(image, swap_args):
     return img
 
 def resize_image(image, new_width=100, is_blocks=False, is_braille=False):
-    """
-    Resizes the image while maintaining aspect ratio, using mathematically perfect Lanczos resampling.
-    """
+    # keep aspect ratio, use LANCZOS
     width, height = image.size
     aspect_ratio = height / width
     
@@ -248,24 +246,14 @@ def resize_image(image, new_width=100, is_blocks=False, is_braille=False):
         return image.resize((new_width, new_height), resample=resample_filter)
 
 def get_ansi_color_code(r, g, b):
-    """
-    Returns the ANSI escape sequence for 24-bit (True Color) foreground color.
-    """
+    # ANSI truecolor foreground
     return f"\033[38;2;{r};{g};{b}m"
 
 def reset_ansi_color_code():
-    """
-    Returns the ANSI escape sequence to reset colors.
-    """
     return "\033[0m"
 
 def convert_image_to_blocks(image):
-    """
-    Converts an image using Smart Quadrants (2x2 subpixels).
-    Uses Exhaustive RMSE (Root Mean Square Error) minimization in Premultiplied 4D RGBA space
-    to mathematically guarantee the highest possible geometric precision and anti-aliasing.
-    """
-    # Ensure image is RGBA
+    # 2x2 subpixels. using RMSE in premultiplied RGBA for best precision
     img = image.convert("RGBA")
     width, height = img.size
     
@@ -381,7 +369,7 @@ def convert_image_to_blocks(image):
     return ascii_str
 
 def _srgb_to_linear(c):
-    """Convert sRGB channel [0,255] to linear light [0,1]."""
+    # sRGB to linear light
     c /= 255.0
     return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
@@ -391,10 +379,7 @@ def _linear_to_srgb(c):
     return round((c * 12.92 if c <= 0.0031308 else 1.055 * c ** (1/2.4) - 0.055) * 255)
 
 def convert_image_to_braille(image, use_color=False):
-    """
-    Combines Unicode Braille (for smooth anti-aliased curves and high-contrast details)
-    with Half-blocks (▀) for solid, gap-less gradients.
-    """
+    # braille for curves, half-blocks for gradients
     has_alpha = image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info)
     img = image.convert("RGBA") if has_alpha else image.convert("RGB")
     
