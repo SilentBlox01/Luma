@@ -109,6 +109,10 @@ Die Herausforderung besteht nicht nur darin, ein Bild in Zeichen umzuwandeln. Di
 
 Daher konzentriert sich Luma auf **wahrnehmungsbezogene Wiedergabetreue** und verwendet mathematisch präzise Farbräume (Lineares RGB vs. sRGB) und dynamische HDR-Kurven, anstatt nur erkennbare ASCII-Kunst zu erzeugen.
 
+## Fehlerbehebung
+
+Haben Sie Probleme mit Schriftarten, Farben oder fehlenden Modulen? In unserem [Fehlerbehebungs-Leitfaden](TROUBLESHOOTING.md) finden Sie schnelle Lösungen.
+
 ## Roadmap
 
 * [x] Initiale Bild-zu-Terminal-Engine

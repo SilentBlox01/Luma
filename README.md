@@ -109,6 +109,10 @@ The challenge is not simply converting an image into characters. The challenge i
 
 Luma therefore focuses on **perceptual fidelity**, utilizing mathematically accurate color spaces (Linear RGB vs sRGB) and dynamic HDR curves, rather than simply producing recognizable ASCII art.
 
+## Troubleshooting
+
+Having issues with fonts, colors, or missing modules? Check out our [Troubleshooting Guide](TROUBLESHOOTING.md) for quick fixes to common problems.
+
 ## Roadmap
 
 * [x] Initial image-to-terminal renderer

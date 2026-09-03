@@ -109,6 +109,10 @@ El desafío no es simplemente convertir una imagen en caracteres. El desafío es
 
 Luma, por lo tanto, se enfoca en la **fidelidad perceptual**, utilizando espacios de color matemáticamente precisos (RGB Lineal vs sRGB) y curvas HDR dinámicas, en lugar de simplemente producir arte ASCII reconocible.
 
+## Solución de Problemas
+
+¿Tienes problemas con fuentes, colores o módulos faltantes? Consulta nuestra [Guía de Solución de Problemas](TROUBLESHOOTING.md) para arreglar problemas comunes.
+
 ## Hoja de Ruta
 
 * [x] Renderizador inicial de imagen a terminal
