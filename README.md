@@ -31,23 +31,28 @@ luma image.png -w 45 --braille -c --swap purple pink
 
 You can run Luma directly from the source code or build it into a native Linux package (DEB, RPM, or Arch PKGBUILD).
 
-**Option 1: Clone and run directly**
+**Option 1: Download Pre-built Packages (Recommended)**
+You can download the ready-to-use `.deb` or `.rpm` packages directly from the [GitHub Releases](https://github.com/SilentBlox01/Luma/releases) page.
+
+**Option 2: Run directly from source**
 ```bash
 git clone https://github.com/SilentBlox01/Luma.git
 cd Luma
 # Ensure you have Pillow installed
-pip install Pillow
+pip install -r requirements.txt
+python3 lumart.py --help
 ```
 
-**Option 2: Build a native package**
+**Option 3: Compile and build native packages yourself**
 Luma includes an automated build script to package the tool into a standalone binary using PyInstaller.
 ```bash
+chmod +x build_packages.sh
 ./build_packages.sh
 ```
-After building, you can install it globally via your package manager:
+After compiling, you can install it globally via your package manager:
 - **Debian/Ubuntu**: `sudo apt install ./dist/lumart-2.0.0.deb`
 - **Fedora/RHEL**: `sudo dnf install ./dist/lumart-2.0.0.rpm`
-- **Arch Linux**: Use the generated PKGBUILD in `dist/arch/`.
+- **Arch Linux**: `cd dist/arch && makepkg -si`
 
 ## Usage
 
