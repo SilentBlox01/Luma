@@ -1,4 +1,4 @@
-[English](README.md) | [Español](README.es.md) | [Português](README.pt.md) | [Русский](README.ru.md)
+[English](README.md) | [Español](README.es.md) | [Português](README.pt.md) | [Русский](README.ru.md) | [日本語](README.ja.md)
 
 # Luma
 

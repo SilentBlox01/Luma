@@ -40,7 +40,7 @@ TRANSLATIONS = {
         "help_raw_colors": "Disable the Epic Color Engine and use the original raw image colors.",
         "help_os_style": "Use classic Neofetch/OS style characters (dots, letters, shapes).",
         "help_swap": "Swap colors using names (e.g. --swap purple pink blue red). Must provide an even number of arguments.",
-        "help_lang": "Force a specific language (en, es, pt, ru).",
+        "help_lang": "Force a specific language (en, es, pt, ru, ja).",
         "error_open": "Error opening image: {}",
         "error_swap": "Error: --swap requires pairs of colors (e.g. --swap purple pink).",
         "saved_to": "ASCII art saved to {}",
@@ -64,7 +64,7 @@ TRANSLATIONS = {
         "help_raw_colors": "Desactiva el Motor Épico y utiliza los colores originales sin procesar.",
         "help_os_style": "Usar caracteres clásicos estilo Neofetch/OS (puntos, letras, formas).",
         "help_swap": "Intercambiar colores por nombre (ej. --swap purple pink blue red). Debe ser un número par de argumentos.",
-        "help_lang": "Forzar un idioma específico (en, es, pt, ru).",
+        "help_lang": "Forzar un idioma específico (en, es, pt, ru, ja).",
         "error_open": "Error abriendo imagen: {}",
         "error_swap": "Error: --swap requiere pares de colores (ej: --swap purple pink).",
         "saved_to": "Arte ASCII guardado en {}",
@@ -88,7 +88,7 @@ TRANSLATIONS = {
         "help_raw_colors": "Desativar o Motor Épico e usar as cores originais sem processamento.",
         "help_os_style": "Usar caracteres clássicos estilo Neofetch/OS (pontos, letras, formas).",
         "help_swap": "Trocar cores usando nomes (ex: --swap purple pink blue red). Deve fornecer um número par de argumentos.",
-        "help_lang": "Forçar um idioma específico (en, es, pt, ru).",
+        "help_lang": "Forçar um idioma específico (en, es, pt, ru, ja).",
         "error_open": "Erro ao abrir a imagem: {}",
         "error_swap": "Erro: --swap requer pares de cores (ex: --swap purple pink).",
         "saved_to": "Arte ASCII salva em {}",
@@ -112,13 +112,37 @@ TRANSLATIONS = {
         "help_raw_colors": "Отключить Эпический движок и использовать исходные цвета без обработки.",
         "help_os_style": "Использовать классические символы в стиле Neofetch/OS (точки, буквы, формы).",
         "help_swap": "Менять цвета по названию (напр. --swap purple pink blue red). Должно быть четное количество аргументов.",
-        "help_lang": "Принудительно установить язык (en, es, pt, ru).",
+        "help_lang": "Принудительно установить язык (en, es, pt, ru, ja).",
         "error_open": "Ошибка при открытии изображения: {}",
         "error_swap": "Ошибка: --swap требует пары цветов (напр. --swap purple pink).",
         "saved_to": "ASCII-арт сохранен в {}",
         "error_save": "Ошибка при сохранении в файл: {}",
         "lang_success": "Язык успешно изменен на '{}'.",
         "lang_error": "Ошибка: Язык '{}' не поддерживается."
+    },
+    "ja": {
+        "pillow_not_found": "[luma] Pillowが見つかりません。依存関係をインストールしています...",
+        "usage": "使用法: lumart [オプション] <画像パス>\n\n詳細なオプションについては 'lumart --help' をお試しください。",
+        "desc": "Lumart - エピックターミナルアートエンジン",
+        "help_image_path": "入力画像ファイルへのパス。",
+        "help_width": "出力するASCIIアートの幅（文字数）。デフォルト: 100",
+        "help_color": "ASCIIアートをカラーで出力します。",
+        "help_invert": "ASCII文字を反転します（暗いターミナルで便利です）。",
+        "help_output": "コンソールに出力する代わりに、ASCIIアートをファイルに保存します。",
+        "help_binary": "ASCII文字として1と0のみを使用します。",
+        "help_blocks": "高解像度のためにハーフブロックを使用します（binaryとasciiを上書きします）。",
+        "help_braille": "滑らかなエッジと高解像度の形状のために点字文字を使用します。",
+        "help_epic": "（非推奨）エピックカラーエンジンは現在デフォルトで有効になっています。",
+        "help_raw_colors": "エピックエンジンを無効にし、元の画像の色を処理なしで使用します。",
+        "help_os_style": "クラシックなNeofetch/OSスタイルの文字（ドット、文字、図形）を使用します。",
+        "help_swap": "名前を使用して色を交換します（例: --swap purple pink blue red）。偶数個の引数を指定する必要があります。",
+        "help_lang": "特定の言語を強制します（en, es, pt, ru, ja）。",
+        "error_open": "画像を開く際のエラー: {}",
+        "error_swap": "エラー: --swapには色のペアが必要です（例: --swap purple pink）。",
+        "saved_to": "ASCIIアートを {} に保存しました",
+        "error_save": "ファイルへの保存エラー: {}",
+        "lang_success": "言語が正常に '{}' に変更されました。",
+        "lang_error": "エラー: 言語 '{}' はサポートされていません。"
     }
 }
 
@@ -134,6 +158,8 @@ def set_language(lang_code):
         CURRENT_LANG = "pt"
     elif lang_code and lang_code.startswith("ru"):
         CURRENT_LANG = "ru"
+    elif lang_code and lang_code.startswith("ja"):
+        CURRENT_LANG = "ja"
     else:
         CURRENT_LANG = "en"
 
