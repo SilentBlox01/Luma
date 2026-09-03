@@ -33,7 +33,7 @@ You can run Luma directly from the source code or build it into a native Linux p
 
 **Option 1: Clone and run directly**
 ```bash
-git clone https://github.com/YOUR_USERNAME/Luma.git
+git clone https://github.com/SilentBlox01/Luma.git
 cd Luma
 # Ensure you have Pillow installed
 pip install Pillow
