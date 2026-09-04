@@ -397,6 +397,32 @@ def is_light_terminal():
             pass
     return False
 
+def is_opaque_light_background(image):
+    """Detecta si una imagen opaca (sin transparencia) tiene un fondo predominantemente blanco/claro."""
+    try:
+        if image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info):
+            rgba = image.convert("RGBA")
+            alpha = rgba.split()[3]
+            min_a, _ = alpha.getextrema()
+            if min_a < 128:
+                return False
+                
+        w, h = image.size
+        if w < 4 or h < 4:
+            return False
+        gray = image.convert("L")
+        sample_points = [
+            (0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1),
+            (w // 2, 0), (w // 2, h - 1), (0, h // 2), (w - 1, h // 2),
+            (w // 4, 0), (3 * w // 4, 0), (0, h // 4), (0, 3 * h // 4)
+        ]
+        samples = [gray.getpixel(p) for p in sample_points]
+        avg_brightness = sum(samples) / len(samples)
+        return avg_brightness >= 225
+    except Exception:
+        return False
+
+
 def apply_color_swap(image, swap_args):
     # Intercambio dinámico de colores en la imagen
     if not swap_args or len(swap_args) % 2 != 0:
@@ -515,20 +541,67 @@ def reset_ansi_color_code():
     # Restaurar atributos y estilos de color predeterminados de la terminal
     return "\033[0m"
 
-def convert_image_to_blocks(image):
+def convert_image_to_blocks(image, use_color=True, invert=False, dither=False):
     # Modo Cuadrantes: 2x2 subpíxeles por celda mediante caracteres de bloque Unicode
-    img = image.convert("RGBA")
-    width, height = img.size
-    
-    # Mapeo de bits de cuadrantes Unicode:
-    # Arriba-Izq=1, Arriba-Der=2, Abajo-Izq=4, Abajo-Der=8.
-    # 16 combinaciones posibles para reconstruir contornos y figuras geométricas.
     quad_map = {
         0: " ", 1: "▘", 2: "▝", 3: "▀", 
         4: "▖", 5: "▌", 6: "▞", 7: "▛", 
         8: "▗", 9: "▚", 10: "▐", 11: "▜", 
         12: "▄", 13: "▙", 14: "▟", 15: "█"
     }
+
+    if not use_color:
+        # Modo monocromático nativo para bloques: renderizado 2x2 en puro texto sin secuencias ANSI
+        has_alpha = image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info)
+        rgba = image.convert("RGBA") if has_alpha else None
+        
+        # Preprocesamiento con ecualización de rango y realce de nitidez
+        gray = ImageOps.autocontrast(image.convert("L"), cutoff=1)
+        gray = gray.filter(ImageFilter.UnsharpMask(radius=1.5, percent=140, threshold=2))
+        width, height = gray.size
+        
+        if dither:
+            dither_img = Image.new("1", (width, height))
+            d_load = dither_img.load()
+            g_load = gray.load()
+            for y in range(height):
+                for x in range(width):
+                    thresh = (BAYER_MATRIX[y % 4][x % 4] + 0.5) * (255.0 / 16.0)
+                    d_load[x, y] = 255 if g_load[x, y] >= thresh else 0
+            binary_map = dither_img.load()
+        else:
+            binary_map = gray.convert("1", dither=Image.Dither.FLOYDSTEINBERG).load()
+            
+        ascii_str = ""
+        for y in range(0, height, 2):
+            for x in range(0, width, 2):
+                shape = 0
+                transparent_count = 0
+                for dy in range(2):
+                    for dx in range(2):
+                        px, py = x + dx, y + dy
+                        bit_idx = dy * 2 + dx
+                        if px < width and py < height:
+                            if has_alpha and rgba.getpixel((px, py))[3] < 128:
+                                transparent_count += 1
+                                continue
+                            is_light = (binary_map[px, py] == 255)
+                            is_on = (not is_light) if invert else is_light
+                            if is_on:
+                                shape |= (1 << bit_idx)
+                        else:
+                            transparent_count += 1
+                            
+                if transparent_count == 4:
+                    ascii_str += " "
+                else:
+                    ascii_str += quad_map.get(shape, " ")
+            ascii_str += "\n"
+        return ascii_str
+
+    img = image.convert("RGBA")
+    width, height = img.size
+
     
     # Pre-multiplicar alpha para promediar correctamente píxeles con transparencia
     # y evitar artefactos oscuros indeseados en los bordes.
@@ -643,18 +716,67 @@ def _linear_to_srgb(c):
     c = max(0.0, min(1.0, c))
     return round((c * 12.92 if c <= 0.0031308 else 1.055 * c ** (1/2.4) - 0.055) * 255)
 
-def convert_image_to_braille(image, use_color=False, invert=False):
+def convert_image_to_braille(image, use_color=False, invert=False, dither=False):
     # Renderizado en cuadrícula de micropuntos Braille (resolución efectiva 2x4 por carácter)
     if not use_color:
-        # En escala de grises aplicamos máscara de desenfoque y realce para perfilar bordes
-        image = image.convert("L").filter(ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3))
-        # Ajuste de contraste al 150% para acentuar la separación tonal
-        image = ImageEnhance.Contrast(image).enhance(1.5)
+        # Pipeline B&W de Ultra-Fidelidad (aislado del motor a color)
+        has_alpha = image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info)
+        rgba = image.convert("RGBA") if has_alpha else None
         
+        # 1. Normalización de rango dinámico y enfoque de líneas
+        gray = ImageOps.autocontrast(image.convert("L"), cutoff=1)
+        gray = gray.filter(ImageFilter.UnsharpMask(radius=1.5, percent=140, threshold=2))
+        width, height = gray.size
+        
+        # 2. Tramado: Bayer (estilo manga con -d) o Floyd-Steinberg (degradados suaves continuos)
+        if dither:
+            dither_img = Image.new("1", (width, height))
+            d_load = dither_img.load()
+            g_load = gray.load()
+            for y in range(height):
+                for x in range(width):
+                    thresh = (BAYER_MATRIX[y % 4][x % 4] + 0.5) * (255.0 / 16.0)
+                    d_load[x, y] = 255 if g_load[x, y] >= thresh else 0
+            binary_pixels = dither_img.load()
+        else:
+            binary_pixels = gray.convert("1", dither=Image.Dither.FLOYDSTEINBERG).load()
+            
+        dot_map = [
+            [0x01, 0x08],
+            [0x02, 0x10],
+            [0x04, 0x20],
+            [0x40, 0x80]
+        ]
+        
+        ascii_str = ""
+        for y in range(0, height, 4):
+            for x in range(0, width, 2):
+                braille_val = 0
+                all_transparent = True
+                for dy in range(4):
+                    for dx in range(2):
+                        px = x + dx
+                        py = y + dy
+                        if px < width and py < height:
+                            if has_alpha and rgba.getpixel((px, py))[3] < 128:
+                                continue
+                            all_transparent = False
+                            is_light = (binary_pixels[px, py] == 255)
+                            is_dot = (not is_light) if invert else is_light
+                            if is_dot:
+                                braille_val += dot_map[dy][dx]
+                if all_transparent or braille_val == 0:
+                    ascii_str += " "
+                else:
+                    ascii_str += chr(0x2800 + braille_val)
+            ascii_str += "\n"
+        return ascii_str
+
     has_alpha = image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info)
     img = image.convert("RGBA") if has_alpha else image.convert("RGB")
     
     width, height = img.size
+
     
     # Mapeo de bits conforme a la especificación Unicode para patrones Braille (U+2800)
     dot_map = [
@@ -748,16 +870,16 @@ def convert_image_to_braille(image, use_color=False, invert=False):
         
     return ascii_str
 
-def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, os_style=False):
+def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, os_style=False, dither=False):
     """
     Motor clásico: mapeo tonal de píxeles a caracteres ASCII por luminosidad perceptual.
     """
     grayscale_image = image.convert("L")
     
     if not use_color and not binary:
-        # En blanco y negro aplicamos realce de nitidez y contraste para definir bordes
-        grayscale_image = grayscale_image.filter(ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3))
-        grayscale_image = ImageEnhance.Contrast(grayscale_image).enhance(1.5)
+        # En blanco y negro aplicamos normalización dinámica de contraste y enfoque de bordes
+        grayscale_image = ImageOps.autocontrast(grayscale_image, cutoff=1)
+        grayscale_image = grayscale_image.filter(ImageFilter.UnsharpMask(radius=1.5, percent=150, threshold=2))
         
     rgb_image = image.convert("RGB")
     
@@ -773,9 +895,10 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
     elif os_style:
         base_chars = " .-+*=#%@WM" # Rampa clásica estilo Neofetch / OS
     elif not use_color:
-        base_chars = " .:-=+*#%@" # Alta densidad y detalle para escala de grises
+        # Rampa perceptual extendida de 70 niveles de densidad tonal (de menor a mayor cobertura)
+        base_chars = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
     else:
-        base_chars = ASCII_CHARS # Rampa ASCII extendida de alta precisión
+        base_chars = ASCII_CHARS # Rampa ASCII para modo color
     
     chars = base_chars[::-1] if invert else base_chars
     
@@ -789,8 +912,13 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
             
             grayscale_pixel = grayscale_image.getpixel((x, y))
             
-            # Mapear la luminosidad del píxel al índice del carácter
-            index = round(grayscale_pixel / 255 * (len(chars) - 1))
+            # Mapear la luminosidad del píxel al índice del carácter (con tramado si se solicita)
+            if not use_color and dither and not binary:
+                factor = (BAYER_MATRIX[y % 4][x % 4] / 16.0) - 0.5
+                val = max(0, min(255, grayscale_pixel + int(factor * 40)))
+                index = round(val / 255 * (len(chars) - 1))
+            else:
+                index = round(grayscale_pixel / 255 * (len(chars) - 1))
             char = chars[index]
             
             if use_color:
@@ -1077,15 +1205,24 @@ def main():
         except Exception:
             args.width = 90
 
-    # 3. Autodetección de terminal clara (Light mode) para inversión automática de caracteres
-    invert_mode = args.invert or is_light_terminal()
-    
     try:
         image = Image.open(args.image_path)
     except Exception as e:
         # Error al abrir la imagen en la ruta especificada
         print(_("error_open", e))
         sys.exit(1)
+
+    # 3. Autodetección de terminal clara o imagen con fondo blanco plano
+    is_light = is_light_terminal()
+    if not args.color and not args.invert and "-i" not in sys.argv and "--invert" not in sys.argv:
+        # Si la imagen es un JPEG o imagen opaca con fondo predominantemente blanco/claro,
+        # invertimos automáticamente para dibujar los trazos visibles y no un bloque blanco.
+        if is_opaque_light_background(image) and not is_light:
+            invert_mode = True
+        else:
+            invert_mode = is_light
+    else:
+        invert_mode = args.invert or is_light
         
     if args.swap:
         if len(args.swap) % 2 != 0:
@@ -1097,22 +1234,28 @@ def main():
     if not args.raw_colors:
         # Convertir a RGBA para compatibilidad con paletas indexadas y transparencia
         image = image.convert("RGBA")
-        image = ImageEnhance.Color(image).enhance(1.5)
-        image = ImageEnhance.Contrast(image).enhance(1.2)
-        image = ImageEnhance.Sharpness(image).enhance(1.5)
+        if args.color:
+            image = ImageEnhance.Color(image).enhance(1.5)
+            image = ImageEnhance.Contrast(image).enhance(1.2)
+            image = ImageEnhance.Sharpness(image).enhance(1.5)
+        else:
+            # En blanco y negro, optimizamos contraste y nitidez tonal
+            image = ImageEnhance.Contrast(image).enhance(1.3)
+            image = ImageEnhance.Sharpness(image).enhance(1.5)
         
     image = resize_image(image, args.width, args.blocks, args.braille)
     
-    # Difuminado ordenado con matriz de Bayer para simular sombreado retro
-    if args.dither:
+    # Difuminado ordenado con matriz de Bayer en modo color para simular sombreado retro
+    if args.dither and args.color:
         image = apply_bayer_dither(image)
     
     if args.braille:
-        ascii_art = convert_image_to_braille(image, args.color, invert_mode)
+        ascii_art = convert_image_to_braille(image, args.color, invert_mode, dither=args.dither)
     elif args.blocks:
-        ascii_art = convert_image_to_blocks(image)
+        ascii_art = convert_image_to_blocks(image, args.color, invert_mode, dither=args.dither)
     else:
-        ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style)
+        ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style, dither=args.dither)
+
     
     if args.output:
         try:
