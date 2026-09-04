@@ -14,9 +14,10 @@ Unlike traditional ASCII converters that simply map image brightness to characte
 
 * High-fidelity image rendering in the terminal
 * ASCII, Braille and Block-based rendering
+* **Dual Engine Architecture**: Features both a high-fidelity **Linear RGB Color Engine** (HDR curves, sub-pixel color blending) and a native **Monochrome & Manga Engine** (Bayer ordered dithering, line-art preservation).
+* **Engine Selector (`-E`, `--engine`)**: Switch dynamically between `color`, `mono`, `bw`, and `manga`.
 * **OS-Style Rendering (`--os-style`)**: Classic terminal characters (dots, letters) for Neofetch-style logos.
 * **Real-time Color Swapping (`--swap`)**: Dynamically swap up to 5 colors based on 3D Euclidean color distance.
-* **Epic Color Engine (Default)**: Averages colors in Linear RGB space to prevent muddy output, while applying dynamic contrast and saturation (HDR).
 * Configurable output width
 * Truecolor terminal support (24-bit ANSI)
 * Designed for extremely small output sizes
@@ -80,6 +81,16 @@ Enable high-fidelity Braille rendering with Truecolor:
 python3 lumart.py image.png --braille -c
 ```
 
+Render in Manga Screentone mode (Ami-tone dithering + ink lines):
+```bash
+python3 lumart.py image.png -E manga -w 120
+```
+
+Render in pure Monochrome without colors:
+```bash
+python3 lumart.py image.png -E mono --braille -w 100
+```
+
 Force retro OS-style character rendering (useful for OS logos):
 ```bash
 python3 lumart.py image.png --os-style -c
@@ -133,9 +144,10 @@ Having issues with fonts, colors, or missing modules? Check out our [Troubleshoo
 * [x] Braille rendering
 * [x] Block-based rendering
 * [x] Improved perceptual rendering (Linear RGB Engine)
-* [x] Contrast and luminance processing (Epic Engine)
+* [x] Contrast and luminance processing (HDR Color Engine)
+* [x] Dual-Engine Architecture (Color & Native C++ Monochrome/Manga)
 * [x] Real-time color mapping and thresholds
-* [ ] Advanced dithering
+* [x] Advanced ordered dithering (Bayer matrix)
 * [ ] Automatic glyph selection
 * [ ] Image similarity benchmarks
 * [ ] Rendering optimization

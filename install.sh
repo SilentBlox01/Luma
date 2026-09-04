@@ -6,7 +6,7 @@
 # ==============================================================================
 set -e
 
-VERSION="2.1.0"
+VERSION="2.1.1"
 
 # Color helpers
 CYAN='\033[1;36m'
@@ -42,18 +42,18 @@ if [ "${UPDATE_MODE:-0}" -eq 1 ]; then
 fi
 
 if [ "$LANG_MODE" = "es" ]; then
-    MSG_TAGLINE="Motor Épico de Arte para Terminal"
+    MSG_TAGLINE="Motor de Arte para Terminal"
     MSG_START="Iniciando instalación... (abróchense los cinturones)\n"
-    MSG_NO_PYTHON="❌ Error: No tienes Python 3 instalado en tu sistema."
-    MSG_INSTALL_PY="Por favor instala Python 3 con el gestor de paquetes de tu distribución:"
+    MSG_NO_PYTHON="❌ Error: No tienes Python 3 instalado en tu sistema. ¿En qué cueva vives bro?"
+    MSG_INSTALL_PY="Por favor instala Python 3 con el gestor de paquetes de tu distribución antes de llorar:"
     MSG_COPY_LOCAL="📦 Copiando el motor de Luma desde fuente local a"
     MSG_DOWNLOAD="⬇️  Descargando la versión más reciente de Luma v${VERSION} desde GitHub..."
     MSG_CHECK_DEPS="🔍 Verificando dependencias necesarias (Pillow)..."
     MSG_RESOLVING="⚙️  Pillow no detectado. Resolviendo dependencias automáticamente..."
-    MSG_FEDORA="📦 Detectado Fedora/RHEL. Instalando python3-pillow vía dnf (saltándose las restricciones de Red Hat)..."
-    MSG_DEBIAN="📦 Detectado Debian/Ubuntu. Instalando python3-pil vía apt..."
-    MSG_ARCH="📦 Detectado Arch Linux. Sí, ya sabemos que usas Arch... instalando con pacman a la velocidad de la luz..."
-    MSG_SUSE="📦 Detectado openSUSE. Saludos cordiales a los usuarios que usan zypper en el planeta..."
+    MSG_FEDORA="📦 Detectado Fedora/RHEL. Instalando python3-pillow vía dnf (mandando al carajo las restricciones de Red Hat)..."
+    MSG_DEBIAN="📦 Detectado Debian/Ubuntu. Instalando python3-pil vía apt (el confiable que nunca te abandona)..."
+    MSG_ARCH="📦 Detectado Arch Linux. Sí, ya sabemos que usas Arch btw... instalando con pacman a la velocidad de la luz..."
+    MSG_SUSE="📦 Detectado openSUSE. Saludos cordiales a los 3 geckos que usan zypper en este planeta..."
     MSG_PIP="🐍 Intentando instalar con pip de usuario (--break-system-packages) para ignorar restricciones..."
     MSG_VENV="🛡️  Creando entorno virtual aislado en"
     MSG_FAIL="⚠️  Nota: No se pudo instalar Pillow automáticamente."
@@ -62,11 +62,11 @@ if [ "$LANG_MODE" = "es" ]; then
     MSG_SUCCESS="✅ ¡Luma v${VERSION} instalado exitosamente!"
     MSG_READY="Ya puedes usar luma y lumart desde cualquier directorio."
     MSG_PATH_WARN="⚠️  Aviso: INSTALL_DIR no está en tu \$PATH."
-    MSG_PATH_HINT="Agrégalo a tu ~/.bashrc o ~/.zshrc para poder ejecutar los comandos directamente:"
+    MSG_PATH_HINT="Agrégalo a tu ~/.bashrc o ~/.zshrc antes de abrir un issue llorando 'command not found':"
     MSG_UPDATE_HINT="💡 Puedes actualizar Luma a la versión más reciente en cualquier momento con: luma --update"
     MSG_TEST="Prueba rápida para verificar el funcionamiento:"
 else
-    MSG_TAGLINE="Epic Terminal Art Engine"
+    MSG_TAGLINE="Terminal Art Engine"
     MSG_START="Starting installation... (buckle up, magic is about to happen)\n"
     MSG_NO_PYTHON="❌ Error: Python 3 was not found. What cave have you been living in?"
     MSG_INSTALL_PY="Please install Python 3 using your system package manager and try again:"
@@ -130,6 +130,18 @@ else
     curl -fsSL "https://raw.githubusercontent.com/SilentBlox01/Luma/main/lumart.py" -o "$SHARE_DIR/lumart.py"
 fi
 chmod +x "$SHARE_DIR/lumart.py"
+
+# 3b. C++ Monochrome Engine (standalone binary and shared library)
+if [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
+    cp "$SCRIPT_DIR/monochrome.cpp" "$SHARE_DIR/"
+    [ -f "$SCRIPT_DIR/stb_image.h" ] && cp "$SCRIPT_DIR/stb_image.h" "$SHARE_DIR/"
+    [ -f "$SCRIPT_DIR/stb_image_resize2.h" ] && cp "$SCRIPT_DIR/stb_image_resize2.h" "$SHARE_DIR/"
+    if command -v g++ &>/dev/null; then
+        echo "⚡ Compiling native C++ monochrome engine (luma-mono)..."
+        g++ -O3 -std=c++17 -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || true
+        g++ -O3 -std=c++17 -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || true
+    fi
+fi
 
 # 4. Resolve Pillow dependency (auto-resolution)
 echo -e "${MSG_CHECK_DEPS}"

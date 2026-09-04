@@ -14,9 +14,10 @@ A diferencia de los conversores ASCII tradicionales que simplemente mapean el br
 
 * Renderizado de imágenes de alta fidelidad en la terminal
 * Renderizado basado en ASCII, Braille y Bloques
+* **Arquitectura de Motor Dual**: Cuenta con un **Motor de Color RGB Lineal** (curvas HDR y promediado de color sub-píxel) y un **Motor Monocromático y Manga** nativo (dithering ordenado Bayer, preservación de trazo y entintado).
+* **Selector de Motor (`-E`, `--engine`)**: Alterna dinámicamente entre `color`, `mono`, `bw` y `manga`.
 * **Renderizado Estilo OS (`--os-style`)**: Caracteres de terminal clásicos (puntos, letras) para logotipos al estilo Neofetch.
 * **Intercambio de Color en Tiempo Real (`--swap`)**: Intercambia dinámicamente hasta 5 colores basados en distancia de color Euclidiana en 3D.
-* **Motor de Color Épico (Por defecto)**: Promedia colores en el espacio RGB Lineal para evitar resultados opacos, al mismo tiempo que aplica contraste y saturación dinámica (HDR).
 * Ancho de salida configurable
 * Soporte para terminales Truecolor (ANSI 24-bit)
 * Diseñado para tamaños de salida extremadamente pequeños
@@ -80,6 +81,16 @@ Habilitar renderizado Braille de alta fidelidad con Truecolor:
 python3 lumart.py image.png --braille -c
 ```
 
+Renderizar con el motor Manga Screentone (tramado de semitono y trazo de tinta):
+```bash
+python3 lumart.py image.png -E manga -w 120
+```
+
+Renderizar en monocromático puro sin colores:
+```bash
+python3 lumart.py image.png -E mono --braille -w 100
+```
+
 Forzar renderizado de caracteres estilo OS retro (útil para logotipos de SO):
 ```bash
 python3 lumart.py image.png --os-style -c
@@ -133,9 +144,10 @@ Luma, por lo tanto, se enfoca en la **fidelidad perceptual**, utilizando espacio
 * [x] Renderizado Braille
 * [x] Renderizado basado en bloques
 * [x] Renderizado perceptual mejorado (Motor RGB Lineal)
-* [x] Procesamiento de contraste y luminancia (Motor Épico)
+* [x] Procesamiento de contraste y luminancia (Motor de Color HDR)
+* [x] Arquitectura de Motor Dual (Color y Monocromático/Manga nativo C++)
 * [x] Mapeo de colores en tiempo real y umbrales
-* [ ] Dithering avanzado
+* [x] Dithering ordenado avanzado (matriz de Bayer)
 * [ ] Selección automática de glifos
 * [ ] Benchmarks de similitud de imagen
 * [ ] Optimización de renderizado

@@ -41,5 +41,7 @@ jobs:
           dist/*.rpm
           dist/arch/PKGBUILD
           dist/lumart
+          dist/luma-mono
+          dist/libmonochrome.so
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

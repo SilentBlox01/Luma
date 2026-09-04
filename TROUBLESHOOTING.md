@@ -36,7 +36,7 @@ If an image looks distorted, wrong, or fails to render, run this quick check:
 ## 2. Installation & Dependency Resolution
 
 ### The Universal Plug & Play Installer
-Luma includes an automated installer that handles permissions, path links, and system dependencies across all major distributions:
+Luma includes an automated installer that handles permissions, path links, and system dependencies across all major distributions (I think lol):
 ```bash
 # From local repository:
 ./install.sh
@@ -67,7 +67,7 @@ sudo apt update && sudo apt install -y python3-pil
 ```
 
 #### Arch Linux / Manjaro / EndeavourOS
-*(Yes, we know you use Arch btw, congrats, now please stop bringing it up at parties).*
+*(Yes, we know you use Arch btw, congrats, now please stop bringing it up at parties, girls ain't looking at us anymore).*
 ```bash
 # Recommended native package:
 sudo pacman -S --noconfirm python-pillow
@@ -146,7 +146,7 @@ Luma performs color blending inside **Linear RGB** rather than standard sRGB:
 - **The Luma Fix**: All pixel sub-blocks are linearized ($C_{\text{linear}} = C_{\text{srgb}}^{2.2}$), averaged with physically accurate light summation, and converted back to sRGB.
 
 ### Disabling Image Pre-Processing (`--raw-colors`)
-By default, Luma's *Epic Color Engine* dynamically boosts saturation ($1.5\times$), contrast ($1.2\times$), and sharpness ($1.5\times$) to compensate for dark terminal backgrounds.
+By default, Luma's *Color Engine* dynamically boosts saturation ($1.5\times$), contrast ($1.2\times$), and sharpness ($1.5\times$) to compensate for dark terminal backgrounds.
 If your input image is already saturated or contains delicate pastel shades that look over-processed:
 ```bash
 luma input.png --raw-colors --braille
@@ -154,28 +154,35 @@ luma input.png --raw-colors --braille
 
 ---
 
-## 5. Black & White, Manga Screentone & Braille Art
+## 5. Black & White, Manga Screentone & Dual-Engine Architecture
 
-Luma features a dedicated high-definition black-and-white engine designed to mimic traditional Japanese manga screen-tones (*Ami-tone*).
+Starting with v2.1.1, Luma features a **Dual-Engine Architecture** giving you explicit control over rendering pipelines:
+1. **The Color Engine** (Python): Linear RGB blending, HDR contrast curves, and ANSI 24-bit TrueColor.
+2. **The Monochrome Engine** (Native C++ / Python fallback): Specialized for Manga screen-tones (*Ami-tone*), Sobel edge preservation, ordered dithering, and pure black-and-white ink.
 
-### The Manga Art Pipeline (`--braille --no-color -d`)
-To get authentic manga/anime ASCII art:
+### Selecting Engines with `-E` / `--engine`
+You can explicitly choose the engine using the `-E` or `--engine` flag:
+- `-E color` (Default): Uses the high-fidelity color engine.
+- `-E mono` or `-E bw`: Forces the monochrome rendering pipeline without colors.
+- `-E manga`: Enables the manga screentone engine (high-contrast line sharpening + screen dithering).
+
 ```bash
-luma anime_girl.png --braille --no-color -d -w 140
+# Explicit manga screentone mode:
+luma anime_girl.png -E manga -w 120
+
+# Pure monochrome Braille:
+luma illustration.png -E mono --braille -w 100
 ```
-- **Unsharp Masking**: Edge sharpening highlights line-art boundaries before downscaling (sharper than a freshly forged katana).
-- **Contrast Stretching**: Pushes faint paper textures to pure white or black.
-- **Bayer Matrix Ordered Dithering (`-d`)**: Uses a $4 \times 4$ dispersed dither matrix to translate continuous grayscale tones into variable dot density.
+
+### Native C++ Acceleration (`luma-mono` and `libmonochrome.so`)
+If `libmonochrome.so` or `luma-mono` is present next to the executable, Luma will automatically offload monochrome calculations to the compiled C++ engine for near-instant rendering with zero Python overhead.
 
 ### Light vs Dark Terminals (`-i` / `--invert`)
-- **Dark Terminal (Default)**: Bright pixels are represented by active Braille dots (`⣿`, `⠶`). Dark pixels remain blank spaces, letting the terminal background serve as black ink.
-- **Light Terminal (White/Cream Background)**: Invert the logic using `-i`:
+- **Dark Terminal (Default)**: Dark image contours are rendered as luminous Braille dots (`⣿`, `⠶`) or characters against the dark background.
+- **Light Terminal (White/Cream Background)**: Invert the dot logic using `-i`:
   ```bash
-  luma image.png --braille --no-color -d -i
+  luma image.png -E manga -i
   ```
-
-> [!CAUTION]
-> If you are unironically using a white/light terminal background in 2026, please seek professional medical help. In the meantime, pass `-i` / `--invert` to prevent immediate retina evaporation.
 
 ---
 
@@ -204,7 +211,7 @@ If an image is rendered wider than your terminal window, each row wraps around, 
 
 ## 7. Color Swapping (`--swap`) Mechanics
 
-The `--swap` option dynamically replaces specific color ranges in the image using 3D Euclidean distance in RGB color space (Pythagoras rolling in his grave knowing his theorem is being used to recolor anime waifus).
+The `--swap` option dynamically replaces specific color ranges in the image using 3D Euclidean distance in RGB color space (Pythagoras rolling in his grave knowing his theorem is being used to recolor anime waifus in a terminal 😭).
 
 ### Rules:
 1. Arguments must be provided in **pairs**: `[color_to_replace] [new_color]`.
@@ -263,22 +270,25 @@ rm -rf ~/.config/luma
 ## 9. Command Reference & Cheat Sheet
 
 ```bash
-# 1. High-Resolution Epic Color Art (Default)
+# 1. High-Resolution Color Art (Default Color Engine)
 luma photo.jpg --braille
 
-# 2. Maximum ANSI Pixel Density (Half-Blocks)
+# 2. Manga Screentone Engine
+luma anime.png -E manga -w 120
+
+# 3. Maximum ANSI Pixel Density (Half-Blocks)
 luma photo.jpg --blocks -w 120
 
-# 3. True Manga / Anime B&W Braille with Screentone
-luma anime.png --braille --no-color -d -w 140
+# 4. Pure Monochrome Braille
+luma sketch.png -E mono --braille -w 100
 
-# 4. Classic Terminal ASCII Art
+# 5. Classic Terminal ASCII Art
 luma logo.png -w 80
 
-# 5. Save directly to file without polluting terminal buffer
+# 6. Save directly to file without polluting terminal buffer
 luma wallpaper.png --blocks -w 180 -o output.txt
 
-# 6. View saved color art
+# 7. View saved color art
 cat output.txt
 # or with scrolling:
 less -R output.txt

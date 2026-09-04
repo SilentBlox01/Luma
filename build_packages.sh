@@ -3,7 +3,7 @@ set -e
 
 # Detect version dynamically from lumart.py
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
-LUMA_VERSION=$(grep -m1 -oP 'VERSION\s*=\s*"\K[^"]+' "$SCRIPT_DIR/lumart.py" 2>/dev/null || echo "2.1.0")
+LUMA_VERSION=$(grep -m1 -oP 'VERSION\s*=\s*"\K[^"]+' "$SCRIPT_DIR/lumart.py" 2>/dev/null || echo "2.1.1")
 
 TARGET="auto"
 for arg in "$@"; do
@@ -57,6 +57,12 @@ pyinstaller --clean --onefile --name lumart "$SCRIPT_DIR/lumart.py"
 
 mkdir -p dist
 
+if command -v g++ &>/dev/null && [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
+    echo "Compiling native C++ monochrome engine (luma-mono)..."
+    g++ -O3 -std=c++17 -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/luma-mono
+    g++ -O3 -std=c++17 -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/libmonochrome.so
+fi
+
 # 1. DEB Package
 if [ "$TARGET" = "deb" ] || [ "$TARGET" = "all" ]; then
     echo "=== Creating DEB package ==="
@@ -64,13 +70,20 @@ if [ "$TARGET" = "deb" ] || [ "$TARGET" = "all" ]; then
     mkdir -p "build/deb/lumart-$LUMA_VERSION/usr/bin"
     cp dist/lumart "build/deb/lumart-$LUMA_VERSION/usr/bin/"
     ln -sf lumart "build/deb/lumart-$LUMA_VERSION/usr/bin/luma"
+    if [ -f "dist/luma-mono" ]; then
+        cp dist/luma-mono "build/deb/lumart-$LUMA_VERSION/usr/bin/"
+    fi
+    if [ -f "dist/libmonochrome.so" ]; then
+        mkdir -p "build/deb/lumart-$LUMA_VERSION/usr/lib"
+        cp dist/libmonochrome.so "build/deb/lumart-$LUMA_VERSION/usr/lib/"
+    fi
     mkdir -p "build/deb/lumart-$LUMA_VERSION/DEBIAN"
     cat << EOF > "build/deb/lumart-$LUMA_VERSION/DEBIAN/control"
 Package: lumart
 Version: $LUMA_VERSION
 Architecture: amd64
 Maintainer: SilentBlox_01
-Description: Epic Terminal Art Engine (Color Swap & Neofetch OS Style)
+Description: High-Fidelity Terminal Art Engine (Color Swap, Neofetch OS Style & Native C++ B&W Engine)
 EOF
     # Use --root-owner-group to prevent owner warning
     dpkg-deb --root-owner-group --build "build/deb/lumart-$LUMA_VERSION"
@@ -87,10 +100,10 @@ if [ "$TARGET" = "rpm" ] || [ "$TARGET" = "all" ]; then
 Name:           lumart
 Version:        $LUMA_VERSION
 Release:        1
-Summary:        Epic Terminal Art Engine
+Summary:        High-Fidelity Terminal Art Engine
 License:        AGPL
 %description
-Epic Terminal Art Engine (Color Swap & Neofetch OS Style)
+High-Fidelity Terminal Art Engine (Color Swap & Neofetch OS Style)
 %install
 mkdir -p %{buildroot}/usr/bin
 cp %{_sourcedir}/lumart %{buildroot}/usr/bin/
@@ -117,7 +130,7 @@ if [ "$TARGET" = "arch" ] || [ "$TARGET" = "all" ]; then
 pkgname=lumart-bin
 pkgver=$LUMA_VERSION
 pkgrel=1
-pkgdesc="Epic Terminal Art Engine (Color Swap & Neofetch OS Style)"
+pkgdesc="High-Fidelity Terminal Art Engine (Color Swap & Neofetch OS Style)"
 arch=('x86_64')
 license=('AGPL')
 source=("lumart")

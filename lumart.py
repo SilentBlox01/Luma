@@ -8,11 +8,11 @@ try:
 except ImportError:
     import subprocess
     import shutil
-    # Intento de auto-instalación si Pillow no está presente en el entorno
-    print("[luma] Pillow no está instalado. Intentando resolver dependencias automáticamente...")
+    # ¿Cómo coño alguien pretende renderizar imágenes sin Pillow? Intentemos salvarle el pellejo antes de que llore.
+    print("[luma] Pillow no está instalado. ¿En qué cueva vives? Arreglando el desastre...")
     installed = False
     
-    # 1. Intentar pip con --user y --break-system-packages (omitiendo restricciones PEP 668)
+    # 1. Intentar pip con --user y --break-system-packages (al carajo con PEP 668 y los puristas de Python)
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "Pillow", "--user", "--break-system-packages", "-q"])
         installed = True
@@ -29,19 +29,19 @@ except ImportError:
 
     # 3. Gestores de paquetes nativos del sistema
     if not installed:
-        if shutil.which("dnf"):  # Fedora / RHEL
+        if shutil.which("dnf"):  # Fedora / RHEL (por qué Red Hat nos odia tanto)
             try:
                 subprocess.check_call(["sudo", "dnf", "install", "-y", "python3-pillow"])
                 installed = True
             except Exception:
                 pass
-        elif shutil.which("apt-get"):  # Debian / Ubuntu
+        elif shutil.which("apt-get"):  # Debian / Ubuntu (el viejo y confiable apt que te aguanta todo)
             try:
                 subprocess.check_call(["sudo", "apt-get", "install", "-y", "python3-pil"])
                 installed = True
             except Exception:
                 pass
-        elif shutil.which("pacman"):  # Arch Linux (por cierto, uso Arch)
+        elif shutil.which("pacman"):  # Arch Linux (sí, ya sabemos que usas Arch btw y te compilas hasta el café)
             try:
                 subprocess.check_call(["sudo", "pacman", "-S", "--noconfirm", "python-pillow"])
                 installed = True
@@ -59,7 +59,7 @@ except ImportError:
 
     from PIL import Image, ImageEnhance, ImageOps, ImageFilter
 
-VERSION = "2.1.0"
+VERSION = "2.1.1"
 GITHUB_REPO = "SilentBlox01/Luma"
 GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/lumart.py"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
@@ -81,96 +81,99 @@ COLOR_MAP = {
 TRANSLATIONS = {
     "en": {
         "pillow_not_found": "[luma] Pillow not found. Installing dependencies...",
-        "usage": "Usage: lumart [options] <image_path>\n\nTry 'lumart --help' for more options.",
-        "desc": "Lumart - Epic Terminal Art Engine",
+        "usage": "Usage: lumart [options] <image_path>\n\nTry 'lumart --help' if you're too lazy to read docs.",
+        "desc": "Lumart - Terminal Art Engine made by and for humans",
         "help_help": "Show this help message and exit.",
         "help_version": "Show program's version number and exit.",
         "help_image_path": "Path to the input image file (works best with transparent backgrounds).",
         "help_width": "Width of the output ASCII art (in characters). Default: 90",
-        "help_color": "Output ASCII art in color.",
+        "help_engine": "Select rendering engine: 'color' (default), 'mono' (B&W), or 'manga'.",
+        "help_color": "Output ASCII art in color (Color Engine).",
         "help_no_color": "Disable color output and use B&W engine.",
         "help_invert": "Invert the ASCII characters (useful for dark terminals).",
         "help_output": "Save the ASCII art to a file instead of printing to the console.",
         "help_binary": "Use only 1s and 0s for the ASCII characters.",
         "help_blocks": "Use half-blocks for high resolution true-color (overrides binary and ascii).",
         "help_braille": "Use Braille characters for smooth edges and high resolution shape (overrides binary).",
-        "help_epic": "(Deprecated) Epic Color Engine is now enabled by default.",
-        "help_raw_colors": "Disable the Epic Color Engine and use the original raw image colors.",
+        "help_raw_colors": "Disable enhanced color processing and use the original raw image colors.",
         "help_os_style": "Use classic Neofetch/OS style characters (dots, letters, shapes).",
         "help_swap": "Swap colors using names (e.g. --swap purple pink blue red). Must provide an even number of arguments.",
         "help_dither": "Apply ordered dithering (Bayer matrix) for retro shading effects.",
+        "help_manga": "Authentic Manga/Anime style (clean lineart, screentone shading).",
         "help_lang": "Force a specific language (en, es, pt, ru, ja, de, ko).",
-        "error_open": "Error opening image: {}",
-        "error_swap": "Error: --swap requires pairs of colors (e.g. --swap purple pink).",
+        "error_open": "❌ Where the hell is the image? Could not open it: {}",
+        "error_swap": "❌ Pass pairs of colors to --swap damn it (e.g. --swap purple pink). I can't read your mind.",
         "saved_to": "ASCII art saved to {}",
-        "error_save": "Error saving to file: {}",
+        "error_save": "❌ Failed to save that damn file: {}",
         "lang_success": "Language successfully set to '{}'.",
-        "lang_error": "Error: Language '{}' is not supported.",
+        "lang_error": "❌ Error: Language '{}' is not supported, stop making things up.",
         "help_update": "Check for updates and self-upgrade Luma.",
         "update_checking": "🔍 Checking for updates...",
         "update_already_latest": "✅ Luma is already up to date (v{}).",
         "update_downloading": "⬇️  Downloading and installing Luma v{}...",
         "update_success": "🎉 Successfully updated Luma from v{} to v{}!",
         "update_error": "❌ Error checking for updates: {}",
-        "update_permission_error": "⚠️  Permission denied updating {}. Try running: sudo lumart --update",
+        "update_permission_error": "⚠️  Permission denied updating {}. Slap sudo on it: sudo lumart --update",
         "update_notice": "💡 A new version of Luma is available: v{} (run 'luma --update' to upgrade)"
     },
     "es": {
         "pillow_not_found": "[luma] Pillow no encontrado. Instalando dependencias...",
-        "usage": "Uso: lumart [opciones] <ruta_imagen>\n\nIntenta 'lumart --help' para más opciones.",
-        "desc": "Lumart - Motor Épico de Arte de Terminal",
+        "usage": "Uso: lumart [opciones] <ruta_imagen>\n\nIntenta 'lumart --help' si te da pereza leer la documentación.",
+        "desc": "Lumart - Motor de Arte de Terminal hecho por y para humanos",
         "help_help": "Mostrar este mensaje de ayuda y salir.",
         "help_version": "Mostrar el número de versión del programa y salir.",
         "help_image_path": "Ruta al archivo de imagen de entrada (funciona mejor con fondos transparentes).",
         "help_width": "Ancho del arte ASCII de salida (en caracteres). Por defecto: 90",
-        "help_color": "Generar arte ASCII en color.",
+        "help_engine": "Seleccionar motor de renderizado: 'color' (por defecto), 'mono' (blanco y negro) o 'manga'.",
+        "help_color": "Generar arte ASCII en color (Motor de Color).",
         "help_no_color": "Desactivar salida de color y usar motor blanco y negro.",
         "help_invert": "Invertir los caracteres ASCII (útil para terminales oscuras).",
         "help_output": "Guardar el arte ASCII en un archivo en lugar de imprimirlo en consola.",
         "help_binary": "Usar solo 1s y 0s para los caracteres ASCII.",
         "help_blocks": "Usar medio-bloques para alta resolución (sobrescribe binary y ascii).",
         "help_braille": "Usar caracteres Braille para bordes suaves y formas de alta resolución.",
-        "help_epic": "(Obsoleto) El Motor Épico de Color ahora está activado por defecto.",
-        "help_raw_colors": "Desactiva el Motor Épico y utiliza los colores originales sin procesar.",
+        "help_raw_colors": "Desactiva el realce de color y utiliza los colores originales sin procesar.",
         "help_os_style": "Usar caracteres clásicos estilo Neofetch/OS (puntos, letras, formas).",
         "help_swap": "Intercambiar colores por nombre (ej. --swap purple pink blue red). Debe ser un número par de argumentos.",
         "help_dither": "Aplicar difuminado ordenado (matriz de Bayer) para efectos de sombreado retro.",
+        "help_manga": "Estilo Manga/Anime auténtico (trazos limpios, sombreado screentone).",
         "help_lang": "Forzar un idioma específico (en, es, pt, ru, ja, de, ko).",
-        "error_open": "Error abriendo imagen: {}",
-        "error_swap": "Error: --swap requiere pares de colores (ej: --swap purple pink).",
+        "error_open": "❌ ¿Dónde coño está la imagen? No se pudo abrir: {}",
+        "error_swap": "❌ Pásame pares de colores a --swap carajo (ej: --swap purple pink). No leo mentes.",
         "saved_to": "Arte ASCII guardado en {}",
-        "error_save": "Error guardando en archivo: {}",
+        "error_save": "❌ No se pudo guardar esa mierda en el archivo: {}",
         "lang_success": "Idioma cambiado exitosamente a '{}'.",
-        "lang_error": "Error: El idioma '{}' no está soportado.",
+        "lang_error": "❌ Error: El idioma '{}' no existe ni en tus sueños.",
         "help_update": "Buscar actualizaciones y actualizar Luma automáticamente.",
         "update_checking": "🔍 Buscando actualizaciones...",
         "update_already_latest": "✅ Luma ya está en la versión más reciente (v{}).",
         "update_downloading": "⬇️  Descargando e instalando Luma v{}...",
         "update_success": "🎉 ¡Luma actualizado exitosamente de v{} a v{}!",
         "update_error": "❌ Error al verificar actualizaciones: {}",
-        "update_permission_error": "⚠️  Permiso denegado al actualizar {}. Prueba ejecutando: sudo lumart --update",
+        "update_permission_error": "⚠️  Permiso denegado al actualizar {}. Métele sudo carajo, no seas tímido: sudo lumart --update",
         "update_notice": "💡 Nueva versión de Luma disponible: v{} (ejecuta 'luma --update' para actualizar)"
     },
     "pt": {
         "pillow_not_found": "[luma] Pillow não encontrado. Instalando dependências...",
         "usage": "Uso: lumart [opções] <caminho_imagem>\n\nTente 'lumart --help' para mais opções.",
-        "desc": "Lumart - Motor Épico de Arte de Terminal",
+        "desc": "Lumart - Motor de Arte de Terminal",
         "help_help": "Mostrar esta mensagem de ajuda e sair.",
         "help_version": "Mostrar o número da versão do programa e sair.",
         "help_image_path": "Caminho para o arquivo de imagem de entrada (funciona melhor com fundos transparentes).",
         "help_width": "Largura da arte ASCII de saída (em caracteres). Padrão: 90",
-        "help_color": "Gerar arte ASCII em cores.",
+        "help_engine": "Selecionar motor de renderização: 'color' (padrão), 'mono' (preto e branco) ou 'manga'.",
+        "help_color": "Gerar arte ASCII em cores (Motor de Cores).",
         "help_no_color": "Desativar saída colorida e usar motor preto e branco.",
         "help_invert": "Inverter os caracteres ASCII (útil para terminais escuros).",
         "help_output": "Salvar a arte ASCII em um arquivo em vez de imprimir no console.",
         "help_binary": "Usar apenas 1s e 0s para os caracteres ASCII.",
         "help_blocks": "Usar meios-blocos para cores reais de alta resolução (sobrescreve binary e ascii).",
         "help_braille": "Usar caracteres Braille para bordas suaves e formas de alta resolução.",
-        "help_epic": "(Obsoleto) O Motor Épico de Cor agora está ativado por padrão.",
-        "help_raw_colors": "Desativar o Motor Épico e usar as cores originais sem processamento.",
+        "help_raw_colors": "Desativar o realce de cor e usar as cores originais sem processamento.",
         "help_os_style": "Usar caracteres clássicos estilo Neofetch/OS (pontos, letras, formas).",
         "help_swap": "Trocar cores usando nomes (ex: --swap purple pink blue red). Deve fornecer um número par de argumentos.",
         "help_dither": "Aplicar pontilhamento ordenado (matriz de Bayer) para efeitos de sombreamento retrô.",
+        "help_manga": "Estilo Manga/Anime autêntico (traços limpos, sombreamento retícula).",
         "help_lang": "Forçar um idioma específico (en, es, pt, ru, ja, de, ko).",
         "error_open": "Erro ao abrir a imagem: {}",
         "error_swap": "Erro: --swap requer pares de cores (ex: --swap purple pink).",
@@ -190,23 +193,24 @@ TRANSLATIONS = {
     "ru": {
         "pillow_not_found": "[luma] Pillow не найден. Установка зависимостей...",
         "usage": "Использование: lumart [опции] <путь_к_изображению>\n\nПопробуйте 'lumart --help' для дополнительных опций.",
-        "desc": "Lumart - Эпический движок терминального искусства",
+        "desc": "Lumart - Движок терминального искусства",
         "help_help": "Показать это справочное сообщение и выйти.",
         "help_version": "Показать номер версии программы и выйти.",
         "help_image_path": "Путь к исходному файлу изображения (лучше всего работает с прозрачным фоном).",
         "help_width": "Ширина выходного ASCII-арта (в символах). По умолчанию: 90",
-        "help_color": "Выводить ASCII-арт в цвете.",
+        "help_engine": "Выбрать движок рендеринга: 'color' (по умолчанию), 'mono' (ч/б) или 'manga'.",
+        "help_color": "Выводить ASCII-арт в цвете (Цветовой движок).",
         "help_no_color": "Отключить цветной вывод и использовать черно-белый движок.",
         "help_invert": "Инвертировать символы ASCII (полезно для темных терминалов).",
         "help_output": "Сохранить ASCII-арт в файл вместо вывода в консоль.",
         "help_binary": "Использовать только 1 и 0 для символов ASCII.",
         "help_blocks": "Использовать полублоки для высокого разрешения (переопределяет binary и ascii).",
         "help_braille": "Использовать шрифт Брайля для сглаженных краев и высокого разрешения.",
-        "help_epic": "(Устарело) Эпический цветовой движок теперь включен по умолчанию.",
-        "help_raw_colors": "Отключить Эпический движок и использовать исходные цвета без обработки.",
+        "help_raw_colors": "Отключить улучшение цветов и использовать исходные цвета без обработки.",
         "help_os_style": "Использовать классические символы в стиле Neofetch/OS (точки, буквы, формы).",
         "help_swap": "Менять цвета по названию (напр. --swap purple pink blue red). Должно быть четное количество аргументов.",
         "help_dither": "Применить упорядоченное сглаживание (матрица Байера) для эффектов ретро-затенения.",
+        "help_manga": "Стиль манги/аниме (чистый лайн-арт, скринтоны).",
         "help_lang": "Принудительно установить язык (en, es, pt, ru, ja, de, ko).",
         "error_open": "Ошибка при открытии изображения: {}",
         "error_swap": "Ошибка: --swap требует пары цветов (напр. --swap purple pink).",
@@ -226,23 +230,24 @@ TRANSLATIONS = {
     "ja": {
         "pillow_not_found": "[luma] Pillowが見つかりません。依存関係をインストールしています...",
         "usage": "使用法: lumart [オプション] <画像パス>\n\n詳細なオプションについては 'lumart --help' をお試しください。",
-        "desc": "Lumart - エピックターミナルアートエンジン",
+        "desc": "Lumart - ターミナルアートエンジン",
         "help_help": "このヘルプメッセージを表示して終了します。",
         "help_version": "プログラムのバージョン番号を表示して終了します。",
         "help_image_path": "入力画像ファイルへのパス（透明な背景が最適です）。",
         "help_width": "出力するASCIIアートの幅（文字数）。デフォルト: 90",
-        "help_color": "ASCIIアートをカラーで出力します。",
+        "help_engine": "レンダリングエンジンの選択: 'color' (デフォルト), 'mono' (白黒), 'manga' (マンガ)。",
+        "help_color": "ASCIIアートをカラーで出力します (カラーエンジン)。",
         "help_no_color": "カラー出力を無効にし、白黒エンジンを使用します。",
         "help_invert": "ASCII文字を反転します（暗いターミナルで便利です）。",
         "help_output": "コンソールに出力する代わりに、ASCIIアートをファイルに保存します。",
         "help_binary": "ASCII文字として1と0のみを使用します。",
         "help_blocks": "高解像度のためにハーフブロックを使用します（binaryとasciiを上書きします）。",
         "help_braille": "滑らかなエッジと高解像度の形状のために点字文字を使用します。",
-        "help_epic": "（非推奨）エピックカラーエンジンは現在デフォルトで有効になっています。",
-        "help_raw_colors": "エピックエンジンを無効にし、元の画像の色を処理なしで使用します。",
+        "help_raw_colors": "カラー補正を無効にし、元の画像の色を処理なしで使用します。",
         "help_os_style": "クラシックなNeofetch/OSスタイルの文字（ドット、文字、図形）を使用します。",
         "help_swap": "名前を使用して色を交換します（例: --swap purple pink blue red）。偶数個の引数を指定する必要があります。",
         "help_dither": "レトロなシェーディング効果のために、組織的ディザリング（Bayerマトリックス）を適用します。",
+        "help_manga": "本物のマンガ/アニメスタイル (クリーンな線画、スクリーントーン)。",
         "help_lang": "特定の言語を強制します（en, es, pt, ru, ja, de, ko）。",
         "error_open": "画像を開く際のエラー: {}",
         "error_swap": "エラー: --swapには色のペアが必要です（例: --swap purple pink）。",
@@ -262,23 +267,24 @@ TRANSLATIONS = {
     "de": {
         "pillow_not_found": "[luma] Pillow nicht gefunden. Installiere Abhängigkeiten...",
         "usage": "Verwendung: lumart [Optionen] <bildpfad>\n\nVersuche 'lumart --help' für weitere Optionen.",
-        "desc": "Lumart - Epische Terminal-Kunst-Engine",
+        "desc": "Lumart - Terminal-Kunst-Engine",
         "help_help": "Diese Hilfemeldung anzeigen und beenden.",
         "help_version": "Versionsnummer des Programms anzeigen und beenden.",
         "help_image_path": "Pfad zur Eingabebilddatei (funktioniert am besten mit transparentem Hintergrund).",
         "help_width": "Breite der ASCII-Kunst (in Zeichen). Standard: 90",
-        "help_color": "ASCII-Kunst in Farbe ausgeben.",
+        "help_engine": "Rendering-Engine auswählen: 'color' (Standard), 'mono' (Schwarz-Weiß) oder 'manga'.",
+        "help_color": "ASCII-Kunst in Farbe ausgeben (Farb-Engine).",
         "help_no_color": "Farbausgabe deaktivieren und Schwarz-Weiß-Engine verwenden.",
         "help_invert": "ASCII-Zeichen umkehren (nützlich für dunkle Terminals).",
         "help_output": "ASCII-Kunst in einer Datei speichern, anstatt sie auf der Konsole auszugeben.",
         "help_binary": "Nur 1en und 0en für die ASCII-Zeichen verwenden.",
         "help_blocks": "Halbblöcke für hohe Auflösung verwenden (überschreibt binary und ascii).",
         "help_braille": "Braille-Zeichen für weiche Kanten und hohe Auflösung verwenden.",
-        "help_epic": "(Veraltet) Die Epische Farb-Engine ist jetzt standardmäßig aktiviert.",
-        "help_raw_colors": "Epische Engine deaktivieren und die ursprünglichen Bildfarben ohne Bearbeitung verwenden.",
+        "help_raw_colors": "Farbverbesserung deaktivieren und die ursprünglichen Bildfarben verwenden.",
         "help_os_style": "Klassische Neofetch/OS-Zeichen (Punkte, Buchstaben, Formen) verwenden.",
         "help_swap": "Farben nach Name tauschen (z.B. --swap purple pink blue red). Es muss eine gerade Anzahl von Argumenten angegeben werden.",
         "help_dither": "Geordnetes Dithering (Bayer-Matrix) für Retro-Schattierungseffekte anwenden.",
+        "help_manga": "Authentischer Manga/Anime-Stil (saubere Linienführung, Rastertönung).",
         "help_lang": "Eine bestimmte Sprache erzwingen (en, es, pt, ru, ja, de, ko).",
         "error_open": "Fehler beim Öffnen des Bildes: {}",
         "error_swap": "Fehler: --swap benötigt Farbpaare (z.B. --swap purple pink).",
@@ -298,23 +304,24 @@ TRANSLATIONS = {
     "ko": {
         "pillow_not_found": "[luma] Pillow를 찾을 수 없습니다. 종속성을 설치하는 중...",
         "usage": "사용법: lumart [옵션] <이미지_경로>\n\n자세한 옵션은 'lumart --help'를 시도해 보세요.",
-        "desc": "Lumart - 에픽 터미널 아트 엔진",
+        "desc": "Lumart - 터미널 아트 엔진",
         "help_help": "이 도움말 메시지를 표시하고 종료합니다.",
         "help_version": "프로그램의 버전 번호를 표시하고 종료합니다.",
         "help_image_path": "입력 이미지 파일의 경로입니다 (투명한 배경이 가장 좋습니다).",
         "help_width": "출력 ASCII 아트의 너비(문자 수)입니다. 기본값: 90",
-        "help_color": "컬러로 ASCII 아트를 출력합니다.",
+        "help_engine": "렌더링 엔진 선택: 'color' (기본값), 'mono' (흑백) 또는 'manga'.",
+        "help_color": "컬러로 ASCII 아트를 출력합니다 (컬러 엔진).",
         "help_no_color": "컬러 출력을 비활성화하고 흑백 엔진을 사용합니다.",
         "help_invert": "ASCII 문자를 반전시킵니다(어두운 터미널에 유용).",
         "help_output": "콘솔에 출력하는 대신 ASCII 아트를 파일에 저장합니다.",
         "help_binary": "ASCII 문자에 1과 0만 사용합니다.",
         "help_blocks": "고해상도 트루컬러를 위해 하프 블록을 사용합니다(binary 및 ascii 덮어쓰기).",
         "help_braille": "부드러운 가장자리와 고해상도 모양을 위해 점자 문자를 사용합니다.",
-        "help_epic": "(사용되지 않음) 에픽 컬러 엔진이 이제 기본적으로 활성화됩니다.",
-        "help_raw_colors": "에픽 엔진을 비활성화하고 처리 없이 원래 이미지 색상을 사용합니다.",
+        "help_raw_colors": "컬러 향상을 비활성화하고 처리 없이 원래 이미지 색상을 사용합니다.",
         "help_os_style": "클래식 Neofetch/OS 스타일 문자(점, 글자, 도형)를 사용합니다.",
         "help_swap": "이름을 사용하여 색상을 교환합니다(예: --swap purple pink blue red). 짝수 개의 인수를 제공해야 합니다.",
         "help_dither": "레트로 셰이딩 효과를 위해 정렬된 디더링(Bayer 행렬)을 적용합니다.",
+        "help_manga": "정통 만화/애니메이션 스타일 (깔끔한 라인아트, 스크린톤).",
         "help_lang": "특정 언어를 강제 적용합니다(en, es, pt, ru, ja, de, ko).",
         "error_open": "이미지 열기 오류: {}",
         "error_swap": "오류: --swap에는 색상 쌍이 필요합니다(예: --swap purple pink).",
@@ -390,7 +397,8 @@ def is_light_terminal():
         parts = colorfgbg.split(";")
         try:
             bg = int(parts[-1])
-            # Códigos ANSI estándar para fondos claros: 7 (blanco/gris claro), 15 (blanco brillante)
+            # Códigos ANSI para fondos claros: 7 (blanco/gris claro), 15 (blanco brillante)
+            # Si alguien usa fondo blanco en 2026, invertimos para salvarle las retinas al psicópata
             if bg in (7, 15):
                 return True
         except ValueError:
@@ -426,7 +434,7 @@ def apply_color_swap(image, swap_args):
             if a == 0: continue
             
             for src_rgb, dst_rgb in swaps:
-                # Distancia euclidiana 3D para evaluar similitud cromática en espacio RGB
+                # Pitágoras revolcándose en su tumba al ver su teorema usado para cambiarle el pelo a monas chinas
                 dist = ((r - src_rgb[0])**2 + (g - src_rgb[1])**2 + (b - src_rgb[2])**2)**0.5
                 if dist < THRESHOLD:
                     # Ajuste de brillo relativo para conservar sombras y luces de la imagen original
@@ -757,7 +765,7 @@ def convert_image_to_braille(image, use_color=False, invert=False):
                     dx = i % 2
                     if not use_color:
                         lum = (cell_pixels[i][0] * 0.299 + cell_pixels[i][1] * 0.587 + cell_pixels[i][2] * 0.114)
-                        is_drawn = (lum < 128) if invert else (lum >= 128)
+                        is_drawn = (lum >= 128) if invert else (lum < 128)
                         if is_drawn and alphas[i] >= 128:
                             braille_val += dot_map[dy][dx]
                     else:
@@ -947,7 +955,7 @@ def fetch_latest_version():
             m_ver = re.search(r'(?:VERSION|__version__)\s*=\s*["\']v?(\d+\.\d+\.\d+)["\']', content)
             if m_ver:
                 return m_ver.group(1)
-            m_banner = re.search(r'v(\d+\.\d+\.\d+)\s*-\s*Epic Terminal Art Engine', content)
+            m_banner = re.search(r'v(\d+\.\d+\.\d+)\s*-\s*(?:Epic\s+)?Terminal Art Engine', content)
             if m_banner:
                 return m_banner.group(1)
     except Exception:
@@ -1071,6 +1079,77 @@ def self_update():
         print(_("update_error", e))
         return False
 
+def try_render_native_monochrome(image_path, width, mode="braille", dither=False, invert=False):
+    """
+    Intenta ejecutar el motor nativo en C++ (luma-mono o libmonochrome.so).
+    C++ a toda hostia para que los fans de Rust no vengan a romper las bolas con el rendimiento.
+    Retorna el string de texto renderizado o None si no se encuentra el binario/librería.
+    """
+    import ctypes
+    import shutil
+    import subprocess
+
+    exe_dir = os.path.dirname(os.path.abspath(sys.executable))
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    lib_paths = [
+        os.path.join(exe_dir, "libmonochrome.so"),
+        os.path.join(base_dir, "libmonochrome.so"),
+        os.path.join(exe_dir, "..", "libmonochrome.so"),
+        os.path.join(base_dir, "..", "libmonochrome.so"),
+        "/usr/local/share/luma/libmonochrome.so",
+        "/usr/share/luma/libmonochrome.so",
+        "/usr/local/lib/libmonochrome.so",
+        "/usr/lib/libmonochrome.so",
+        "libmonochrome.so"
+    ]
+    for lp in lib_paths:
+        if os.path.exists(lp):
+            try:
+                lib = ctypes.CDLL(lp)
+                lib.render_monochrome_c.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_bool, ctypes.c_bool]
+                lib.render_monochrome_c.restype = ctypes.c_void_p
+                lib.free_monochrome_buffer.argtypes = [ctypes.c_void_p]
+                lib.free_monochrome_buffer.restype = None
+
+                ptr = lib.render_monochrome_c(
+                    image_path.encode("utf-8"),
+                    int(width),
+                    mode.encode("utf-8"),
+                    bool(dither),
+                    bool(invert)
+                )
+                if ptr:
+                    res_bytes = ctypes.string_at(ptr)
+                    lib.free_monochrome_buffer(ptr)
+                    res = res_bytes.decode("utf-8", errors="replace")
+                    if res and not res.startswith("❌"):
+                        return res
+            except Exception:
+                pass
+
+    # Alternativa: invocar binario luma-mono si existe en el sistema
+    bin_names = [
+        os.path.join(exe_dir, "luma-mono"),
+        os.path.join(base_dir, "luma-mono"),
+        shutil.which("luma-mono")
+    ]
+    for b in bin_names:
+        if b and os.path.exists(b) and os.access(b, os.X_OK):
+            try:
+                cmd = [b, "-w", str(width), "-m", mode]
+                if dither:
+                    cmd.append("-d")
+                if invert:
+                    cmd.append("-i")
+                cmd.append(image_path)
+                proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                if proc.stdout and not proc.stdout.startswith("❌"):
+                    return proc.stdout
+            except Exception:
+                pass
+
+    return None
+
 def main():
     import json
     
@@ -1125,9 +1204,14 @@ def main():
     banner = f"""\033[1;36m
  █    █ █ █▄ ▄█ ▄▀▄ █▀▄ ▀█▀
  █▄▄▄ ▀▄█ █ ▀ █ █▀█ █▀▄  █
- \033[0;36mv{VERSION} - Epic Terminal Art Engine\033[0m
+ \033[0;36mv{VERSION} - Terminal Art Engine\033[0m
 """
     
+    # Intercepción inmediata de -v / --version para mostrar el banner multi-línea intacto
+    if "-v" in sys.argv or "--version" in sys.argv:
+        print(banner)
+        sys.exit(0)
+
     # Sin argumentos: mostrar banner informativo y ayuda básica de uso
     if len(sys.argv) == 1:
         print(banner)
@@ -1140,11 +1224,12 @@ def main():
     # Configuración de argumentos de línea de comandos con argparse
     parser = argparse.ArgumentParser(prog="lumart", description=_( "desc" ), add_help=False)
     parser.add_argument("-h", "--help", action="help", help=_("help_help"))
-    parser.add_argument("-v", "--version", action="version", version=f"{banner}", help=_("help_version"))
+    parser.add_argument("-v", "--version", action="store_true", help=_("help_version"))
     parser.add_argument("-u", "--update", action="store_true", help=_("help_update"))
 
     parser.add_argument("image_path", nargs="?", default=None, help=_("help_image_path"))
     parser.add_argument("-w", "--width", type=int, default=None, help=_("help_width"))
+    parser.add_argument("-E", "--engine", choices=["color", "mono", "bw", "manga"], default=None, help=_("help_engine"))
     parser.add_argument("-d", "--dither", action="store_true", help=_("help_dither"))
     parser.add_argument("--no-color", action="store_false", dest="color", help=_("help_no_color"))
     parser.add_argument("-c", "--color", action="store_true", dest="color", default=True, help=_("help_color"))
@@ -1153,13 +1238,19 @@ def main():
     parser.add_argument("-b", "--binary", action="store_true", help=_("help_binary"))
     parser.add_argument("--blocks", action="store_true", help=_("help_blocks"))
     parser.add_argument("--braille", action="store_true", help=_("help_braille"))
-    parser.add_argument("--epic", action="store_true", help=_("help_epic"))
+    parser.add_argument("-m", "--manga", action="store_true", help=_("help_manga"))
+    parser.add_argument("--epic", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--raw-colors", action="store_true", help=_("help_raw_colors"))
     parser.add_argument("--os-style", action="store_true", help=_("help_os_style"))
     parser.add_argument("--swap", nargs="+", help=_("help_swap"))
     parser.add_argument("--lang", help=_("help_lang"))
     
     args = parser.parse_args()
+
+    # Si se solicitó versión
+    if args.version:
+        print(banner)
+        sys.exit(0)
 
     # Si se solicitó actualización explícita (--update / -u)
     if args.update:
@@ -1175,6 +1266,21 @@ def main():
     has_update, update_ver = check_cached_update()
     if has_update:
         print(f"\033[1;33m{_('update_notice', update_ver)}\033[0m\n", file=sys.stderr)
+
+    # Selección de motor mediante flag --engine / -E
+    if args.engine:
+        if args.engine in ("mono", "bw"):
+            args.color = False
+        elif args.engine == "manga":
+            args.color = False
+            args.braille = True
+            args.manga = True
+        elif args.engine == "color":
+            args.color = True
+
+    if getattr(args, "manga", False):
+        args.color = False
+        args.braille = True
 
     # 1. Autodetección del estándar NO_COLOR (https://no-color.org)
     if "NO_COLOR" in os.environ and "--color" not in sys.argv and "-c" not in sys.argv:
@@ -1205,26 +1311,47 @@ def main():
             sys.exit(1)
         image = apply_color_swap(image, args.swap)
 
-    # El Motor Épico de Color está activado por defecto para máxima fidelidad visual
-    if not args.raw_colors:
-        # Convertir a RGBA para compatibilidad con paletas indexadas y transparencia
-        image = image.convert("RGBA")
-        image = image.filter(ImageFilter.UnsharpMask(radius=1.2, percent=140, threshold=2))
-        image = ImageEnhance.Color(image).enhance(1.25)
-        image = ImageEnhance.Contrast(image).enhance(1.15)
-        
-    image = resize_image(image, args.width, args.blocks, args.braille)
-    
-    # Difuminado ordenado con matriz de Bayer para simular sombreado retro
-    if args.dither:
-        image = apply_bayer_dither(image)
-    
-    if args.braille:
-        ascii_art = convert_image_to_braille(image, args.color, invert_mode)
-    elif args.blocks:
-        ascii_art = convert_image_to_blocks(image)
+    # -------------------------------------------------------------
+    # MOTOR SECUNDARIO: Blanco y Negro (Nativo C++ con fallback Python)
+    # -------------------------------------------------------------
+    if not args.color:
+        mono_mode = "manga" if getattr(args, "manga", False) else ("braille" if args.braille else ("blocks" if args.blocks else "ascii"))
+        native_art = try_render_native_monochrome(args.image_path, args.width, mono_mode, args.dither, invert_mode)
+        if native_art is not None:
+            ascii_art = native_art
+        else:
+            image = resize_image(image, args.width, args.blocks, args.braille)
+            if args.dither:
+                image = apply_bayer_dither(image)
+            if args.braille:
+                ascii_art = convert_image_to_braille(image, args.color, invert_mode)
+            elif args.blocks:
+                ascii_art = convert_image_to_blocks(image)
+            else:
+                ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style)
+    # -------------------------------------------------------------
+    # MOTOR PRIMARIO: Motor de Color
+    # -------------------------------------------------------------
     else:
-        ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style)
+        if not args.raw_colors:
+            # Convertir a RGBA para compatibilidad con paletas indexadas y transparencia
+            image = image.convert("RGBA")
+            image = image.filter(ImageFilter.UnsharpMask(radius=1.2, percent=140, threshold=2))
+            image = ImageEnhance.Color(image).enhance(1.25)
+            image = ImageEnhance.Contrast(image).enhance(1.15)
+            
+        image = resize_image(image, args.width, args.blocks, args.braille)
+        
+        # Difuminado ordenado con matriz de Bayer para simular sombreado retro
+        if args.dither:
+            image = apply_bayer_dither(image)
+        
+        if args.braille:
+            ascii_art = convert_image_to_braille(image, args.color, invert_mode)
+        elif args.blocks:
+            ascii_art = convert_image_to_blocks(image)
+        else:
+            ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style)
     
     if args.output:
         try:

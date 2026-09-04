@@ -16,7 +16,7 @@ Ao contrário dos conversores ASCII tradicionais que simplesmente mapeiam o bril
 * Renderização baseada em ASCII, Braille e Blocos
 * **Renderização Estilo OS (`--os-style`)**: Caracteres clássicos de terminal (pontos, letras) para logotipos estilo Neofetch.
 * **Troca de Cor em Tempo Real (`--swap`)**: Troque dinamicamente até 5 cores com base na distância de cor Euclidiana em 3D.
-* **Motor Épico de Cores (Padrão)**: Calcula a média das cores no espaço RGB Linear para evitar resultados opacos, enquanto aplica contraste dinâmico e saturação (HDR).
+* **Motor de Cores de Alta Fidelidade (Padrão)**: Calcula a média das cores no espaço RGB Linear para evitar resultados opacos, enquanto aplica contraste dinâmico e saturação (HDR).
 * Largura de saída configurável
 * Suporte a terminal Truecolor (ANSI de 24 bits)
 * Projetado para tamanhos de saída extremamente pequenos
@@ -121,7 +121,7 @@ Com problemas em fontes, cores ou módulos ausentes? Confira nosso [Guia de Solu
 * [x] Renderização Braille
 * [x] Renderização baseada em blocos
 * [x] Melhoria de renderização perceptiva (Motor RGB Linear)
-* [x] Processamento de contraste e luminância (Motor Épico)
+* [x] Processamento de contraste e luminância (Motor de Cores HDR)
 * [x] Mapeamento de cores em tempo real e limites
 * [ ] Pontilhado (Dithering) avançado
 * [ ] Seleção automática de glifos
