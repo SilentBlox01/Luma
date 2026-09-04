@@ -155,6 +155,7 @@ if ! python3 -c "from PIL import Image" &>/dev/null; then
             echo "${MSG_SUSE}"
             $SUDO_CMD zypper --non-interactive install python3-Pillow &>/dev/null && INSTALLED=1 || true
         fi
+
     fi
 
     # Option B: Pip user install with PEP 668 bypass

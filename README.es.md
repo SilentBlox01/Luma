@@ -55,8 +55,8 @@ chmod +x build_packages.sh
 ./build_packages.sh
 ```
 Después de compilar, puedes instalarlo globalmente a través de tu administrador de paquetes:
-- **Debian/Ubuntu**: `sudo apt install ./dist/lumart-2.0.0.deb`
-- **Fedora/RHEL**: `sudo dnf install ./dist/lumart-2.0.0.rpm`
+- **Debian/Ubuntu**: `sudo apt install ./dist/lumart-*.deb`
+- **Fedora/RHEL**: `sudo dnf install ./dist/lumart-*.rpm`
 - **Arch Linux**: `cd dist/arch && makepkg -si`
 
 ## Uso

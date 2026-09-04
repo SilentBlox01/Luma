@@ -28,7 +28,7 @@ jobs:
     - name: Build Packages
       run: |
         chmod +x build_packages.sh
-        ./build_packages.sh
+        ./build_packages.sh --all
         
     - name: Release
       uses: softprops/action-gh-release@v2
