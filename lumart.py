@@ -59,6 +59,11 @@ except ImportError:
 
     from PIL import Image, ImageEnhance, ImageOps, ImageFilter
 
+VERSION = "2.1.0"
+GITHUB_REPO = "SilentBlox01/Luma"
+GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/lumart.py"
+GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
+
 # Rampa de densidad ASCII calibrada para percepción tonal uniforme
 ASCII_CHARS = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
 
@@ -100,7 +105,15 @@ TRANSLATIONS = {
         "saved_to": "ASCII art saved to {}",
         "error_save": "Error saving to file: {}",
         "lang_success": "Language successfully set to '{}'.",
-        "lang_error": "Error: Language '{}' is not supported."
+        "lang_error": "Error: Language '{}' is not supported.",
+        "help_update": "Check for updates and self-upgrade Luma.",
+        "update_checking": "🔍 Checking for updates...",
+        "update_already_latest": "✅ Luma is already up to date (v{}).",
+        "update_downloading": "⬇️  Downloading and installing Luma v{}...",
+        "update_success": "🎉 Successfully updated Luma from v{} to v{}!",
+        "update_error": "❌ Error checking for updates: {}",
+        "update_permission_error": "⚠️  Permission denied updating {}. Try running: sudo lumart --update",
+        "update_notice": "💡 A new version of Luma is available: v{} (run 'luma --update' to upgrade)"
     },
     "es": {
         "pillow_not_found": "[luma] Pillow no encontrado. Instalando dependencias...",
@@ -128,7 +141,15 @@ TRANSLATIONS = {
         "saved_to": "Arte ASCII guardado en {}",
         "error_save": "Error guardando en archivo: {}",
         "lang_success": "Idioma cambiado exitosamente a '{}'.",
-        "lang_error": "Error: El idioma '{}' no está soportado."
+        "lang_error": "Error: El idioma '{}' no está soportado.",
+        "help_update": "Buscar actualizaciones y actualizar Luma automáticamente.",
+        "update_checking": "🔍 Buscando actualizaciones...",
+        "update_already_latest": "✅ Luma ya está en la versión más reciente (v{}).",
+        "update_downloading": "⬇️  Descargando e instalando Luma v{}...",
+        "update_success": "🎉 ¡Luma actualizado exitosamente de v{} a v{}!",
+        "update_error": "❌ Error al verificar actualizaciones: {}",
+        "update_permission_error": "⚠️  Permiso denegado al actualizar {}. Prueba ejecutando: sudo lumart --update",
+        "update_notice": "💡 Nueva versión de Luma disponible: v{} (ejecuta 'luma --update' para actualizar)"
     },
     "pt": {
         "pillow_not_found": "[luma] Pillow não encontrado. Instalando dependências...",
@@ -156,7 +177,15 @@ TRANSLATIONS = {
         "saved_to": "Arte ASCII salva em {}",
         "error_save": "Erro ao salvar o arquivo: {}",
         "lang_success": "Idioma alterado com sucesso para '{}'.",
-        "lang_error": "Erro: O idioma '{}' não é suportado."
+        "lang_error": "Erro: O idioma '{}' não é suportado.",
+        "help_update": "Verificar atualizações e atualizar o Luma automaticamente.",
+        "update_checking": "🔍 Verificando atualizações...",
+        "update_already_latest": "✅ O Luma já está na versão mais recente (v{}).",
+        "update_downloading": "⬇️  Baixando e instalando Luma v{}...",
+        "update_success": "🎉 Luma atualizado com sucesso de v{} para v{}!",
+        "update_error": "❌ Erro ao verificar atualizações: {}",
+        "update_permission_error": "⚠️  Permissão negada ao atualizar {}. Tente executar: sudo lumart --update",
+        "update_notice": "💡 Nova versão do Luma disponível: v{} (execute 'luma --update' para atualizar)"
     },
     "ru": {
         "pillow_not_found": "[luma] Pillow не найден. Установка зависимостей...",
@@ -184,7 +213,15 @@ TRANSLATIONS = {
         "saved_to": "ASCII-арт сохранен в {}",
         "error_save": "Ошибка при сохранении в файл: {}",
         "lang_success": "Язык успешно изменен на '{}'.",
-        "lang_error": "Ошибка: Язык '{}' не поддерживается."
+        "lang_error": "Ошибка: Язык '{}' не поддерживается.",
+        "help_update": "Проверить наличие обновлений и обновить Luma автоматически.",
+        "update_checking": "🔍 Проверка обновлений...",
+        "update_already_latest": "✅ Luma уже обновлена до последней версии (v{}).",
+        "update_downloading": "⬇️  Загрузка и установка Luma v{}...",
+        "update_success": "🎉 Luma успешно обновлена с v{} до v{}!",
+        "update_error": "❌ Ошибка при проверке обновлений: {}",
+        "update_permission_error": "⚠️  Отказано в доступе при обновлении {}. Попробуйте: sudo lumart --update",
+        "update_notice": "💡 Доступна новая версия Luma: v{} (запустите 'luma --update' для обновления)"
     },
     "ja": {
         "pillow_not_found": "[luma] Pillowが見つかりません。依存関係をインストールしています...",
@@ -212,7 +249,15 @@ TRANSLATIONS = {
         "saved_to": "ASCIIアートを {} に保存しました",
         "error_save": "ファイルへの保存エラー: {}",
         "lang_success": "言語が正常に '{}' に変更されました。",
-        "lang_error": "エラー: 言語 '{}' はサポートされていません。"
+        "lang_error": "エラー: 言語 '{}' はサポートされていません。",
+        "help_update": "アップデートを確認し、Lumaを自動的に更新します。",
+        "update_checking": "🔍 アップデートを確認中...",
+        "update_already_latest": "✅ Lumaはすでに最新バージョンです（v{}）。",
+        "update_downloading": "⬇️  Luma v{} をダウンロードしてインストール中...",
+        "update_success": "🎉 Lumaを v{} から v{} に正常に更新しました！",
+        "update_error": "❌ アップデートの確認中にエラーが発生しました: {}",
+        "update_permission_error": "⚠️  {} の更新でアクセスが拒否されました。sudo lumart --update を実行してください",
+        "update_notice": "💡 Lumaの新しいバージョンが利用可能です: v{} ('luma --update' で更新)"
     },
     "de": {
         "pillow_not_found": "[luma] Pillow nicht gefunden. Installiere Abhängigkeiten...",
@@ -240,7 +285,15 @@ TRANSLATIONS = {
         "saved_to": "ASCII-Kunst in {} gespeichert",
         "error_save": "Fehler beim Speichern in Datei: {}",
         "lang_success": "Sprache erfolgreich auf '{}' geändert.",
-        "lang_error": "Fehler: Sprache '{}' wird nicht unterstützt."
+        "lang_error": "Fehler: Sprache '{}' wird nicht unterstützt.",
+        "help_update": "Nach Updates suchen und Luma automatisch aktualisieren.",
+        "update_checking": "🔍 Suche nach Updates...",
+        "update_already_latest": "✅ Luma ist bereits auf dem neuesten Stand (v{}).",
+        "update_downloading": "⬇️  Lade Luma v{} herunter und installiere...",
+        "update_success": "🎉 Luma erfolgreich von v{} auf v{} aktualisiert!",
+        "update_error": "❌ Fehler beim Suchen nach Updates: {}",
+        "update_permission_error": "⚠️  Keine Berechtigung zum Aktualisieren von {}. Versuchen Sie: sudo lumart --update",
+        "update_notice": "💡 Eine neue Luma-Version ist verfügbar: v{} (führe 'luma --update' aus)"
     },
     "ko": {
         "pillow_not_found": "[luma] Pillow를 찾을 수 없습니다. 종속성을 설치하는 중...",
@@ -268,7 +321,15 @@ TRANSLATIONS = {
         "saved_to": "ASCII 아트를 {}에 저장했습니다.",
         "error_save": "파일 저장 오류: {}",
         "lang_success": "언어가 '{}'(으)로 성공적으로 변경되었습니다.",
-        "lang_error": "오류: 언어 '{}'은(는) 지원되지 않습니다."
+        "lang_error": "오류: 언어 '{}'은(는) 지원되지 않습니다.",
+        "help_update": "업데이트를 확인하고 Luma를 자동으로 업그레이드합니다.",
+        "update_checking": "🔍 업데이트 확인 중...",
+        "update_already_latest": "✅ Luma가 이미 최신 버전입니다 (v{}).",
+        "update_downloading": "⬇️  Luma v{} 다운로드 및 설치 중...",
+        "update_success": "🎉 Luma가 v{}에서 v{}로 성공적으로 업데이트되었습니다!",
+        "update_error": "❌ 업데이트 확인 오류: {}",
+        "update_permission_error": "⚠️  {} 업데이트 권한이 거부되었습니다. sudo lumart --update 를 실행해 보세요",
+        "update_notice": "💡 새로운 Luma 버전을 사용할 수 있습니다: v{} ('luma --update' 실행하여 업데이트)"
     }
 }
 
@@ -745,6 +806,159 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
         
     return ascii_str
 
+def parse_version(v_str):
+    try:
+        clean = str(v_str).lstrip("v").strip()
+        parts = []
+        for x in clean.split("."):
+            num = ""
+            for ch in x:
+                if ch.isdigit(): num += ch
+                else: break
+            parts.append(int(num) if num else 0)
+        return tuple(parts)
+    except Exception:
+        return (0, 0, 0)
+
+def fetch_latest_version():
+    import urllib.request
+    import json
+    import re
+    # 1. Consultar el archivo principal en GitHub (refleja inmediatamente nuevos commits/versiones)
+    try:
+        req = urllib.request.Request(
+            GITHUB_RAW_URL,
+            headers={"User-Agent": f"Luma-CLI/{VERSION}"}
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            content = resp.read().decode("utf-8", errors="ignore")
+            m_ver = re.search(r'(?:VERSION|__version__)\s*=\s*["\']v?(\d+\.\d+\.\d+)["\']', content)
+            if m_ver:
+                return m_ver.group(1)
+            m_banner = re.search(r'v(\d+\.\d+\.\d+)\s*-\s*Epic Terminal Art Engine', content)
+            if m_banner:
+                return m_banner.group(1)
+    except Exception:
+        pass
+
+    # 2. Respaldo: API de GitHub Releases
+    try:
+        req = urllib.request.Request(
+            GITHUB_API_URL,
+            headers={"User-Agent": f"Luma-CLI/{VERSION}"}
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            tag = data.get("tag_name", "").lstrip("v")
+            if tag:
+                return tag
+    except Exception:
+        pass
+    return None
+
+def get_update_cache_file():
+    config_dir = os.path.expanduser("~/.config/luma")
+    return os.path.join(config_dir, "update_cache.json")
+
+def save_update_cache(latest_ver):
+    try:
+        import time
+        import json
+        cache_file = get_update_cache_file()
+        os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+        with open(cache_file, "w") as f:
+            json.dump({"last_check": int(time.time()), "latest_version": latest_ver}, f)
+    except Exception:
+        pass
+
+def check_cached_update():
+    """Retorna (has_update, latest_ver) usando caché local y consulta en segundo plano si está obsoleto."""
+    import time
+    import json
+    import threading
+    
+    cache_file = get_update_cache_file()
+    last_check = 0
+    cached_latest = None
+    
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, "r") as f:
+                data = json.load(f)
+                last_check = data.get("last_check", 0)
+                cached_latest = data.get("latest_version")
+        except Exception:
+            pass
+            
+    now = int(time.time())
+    # Si la caché tiene más de 24 horas (86400s), lanzar verificación asíncrona en hilo secundario
+    if now - last_check > 86400:
+        def bg_worker():
+            lv = fetch_latest_version()
+            if lv:
+                save_update_cache(lv)
+        t = threading.Thread(target=bg_worker, daemon=True)
+        t.start()
+        
+    if cached_latest and parse_version(cached_latest) > parse_version(VERSION):
+        return True, cached_latest
+    return False, None
+
+def self_update():
+    import urllib.request
+    import py_compile
+    
+    print(_("update_checking"))
+    latest_ver = fetch_latest_version()
+    if not latest_ver:
+        print(_("update_error", "No se pudo consultar información de versiones en GitHub."))
+        return False
+        
+    if parse_version(latest_ver) <= parse_version(VERSION):
+        save_update_cache(latest_ver)
+        print(_("update_already_latest", VERSION))
+        return True
+        
+    print(_("update_downloading", latest_ver))
+    target_path = os.path.realpath(__file__)
+    target_dir = os.path.dirname(target_path)
+    
+    # Comprobar permisos de escritura
+    if not os.access(target_path, os.W_OK) or not os.access(target_dir, os.W_OK):
+        print(_("update_permission_error", target_path))
+        return False
+        
+    tmp_path = target_path + ".tmp"
+    try:
+        req = urllib.request.Request(
+            GITHUB_RAW_URL,
+            headers={"User-Agent": f"Luma-CLI/{VERSION}"}
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            content = resp.read()
+            
+        with open(tmp_path, "wb") as f:
+            f.write(content)
+            
+        # Validar que el archivo descargado compila sin errores de sintaxis
+        py_compile.compile(tmp_path, doraise=True)
+        
+        # Reemplazo atómico
+        os.replace(tmp_path, target_path)
+        os.chmod(target_path, 0o755)
+        
+        save_update_cache(latest_ver)
+        print(_("update_success", VERSION, latest_ver))
+        return True
+    except Exception as e:
+        if os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except Exception:
+                pass
+        print(_("update_error", e))
+        return False
+
 def main():
     import json
     
@@ -796,10 +1010,10 @@ def main():
         # Autodetección del idioma del sistema
         auto_detect_language()
 
-    banner = """\033[1;36m
+    banner = f"""\033[1;36m
  █    █ █ █▄ ▄█ ▄▀▄ █▀▄ ▀█▀
  █▄▄▄ ▀▄█ █ ▀ █ █▀█ █▀▄  █
- \033[0;36mv2.1.0 - Epic Terminal Art Engine\033[0m
+ \033[0;36mv{VERSION} - Epic Terminal Art Engine\033[0m
 """
     
     # Sin argumentos: mostrar banner informativo y ayuda básica de uso
@@ -815,8 +1029,9 @@ def main():
     parser = argparse.ArgumentParser(prog="lumart", description=_( "desc" ), add_help=False)
     parser.add_argument("-h", "--help", action="help", help=_("help_help"))
     parser.add_argument("-v", "--version", action="version", version=f"{banner}", help=_("help_version"))
+    parser.add_argument("-u", "--update", action="store_true", help=_("help_update"))
 
-    parser.add_argument("image_path", help=_("help_image_path"))
+    parser.add_argument("image_path", nargs="?", default=None, help=_("help_image_path"))
     parser.add_argument("-w", "--width", type=int, default=None, help=_("help_width"))
     parser.add_argument("-d", "--dither", action="store_true", help=_("help_dither"))
     parser.add_argument("--no-color", action="store_false", dest="color", help=_("help_no_color"))
@@ -833,6 +1048,21 @@ def main():
     parser.add_argument("--lang", help=_("help_lang"))
     
     args = parser.parse_args()
+
+    # Si se solicitó actualización explícita (--update / -u)
+    if args.update:
+        success = self_update()
+        sys.exit(0 if success else 1)
+
+    if not args.image_path:
+        print(banner)
+        print(_("usage"))
+        sys.exit(1)
+
+    # Comprobación no invasiva de actualización en segundo plano (aviso a stderr para no contaminar salida)
+    has_update, update_ver = check_cached_update()
+    if has_update:
+        print(f"\033[1;33m{_('update_notice', update_ver)}\033[0m\n", file=sys.stderr)
 
     # 1. Autodetección del estándar NO_COLOR (https://no-color.org)
     if "NO_COLOR" in os.environ and "--color" not in sys.argv and "-c" not in sys.argv:

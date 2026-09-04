@@ -31,19 +31,22 @@ luma image.png -w 45 --braille -c --swap purple pink
 
 ## Installation
 
-You can run Luma directly from the source code or build it into a native Linux package (DEB, RPM, or Arch PKGBUILD).
+You can install Luma with a single command, run it directly from source, or build it into a native Linux package (DEB, RPM, or Arch PKGBUILD).
 
-**Option 1: Download Pre-built Packages (Recommended)**
-You can download the ready-to-use `.deb` or `.rpm` packages directly from the [GitHub Releases](https://github.com/SilentBlox01/Luma/releases) page.
+**Quick Install (Recommended):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
 
-**Option 2: Run directly from source**
+**Option 1: Run directly from source / Local installer**
 ```bash
 git clone https://github.com/SilentBlox01/Luma.git
 cd Luma
-# Ensure you have Pillow installed
-pip install -r requirements.txt
-python3 lumart.py --help
+./install.sh
 ```
+
+**Option 2: Download Pre-built Packages**
+You can download ready-to-use `.deb` or `.rpm` packages directly from the [GitHub Releases](https://github.com/SilentBlox01/Luma/releases) page.
 
 **Option 3: Compile and build native packages yourself**
 Luma includes an automated build script to package the tool into a standalone binary using PyInstaller.
@@ -58,7 +61,7 @@ After compiling, you can install it globally via your package manager:
 
 ## Usage
 
-If you installed the package, you can run `lumart` or `luma` from anywhere. Otherwise, run the python script directly.
+If you installed the package or used the installer, you can run `lumart` or `luma` from anywhere. Otherwise, run the python script directly.
 
 > **💡 Pro Tip:** Luma works beautifully with transparent backgrounds! The engine automatically ignores transparent pixels, which makes logos and characters pop perfectly against your terminal's background.
 
@@ -81,6 +84,15 @@ Force retro OS-style character rendering (useful for OS logos):
 ```bash
 python3 lumart.py image.png --os-style -c
 ```
+
+## Updating
+
+To update Luma to the latest version at any time, simply run:
+```bash
+luma --update
+```
+Luma also checks periodically in the background for new versions and non-intrusively notifies you in your terminal when an update is available.
+
 
 ## Uninstallation
 

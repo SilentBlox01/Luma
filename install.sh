@@ -26,10 +26,19 @@ for arg in "$@"; do
     case "$arg" in
         --lang=es|--es) LANG_MODE="es" ;;
         --lang=en|--en) LANG_MODE="en" ;;
+        --update|-u) UPDATE_MODE=1 ;;
     esac
 done
 if [ "$1" = "--lang" ] && [ -n "$2" ]; then
     LANG_MODE="$2"
+fi
+
+if [ "${UPDATE_MODE:-0}" -eq 1 ]; then
+    if command -v luma &>/dev/null; then
+        exec luma --update
+    elif command -v lumart &>/dev/null; then
+        exec lumart --update
+    fi
 fi
 
 if [ "$LANG_MODE" = "es" ]; then
@@ -54,6 +63,7 @@ if [ "$LANG_MODE" = "es" ]; then
     MSG_READY="Ya puedes usar luma y lumart desde cualquier directorio."
     MSG_PATH_WARN="⚠️  Aviso: INSTALL_DIR no está en tu \$PATH."
     MSG_PATH_HINT="Agrégalo a tu ~/.bashrc o ~/.zshrc para poder ejecutar los comandos directamente:"
+    MSG_UPDATE_HINT="💡 Puedes actualizar Luma a la versión más reciente en cualquier momento con: luma --update"
     MSG_TEST="Prueba rápida para verificar el funcionamiento:"
 else
     MSG_TAGLINE="Epic Terminal Art Engine"
@@ -77,6 +87,7 @@ else
     MSG_READY="You can now use luma and lumart from anywhere."
     MSG_PATH_WARN="⚠️  Notice: INSTALL_DIR is not yet in your PATH."
     MSG_PATH_HINT="Add this line to your ~/.bashrc or ~/.zshrc before opening an issue crying 'command not found':"
+    MSG_UPDATE_HINT="💡 You can update Luma to the latest version at any time with: luma --update"
     MSG_TEST="Quick test:"
 fi
 
@@ -202,6 +213,9 @@ if [ "$IN_PATH" -eq 0 ]; then
     echo -e "  ${CYAN}export PATH=\"\$HOME/.local/bin:\$PATH\"${NC}\n"
 fi
 
+echo -e "${MSG_UPDATE_HINT}\n"
 echo "${MSG_TEST}"
 echo "  luma --help"
+echo "  luma --update"
 echo "  luma /path/to/image.png --braille"
+

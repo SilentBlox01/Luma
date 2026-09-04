@@ -31,19 +31,22 @@ luma image.png -w 45 --braille -c --swap purple pink
 
 ## Instalación
 
-Puedes ejecutar Luma directamente desde el código fuente o compilarlo en un paquete nativo de Linux (DEB, RPM, o Arch PKGBUILD).
+Puedes instalar Luma con un solo comando, ejecutarlo directamente desde el código fuente o compilarlo en un paquete nativo de Linux (DEB, RPM, o Arch PKGBUILD).
 
-**Opción 1: Descargar Paquetes Precompilados (Recomendado)**
-Puedes descargar los paquetes `.deb` o `.rpm` listos para usar directamente desde la página de [GitHub Releases](https://github.com/SilentBlox01/Luma/releases).
+**Instalación Rápida (Recomendado):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
 
-**Opción 2: Ejecutar directamente desde el código fuente**
+**Opción 1: Ejecutar directamente desde el código fuente / Instalador local**
 ```bash
 git clone https://github.com/SilentBlox01/Luma.git
 cd Luma
-# Asegúrate de tener Pillow instalado
-pip install -r requirements.txt
-python3 lumart.py --help
+./install.sh
 ```
+
+**Opción 2: Descargar Paquetes Precompilados**
+Puedes descargar los paquetes `.deb` o `.rpm` listos para usar directamente desde la página de [GitHub Releases](https://github.com/SilentBlox01/Luma/releases).
 
 **Opción 3: Compilar y construir los paquetes nativos tú mismo**
 Luma incluye un script de construcción automático para empaquetar la herramienta en un binario independiente utilizando PyInstaller.
@@ -58,7 +61,7 @@ Después de compilar, puedes instalarlo globalmente a través de tu administrado
 
 ## Uso
 
-Si instalaste el paquete, puedes ejecutar `lumart` o `luma` desde cualquier lugar. De lo contrario, ejecuta el script de python directamente.
+Si instalaste el paquete o utilizaste el instalador, puedes ejecutar `lumart` o `luma` desde cualquier directorio. De lo contrario, ejecuta el script de python directamente.
 
 > **💡 Consejo Pro:** ¡Luma funciona de maravilla con imágenes sin fondo (transparentes)! El motor ignora automáticamente los píxeles transparentes, lo que hace que los logos y personajes resalten perfectamente contra el fondo de tu terminal.
 
@@ -81,6 +84,15 @@ Forzar renderizado de caracteres estilo OS retro (útil para logotipos de SO):
 ```bash
 python3 lumart.py image.png --os-style -c
 ```
+
+## Actualizaciones
+
+Para actualizar Luma a la versión más reciente en cualquier momento, simplemente ejecuta:
+```bash
+luma --update
+```
+Además, Luma comprueba periódicamente en segundo plano si existen nuevas versiones y te notifica de forma no invasiva en la terminal cuando hay una actualización disponible.
+
 
 ## Desinstalación
 
