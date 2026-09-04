@@ -4,36 +4,86 @@ import sys
 import locale
 import os
 try:
-    from PIL import Image, ImageEnhance
+    from PIL import Image, ImageEnhance, ImageOps, ImageFilter
 except ImportError:
     import subprocess
-    # lazy auto-install bc who reads the fucking docs anyway
-    print("Installing fucking Pillow because you forgot...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "Pillow", "-q"])
-    from PIL import Image, ImageEnhance
+    import shutil
+    # Intento de auto-instalación si Pillow no está presente en el entorno
+    print("[luma] Pillow no está instalado. Intentando resolver dependencias automáticamente...")
+    installed = False
+    
+    # 1. Intentar pip con --user y --break-system-packages (omitiendo restricciones PEP 668)
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "Pillow", "--user", "--break-system-packages", "-q"])
+        installed = True
+    except Exception:
+        pass
 
-# magic string do not fucking touch
+    # 2. Pip estándar de usuario
+    if not installed:
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "Pillow", "-q"])
+            installed = True
+        except Exception:
+            pass
+
+    # 3. Gestores de paquetes nativos del sistema
+    if not installed:
+        if shutil.which("dnf"):  # Fedora / RHEL
+            try:
+                subprocess.check_call(["sudo", "dnf", "install", "-y", "python3-pillow"])
+                installed = True
+            except Exception:
+                pass
+        elif shutil.which("apt-get"):  # Debian / Ubuntu
+            try:
+                subprocess.check_call(["sudo", "apt-get", "install", "-y", "python3-pil"])
+                installed = True
+            except Exception:
+                pass
+        elif shutil.which("pacman"):  # Arch Linux (por cierto, uso Arch)
+            try:
+                subprocess.check_call(["sudo", "pacman", "-S", "--noconfirm", "python-pillow"])
+                installed = True
+            except Exception:
+                pass
+
+    if not installed:
+        print("\n❌ [ERROR] No se pudo instalar Pillow de forma automática.")
+        print("Por favor instálalo manualmente con el gestor de tu sistema:")
+        print("  • Fedora/RHEL:   sudo dnf install python3-pillow")
+        print("  • Ubuntu/Debian: sudo apt install python3-pil")
+        print("  • Arch Linux:    sudo pacman -S python-pillow")
+        print("  • Python Pip:    pip install --user Pillow")
+        sys.exit(1)
+
+    from PIL import Image, ImageEnhance, ImageOps, ImageFilter
+
+# Rampa de densidad ASCII calibrada para percepción tonal uniforme
 ASCII_CHARS = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
 
-# basic colors
+# Paleta de colores predefinidos para la funcionalidad de intercambio (--swap)
 COLOR_MAP = {
     "red": (255, 0, 0), "green": (0, 255, 0), "blue": (0, 0, 255),
     "yellow": (255, 255, 0), "purple": (128, 0, 128), 
     "pink": (255, 192, 203), "cyan": (0, 255, 255), 
     "orange": (255, 165, 0), "white": (255, 255, 255),
     "black": (0, 0, 0), "gray": (128, 128, 128), "magenta": (255, 0, 255),
-    "blurple": (88, 101, 242) # discord lol
+    "blurple": (88, 101, 242) # Tono Discord Blurple clásico
 }
 
-# TODO: move this shit to a json file someday. this is getting huge
+# Diccionario de localizaciones para soporte multilingüe
 TRANSLATIONS = {
     "en": {
         "pillow_not_found": "[luma] Pillow not found. Installing dependencies...",
         "usage": "Usage: lumart [options] <image_path>\n\nTry 'lumart --help' for more options.",
         "desc": "Lumart - Epic Terminal Art Engine",
+        "help_help": "Show this help message and exit.",
+        "help_version": "Show program's version number and exit.",
         "help_image_path": "Path to the input image file (works best with transparent backgrounds).",
         "help_width": "Width of the output ASCII art (in characters). Default: 90",
         "help_color": "Output ASCII art in color.",
+        "help_no_color": "Disable color output and use B&W engine.",
         "help_invert": "Invert the ASCII characters (useful for dark terminals).",
         "help_output": "Save the ASCII art to a file instead of printing to the console.",
         "help_binary": "Use only 1s and 0s for the ASCII characters.",
@@ -56,9 +106,12 @@ TRANSLATIONS = {
         "pillow_not_found": "[luma] Pillow no encontrado. Instalando dependencias...",
         "usage": "Uso: lumart [opciones] <ruta_imagen>\n\nIntenta 'lumart --help' para más opciones.",
         "desc": "Lumart - Motor Épico de Arte de Terminal",
+        "help_help": "Mostrar este mensaje de ayuda y salir.",
+        "help_version": "Mostrar el número de versión del programa y salir.",
         "help_image_path": "Ruta al archivo de imagen de entrada (funciona mejor con fondos transparentes).",
         "help_width": "Ancho del arte ASCII de salida (en caracteres). Por defecto: 90",
         "help_color": "Generar arte ASCII en color.",
+        "help_no_color": "Desactivar salida de color y usar motor blanco y negro.",
         "help_invert": "Invertir los caracteres ASCII (útil para terminales oscuras).",
         "help_output": "Guardar el arte ASCII en un archivo en lugar de imprimirlo en consola.",
         "help_binary": "Usar solo 1s y 0s para los caracteres ASCII.",
@@ -81,9 +134,12 @@ TRANSLATIONS = {
         "pillow_not_found": "[luma] Pillow não encontrado. Instalando dependências...",
         "usage": "Uso: lumart [opções] <caminho_imagem>\n\nTente 'lumart --help' para mais opções.",
         "desc": "Lumart - Motor Épico de Arte de Terminal",
+        "help_help": "Mostrar esta mensagem de ajuda e sair.",
+        "help_version": "Mostrar o número da versão do programa e sair.",
         "help_image_path": "Caminho para o arquivo de imagem de entrada (funciona melhor com fundos transparentes).",
         "help_width": "Largura da arte ASCII de saída (em caracteres). Padrão: 90",
         "help_color": "Gerar arte ASCII em cores.",
+        "help_no_color": "Desativar saída colorida e usar motor preto e branco.",
         "help_invert": "Inverter os caracteres ASCII (útil para terminais escuros).",
         "help_output": "Salvar a arte ASCII em um arquivo em vez de imprimir no console.",
         "help_binary": "Usar apenas 1s e 0s para os caracteres ASCII.",
@@ -106,9 +162,12 @@ TRANSLATIONS = {
         "pillow_not_found": "[luma] Pillow не найден. Установка зависимостей...",
         "usage": "Использование: lumart [опции] <путь_к_изображению>\n\nПопробуйте 'lumart --help' для дополнительных опций.",
         "desc": "Lumart - Эпический движок терминального искусства",
+        "help_help": "Показать это справочное сообщение и выйти.",
+        "help_version": "Показать номер версии программы и выйти.",
         "help_image_path": "Путь к исходному файлу изображения (лучше всего работает с прозрачным фоном).",
         "help_width": "Ширина выходного ASCII-арта (в символах). По умолчанию: 90",
         "help_color": "Выводить ASCII-арт в цвете.",
+        "help_no_color": "Отключить цветной вывод и использовать черно-белый движок.",
         "help_invert": "Инвертировать символы ASCII (полезно для темных терминалов).",
         "help_output": "Сохранить ASCII-арт в файл вместо вывода в консоль.",
         "help_binary": "Использовать только 1 и 0 для символов ASCII.",
@@ -131,9 +190,12 @@ TRANSLATIONS = {
         "pillow_not_found": "[luma] Pillowが見つかりません。依存関係をインストールしています...",
         "usage": "使用法: lumart [オプション] <画像パス>\n\n詳細なオプションについては 'lumart --help' をお試しください。",
         "desc": "Lumart - エピックターミナルアートエンジン",
+        "help_help": "このヘルプメッセージを表示して終了します。",
+        "help_version": "プログラムのバージョン番号を表示して終了します。",
         "help_image_path": "入力画像ファイルへのパス（透明な背景が最適です）。",
         "help_width": "出力するASCIIアートの幅（文字数）。デフォルト: 90",
         "help_color": "ASCIIアートをカラーで出力します。",
+        "help_no_color": "カラー出力を無効にし、白黒エンジンを使用します。",
         "help_invert": "ASCII文字を反転します（暗いターミナルで便利です）。",
         "help_output": "コンソールに出力する代わりに、ASCIIアートをファイルに保存します。",
         "help_binary": "ASCII文字として1と0のみを使用します。",
@@ -156,9 +218,12 @@ TRANSLATIONS = {
         "pillow_not_found": "[luma] Pillow nicht gefunden. Installiere Abhängigkeiten...",
         "usage": "Verwendung: lumart [Optionen] <bildpfad>\n\nVersuche 'lumart --help' für weitere Optionen.",
         "desc": "Lumart - Epische Terminal-Kunst-Engine",
+        "help_help": "Diese Hilfemeldung anzeigen und beenden.",
+        "help_version": "Versionsnummer des Programms anzeigen und beenden.",
         "help_image_path": "Pfad zur Eingabebilddatei (funktioniert am besten mit transparentem Hintergrund).",
         "help_width": "Breite der ASCII-Kunst (in Zeichen). Standard: 90",
         "help_color": "ASCII-Kunst in Farbe ausgeben.",
+        "help_no_color": "Farbausgabe deaktivieren und Schwarz-Weiß-Engine verwenden.",
         "help_invert": "ASCII-Zeichen umkehren (nützlich für dunkle Terminals).",
         "help_output": "ASCII-Kunst in einer Datei speichern, anstatt sie auf der Konsole auszugeben.",
         "help_binary": "Nur 1en und 0en für die ASCII-Zeichen verwenden.",
@@ -181,9 +246,12 @@ TRANSLATIONS = {
         "pillow_not_found": "[luma] Pillow를 찾을 수 없습니다. 종속성을 설치하는 중...",
         "usage": "사용법: lumart [옵션] <이미지_경로>\n\n자세한 옵션은 'lumart --help'를 시도해 보세요.",
         "desc": "Lumart - 에픽 터미널 아트 엔진",
+        "help_help": "이 도움말 메시지를 표시하고 종료합니다.",
+        "help_version": "프로그램의 버전 번호를 표시하고 종료합니다.",
         "help_image_path": "입력 이미지 파일의 경로입니다 (투명한 배경이 가장 좋습니다).",
         "help_width": "출력 ASCII 아트의 너비(문자 수)입니다. 기본값: 90",
         "help_color": "컬러로 ASCII 아트를 출력합니다.",
+        "help_no_color": "컬러 출력을 비활성화하고 흑백 엔진을 사용합니다.",
         "help_invert": "ASCII 문자를 반전시킵니다(어두운 터미널에 유용).",
         "help_output": "콘솔에 출력하는 대신 ASCII 아트를 파일에 저장합니다.",
         "help_binary": "ASCII 문자에 1과 0만 사용합니다.",
@@ -231,19 +299,50 @@ def _(key, *args):
         return text.format(*args)
     return text
 
+# Gestor de idiomas: autodetección inteligente basada en entorno y locale
 def auto_detect_language():
     try:
+        # 1. Revisar variables de entorno estándar primero
+        for var in ("LC_ALL", "LC_MESSAGES", "LANG"):
+            val = os.environ.get(var)
+            if val:
+                code = val.split(".")[0].split("_")[0].lower()
+                if code in TRANSLATIONS:
+                    set_language(code)
+                    return code
+        # 2. Revisar configuración regional del sistema
         lang, _ = locale.getdefaultlocale()
         if lang:
-            set_language(lang[:2])
+            code = lang[:2].lower()
+            if code in TRANSLATIONS:
+                set_language(code)
+                return code
     except Exception:
         pass
+    set_language("en")
+    return "en"
+
+def is_light_terminal():
+    """Autodetecta si la terminal tiene fondo claro revisando COLORFGBG."""
+    colorfgbg = os.environ.get("COLORFGBG", "")
+    if colorfgbg and ";" in colorfgbg:
+        parts = colorfgbg.split(";")
+        try:
+            bg = int(parts[-1])
+            # Códigos ANSI estándar para fondos claros: 7 (blanco/gris claro), 15 (blanco brillante)
+            if bg in (7, 15):
+                return True
+        except ValueError:
+            pass
+    return False
 
 def apply_color_swap(image, swap_args):
+    # Intercambio dinámico de colores en la imagen
     if not swap_args or len(swap_args) % 2 != 0:
         return image
         
     swaps = []
+    # Verificamos que los argumentos vengan en pares de origen y destino
     for i in range(0, len(swap_args), 2):
         src_name = swap_args[i].lower()
         dst_name = swap_args[i+1].lower()
@@ -257,7 +356,7 @@ def apply_color_swap(image, swap_args):
     pixels = img.load()
     width, height = img.size
     
-    # idk why the fuck 150 works but it does
+    # Umbral de distancia euclidiana de color calibrado para sustituciones precisas
     THRESHOLD = 150
     
     for y in range(height):
@@ -266,9 +365,10 @@ def apply_color_swap(image, swap_args):
             if a == 0: continue
             
             for src_rgb, dst_rgb in swaps:
+                # Distancia euclidiana 3D para evaluar similitud cromática en espacio RGB
                 dist = ((r - src_rgb[0])**2 + (g - src_rgb[1])**2 + (b - src_rgb[2])**2)**0.5
                 if dist < THRESHOLD:
-                    # blend towards destination color
+                    # Ajuste de brillo relativo para conservar sombras y luces de la imagen original
                     orig_brightness = max((r + g + b) / 765.0, 0.05)
                     dst_brightness = max((dst_rgb[0] + dst_rgb[1] + dst_rgb[2]) / 765.0, 0.05)
                     
@@ -282,7 +382,7 @@ def apply_color_swap(image, swap_args):
                     
     return img
 
-# 4x4 Bayer matrix for ordered dithering
+# Matriz de Bayer 4x4: algoritmo clásico de difuminado ordenado (dithering) estilo retro
 BAYER_MATRIX = [
     [ 0,  8,  2, 10],
     [12,  4, 14,  6],
@@ -291,16 +391,18 @@ BAYER_MATRIX = [
 ]
 
 def apply_bayer_dither(image):
-    """Applies ordered dithering using a 4x4 Bayer matrix for retro shading."""
+    """Aplica tramado ordenado con matriz de Bayer para un estilo gráfico retro."""
     width, height = image.size
     has_alpha = image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info)
     img = image.convert("RGBA") if has_alpha else image.convert("RGB")
     
     pixels = img.load()
-    spread = 64 # intensity of the dithering
+    # Intensidad del tramado calibrada para contraste óptimo
+    spread = 64
     
     for y in range(height):
         for x in range(width):
+            # Normalizado al rango [-0.5, 0.5] para balancear luces y sombras sin saturar
             factor = (BAYER_MATRIX[y % 4][x % 4] / 16.0) - 0.5
             offset = int(factor * spread)
             
@@ -317,43 +419,49 @@ def apply_bayer_dither(image):
     return img
 
 def resize_image(image, new_width=90, is_blocks=False, is_braille=False):
-    # keep aspect ratio
+    # Preservar la relación de aspecto original de la imagen
     width, height = image.size
     aspect_ratio = height / width
     
-    # Use high-quality resampling filter
+    # Filtro Lanczos de alta fidelidad para un remuestreo limpio y nítido
     resample_filter = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
     
     if is_braille:
+        # Cada carácter Braille abarca una matriz de 2x4 puntos (2 de ancho x 4 de alto).
+        # Multiplicamos el ancho por 2 y ajustamos la altura a múltiplos exactos de 4.
         target_pixel_width = new_width * 2
         target_pixel_height = int(target_pixel_width * aspect_ratio)
         target_pixel_height = target_pixel_height + (4 - target_pixel_height % 4) % 4
         return image.resize((target_pixel_width, target_pixel_height), resample=resample_filter)
     elif is_blocks:
-        # Quadrant blocks: 2x2 pixels per character for maximum geometry
-        # Terminal characters are twice as tall as they are wide.
-        # To maintain aspect ratio, we must squish the image vertically by 0.5.
+        # Bloques de cuadrantes: 2x2 píxeles por celda.
+        # Las fuentes de terminal son aproximadamente el doble de altas que de anchas (relación 1:2).
+        # Aplicamos una compensación de 0.5 para mantener proporciones cuadradas.
         target_pixel_width = new_width * 2
         target_pixel_height = int(target_pixel_width * aspect_ratio * 0.5)
         target_pixel_height = target_pixel_height + (2 - target_pixel_height % 2) % 2
         return image.resize((target_pixel_width, target_pixel_height), resample=resample_filter)
     else:
+        # ASCII tradicional: compensación vertical de 0.5 para celdas monoespaciadas
         new_height = int(new_width * aspect_ratio * 0.5)
         return image.resize((new_width, new_height), resample=resample_filter)
 
 def get_ansi_color_code(r, g, b):
-    # ANSI truecolor foreground
+    # Secuencia ANSI TrueColor de 24 bits (16.7 millones de colores)
     return f"\033[38;2;{r};{g};{b}m"
 
 def reset_ansi_color_code():
+    # Restaurar atributos y estilos de color predeterminados de la terminal
     return "\033[0m"
 
 def convert_image_to_blocks(image):
-    # 2x2 subpixels. heavy math incoming
+    # Modo Cuadrantes: 2x2 subpíxeles por celda mediante caracteres de bloque Unicode
     img = image.convert("RGBA")
     width, height = img.size
     
-    # 2x2 bit mapping: TL=1, TR=2, BL=4, BR=8
+    # Mapeo de bits de cuadrantes Unicode:
+    # Arriba-Izq=1, Arriba-Der=2, Abajo-Izq=4, Abajo-Der=8.
+    # 16 combinaciones posibles para reconstruir contornos y figuras geométricas.
     quad_map = {
         0: " ", 1: "▘", 2: "▝", 3: "▀", 
         4: "▖", 5: "▌", 6: "▞", 7: "▛", 
@@ -361,7 +469,8 @@ def convert_image_to_blocks(image):
         12: "▄", 13: "▙", 14: "▟", 15: "█"
     }
     
-    # Pre-multiply alpha for mathematical correctness
+    # Pre-multiplicar alpha para promediar correctamente píxeles con transparencia
+    # y evitar artefactos oscuros indeseados en los bordes.
     pixels_data = img.load()
     pm_pixels = []
     for y in range(height):
@@ -394,7 +503,7 @@ def convert_image_to_blocks(image):
             best_fg_pm = (0,0,0,0)
             best_bg_pm = (0,0,0,0)
             
-            # Exhaustive search over all 16 quadrant combinations
+            # Evaluación de las 16 combinaciones posibles para minimizar el error cuadrático medio
             for shape in range(16):
                 fg_indices = [i for i in range(4) if (shape & (1 << i))]
                 bg_indices = [i for i in range(4) if not (shape & (1 << i))]
@@ -423,8 +532,7 @@ def convert_image_to_blocks(image):
                 for i in bg_indices:
                     error += (P[i][0]-bg_pm[0])**2 + (P[i][1]-bg_pm[1])**2 + (P[i][2]-bg_pm[2])**2 + (P[i][3]-bg_pm[3])**2
                     
-                # Significant penalty to favor pure solid blocks over 2-color shapes.
-                # This prevents subpixel noise (overfitting) in smooth gradients.
+                # Penalización controlada de 2000 para evitar patrones de ruido en gradientes continuos
                 if shape not in (0, 15):
                     error += 2000
                     
@@ -442,7 +550,7 @@ def convert_image_to_blocks(image):
             
             color_code = reset_ansi_color_code()
             
-            # Print logic using shape inversion to allow terminal background to show through perfectly
+            # Inversión de caracteres para que las áreas transparentes preserven el fondo de la terminal
             if fg_opaque and bg_opaque:
                 char = quad_map[best_shape]
                 color_code += f"\033[38;2;{fg_rgba[0]};{fg_rgba[1]};{fg_rgba[2]}m"
@@ -465,22 +573,29 @@ def convert_image_to_blocks(image):
     return ascii_str
 
 def _srgb_to_linear(c):
-    # sRGB to linear light
+    # Conversión de sRGB no lineal a luz lineal para promedios físicamente precisos
     c /= 255.0
     return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
 def _linear_to_srgb(c):
-    """Convert linear light [0,1] to sRGB [0,255]."""
+    """Conversión de luz lineal de vuelta a sRGB perceptual para la terminal."""
     c = max(0.0, min(1.0, c))
     return round((c * 12.92 if c <= 0.0031308 else 1.055 * c ** (1/2.4) - 0.055) * 255)
 
-def convert_image_to_braille(image, use_color=False):
-    # braille magic
+def convert_image_to_braille(image, use_color=False, invert=False):
+    # Renderizado en cuadrícula de micropuntos Braille (resolución efectiva 2x4 por carácter)
+    if not use_color:
+        # En escala de grises aplicamos máscara de desenfoque y realce para perfilar bordes
+        image = image.convert("L").filter(ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3))
+        # Ajuste de contraste al 150% para acentuar la separación tonal
+        image = ImageEnhance.Contrast(image).enhance(1.5)
+        
     has_alpha = image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info)
     img = image.convert("RGBA") if has_alpha else image.convert("RGB")
     
     width, height = img.size
     
+    # Mapeo de bits conforme a la especificación Unicode para patrones Braille (U+2800)
     dot_map = [
         [0x01, 0x08],
         [0x02, 0x10],
@@ -504,24 +619,33 @@ def convert_image_to_braille(image, use_color=False):
                     py = y + dy
                     if px < width and py < height:
                         p = img.getpixel((px, py))
-                        is_transp = has_alpha and p[3] < 128
+                        if use_color:
+                            is_transp = has_alpha and p[3] < 128
+                            is_drawn = not is_transp
+                        else:
+                            lum = (p[0] + p[1] + p[2]) / 3
+                            # En terminales oscuras, los puntos representan áreas claras (lum >= 128).
+                            # En terminales claras se invierte la lógica mediante el argumento invert (-i).
+                            is_drawn = (lum < 128) if invert else (lum >= 128)
+                            is_transp = not is_drawn
+                            
                         if is_transp:
                             has_transparent = True
-                        row.append((p[:3], is_transp))
+                        row.append((p[:3], is_transp, is_drawn))
                     else:
-                        row.append(((0,0,0), True))
+                        row.append(((0,0,0), True, False))
                         has_transparent = True
-                pixels.append(row)
+                    pixels.append(row)
                 
             braille_val = 0
             
-            if has_transparent:
-                # Edge/transparent block: use Braille for smooth 2x4 shapes
+            if has_transparent or not use_color:
+                # Bloque de orilla o modo B&W: dibujamos los puntitos Braille con precisión
                 fg_pixels = []
                 for dy in range(4):
                     for dx in range(2):
-                        color, is_transp = pixels[dy][dx]
-                        if not is_transp:
+                        color, is_transp, is_drawn = pixels[dy][dx]
+                        if is_drawn:
                             braille_val += dot_map[dy][dx]
                             fg_pixels.append(color)
                             
@@ -538,7 +662,8 @@ def convert_image_to_braille(image, use_color=False):
                     else:
                         ascii_str += char
             else:
-                # Fully opaque interior block: use Half-block ▀ for solid colors (no dot gaps)
+                # Bloque interior sólido en modo color: se utiliza medio-bloque ▀ superior e inferior
+                # para mayor densidad de color y eficiencia visual.
                 top_pixels = [pixels[dy][dx][0] for dy in (0,1) for dx in (0,1)]
                 bottom_pixels = [pixels[dy][dx][0] for dy in (2,3) for dx in (0,1)]
                 
@@ -564,12 +689,18 @@ def convert_image_to_braille(image, use_color=False):
 
 def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, os_style=False):
     """
-    Converts an image to an ASCII string (with optional color and inversion).
+    Motor clásico: mapeo tonal de píxeles a caracteres ASCII por luminosidad perceptual.
     """
     grayscale_image = image.convert("L")
+    
+    if not use_color and not binary:
+        # En blanco y negro aplicamos realce de nitidez y contraste para definir bordes
+        grayscale_image = grayscale_image.filter(ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3))
+        grayscale_image = ImageEnhance.Contrast(grayscale_image).enhance(1.5)
+        
     rgb_image = image.convert("RGB")
     
-    # Check if image has transparency
+    # Preservar canal alfa si la imagen contiene transparencia
     has_alpha = image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info)
     rgba_image = image.convert("RGBA") if has_alpha else None
     
@@ -577,11 +708,13 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
     width, height = image.size
     
     if binary:
-        base_chars = "01"
+        base_chars = "01" # Modo binario (0 y 1)
     elif os_style:
-        base_chars = " .-+*=#%@WM"
+        base_chars = " .-+*=#%@WM" # Rampa clásica estilo Neofetch / OS
+    elif not use_color:
+        base_chars = " .:-=+*#%@" # Alta densidad y detalle para escala de grises
     else:
-        base_chars = ASCII_CHARS
+        base_chars = ASCII_CHARS # Rampa ASCII extendida de alta precisión
     
     chars = base_chars[::-1] if invert else base_chars
     
@@ -589,13 +722,13 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
         for x in range(width):
             if has_alpha:
                 _, _, _, a = rgba_image.getpixel((x, y))
-                if a < 128:  # Transparent pixel
+                if a < 128:  # Píxel transparente: renderizar espacio en blanco
                     ascii_str += " "
                     continue
             
             grayscale_pixel = grayscale_image.getpixel((x, y))
             
-            # Map pixel to index
+            # Mapear la luminosidad del píxel al índice del carácter
             index = round(grayscale_pixel / 255 * (len(chars) - 1))
             char = chars[index]
             
@@ -605,7 +738,7 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
             else:
                 ascii_str += char
         
-        # Reset color at the end of each row if using color, and add newline
+        # Reseteo de secuencias ANSI al final de cada línea para mantener limpio el búfer
         if use_color:
             ascii_str += reset_ansi_color_code()
         ascii_str += "\n"
@@ -615,11 +748,11 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
 def main():
     import json
     
-    # Windows requires this dirty hack to enable ANSI colors in cmd.exe
+    # Inicialización de secuencias de escape ANSI en consolas Windows (cmd / powershell)
     if os.name == "nt":
         os.system("")
     
-    # hacky shit to parse language override early
+    # Preprocesamiento de --lang para aplicar la configuración de idioma antes de argparse
     lang_override = None
     if "--lang" in sys.argv:
         try:
@@ -628,11 +761,11 @@ def main():
         except IndexError:
             pass
             
-    # Config file for persistence
+    # Persistir configuración de usuario en ~/.config/luma/config.json
     config_dir = os.path.expanduser("~/.config/luma")
     config_file = os.path.join(config_dir, "config.json")
     
-    # Intercept standalone language change (e.g. lumart --lang es)
+    # Si la invocación es solo para cambiar el idioma (ej: lumart --lang es), guardar y salir
     if len(sys.argv) == 3 and "--lang" in sys.argv:
         if lang_override in TRANSLATIONS:
             os.makedirs(config_dir, exist_ok=True)
@@ -642,11 +775,11 @@ def main():
             print(_("lang_success", lang_override))
             sys.exit(0)
         else:
-            set_language("en") # fallback to english to show the error
+            set_language("en") # Idioma de respaldo predeterminado
             print(_("lang_error", lang_override))
             sys.exit(1)
             
-    # Load saved config
+    # Cargar configuración previa si existe
     saved_lang = None
     if os.path.exists(config_file):
         try:
@@ -660,15 +793,16 @@ def main():
     elif saved_lang:
         set_language(saved_lang)
     else:
+        # Autodetección del idioma del sistema
         auto_detect_language()
 
     banner = """\033[1;36m
  █    █ █ █▄ ▄█ ▄▀▄ █▀▄ ▀█▀
  █▄▄▄ ▀▄█ █ ▀ █ █▀█ █▀▄  █
- \033[0;36mv2.0.0 - Epic Terminal Art Engine\033[0m
+ \033[0;36mv2.1.0 - Epic Terminal Art Engine\033[0m
 """
     
-    # Custom help and banner intercept
+    # Sin argumentos: mostrar banner informativo y ayuda básica de uso
     if len(sys.argv) == 1:
         print(banner)
         print(_("usage"))
@@ -677,14 +811,16 @@ def main():
     if "-h" in sys.argv or "--help" in sys.argv:
         print(banner)
 
-    # boilerplate command line crap
-    parser = argparse.ArgumentParser(prog="lumart", description=_( "desc" ))
-    parser.add_argument("-v", "--version", action="version", version=f"{banner}")
+    # Configuración de argumentos de línea de comandos con argparse
+    parser = argparse.ArgumentParser(prog="lumart", description=_( "desc" ), add_help=False)
+    parser.add_argument("-h", "--help", action="help", help=_("help_help"))
+    parser.add_argument("-v", "--version", action="version", version=f"{banner}", help=_("help_version"))
 
     parser.add_argument("image_path", help=_("help_image_path"))
-    parser.add_argument("-w", "--width", type=int, default=90, help=_("help_width"))
+    parser.add_argument("-w", "--width", type=int, default=None, help=_("help_width"))
     parser.add_argument("-d", "--dither", action="store_true", help=_("help_dither"))
-    parser.add_argument("-c", "--color", action="store_true", help=_("help_color"))
+    parser.add_argument("--no-color", action="store_false", dest="color", help=_("help_no_color"))
+    parser.add_argument("-c", "--color", action="store_true", dest="color", default=True, help=_("help_color"))
     parser.add_argument("-i", "--invert", action="store_true", help=_("help_invert"))
     parser.add_argument("-o", "--output", help=_("help_output"))
     parser.add_argument("-b", "--binary", action="store_true", help=_("help_binary"))
@@ -697,11 +833,27 @@ def main():
     parser.add_argument("--lang", help=_("help_lang"))
     
     args = parser.parse_args()
+
+    # 1. Autodetección del estándar NO_COLOR (https://no-color.org)
+    if "NO_COLOR" in os.environ and "--color" not in sys.argv and "-c" not in sys.argv:
+        args.color = False
+
+    # 2. Autodetección del ancho de la terminal: si no se especifica -w, nos adaptamos
+    if args.width is None:
+        try:
+            import shutil
+            term_cols = shutil.get_terminal_size((90, 24)).columns
+            args.width = min(90, max(20, term_cols))
+        except Exception:
+            args.width = 90
+
+    # 3. Autodetección de terminal clara (Light mode) para inversión automática de caracteres
+    invert_mode = args.invert or is_light_terminal()
     
     try:
         image = Image.open(args.image_path)
     except Exception as e:
-        # shit broke
+        # Error al abrir la imagen en la ruta especificada
         print(_("error_open", e))
         sys.exit(1)
         
@@ -711,10 +863,9 @@ def main():
             sys.exit(1)
         image = apply_color_swap(image, args.swap)
 
-    # Epic Color Engine is now default because it looks fucking awesome
+    # El Motor Épico de Color está activado por defecto para máxima fidelidad visual
     if not args.raw_colors:
-        # Convert to RGBA first because ImageEnhance fails on palettized ('P' mode) images
-        # fucking PIL...
+        # Convertir a RGBA para compatibilidad con paletas indexadas y transparencia
         image = image.convert("RGBA")
         image = ImageEnhance.Color(image).enhance(1.5)
         image = ImageEnhance.Contrast(image).enhance(1.2)
@@ -722,16 +873,16 @@ def main():
         
     image = resize_image(image, args.width, args.blocks, args.braille)
     
-    # Apply Ordered Dithering (Bayer Matrix) for retro shading
+    # Difuminado ordenado con matriz de Bayer para simular sombreado retro
     if args.dither:
         image = apply_bayer_dither(image)
     
     if args.braille:
-        ascii_art = convert_image_to_braille(image, args.color)
+        ascii_art = convert_image_to_braille(image, args.color, invert_mode)
     elif args.blocks:
         ascii_art = convert_image_to_blocks(image)
     else:
-        ascii_art = convert_image_to_ascii(image, args.color, args.invert, args.binary, args.os_style)
+        ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style)
     
     if args.output:
         try:
@@ -739,10 +890,10 @@ def main():
                 f.write(ascii_art)
             print(_("saved_to", args.output))
         except Exception as e:
-            # well damn
+            # Error al guardar el archivo en disco
             print(_("error_save", e))
     else:
-        # just print it to the damn screen
+        # Imprimir salida directamente en la consola
         print(ascii_art)
 
 if __name__ == "__main__":

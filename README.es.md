@@ -135,7 +135,7 @@ Luma, por lo tanto, se enfoca en la **fidelidad perceptual**, utilizando espacio
 
 Luma es un proyecto de código abierto y las contribuciones son bienvenidas.
 
-Si tienes una idea para un algoritmo de renderizado, optimización, sistema de glifos, benchmark, o mejora, siéntete libre de abrir un issue o enviar un pull request. (Consulta `CONTRIBUTING.md` para más detalles).
+Si tienes una idea para un algoritmo de renderizado, optimización, sistema de glifos, benchmark, o mejora, siéntete libre de abrir un issue o enviar un pull request. (Consulta [CONTRIBUTING.es.md](CONTRIBUTING.es.md) para más detalles).
 
 ## Licencia
 

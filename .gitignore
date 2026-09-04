@@ -7,3 +7,11 @@ __pycache__/
 *.rpm
 *.spec
 .DS_Store
+engine/
+pixelterm/
+ascii_art.py
+scratch.png
+test*
+install.ps1
+*.so
+*.o

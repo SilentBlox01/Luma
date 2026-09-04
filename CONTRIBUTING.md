@@ -1,24 +1,34 @@
-# Contribuir a Lumart
+[English](CONTRIBUTING.md) | [Español](CONTRIBUTING.es.md) | [Português](CONTRIBUTING.pt.md) | [Русский](CONTRIBUTING.ru.md) | [日本語](CONTRIBUTING.ja.md) | [Deutsch](CONTRIBUTING.de.md) | [한국어](CONTRIBUTING.ko.md)
 
-¡Gracias por mostrar interés en mejorar Lumart! Este proyecto busca empujar los límites gráficos de la terminal, y todas las contribuciones son súper bienvenidas.
+# Contributing to Luma
 
-## 🐛 Reportar Bugs o Sugerir Ideas
-Si encuentras un error o tienes una gran idea (como un nuevo algoritmo de renderizado o soporte de animación), abre un **Issue** en GitHub. Por favor incluye:
-- El sistema operativo y emulador de terminal que estás utilizando.
-- El comando exacto que causó el error.
-- Si es posible, un ejemplo del arte ASCII generado o la imagen original.
+Thank you for your interest in improving Luma! This project pushes the graphical boundaries of the terminal, and all contributions are warmly welcomed.
 
-## 🛠️ Contribuir con Código
+## 🐛 Reporting Bugs or Suggesting Features
 
-1. **Haz un Fork del repositorio**
-2. **Crea una nueva rama** para tu funcionalidad (`git checkout -b feature/nueva-magia`).
-3. **Escribe y prueba tu código**. La lógica principal vive en `lumart.py`.
-4. **Haz commit de tus cambios** (`git commit -m 'Añadido nuevo algoritmo XYZ'`).
-5. **Haz push a la rama** (`git push origin feature/nueva-magia`).
-6. **Abre un Pull Request**.
+If you encounter an issue or have an awesome idea (such as a new rendering algorithm, dithering pattern, or animation support), please open an **Issue** on GitHub. Please include:
+- Your operating system and terminal emulator (e.g., Fedora with Alacritty, Ubuntu with Kitty, Windows Terminal).
+- The exact command line and arguments you used.
+- If possible, a sample of the generated ASCII/ANSI art or the input image.
 
-### Estructura del Proyecto
-- `lumart.py`: Todo el núcleo matemático, el procesamiento de imágenes, las transformaciones de color (Linear RGB), y el sistema CLI.
-- `build_packages.sh`: El script que automatiza la creación del binario autónomo usando `PyInstaller` y el empaquetado para `apt`, `dnf` y `yay`. Si añades dependencias nuevas, asegúrate de que este script las soporte correctamente.
+## 🛠️ Contributing Code
 
-¡Diviértete hackeando colores en la terminal!
+1. **Fork the repository** on GitHub.
+2. **Create a new branch** for your feature or fix (`git checkout -b feature/awesome-new-engine`).
+3. **Write and test your code**. The core engine logic lives in `lumart.py`.
+4. **Commit your changes** with a clear commit message (`git commit -m 'feat: add Floyd-Steinberg dithering'`).
+5. **Push to your branch** (`git push origin feature/awesome-new-engine`).
+6. **Open a Pull Request**.
+
+### Project Architecture
+- `lumart.py`: The single-file core engine containing perceptual Linear RGB color blending, Bayer dithering, Braille/Half-block glyph sculpting, and localized CLI argument parsing.
+- `install.sh`: Universal Plug & Play installer compatible with Fedora, Debian/Ubuntu, Arch Linux, openSUSE, and macOS.
+- `build_packages.sh`: Automated package builder for PyInstaller standalone binaries, Debian packages (`.deb`), Red Hat/Fedora RPMs (`.rpm`), and Arch Linux PKGBUILDs.
+- `pyproject.toml`: Modern packaging definition allowing `pipx install .` and `pip install --user .`.
+
+### Coding Guidelines
+- **Zero Heavy Dependencies**: Keep Luma lightweight and plug-and-play. Rely only on Pillow (`PIL`) and standard library modules. Avoid heavy dependencies like OpenCV or PyTorch unless completely optional and isolated.
+- **Terminal Aesthetics**: Every new mode or feature must prioritize visual excellence and fidelity.
+- **Multilingual Support**: If you add new CLI arguments or user-facing messages, update all 7 language dictionaries in `TRANSLATIONS` (`en`, `es`, `pt`, `ru`, `ja`, `de`, `ko`).
+
+Have fun hacking terminal colors and graphics! 🎨

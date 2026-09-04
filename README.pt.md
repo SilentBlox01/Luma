@@ -135,7 +135,7 @@ Com problemas em fontes, cores ou módulos ausentes? Confira nosso [Guia de Solu
 
 O Luma é um projeto de código aberto e contribuições são bem-vindas.
 
-Se você tem uma ideia para um algoritmo de renderização, otimização, sistema de glifos, benchmark ou melhoria, fique à vontade para abrir um *issue* ou enviar um *pull request*. (Veja `CONTRIBUTING.md` para mais detalhes).
+Se você tem uma ideia para um algoritmo de renderização, otimização, sistema de glifos, benchmark ou melhoria, fique à vontade para abrir um *issue* ou enviar um *pull request*. (Veja [CONTRIBUTING.pt.md](CONTRIBUTING.pt.md) para mais detalhes).
 
 ## Licença
 

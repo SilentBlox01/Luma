@@ -135,7 +135,7 @@ Haben Sie Probleme mit Schriftarten, Farben oder fehlenden Modulen? In unserem [
 
 Luma ist ein Open-Source-Projekt und Beiträge sind willkommen.
 
-Wenn Sie eine Idee für einen Rendering-Algorithmus, eine Optimierung, ein Glyphensystem, einen Benchmark oder eine Verbesserung haben, können Sie gerne ein Issue eröffnen oder einen Pull Request senden. (Siehe `CONTRIBUTING.md` für Details).
+Wenn Sie eine Idee für einen Rendering-Algorithmus, eine Optimierung, ein Glyphensystem, einen Benchmark oder eine Verbesserung haben, können Sie gerne ein Issue eröffnen oder einen Pull Request senden. (Siehe [CONTRIBUTING.de.md](CONTRIBUTING.de.md) für Details).
 
 ## Lizenz
 
