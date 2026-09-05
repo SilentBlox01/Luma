@@ -96,21 +96,40 @@ if [ "$TARGET" = "rpm" ] || [ "$TARGET" = "all" ]; then
     echo "=== Creating RPM package ==="
     if command -v rpmbuild &>/dev/null; then
         mkdir -p build/rpm/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+        
+        EXTRA_FILES=""
+        if [ -f "dist/luma-mono" ]; then
+            cp dist/luma-mono build/rpm/rpmbuild/SOURCES/
+            EXTRA_FILES="${EXTRA_FILES}\n/usr/bin/luma-mono"
+        fi
+        if [ -f "dist/libmonochrome.so" ]; then
+            cp dist/libmonochrome.so build/rpm/rpmbuild/SOURCES/
+            EXTRA_FILES="${EXTRA_FILES}\n/usr/lib/libmonochrome.so"
+        fi
+
         cat << EOF > build/rpm/rpmbuild/SPECS/lumart.spec
 Name:           lumart
 Version:        $LUMA_VERSION
 Release:        1
 Summary:        High-Fidelity Terminal Art Engine
-License:        AGPL
+License:        AGPL-3.0
 %description
-High-Fidelity Terminal Art Engine (Color Swap & Neofetch OS Style)
+High-Fidelity Terminal Art Engine (Dual-Engine, Manga 2.0 & Color Swap)
 %install
 mkdir -p %{buildroot}/usr/bin
 cp %{_sourcedir}/lumart %{buildroot}/usr/bin/
 ln -sf lumart %{buildroot}/usr/bin/luma
+if [ -f "%{_sourcedir}/luma-mono" ]; then
+    cp %{_sourcedir}/luma-mono %{buildroot}/usr/bin/
+fi
+if [ -f "%{_sourcedir}/libmonochrome.so" ]; then
+    mkdir -p %{buildroot}/usr/lib
+    cp %{_sourcedir}/libmonochrome.so %{buildroot}/usr/lib/
+fi
 %files
 /usr/bin/lumart
 /usr/bin/luma
+$(echo -e "$EXTRA_FILES")
 EOF
         cp dist/lumart build/rpm/rpmbuild/SOURCES/
         rpmbuild --define "_topdir $(pwd)/build/rpm/rpmbuild" -bb build/rpm/rpmbuild/SPECS/lumart.spec
@@ -127,21 +146,46 @@ if [ "$TARGET" = "arch" ] || [ "$TARGET" = "all" ]; then
     echo "=== Creating Arch Linux PKGBUILD ==="
     mkdir -p dist/arch
     cat << EOF > dist/arch/PKGBUILD
+# Maintainer: SilentBlox_01
 pkgname=lumart-bin
 pkgver=$LUMA_VERSION
 pkgrel=1
-pkgdesc="High-Fidelity Terminal Art Engine (Color Swap & Neofetch OS Style)"
+pkgdesc="High-Fidelity Terminal Art Engine (Dual-Engine, Manga 2.0 & Color Swap)"
 arch=('x86_64')
-license=('AGPL')
+url="https://github.com/SilentBlox01/Luma"
+license=('AGPL-3.0')
 source=("lumart")
 sha256sums=('SKIP')
 package() {
     install -Dm755 "\$srcdir/lumart" "\$pkgdir/usr/bin/lumart"
     ln -sf lumart "\$pkgdir/usr/bin/luma"
+    if [ -f "\$srcdir/luma-mono" ]; then
+        install -Dm755 "\$srcdir/luma-mono" "\$pkgdir/usr/bin/luma-mono"
+    fi
+    if [ -f "\$srcdir/libmonochrome.so" ]; then
+        install -Dm755 "\$srcdir/libmonochrome.so" "\$pkgdir/usr/lib/libmonochrome.so"
+    fi
 }
 EOF
     cp dist/lumart dist/arch/
+    [ -f "dist/luma-mono" ] && cp dist/luma-mono dist/arch/
+    [ -f "dist/libmonochrome.so" ] && cp dist/libmonochrome.so dist/arch/
 fi
+
+# 4. Universal Linux Portable Archive (.tar.gz)
+echo "=== Creating Universal Linux Tarball ==="
+TAR_NAME="lumart-$LUMA_VERSION-linux-x86_64"
+rm -rf "build/$TAR_NAME"
+mkdir -p "build/$TAR_NAME"
+cp dist/lumart "build/$TAR_NAME/"
+ln -sf lumart "build/$TAR_NAME/luma"
+[ -f "dist/luma-mono" ] && cp dist/luma-mono "build/$TAR_NAME/"
+[ -f "dist/libmonochrome.so" ] && cp dist/libmonochrome.so "build/$TAR_NAME/"
+[ -f "install.sh" ] && cp install.sh "build/$TAR_NAME/"
+[ -f "README.md" ] && cp README.md "build/$TAR_NAME/"
+[ -f "LICENSE" ] && cp LICENSE "build/$TAR_NAME/"
+tar -czf "dist/$TAR_NAME.tar.gz" -C build "$TAR_NAME"
+ln -sf "$TAR_NAME.tar.gz" "dist/lumart-linux-x86_64.tar.gz"
 
 echo -e "\n=== DONE! ==="
 echo "Artifacts ready in 'dist/':"

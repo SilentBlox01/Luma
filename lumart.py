@@ -1305,7 +1305,8 @@ def show_version_info():
         
     print("\n⚡ \033[1mMotores de Renderizado:\033[0m")
     print(f"  • Motor Color:         Activo (Linear RGB 2.2, Lanczos, ANSI 24-bit TrueColor)")
-    print(f"  • Motor Monocromático: {'\033[1;32m' if has_cpp else '\033[1;33m'}{cpp_detail}\033[0m")
+    cpp_color = "\033[1;32m" if has_cpp else "\033[1;33m"
+    print(f"  • Motor Monocromático: {cpp_color}{cpp_detail}\033[0m")
     print(f"  • Modos B&W Soportados: braille, manga 2.0 (DoG + Bayer), sketch (DoG puro), blocks (2x2 cuadrantes HD), ascii")
     print(f"  • Algoritmos Tramado:  atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8")
     
@@ -1319,7 +1320,8 @@ def show_version_info():
     print(f"  • Resolución actual:   {cols} columnas × {rows} filas")
     print(f"  • $COLORTERM:          {colorterm}")
     print(f"  • $TERM:               {term}")
-    print(f"  • TrueColor (24-bit):  {'\033[1;32m✅ Soportado' if has_truecolor else '\033[1;33m⚠️  No detectado (puede haber colores aproximados)'}\033[0m")
+    tc_status = "\033[1;32m✅ Soportado" if has_truecolor else "\033[1;33m⚠️  No detectado (puede haber colores aproximados)"
+    print(f"  • TrueColor (24-bit):  {tc_status}\033[0m")
     
     # 4. Storage & Config
     cfg_path = os.path.expanduser("~/.config/luma/config.json")
