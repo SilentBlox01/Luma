@@ -13,15 +13,17 @@ Unlike traditional ASCII converters that simply map image brightness to characte
 ## Features
 
 * High-fidelity image rendering in the terminal
-* ASCII, Braille and Block-based rendering
-* **Hybrid Dual-Engine Architecture**:
-  * **Linear RGB Color Engine** (Python / Pillow): HDR contrast curves, linear color space blending ($C_{\text{linear}} = C_{\text{srgb}}^{2.2}$), and 24-bit TrueColor ANSI.
-  * **High-Performance Monochrome & Manga Engine** (Native C++17): Sub-10ms execution, Difference of Gaussians (DoG) lineart extraction, Bill Atkinson (1984 MacPaint) error diffusion, and 8x8 Bayer screentone halftoning.
-* **Engine Selector (`-E`, `--engine`)**: Switch dynamically between `color`, `mono`, `bw`, `manga`, and `sketch`.
+* ASCII, Braille, 2x2 Quadrants, and Half-Block rendering
+* **Three Dedicated Rendering Engines (`-E`, `--engine`)**:
+  * **Mary 3.0 Apex (Flagship Color Super-Engine - Native C++17 & Python Fallback)**: Zero AI, 100% computational optics and human retinal biophysics. Accelerated by C++17 OpenMP multi-core SIMD (`libmary.so` and `luma-mary` CLI). Features $O(1)$ Fast Guided Filtering in Oklab color space ($\Delta E$), Weber-Fechner adaptive perception thresholding ($\tau = 0.0075 \times ((L + 0.08)/0.58)^{0.80}$), 2x3 Unicode Sextants (`-S`, 64 solid subpixel blocks), 2x4 dual-color clustered Braille (`-B`), 2x2 Quadrants (`-Q`), and state-aware zero-latency ANSI stream compression.
+  * **Trumble (Classic Color Engine)**: The original, battle-tested color engine. Linear RGB 2.2 color blending ($C_{\text{linear}} = C_{\text{srgb}}^{2.2}$), Lanczos resampling, Bayer ordered dithering, and 24-bit TrueColor Braille/Blocks. 100% preserved.
+  * **Luris (Monochrome & Manga Native C++17 Engine)**: Sub-10ms native execution, Difference of Gaussians (DoG) contour extraction, Bill Atkinson (1984 MacPaint) error diffusion, 8x8 Bayer screentone halftoning (*Ami-tone*), and 2x2 Quadrant HD blocks.
+* **Engine Selector (`-E`, `--engine`)**: Switch dynamically between `mary`, `trumble`, and `luris` (with backward-compatible aliases: `color`, `mono`, `bw`, `manga`, `sketch`).
+* **2x3 Unicode Sextant Blocks (`-S`, `--sextants`)**: 6 subpixels per cell using Unicode 13.0 sextants (`🬀`-`🬻`, `█`, `▌`, `▐`). Mary's flagship renderer for seamless, solid terminal graphics.
 * **Pure Line Art Sketch Mode (`-s`, `-E sketch`)**: Zero-noise anime and illustration contour extraction.
 * **Manga Screentone 2.0 (`-m`, `-E manga`)**: Authentic print screentone (*Ami-tone*) for midtones with pure paper whites and solid black ink.
 * **Atkinson & Halftone Dithering (`-d` / `--dither`)**: Supports `atkinson`, `floyd`, `bayer`, and `none`.
-* **2x2 Quadrant HD Blocks (`--blocks`)**: 4 subpixels per cell using Unicode quadrant elements (`▘▝▀▖▌▞▛▗▚▐▜▄▙▟█`).
+* **2x2 Quadrant HD Blocks (`--quadrants`, `--blocks`)**: 4 subpixels per cell using Unicode quadrant elements (`▘▝▀▖▌▞▛▗▚▐▜▄▙▟█`).
 * **OS-Style Rendering (`--os-style`)**: Classic terminal characters (dots, letters) for Neofetch-style logos.
 * **Real-time Color Swapping (`--swap`)**: Dynamically swap colors based on 3D Euclidean color distance.
 * **Zero External Native Dependencies**: The C++ engine uses self-contained public domain C headers (`stb_image.h` and `stb_image_resize2.h`). No OpenCV or libpng required.
@@ -94,9 +96,24 @@ Specify the output width (in characters):
 python3 lumart.py image.png -w 30
 ```
 
-Enable high-fidelity Braille rendering with Truecolor:
+Render with the Flagship Mary 3.0 Apex Engine in 2x3 Sextants (Solid Blocks, default):
 ```bash
-python3 lumart.py image.png --braille -c
+python3 lumart.py image.png -E mary -S -w 80
+```
+
+Render with Mary in Dual-Cluster Oklab Braille (2x4 Subpixels):
+```bash
+python3 lumart.py image.png -E mary -B -w 80
+```
+
+Render with Mary in 2x2 Quadrant HD Blocks (TrueColor foreground & background):
+```bash
+python3 lumart.py image.png -E mary -Q -w 80
+```
+
+Render with the Classic Trumble Engine (Linear RGB 2.2):
+```bash
+python3 lumart.py image.png -E trumble --braille -w 80
 ```
 
 Render in Pure Line Art Sketch mode (clean DoG contours, no noise):

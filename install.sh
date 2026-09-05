@@ -6,7 +6,7 @@
 # ==============================================================================
 set -e
 
-VERSION="2.1.2"
+VERSION="2.2.0"
 
 # Color helpers
 CYAN='\033[1;36m'
@@ -136,7 +136,7 @@ fi
 mkdir -p "$INSTALL_DIR"
 mkdir -p "$SHARE_DIR"
 
-# 3. Locate or download lumart.py
+# 3. Locate or download lumart.py and mary.py
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
 if [ -f "$SCRIPT_DIR/lumart.py" ]; then
     echo -e "${MSG_COPY_LOCAL} ${SHARE_DIR}..."
@@ -147,6 +147,13 @@ else
 fi
 chmod +x "$SHARE_DIR/lumart.py"
 
+if [ -f "$SCRIPT_DIR/mary.py" ]; then
+    cp "$SCRIPT_DIR/mary.py" "$SHARE_DIR/mary.py"
+else
+    curl -fsSL "https://raw.githubusercontent.com/SilentBlox01/Luma/main/mary.py" -o "$SHARE_DIR/mary.py" 2>/dev/null || true
+fi
+chmod +x "$SHARE_DIR/mary.py" 2>/dev/null || true
+
 # 3b. C++ Monochrome Engine (standalone binary and shared library)
 if [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
     cp "$SCRIPT_DIR/monochrome.cpp" "$SHARE_DIR/"
@@ -156,6 +163,21 @@ if [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
         echo "⚡ Compiling native C++ monochrome engine (luma-mono)..."
         g++ -O3 -std=c++17 -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || true
         g++ -O3 -std=c++17 -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || true
+    fi
+fi
+
+# 3c. C++ Mary Color Super-Engine (standalone binary and shared library)
+if [ -f "$SCRIPT_DIR/mary.cpp" ]; then
+    cp "$SCRIPT_DIR/mary.cpp" "$SHARE_DIR/"
+    [ -f "$SCRIPT_DIR/stb_image.h" ] && cp "$SCRIPT_DIR/stb_image.h" "$SHARE_DIR/"
+    [ -f "$SCRIPT_DIR/stb_image_resize2.h" ] && cp "$SCRIPT_DIR/stb_image_resize2.h" "$SHARE_DIR/"
+    if command -v g++ &>/dev/null; then
+        echo "⚡ Compiling native C++ Mary color super-engine (luma-mary)..."
+        g++ -O3 -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$INSTALL_DIR/luma-mary" 2>/dev/null || \
+        g++ -O3 -std=c++17 -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$INSTALL_DIR/luma-mary" 2>/dev/null || true
+
+        g++ -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$SHARE_DIR/libmary.so" 2>/dev/null || \
+        g++ -O3 -std=c++17 -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$SHARE_DIR/libmary.so" 2>/dev/null || true
     fi
 fi
 

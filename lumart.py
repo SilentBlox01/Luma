@@ -59,7 +59,23 @@ except ImportError:
 
     from PIL import Image, ImageEnhance, ImageOps, ImageFilter
 
-VERSION = "2.1.2"
+# Importación del motor de renderizado a color de nueva generación: Mary
+try:
+    import mary
+except ImportError:
+    _base_dir = os.path.dirname(os.path.abspath(__file__))
+    if _base_dir not in sys.path:
+        sys.path.insert(0, _base_dir)
+    for _cand_dir in ["/usr/local/share/luma", "/usr/share/luma"]:
+        if os.path.exists(_cand_dir) and _cand_dir not in sys.path:
+            sys.path.append(_cand_dir)
+    try:
+        import mary
+    except ImportError:
+        mary = None
+
+
+VERSION = "2.2.0"
 GITHUB_REPO = "SilentBlox01/Luma"
 GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/lumart.py"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
@@ -87,13 +103,16 @@ TRANSLATIONS = {
         "help_version": "Show program's version, system diagnostics, and engine status.",
         "help_image_path": "Path to the input image file (works best with transparent backgrounds).",
         "help_width": "Width of the output ASCII art (in characters). Default: 90",
-        "help_engine": "Select rendering engine: 'color' (default), 'mono' (B&W), 'manga', or 'sketch'.",
+        "help_engine": "Select rendering engine: 'trumble' (classic color, default), 'mary' (perceptual color v2.2.0), or 'luris' (monochrome/manga).",
         "help_color": "Output ASCII art in color (Color Engine).",
         "help_no_color": "Disable color output and use B&W engine.",
         "help_invert": "Invert the ASCII characters (useful for dark terminals).",
         "help_output": "Save the ASCII art to a file instead of printing to the console.",
         "help_binary": "Use only 1s and 0s for the ASCII characters.",
         "help_blocks": "Use half-blocks (Color) or 2x2 Quadrant HD blocks (B&W) for high resolution.",
+        "help_quadrants": "Use 2x2 Unicode quadrant blocks for ultra-dense subpixel rendering.",
+        "help_sextants": "Use 2x3 Unicode sextant blocks for solid subpixel rendering (Mary Apex flagship).",
+        "help_font_ratio": "Terminal font aspect ratio width/height calibration (default: 0.5).",
         "help_braille": "Use Braille characters for smooth edges and high resolution shape (overrides binary).",
         "help_raw_colors": "Disable enhanced color processing and use the original raw image colors.",
         "help_os_style": "Use classic Neofetch/OS style characters (dots, letters, shapes).",
@@ -132,13 +151,16 @@ TRANSLATIONS = {
         "help_version": "Mostrar versión del programa, diagnóstico del sistema y estado de aceleración.",
         "help_image_path": "Ruta al archivo de imagen de entrada (funciona mejor con fondos transparentes).",
         "help_width": "Ancho del arte ASCII de salida (en caracteres). Por defecto: 90",
-        "help_engine": "Seleccionar motor de renderizado: 'color' (por defecto), 'mono', 'manga' o 'sketch'.",
+        "help_engine": "Seleccionar motor: 'trumble' (color clásico, por defecto), 'mary' (color perceptual v2.2.0) o 'luris' (monocromático/manga).",
         "help_color": "Generar arte ASCII en color (Motor de Color).",
         "help_no_color": "Desactivar salida de color y usar motor blanco y negro.",
         "help_invert": "Invertir los caracteres ASCII (útil para terminales oscuras).",
         "help_output": "Guardar el arte ASCII en un archivo en lugar de imprimirlo en consola.",
         "help_binary": "Usar solo 1s y 0s para los caracteres ASCII.",
         "help_blocks": "Usar medio-bloques (Color) o bloques cuadrantes 2x2 HD (B&W) para alta resolución.",
+        "help_quadrants": "Usar bloques cuadrantes 2x2 Unicode para renderizado subpíxel ultra denso.",
+        "help_sextants": "Usar bloques sextantes 2x3 Unicode para renderizado subpíxel sólido (buque insignia Mary Apex).",
+        "help_font_ratio": "Calibración de relación aspecto ancho/alto de fuente de terminal (por defecto: 0.5).",
         "help_braille": "Usar caracteres Braille para bordes suaves y formas de alta resolución.",
         "help_raw_colors": "Desactiva el realce de color y utiliza los colores originales sin procesar.",
         "help_os_style": "Usar caracteres clásicos estilo Neofetch/OS (puntos, letras, formas).",
@@ -177,13 +199,16 @@ TRANSLATIONS = {
         "help_version": "Mostrar o número da versão do programa, diagnóstico e status do motor.",
         "help_image_path": "Caminho para o arquivo de imagem de entrada (funciona melhor com fundos transparentes).",
         "help_width": "Largura da arte ASCII de saída (em caracteres). Padrão: 90",
-        "help_engine": "Selecionar motor de renderização: 'color' (padrão), 'mono', 'manga' ou 'sketch'.",
+        "help_engine": "Selecionar motor: 'trumble' (cor clássica, padrão), 'mary' (cor perceptual v2.2.0) ou 'luris' (monocromático/manga).",
         "help_color": "Gerar arte ASCII em cores (Motor de Cores).",
         "help_no_color": "Desativar saída colorida e usar motor preto e branco.",
         "help_invert": "Inverter os caracteres ASCII (útil para terminais escuros).",
         "help_output": "Salvar a arte ASCII em um arquivo em vez de imprimir no console.",
         "help_binary": "Usar apenas 1s e 0s para os caracteres ASCII.",
         "help_blocks": "Usar meios-blocos ou blocos quadrantes 2x2 para alta resolução.",
+        "help_quadrants": "Usar blocos de quadrantes 2x2 Unicode para renderização subpíxel ultradensa.",
+        "help_sextants": "Usar blocos de sextantes 2x3 Unicode para renderização subpíxel sólida (flagship Mary Apex).",
+        "help_font_ratio": "Calibração da proporção largura/altura da fonte do terminal (padrão: 0.5).",
         "help_braille": "Usar caracteres Braille para bordas suaves e formas de alta resolução.",
         "help_raw_colors": "Desativar o realce de cor e usar as cores originais sem processamento.",
         "help_os_style": "Usar caracteres clássicos estilo Neofetch/OS (pontos, letras, formas).",
@@ -222,13 +247,16 @@ TRANSLATIONS = {
         "help_version": "Показать версию программы, диагностику системы и статус движка.",
         "help_image_path": "Путь к исходному файлу изображения (лучше всего работает с прозрачным фоном).",
         "help_width": "Ширина выходного ASCII-арта (в символах). По умолчанию: 90",
-        "help_engine": "Выбрать движок рендеринга: 'color' (по умолчанию), 'mono', 'manga' или 'sketch'.",
+        "help_engine": "Выбрать движок: 'trumble' (классический цвет, по умолчанию), 'mary' (перцептивный цвет v2.2.0) или 'luris' (монохром/манга).",
         "help_color": "Выводить ASCII-арт в цвете (Цветовой движок).",
         "help_no_color": "Отключить цветной вывод и использовать черно-белый движок.",
         "help_invert": "Инвертировать символы ASCII (полезно для темных терминалов).",
         "help_output": "Сохранить ASCII-арт в файл вместо вывода в консоль.",
         "help_binary": "Использовать только 1 и 0 для символов ASCII.",
         "help_blocks": "Использовать полублоки или 2x2 квадранты для высокого разрешения.",
+        "help_quadrants": "Использовать квадранты 2x2 Unicode для сверхплотного субпиксельного рендеринга.",
+        "help_sextants": "Использовать секстанты 2x3 Unicode для монолитного субпиксельного рендеринга (флагман Mary Apex).",
+        "help_font_ratio": "Калибровка соотношения сторон шрифта терминала ширина/высота (по умолчанию: 0.5).",
         "help_braille": "Использовать шрифт Брайля для сглаженных краев и высокого разрешения.",
         "help_raw_colors": "Отключить улучшение цветов и использовать исходные цвета без обработки.",
         "help_os_style": "Использовать классические символы в стиле Neofetch/OS (точки, буквы, формы).",
@@ -267,13 +295,16 @@ TRANSLATIONS = {
         "help_version": "プログラムのバージョン、診断情報、エンジン状態を表示して終了します。",
         "help_image_path": "入力画像ファイルへのパス（透明な背景が最適です）。",
         "help_width": "出力するASCIIアートの幅（文字数）。デフォルト: 90",
-        "help_engine": "レンダリングエンジンの選択: 'color' (デフォルト), 'mono', 'manga', 'sketch'。",
+        "help_engine": "レンダリングエンジンの選択: 'trumble' (クラシックカラー、デフォルト), 'mary' (知覚カラー v2.2.0), 'luris' (モノクロ/マンガ)。",
         "help_color": "ASCIIアートをカラーで出力します (カラーエンジン)。",
         "help_no_color": "カラー出力を無効にし、白黒エンジンを使用します。",
         "help_invert": "ASCII文字を反転します（暗いターミナルで便利です）。",
         "help_output": "コンソールに出力する代わりに、ASCIIアートをファイルに保存します。",
         "help_binary": "ASCII文字として1と0のみを使用します。",
         "help_blocks": "高解像度のためにハーフブロックまたは2x2ブロックを使用します。",
+        "help_quadrants": "2x2 Unicode象限ブロックを使用した超高密度サブピクセルレンダリング。",
+        "help_sextants": "2x3 Unicode六分儀ブロックによる高密度ソリッド描画（Mary Apexフラッグシップ）。",
+        "help_font_ratio": "ターミナルフォントの幅/高さアスペクト比キャリブレーション（デフォルト：0.5）。",
         "help_braille": "滑らかなエッジと高解像度の形状のために点字文字を使用します。",
         "help_raw_colors": "カラー補正を無効にし、元の画像の色を処理なしで使用します。",
         "help_os_style": "クラシックなNeofetch/OSスタイルの文字（ドット、文字、図形）を使用します。",
@@ -293,7 +324,7 @@ TRANSLATIONS = {
         "help_downgrade": "前のバージョンまたは対話型メニューからロールバックします (-dg, --downgrade [VER])。",
         "update_checking": "🔍 アップデートを確認中...",
         "update_already_latest": "✅ Lumaはすでに最新バージョンです（v{}）。",
-        "update_available": "💡 新しいバージョンが利用可能です: v{} (現在: v{})。\n   インストールするには実行してください: lumart -uu (または lumart --upgrade)",
+        "update_available": "💡 新しいバージョンが利用可能です: v{} (現在: v{}).\n   インストールするには実行してください: lumart -uu (または lumart --upgrade)",
         "update_downloading": "⬇️  Luma v{} をダウンロードしてインストール中...",
         "update_success": "🎉 Lumaを v{} から v{} に正常に更新しました！",
         "update_error": "❌ アップデートエラー: {}",
@@ -312,13 +343,16 @@ TRANSLATIONS = {
         "help_version": "Versionsnummer, Systemdiagnose und Engine-Status anzeigen.",
         "help_image_path": "Pfad zur Eingabebilddatei (funktioniert am besten mit transparentem Hintergrund).",
         "help_width": "Breite der ASCII-Kunst (in Zeichen). Standard: 90",
-        "help_engine": "Rendering-Engine auswählen: 'color' (Standard), 'mono', 'manga' oder 'sketch'.",
+        "help_engine": "Rendering-Engine auswählen: 'trumble' (klassische Farbe, Standard), 'mary' (wahrnehmungsbasierte Farbe v2.2.0) oder 'luris' (Monochrom/Manga).",
         "help_color": "ASCII-Kunst in Farbe ausgeben (Farb-Engine).",
         "help_no_color": "Farbausgabe deaktivieren und Schwarz-Weiß-Engine verwenden.",
         "help_invert": "ASCII-Zeichen umkehren (nützlich für dunkle Terminals).",
         "help_output": "ASCII-Kunst in einer Datei speichern, anstatt sie auf der Konsole auszugeben.",
         "help_binary": "Nur 1en und 0en für die ASCII-Zeichen verwenden.",
         "help_blocks": "Halbblöcke oder 2x2 Quadrant-Blöcke für hohe Auflösung verwenden.",
+        "help_quadrants": "2x2 Unicode-Quadrantblöcke für ultra-dichtes Subpixel-Rendering verwenden.",
+        "help_sextants": "2x3 Unicode-Sextantenblöcke für solides Subpixel-Rendering verwenden (Mary Apex Flaggschiff).",
+        "help_font_ratio": "Kalibrierung des Schrift-Seitenverhältnisses Breite/Höhe des Terminals (Standard: 0.5).",
         "help_braille": "Braille-Zeichen für weiche Kanten und hohe Auflösung verwenden.",
         "help_raw_colors": "Farbverbesserung deaktivieren und die ursprünglichen Bildfarben verwenden.",
         "help_os_style": "Klassische Neofetch/OS-Zeichen (Punkte, Buchstaben, Formen) verwenden.",
@@ -357,13 +391,16 @@ TRANSLATIONS = {
         "help_version": "프로그램의 버전 번호, 시스템 진단 및 엔진 상태를 표시합니다.",
         "help_image_path": "입력 이미지 파일의 경로입니다 (투명한 배경이 가장 좋습니다).",
         "help_width": "출력 ASCII 아트의 너비(문자 수)입니다. 기본값: 90",
-        "help_engine": "렌더링 엔진 선택: 'color' (기본값), 'mono', 'manga' 또는 'sketch'.",
+        "help_engine": "렌더링 엔진 선택: 'trumble' (클래식 색상, 기본값), 'mary' (지각 색상 v2.2.0) 또는 'luris' (흑백/만화).",
         "help_color": "컬러로 ASCII 아트를 출력합니다 (컬러 엔진).",
         "help_no_color": "컬러 출력을 비활성화하고 흑백 엔진을 사용합니다.",
         "help_invert": "ASCII 문자를 반전시킵니다(어두운 터미널에 유용).",
         "help_output": "콘솔에 출력하는 대신 ASCII 아트를 파일에 저장합니다.",
         "help_binary": "ASCII 문자에 1과 0만 사용합니다.",
         "help_blocks": "고해상도를 위해 하프 블록 또는 2x2 쿼드런트 블록을 사용합니다.",
+        "help_quadrants": "초고밀도 서브픽셀 렌더링을 위해 2x2 유니코드 사분면 블록을 사용합니다.",
+        "help_sextants": "솔리드 서브픽셀 렌더링을 위해 2x3 유니코드 육분의 블록 사용 (Mary Apex 플래그십).",
+        "help_font_ratio": "터미널 폰트 가로/세로 비율 보정 (기본값: 0.5).",
         "help_braille": "부드러운 가장자리와 고해상도 모양을 위해 점자 문자를 사용합니다.",
         "help_raw_colors": "컬러 향상을 비활성화하고 처리 없이 원래 이미지 색상을 사용합니다.",
         "help_os_style": "클래식 Neofetch/OS 스타일 문자(점, 글자, 도형)를 사용합니다.",
@@ -1302,13 +1339,36 @@ def show_version_info():
     if not has_cpp and shutil.which("luma-mono"):
         has_cpp = True
         cpp_detail = f"Activo vía binario ({shutil.which('luma-mono')})"
+
+    has_mary_cpp = False
+    mary_cpp_detail = "Python Fallback"
+    for cand in [
+        os.path.join(exe_dir, "libmary.so"),
+        os.path.join(base_dir, "libmary.so"),
+        "/usr/local/share/luma/libmary.so",
+        "/usr/share/luma/libmary.so",
+        "libmary.so"
+    ]:
+        if os.path.exists(cand):
+            has_mary_cpp = True
+            mary_cpp_detail = f"Nativo C++ ({cand})"
+            break
+    if not has_mary_cpp and shutil.which("luma-mary"):
+        has_mary_cpp = True
+        mary_cpp_detail = f"Nativo C++ vía binario ({shutil.which('luma-mary')})"
         
     print("\n⚡ \033[1mMotores de Renderizado:\033[0m")
-    print(f"  • Motor Color:         Activo (Linear RGB 2.2, Lanczos, ANSI 24-bit TrueColor)")
+    print(f"  • Trumble (Color Clásico):  \033[1;32mActivo (Por defecto)\033[0m (Linear RGB 2.2, Lanczos, Bayer Dither, TrueColor Braille/Blocks)")
+    if has_mary_cpp or mary is not None:
+        mary_status = f"\033[1;32mActivo - {mary_cpp_detail}\033[0m (Apex 3.0: Guided Filter Oklab, Weber-Fechner, OpenMP Multi-Core, SIMD)"
+    else:
+        mary_status = "\033[1;33mNo disponible (usando Trumble)\033[0m"
+    print(f"  • Mary (Color Perceptual v2.2.0): {mary_status}")
+    print(f"  • Modos Mary Soportados:    sextants (2x3 bloques sólidos HD), braille (2x4 dual-color), quadrants (2x2), blocks, ascii")
     cpp_color = "\033[1;32m" if has_cpp else "\033[1;33m"
-    print(f"  • Motor Monocromático: {cpp_color}{cpp_detail}\033[0m")
-    print(f"  • Modos B&W Soportados: braille, manga 2.0 (DoG + Bayer), sketch (DoG puro), blocks (2x2 cuadrantes HD), ascii")
-    print(f"  • Algoritmos Tramado:  atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8")
+    print(f"  • Luris (Monocromático):    {cpp_color}{cpp_detail}\033[0m (DoG Lineart, Atkinson 1984, Manga 2.0, HD Blocks)")
+    print(f"  • Modos Luris Soportados:   braille, manga 2.0 (DoG + Bayer), sketch (DoG puro), blocks (2x2 cuadrantes HD), ascii")
+    print(f"  • Algoritmos Tramado:       atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8")
     
     # 3. Terminal Diagnostics
     cols, rows = shutil.get_terminal_size((90, 24))
@@ -1775,8 +1835,99 @@ def try_render_native_monochrome(image_path, width, mode="braille", dither="none
 
     return None
 
+def try_render_native_mary(image_path, width, mode="sextants", raw_colors=False, invert=False, font_ratio=0.5):
+    """
+    Intenta ejecutar el motor nativo Mary en C++ (luma-mary o libmary.so).
+    Aceleración C++17 nativa con Guided Filter Oklab O(1), umbral adaptativo Weber-Fechner,
+    renderizado multihilo OpenMP y modos subpíxel Sextants/Braille/Quadrants.
+    Retorna el string de texto renderizado o None si no se encuentra el binario/librería.
+    """
+    import ctypes
+    import shutil
+    import subprocess
+
+    exe_dir = os.path.dirname(os.path.abspath(sys.executable))
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    lib_paths = [
+        os.path.join(exe_dir, "libmary.so"),
+        os.path.join(base_dir, "libmary.so"),
+        os.path.join(exe_dir, "..", "libmary.so"),
+        os.path.join(base_dir, "..", "libmary.so"),
+        "/usr/local/share/luma/libmary.so",
+        "/usr/share/luma/libmary.so",
+        "/usr/local/lib/libmary.so",
+        "/usr/lib/libmary.so",
+        "libmary.so"
+    ]
+    for lp in lib_paths:
+        if os.path.exists(lp):
+            try:
+                lib = ctypes.CDLL(lp)
+                if hasattr(lib, "render_mary_apex_c"):
+                    lib.render_mary_apex_c.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_bool, ctypes.c_bool, ctypes.c_float]
+                    lib.render_mary_apex_c.restype = ctypes.c_void_p
+                    lib.free_mary_buffer.argtypes = [ctypes.c_void_p]
+                    lib.free_mary_buffer.restype = None
+
+                    ptr = lib.render_mary_apex_c(
+                        image_path.encode("utf-8"),
+                        int(width),
+                        mode.encode("utf-8"),
+                        bool(raw_colors),
+                        bool(invert),
+                        float(font_ratio)
+                    )
+                else:
+                    lib.render_mary_c.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_bool, ctypes.c_bool]
+                    lib.render_mary_c.restype = ctypes.c_void_p
+                    lib.free_mary_buffer.argtypes = [ctypes.c_void_p]
+                    lib.free_mary_buffer.restype = None
+
+                    ptr = lib.render_mary_c(
+                        image_path.encode("utf-8"),
+                        int(width),
+                        mode.encode("utf-8"),
+                        bool(raw_colors),
+                        bool(invert)
+                    )
+                if ptr:
+                    res_bytes = ctypes.string_at(ptr)
+                    lib.free_mary_buffer(ptr)
+                    res = res_bytes.decode("utf-8", errors="replace")
+                    if res and not res.startswith("❌"):
+                        return res
+            except Exception:
+                pass
+
+    bin_names = [
+        os.path.join(exe_dir, "luma-mary"),
+        os.path.join(base_dir, "luma-mary"),
+        shutil.which("luma-mary")
+    ]
+    for b in bin_names:
+        if b and os.path.exists(b) and os.access(b, os.X_OK):
+            try:
+                cmd = [b, image_path, "-w", str(width), "-m", mode, "-r", str(font_ratio)]
+                if raw_colors:
+                    cmd.append("--raw")
+                if invert:
+                    cmd.append("-i")
+                proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                if proc.stdout and not proc.stdout.startswith("❌"):
+                    return proc.stdout
+            except Exception:
+                pass
+
+    return None
+
 def main():
     import json
+    try:
+        import signal
+        if hasattr(signal, "SIGPIPE"):
+            signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+    except Exception:
+        pass
     
     # Inicialización de secuencias de escape ANSI en consolas Windows (cmd / powershell)
     if os.name == "nt":
@@ -1856,15 +2007,19 @@ def main():
 
     parser.add_argument("image_path", nargs="?", default=None, help=_("help_image_path"))
     parser.add_argument("-w", "--width", type=int, default=None, help=_("help_width"))
-    parser.add_argument("-E", "--engine", choices=["color", "mono", "bw", "manga", "sketch"], default=None, help=_("help_engine"))
+    parser.add_argument("-E", "--engine", choices=["mary", "trumble", "luris", "color", "mono", "bw", "manga", "sketch"], default=None, help=_("help_engine"))
     parser.add_argument("-d", "--dither", nargs="?", const="atkinson", default=None, help=_("help_dither"))
     parser.add_argument("--no-color", action="store_false", dest="color", help=_("help_no_color"))
     parser.add_argument("-c", "--color", action="store_true", dest="color", default=True, help=_("help_color"))
     parser.add_argument("-i", "--invert", action="store_true", help=_("help_invert"))
-    parser.add_argument("-o", "--output", help=_("help_output"))
+    parser.add_argument("-o", "-O", "--output", help=_("help_output"))
     parser.add_argument("-b", "--binary", action="store_true", help=_("help_binary"))
+    parser.add_argument("-a", "--ascii", action="store_true", help="Forzar renderizado clásico ASCII")
     parser.add_argument("--blocks", action="store_true", help=_("help_blocks"))
-    parser.add_argument("--braille", action="store_true", help=_("help_braille"))
+    parser.add_argument("-Q", "--quadrants", action="store_true", help=_("help_quadrants"))
+    parser.add_argument("-S", "--sextants", action="store_true", help=_("help_sextants"))
+    parser.add_argument("-B", "--braille", action="store_true", help=_("help_braille"))
+    parser.add_argument("--font-ratio", type=float, default=0.5, help=_("help_font_ratio"))
     parser.add_argument("-m", "--manga", action="store_true", help=_("help_manga"))
     parser.add_argument("-s", "--sketch", action="store_true", help=_("help_sketch"))
     parser.add_argument("--epic", action="store_true", help=argparse.SUPPRESS)
@@ -1909,32 +2064,48 @@ def main():
     if has_update:
         print(f"\033[1;33m{_('update_notice', update_ver)}\033[0m\n", file=sys.stderr)
 
-    # Selección de motor mediante flag --engine / -E
+    # Selección y resolución de motor: 'mary', 'trumble', o 'luris'
+    engine = None
     if args.engine:
-        if args.engine in ("mono", "bw"):
+        eng_lower = args.engine.lower()
+        if eng_lower in ("mary", "trumble", "luris"):
+            engine = eng_lower
+        elif eng_lower == "color":
+            engine = "mary"
+        elif eng_lower in ("mono", "bw"):
+            engine = "luris"
             args.color = False
-        elif args.engine == "manga":
+        elif eng_lower == "manga":
+            engine = "luris"
             args.color = False
             args.braille = True
             args.manga = True
-        elif args.engine == "sketch":
+        elif eng_lower == "sketch":
+            engine = "luris"
             args.color = False
             args.braille = True
             args.sketch = True
-        elif args.engine == "color":
-            args.color = True
 
     if getattr(args, "manga", False):
+        engine = "luris"
         args.color = False
         args.braille = True
 
     if getattr(args, "sketch", False):
+        engine = "luris"
         args.color = False
         args.braille = True
 
     # 1. Autodetección del estándar NO_COLOR (https://no-color.org)
     if "NO_COLOR" in os.environ and "--color" not in sys.argv and "-c" not in sys.argv:
         args.color = False
+
+    if not args.color:
+        engine = "luris"
+    elif engine is None:
+        # Por defecto para renderizado a color: Trumble (estable)
+        # Mary (v2.2.0) se invoca explícitamente con -E mary
+        engine = "trumble"
 
     # 2. Autodetección del ancho de la terminal: si no se especifica -w, nos adaptamos
     if args.width is None:
@@ -1961,17 +2132,19 @@ def main():
             sys.exit(1)
         image = apply_color_swap(image, args.swap)
 
+    ascii_art = ""
+
     # -------------------------------------------------------------
-    # MOTOR SECUNDARIO: Blanco y Negro (Nativo C++ con fallback Python)
+    # 1. MOTOR LURIS: Blanco y Negro (Nativo C++ con fallback Python)
     # -------------------------------------------------------------
-    if not args.color:
+    if engine == "luris":
         if getattr(args, "sketch", False) or args.engine == "sketch":
             mono_mode = "sketch"
         elif getattr(args, "manga", False) or args.engine == "manga":
             mono_mode = "manga"
         elif args.braille:
             mono_mode = "braille"
-        elif args.blocks:
+        elif args.blocks or getattr(args, "quadrants", False):
             mono_mode = "blocks"
         else:
             mono_mode = "ascii"
@@ -2000,10 +2173,57 @@ def main():
                     ascii_art = convert_image_to_blocks(image)
                 else:
                     ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style)
+
     # -------------------------------------------------------------
-    # MOTOR PRIMARIO: Motor de Color
+    # 2. MOTOR MARY: Apex Perceptual Color Engine (Oklab, Fast Guided Filter, Sextants/Braille/Quadrants)
     # -------------------------------------------------------------
-    else:
+    elif engine == "mary":
+        if not args.binary and not args.os_style:
+            if getattr(args, "ascii", False):
+                mode = "ascii"
+            elif getattr(args, "sextants", False):
+                mode = "sextants"
+            elif getattr(args, "quadrants", False):
+                mode = "quadrants"
+            elif args.blocks:
+                mode = "blocks"
+            elif args.braille:
+                mode = "braille"
+            else:
+                # Por defecto en Mary 3.0: Braille 2x4 Dual-Color (soporte 100% universal en todas las fuentes de terminal)
+                mode = "braille"
+
+            # 1. Intentar aceleración nativa C++ (luma-mary / libmary.so)
+            native_mary = try_render_native_mary(
+                args.image_path,
+                args.width,
+                mode=mode,
+                raw_colors=args.raw_colors,
+                invert=invert_mode,
+                font_ratio=args.font_ratio
+            )
+            if native_mary is not None:
+                ascii_art = native_mary
+            elif mary is not None:
+                # 2. Fallback al motor Mary en Python puro
+                ascii_art = mary.render_mary(
+                    image,
+                    args.width,
+                    mode=mode,
+                    raw_colors=args.raw_colors,
+                    invert=invert_mode,
+                    font_ratio=args.font_ratio
+                )
+            else:
+                # 3. Fallback seguro al motor clásico Trumble
+                engine = "trumble"
+        else:
+            engine = "trumble"
+
+    # -------------------------------------------------------------
+    # 3. MOTOR TRUMBLE: Motor Clásico de Color (100% Preservado e Intacto)
+    # -------------------------------------------------------------
+    if engine == "trumble":
         if not args.raw_colors:
             # Convertir a RGBA para compatibilidad con paletas indexadas y transparencia
             image = image.convert("RGBA")

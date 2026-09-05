@@ -53,7 +53,7 @@ fi
 
 echo "=== Building lumart v$LUMA_VERSION ==="
 echo "Compiling standalone binary with PyInstaller..."
-pyinstaller --clean --onefile --name lumart "$SCRIPT_DIR/lumart.py"
+pyinstaller --clean --onefile --name lumart --hidden-import=mary "$SCRIPT_DIR/lumart.py"
 
 mkdir -p dist
 
@@ -61,6 +61,14 @@ if command -v g++ &>/dev/null && [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
     echo "Compiling native C++ monochrome engine (luma-mono)..."
     g++ -O3 -std=c++17 -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/luma-mono
     g++ -O3 -std=c++17 -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/libmonochrome.so
+fi
+
+if command -v g++ &>/dev/null && [ -f "$SCRIPT_DIR/mary.cpp" ]; then
+    echo "Compiling native C++ Mary color super-engine (luma-mary)..."
+    g++ -O3 -std=c++17 -fopenmp -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/luma-mary 2>/dev/null || \
+    g++ -O3 -std=c++17 -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/luma-mary
+    g++ -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/libmary.so 2>/dev/null || \
+    g++ -O3 -std=c++17 -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/libmary.so
 fi
 
 # 1. DEB Package
@@ -73,9 +81,16 @@ if [ "$TARGET" = "deb" ] || [ "$TARGET" = "all" ]; then
     if [ -f "dist/luma-mono" ]; then
         cp dist/luma-mono "build/deb/lumart-$LUMA_VERSION/usr/bin/"
     fi
+    if [ -f "dist/luma-mary" ]; then
+        cp dist/luma-mary "build/deb/lumart-$LUMA_VERSION/usr/bin/"
+    fi
     if [ -f "dist/libmonochrome.so" ]; then
         mkdir -p "build/deb/lumart-$LUMA_VERSION/usr/lib"
         cp dist/libmonochrome.so "build/deb/lumart-$LUMA_VERSION/usr/lib/"
+    fi
+    if [ -f "dist/libmary.so" ]; then
+        mkdir -p "build/deb/lumart-$LUMA_VERSION/usr/lib"
+        cp dist/libmary.so "build/deb/lumart-$LUMA_VERSION/usr/lib/"
     fi
     mkdir -p "build/deb/lumart-$LUMA_VERSION/DEBIAN"
     cat << EOF > "build/deb/lumart-$LUMA_VERSION/DEBIAN/control"
@@ -102,9 +117,17 @@ if [ "$TARGET" = "rpm" ] || [ "$TARGET" = "all" ]; then
             cp dist/luma-mono build/rpm/rpmbuild/SOURCES/
             EXTRA_FILES="${EXTRA_FILES}\n/usr/bin/luma-mono"
         fi
+        if [ -f "dist/luma-mary" ]; then
+            cp dist/luma-mary build/rpm/rpmbuild/SOURCES/
+            EXTRA_FILES="${EXTRA_FILES}\n/usr/bin/luma-mary"
+        fi
         if [ -f "dist/libmonochrome.so" ]; then
             cp dist/libmonochrome.so build/rpm/rpmbuild/SOURCES/
             EXTRA_FILES="${EXTRA_FILES}\n/usr/lib/libmonochrome.so"
+        fi
+        if [ -f "dist/libmary.so" ]; then
+            cp dist/libmary.so build/rpm/rpmbuild/SOURCES/
+            EXTRA_FILES="${EXTRA_FILES}\n/usr/lib/libmary.so"
         fi
 
         cat << EOF > build/rpm/rpmbuild/SPECS/lumart.spec
@@ -122,9 +145,16 @@ ln -sf lumart %{buildroot}/usr/bin/luma
 if [ -f "%{_sourcedir}/luma-mono" ]; then
     cp %{_sourcedir}/luma-mono %{buildroot}/usr/bin/
 fi
+if [ -f "%{_sourcedir}/luma-mary" ]; then
+    cp %{_sourcedir}/luma-mary %{buildroot}/usr/bin/
+fi
 if [ -f "%{_sourcedir}/libmonochrome.so" ]; then
     mkdir -p %{buildroot}/usr/lib
     cp %{_sourcedir}/libmonochrome.so %{buildroot}/usr/lib/
+fi
+if [ -f "%{_sourcedir}/libmary.so" ]; then
+    mkdir -p %{buildroot}/usr/lib
+    cp %{_sourcedir}/libmary.so %{buildroot}/usr/lib/
 fi
 %files
 /usr/bin/lumart
@@ -162,14 +192,22 @@ package() {
     if [ -f "\$srcdir/luma-mono" ]; then
         install -Dm755 "\$srcdir/luma-mono" "\$pkgdir/usr/bin/luma-mono"
     fi
+    if [ -f "\$srcdir/luma-mary" ]; then
+        install -Dm755 "\$srcdir/luma-mary" "\$pkgdir/usr/bin/luma-mary"
+    fi
     if [ -f "\$srcdir/libmonochrome.so" ]; then
         install -Dm755 "\$srcdir/libmonochrome.so" "\$pkgdir/usr/lib/libmonochrome.so"
+    fi
+    if [ -f "\$srcdir/libmary.so" ]; then
+        install -Dm755 "\$srcdir/libmary.so" "\$pkgdir/usr/lib/libmary.so"
     fi
 }
 EOF
     cp dist/lumart dist/arch/
     [ -f "dist/luma-mono" ] && cp dist/luma-mono dist/arch/
+    [ -f "dist/luma-mary" ] && cp dist/luma-mary dist/arch/
     [ -f "dist/libmonochrome.so" ] && cp dist/libmonochrome.so dist/arch/
+    [ -f "dist/libmary.so" ] && cp dist/libmary.so dist/arch/
 fi
 
 # 4. Universal Linux Portable Archive (.tar.gz)
@@ -180,7 +218,10 @@ mkdir -p "build/$TAR_NAME"
 cp dist/lumart "build/$TAR_NAME/"
 ln -sf lumart "build/$TAR_NAME/luma"
 [ -f "dist/luma-mono" ] && cp dist/luma-mono "build/$TAR_NAME/"
+[ -f "dist/luma-mary" ] && cp dist/luma-mary "build/$TAR_NAME/"
 [ -f "dist/libmonochrome.so" ] && cp dist/libmonochrome.so "build/$TAR_NAME/"
+[ -f "dist/libmary.so" ] && cp dist/libmary.so "build/$TAR_NAME/"
+[ -f "mary.py" ] && cp mary.py "build/$TAR_NAME/"
 [ -f "install.sh" ] && cp install.sh "build/$TAR_NAME/"
 [ -f "README.md" ] && cp README.md "build/$TAR_NAME/"
 [ -f "LICENSE" ] && cp LICENSE "build/$TAR_NAME/"

@@ -13,15 +13,17 @@ A diferencia de los conversores ASCII tradicionales que simplemente mapean el br
 ## Características
 
 * Renderizado de imágenes de alta fidelidad en la terminal
-* Renderizado basado en ASCII, Braille y Bloques
-* **Arquitectura Híbrida de Motor Dual**:
-  * **Motor de Color RGB Lineal** (Python / Pillow): Curvas HDR dinámicas, mezcla en espacio de color lineal ($C_{\text{lineal}} = C_{\text{srgb}}^{2.2}$) y TrueColor ANSI de 24 bits.
-  * **Motor Monocromático y Manga de Alto Rendimiento** (C++17 Nativo): Ejecución en menos de 10 milisegundos, extracción de trazos finos con Diferencia de Gaussianas (DoG), difusión de error Atkinson (MacPaint 1984) y tramas de semitono Bayer 8x8 (*Ami-tone*).
-* **Selector de Motor (`-E`, `--engine`)**: Alterna dinámicamente entre `color`, `mono`, `bw`, `manga` y `sketch`.
+* Renderizado basado en ASCII, Braille, Cuadrantes 2x2 y Medios Bloques
+* **Arquitectura de Tres Motores Especializados (`-E`, `--engine`)**:
+  * **Mary 3.0 Apex (Buque Insignia de Color - C++17 Nativo & Python Fallback)**: Cero IA, 100% óptica computacional y biofísica de conos retinianos humanos. Acelerado en C++17 multihilo OpenMP con SIMD (`libmary.so` y binario `luma-mary`). Incorpora Filtro Guiado Rápido $O(1)$ en espacio de color Oklab ($\Delta E$), umbral adaptativo perceptual Weber-Fechner ($\tau = 0.0075 \times ((L + 0.08)/0.58)^{0.80}$), Sextantes Unicode 2x3 (`-S`, 64 bloques sólidos subpíxel), Braille 2x4 dual-color (`-B`), Cuadrantes 2x2 (`-Q`) y compresor de flujo ANSI con estado de latencia cero.
+  * **Trumble (Motor de Color Clásico)**: El motor clásico original y probado en batalla. Mezcla en espacio de color lineal ($C_{\text{lineal}} = C_{\text{srgb}}^{2.2}$), remuestreo Lanczos, tramado ordenado Bayer y TrueColor ANSI de 24 bits. 100% preservado e intacto.
+  * **Luris (Motor Monocromático y Manga Nativo C++17)**: Ejecución en menos de 10 milisegundos, extracción de trazos finos con Diferencia de Gaussianas (DoG), difusión de error Atkinson (MacPaint 1984), tramas de semitono Bayer 8x8 (*Ami-tone*) y bloques cuadrantes HD 2x2.
+* **Selector de Motor (`-E`, `--engine`)**: Alterna dinámicamente entre `mary`, `trumble` y `luris` (con alias compatibles: `color`, `mono`, `bw`, `manga`, `sketch`).
+* **Bloques Sextantes Unicode 2x3 (`-S`, `--sextants`)**: 6 subpíxeles por celda usando la tabla de 64 sextantes Unicode 13.0 (`🬀`-`🬻`, `█`, `▌`, `▐`). Renderizador insignia de Mary para gráficos sólidos e impecables en terminal.
 * **Modo Boceto de Trazo Puro (`-s`, `-E sketch`)**: Extracción de contornos limpios sin ruido para anime e ilustraciones.
 * **Manga Screentone 2.0 (`-m`, `-E manga`)**: Auténticas tramas de impresión de cómic japonés para tonos medios con blancos de papel puros y tinta negra sólida.
 * **Tramado Atkinson y Halftone (`-d` / `--dither`)**: Soporta `atkinson`, `floyd`, `bayer` y `none`.
-* **Bloques Cuadrantes HD 2x2 (`--blocks`)**: 4 subpíxeles por celda usando caracteres de cuadrante Unicode (`▘▝▀▖▌▞▛▗▚▐▜▄▙▟█`).
+* **Bloques Cuadrantes HD 2x2 (`--quadrants`, `--blocks`)**: 4 subpíxeles por celda usando caracteres de cuadrante Unicode (`▘▝▀▖▌▞▛▗▚▐▜▄▙▟█`).
 * **Renderizado Estilo OS (`--os-style`)**: Caracteres de terminal clásicos (puntos, letras) para logotipos al estilo Neofetch.
 * **Intercambio de Color en Tiempo Real (`--swap`)**: Intercambia dinámicamente colores basados en distancia de color Euclidiana en 3D.
 * **Cero Dependencias Externas Nativas**: El motor C++ está autocontenido con cabeceras libres de dominio público (`stb_image.h` y `stb_image_resize2.h`). No requiere OpenCV ni libpng.
@@ -94,9 +96,24 @@ Especificar el ancho de salida (en caracteres):
 python3 lumart.py image.png -w 30
 ```
 
-Habilitar renderizado Braille de alta fidelidad con Truecolor:
+Renderizar con el buque insignia Mary 3.0 Apex en Sextantes 2x3 (Bloques Sólidos, por defecto):
 ```bash
-python3 lumart.py image.png --braille -c
+python3 lumart.py image.png -E mary -S -w 80
+```
+
+Renderizar con Mary en Braille Oklab con K-Means dual (Subpíxeles 2x4):
+```bash
+python3 lumart.py image.png -E mary -B -w 80
+```
+
+Renderizar con Mary en Bloques Cuadrantes HD 2x2 (color de fondo y frente TrueColor):
+```bash
+python3 lumart.py image.png -E mary -Q -w 80
+```
+
+Renderizar con el Motor Clásico Trumble (RGB Lineal 2.2):
+```bash
+python3 lumart.py image.png -E trumble --braille -w 80
 ```
 
 Renderizar en Modo Boceto de Trazo Puro (contornos nítidos DoG sin ruido):
