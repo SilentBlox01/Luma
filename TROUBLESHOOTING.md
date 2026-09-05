@@ -267,9 +267,51 @@ rm -rf ~/.config/luma
 
 ---
 
-## 9. Command Reference & Cheat Sheet
+## 9. Updates, Upgrades & Downgrades / Rollback
+
+Nobody likes software that updates without warning and breaks an established workflow. Luma strictly separates update checks from upgrades and provides instant rollback safeguards:
+
+### Checking for Updates (`-u` / `--update`)
+To check whether a new version is available without modifying any files or downloading packages:
+```bash
+luma -u
+# or: luma --update / luma --check-update
+```
+This queries the official GitHub releases API and informs you of your current version versus the latest release.
+
+### Applying Upgrades (`-uu` / `--upgrade`)
+When you are ready to update to the latest version:
+```bash
+luma -uu
+# or: luma --upgrade
+```
+Before overwriting any binary or script:
+1. Luma creates an automatic backup in `~/.config/luma/backup/lumart-v<OLD_VERSION>`.
+2. It records the backup metadata into `~/.config/luma/backup/last_backup.json`.
+3. It downloads the new release, verifies Python bytecode syntax (if running script mode), and performs an atomic filesystem replace.
+
+### Rolling Back / Downgrading (`-dg` / `--downgrade`)
+If a newly installed version breaks compatibility or behaves unexpectedly, you can instantly revert:
+```bash
+# Revert to previous version from local backup:
+luma -dg
+# or: luma --downgrade / luma --rollback
+
+# Or downgrade to an explicit version:
+luma -dg 2.1.0
+```
+If a local backup exists, Luma restores it instantly without needing internet access. If you specify a target version or the backup was purged, Luma fetches the requested release directly from GitHub.
+
+---
+
+## 10. Command Reference & Cheat Sheet
 
 ```bash
+# 0. Check for Updates / Upgrade / Downgrade
+luma -u          # Check only
+luma -uu         # Download & install upgrade
+luma -dg         # Rollback to previous version
+
 # 1. High-Resolution Color Art (Default Color Engine)
 luma photo.jpg --braille
 

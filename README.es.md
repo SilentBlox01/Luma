@@ -96,12 +96,32 @@ Forzar renderizado de caracteres estilo OS retro (útil para logotipos de SO):
 python3 lumart.py image.png --os-style -c
 ```
 
-## Actualizaciones
+## Actualizaciones y Rollback
 
-Para actualizar Luma a la versión más reciente en cualquier momento, simplemente ejecuta:
-```bash
-luma --update
-```
+Luma separa la comprobación de actualizaciones de su instalación para que nada se te actualice a traición sin avisar:
+
+- **Comprobar si hay actualizaciones (sin descargar ni tocar nada):**
+  ```bash
+  luma -u
+  # o: luma --update / luma --check-update
+  ```
+- **Descargar e instalar la actualización más reciente:**
+  ```bash
+  luma -uu
+  # o: luma --upgrade
+  ```
+  *(Luma crea automáticamente una copia de seguridad de tu ejecutable actual en `~/.config/luma/backup/` antes de tocar nada)*
+
+- **Volver a la versión anterior / Downgrade (si algo se rompe):**
+  ```bash
+  # Restauración instantánea a tu versión anterior desde el backup local:
+  luma -dg
+  # o: luma --downgrade / luma --rollback
+
+  # O restaurar una versión específica desde los releases:
+  luma -dg 2.1.0
+  ```
+
 Además, Luma comprueba periódicamente en segundo plano si existen nuevas versiones y te notifica de forma no invasiva en la terminal cuando hay una actualización disponible.
 
 

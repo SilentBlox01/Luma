@@ -107,14 +107,21 @@ TRANSLATIONS = {
         "error_save": "❌ Failed to save that damn file: {}",
         "lang_success": "Language successfully set to '{}'.",
         "lang_error": "❌ Error: Language '{}' is not supported, stop making things up.",
-        "help_update": "Check for updates and self-upgrade Luma.",
+        "help_update": "Check for updates without installing (-u, --update, --check-update).",
+        "help_upgrade": "Download and install the latest update (-uu, --upgrade).",
+        "help_downgrade": "Roll back to the previous or specified version (-dg, --downgrade [VER]).",
         "update_checking": "🔍 Checking for updates...",
         "update_already_latest": "✅ Luma is already up to date (v{}).",
+        "update_available": "💡 New version available: v{} (current: v{}).\n   To install it, run: lumart -uu (or lumart --upgrade)",
         "update_downloading": "⬇️  Downloading and installing Luma v{}...",
         "update_success": "🎉 Successfully updated Luma from v{} to v{}!",
-        "update_error": "❌ Error checking for updates: {}",
-        "update_permission_error": "⚠️  Permission denied updating {}. Slap sudo on it: sudo lumart --update",
-        "update_notice": "💡 A new version of Luma is available: v{} (run 'luma --update' to upgrade)"
+        "update_error": "❌ Error checking or applying updates: {}",
+        "update_permission_error": "⚠️  Permission denied updating {}. Slap sudo on it: sudo lumart -uu",
+        "update_notice": "💡 A new version of Luma is available: v{} (run 'lumart -uu' to upgrade)",
+        "downgrade_checking": "🔍 Preparing to roll back version...",
+        "downgrade_success": "⏪ Successfully rolled back Luma to v{}!",
+        "downgrade_error": "❌ Error rolling back: {}",
+        "downgrade_no_backup": "❌ No backup or previous release found to roll back to.",
     },
     "es": {
         "pillow_not_found": "[luma] Pillow no encontrado. Instalando dependencias...",
@@ -139,19 +146,26 @@ TRANSLATIONS = {
         "help_manga": "Estilo Manga/Anime auténtico (trazos limpios, sombreado screentone).",
         "help_lang": "Forzar un idioma específico (en, es, pt, ru, ja, de, ko).",
         "error_open": "❌ ¿Dónde coño está la imagen? No se pudo abrir: {}",
-        "error_swap": "❌ Pásame pares de colores a --swap carajo (ej: --swap purple pink). No leo mentes.",
+        "error_swap": "❌ Pásame pares de colores a --swap (ej: --swap purple pink). No leo mentes.",
         "saved_to": "Arte ASCII guardado en {}",
-        "error_save": "❌ No se pudo guardar esa mierda en el archivo: {}",
+        "error_save": "❌ No se pudo guardar esa vaina en el archivo: {}",
         "lang_success": "Idioma cambiado exitosamente a '{}'.",
         "lang_error": "❌ Error: El idioma '{}' no existe ni en tus sueños.",
-        "help_update": "Buscar actualizaciones y actualizar Luma automáticamente.",
+        "help_update": "Comprobar si hay actualizaciones sin instalar (-u, --update, --check-update).",
+        "help_upgrade": "Descargar e instalar la actualización más reciente (-uu, --upgrade).",
+        "help_downgrade": "Volver a la versión anterior o una específica (-dg, --downgrade [VER]).",
         "update_checking": "🔍 Buscando actualizaciones...",
         "update_already_latest": "✅ Luma ya está en la versión más reciente (v{}).",
+        "update_available": "💡 ¡Nueva versión disponible: v{} (actual: v{})!\n   Para instalarla, ejecuta: lumart -uu (o lumart --upgrade)",
         "update_downloading": "⬇️  Descargando e instalando Luma v{}...",
         "update_success": "🎉 ¡Luma actualizado exitosamente de v{} a v{}!",
-        "update_error": "❌ Error al verificar actualizaciones: {}",
-        "update_permission_error": "⚠️  Permiso denegado al actualizar {}. Métele sudo carajo, no seas tímido: sudo lumart --update",
-        "update_notice": "💡 Nueva versión de Luma disponible: v{} (ejecuta 'luma --update' para actualizar)"
+        "update_error": "❌ Error al verificar o aplicar actualizaciones: {}",
+        "update_permission_error": "⚠️  Permiso denegado al actualizar {}. Métele sudo carajo, no seas tímido: sudo lumart -uu",
+        "update_notice": "💡 Nueva versión de Luma disponible: v{} (ejecuta 'lumart -uu' para actualizar)",
+        "downgrade_checking": "🔍 Preparando para volver a la versión anterior...",
+        "downgrade_success": "⏪ ¡Luma ha vuelto a la versión v{} exitosamente!",
+        "downgrade_error": "❌ Error al volver a la versión anterior: {}",
+        "downgrade_no_backup": "❌ No se encontró copia de seguridad ni versión previa disponible.",
     },
     "pt": {
         "pillow_not_found": "[luma] Pillow não encontrado. Instalando dependências...",
@@ -181,14 +195,21 @@ TRANSLATIONS = {
         "error_save": "Erro ao salvar o arquivo: {}",
         "lang_success": "Idioma alterado com sucesso para '{}'.",
         "lang_error": "Erro: O idioma '{}' não é suportado.",
-        "help_update": "Verificar atualizações e atualizar o Luma automaticamente.",
+        "help_update": "Verificar se há atualizações sem instalar (-u, --update).",
+        "help_upgrade": "Baixar e instalar a versão mais recente (-uu, --upgrade).",
+        "help_downgrade": "Reverter para a versão anterior ou específica (-dg, --downgrade [VER]).",
         "update_checking": "🔍 Verificando atualizações...",
         "update_already_latest": "✅ O Luma já está na versão mais recente (v{}).",
+        "update_available": "💡 Nova versão disponível: v{} (atual: v{}).\n   Para instalar, execute: lumart -uu (ou lumart --upgrade)",
         "update_downloading": "⬇️  Baixando e instalando Luma v{}...",
         "update_success": "🎉 Luma atualizado com sucesso de v{} para v{}!",
         "update_error": "❌ Erro ao verificar atualizações: {}",
-        "update_permission_error": "⚠️  Permissão negada ao atualizar {}. Tente executar: sudo lumart --update",
-        "update_notice": "💡 Nova versão do Luma disponível: v{} (execute 'luma --update' para atualizar)"
+        "update_permission_error": "⚠️  Permissão negada ao atualizar {}. Tente executar: sudo lumart -uu",
+        "update_notice": "💡 Nova versão do Luma disponível: v{} (execute 'lumart -uu' para atualizar)",
+        "downgrade_checking": "🔍 Preparando para reverter a versão...",
+        "downgrade_success": "⏪ Luma revertido para v{} com sucesso!",
+        "downgrade_error": "❌ Erro ao reverter: {}",
+        "downgrade_no_backup": "❌ Nenhum backup ou versão anterior encontrada.",
     },
     "ru": {
         "pillow_not_found": "[luma] Pillow не найден. Установка зависимостей...",
@@ -218,14 +239,21 @@ TRANSLATIONS = {
         "error_save": "Ошибка при сохранении в файл: {}",
         "lang_success": "Язык успешно изменен на '{}'.",
         "lang_error": "Ошибка: Язык '{}' не поддерживается.",
-        "help_update": "Проверить наличие обновлений и обновить Luma автоматически.",
+        "help_update": "Проверить наличие обновлений без установки (-u, --update).",
+        "help_upgrade": "Скачать и установить последнее обновление (-uu, --upgrade).",
+        "help_downgrade": "Откатиться к предыдущей или указанной версии (-dg, --downgrade [VER]).",
         "update_checking": "🔍 Проверка обновлений...",
         "update_already_latest": "✅ Luma уже обновлена до последней версии (v{}).",
+        "update_available": "💡 Доступна новая версия: v{} (текущая: v{}).\n   Чтобы установить, запустите: lumart -uu (или lumart --upgrade)",
         "update_downloading": "⬇️  Загрузка и установка Luma v{}...",
         "update_success": "🎉 Luma успешно обновлена с v{} до v{}!",
         "update_error": "❌ Ошибка при проверке обновлений: {}",
-        "update_permission_error": "⚠️  Отказано в доступе при обновлении {}. Попробуйте: sudo lumart --update",
-        "update_notice": "💡 Доступна новая версия Luma: v{} (запустите 'luma --update' для обновления)"
+        "update_permission_error": "⚠️  Отказано в доступе при обновлении {}. Попробуйте: sudo lumart -uu",
+        "update_notice": "💡 Доступна новая версия Luma: v{} (запустите 'lumart -uu' для обновления)",
+        "downgrade_checking": "🔍 Подготовка к откату версии...",
+        "downgrade_success": "⏪ Luma успешно откачена до v{}!",
+        "downgrade_error": "❌ Ошибка при откате: {}",
+        "downgrade_no_backup": "❌ Резервная копия или предыдущая версия не найдены.",
     },
     "ja": {
         "pillow_not_found": "[luma] Pillowが見つかりません。依存関係をインストールしています...",
@@ -255,14 +283,21 @@ TRANSLATIONS = {
         "error_save": "ファイルへの保存エラー: {}",
         "lang_success": "言語が正常に '{}' に変更されました。",
         "lang_error": "エラー: 言語 '{}' はサポートされていません。",
-        "help_update": "アップデートを確認し、Lumaを自動的に更新します。",
+        "help_update": "インストールせずに更新を確認します (-u, --update)。",
+        "help_upgrade": "最新の更新をダウンロードしてインストールします (-uu, --upgrade)。",
+        "help_downgrade": "前のバージョンまたは指定したバージョンにロールバックします (-dg, --downgrade [VER])。",
         "update_checking": "🔍 アップデートを確認中...",
         "update_already_latest": "✅ Lumaはすでに最新バージョンです（v{}）。",
+        "update_available": "💡 新しいバージョンが利用可能です: v{} (現在: v{})。\n   インストールするには実行してください: lumart -uu (または lumart --upgrade)",
         "update_downloading": "⬇️  Luma v{} をダウンロードしてインストール中...",
         "update_success": "🎉 Lumaを v{} から v{} に正常に更新しました！",
-        "update_error": "❌ アップデートの確認中にエラーが発生しました: {}",
-        "update_permission_error": "⚠️  {} の更新でアクセスが拒否されました。sudo lumart --update を実行してください",
-        "update_notice": "💡 Lumaの新しいバージョンが利用可能です: v{} ('luma --update' で更新)"
+        "update_error": "❌ アップデートエラー: {}",
+        "update_permission_error": "⚠️  {} の更新でアクセスが拒否されました。sudo lumart -uu を実行してください",
+        "update_notice": "💡 Lumaの新しいバージョンが利用可能です: v{} ('lumart -uu' で更新)",
+        "downgrade_checking": "🔍 バージョンのロールバックを準備中...",
+        "downgrade_success": "⏪ Lumaを v{} に正常にロールバックしました！",
+        "downgrade_error": "❌ ロールバックエラー: {}",
+        "downgrade_no_backup": "❌ バックアップまたは以前のバージョンが見つかりません。",
     },
     "de": {
         "pillow_not_found": "[luma] Pillow nicht gefunden. Installiere Abhängigkeiten...",
@@ -292,14 +327,21 @@ TRANSLATIONS = {
         "error_save": "Fehler beim Speichern in Datei: {}",
         "lang_success": "Sprache erfolgreich auf '{}' geändert.",
         "lang_error": "Fehler: Sprache '{}' wird nicht unterstützt.",
-        "help_update": "Nach Updates suchen und Luma automatisch aktualisieren.",
+        "help_update": "Nach Updates suchen, ohne zu installieren (-u, --update).",
+        "help_upgrade": "Das neueste Update herunterladen und installieren (-uu, --upgrade).",
+        "help_downgrade": "Auf vorherige oder angegebene Version zurücksetzen (-dg, --downgrade [VER]).",
         "update_checking": "🔍 Suche nach Updates...",
         "update_already_latest": "✅ Luma ist bereits auf dem neuesten Stand (v{}).",
+        "update_available": "💡 Neue Version verfügbar: v{} (aktuell: v{}).\n   Zum Installieren ausführen: lumart -uu (oder lumart --upgrade)",
         "update_downloading": "⬇️  Lade Luma v{} herunter und installiere...",
         "update_success": "🎉 Luma erfolgreich von v{} auf v{} aktualisiert!",
         "update_error": "❌ Fehler beim Suchen nach Updates: {}",
-        "update_permission_error": "⚠️  Keine Berechtigung zum Aktualisieren von {}. Versuchen Sie: sudo lumart --update",
-        "update_notice": "💡 Eine neue Luma-Version ist verfügbar: v{} (führe 'luma --update' aus)"
+        "update_permission_error": "⚠️  Keine Berechtigung zum Aktualisieren von {}. Versuchen Sie: sudo lumart -uu",
+        "update_notice": "💡 Eine neue Luma-Version ist verfügbar: v{} (führe 'lumart -uu' aus)",
+        "downgrade_checking": "🔍 Rollback der Version wird vorbereitet...",
+        "downgrade_success": "⏪ Luma erfolgreich auf v{} zurückgesetzt!",
+        "downgrade_error": "❌ Fehler beim Zurücksetzen: {}",
+        "downgrade_no_backup": "❌ Kein Backup oder vorherige Version gefunden.",
     },
     "ko": {
         "pillow_not_found": "[luma] Pillow를 찾을 수 없습니다. 종속성을 설치하는 중...",
@@ -329,14 +371,21 @@ TRANSLATIONS = {
         "error_save": "파일 저장 오류: {}",
         "lang_success": "언어가 '{}'(으)로 성공적으로 변경되었습니다.",
         "lang_error": "오류: 언어 '{}'은(는) 지원되지 않습니다.",
-        "help_update": "업데이트를 확인하고 Luma를 자동으로 업그레이드합니다.",
+        "help_update": "설치하지 않고 업데이트를 확인합니다 (-u, --update).",
+        "help_upgrade": "최신 업데이트를 다운로드하고 설치합니다 (-uu, --upgrade).",
+        "help_downgrade": "이전 또는 지정된 버전으로 롤백합니다 (-dg, --downgrade [VER]).",
         "update_checking": "🔍 업데이트 확인 중...",
         "update_already_latest": "✅ Luma가 이미 최신 버전입니다 (v{}).",
+        "update_available": "💡 새 버전을 사용할 수 있습니다: v{} (현재: v{}).\n   설치하려면 다음을 실행하세요: lumart -uu (또는 lumart --upgrade)",
         "update_downloading": "⬇️  Luma v{} 다운로드 및 설치 중...",
         "update_success": "🎉 Luma가 v{}에서 v{}로 성공적으로 업데이트되었습니다!",
-        "update_error": "❌ 업데이트 확인 오류: {}",
-        "update_permission_error": "⚠️  {} 업데이트 권한이 거부되었습니다. sudo lumart --update 를 실행해 보세요",
-        "update_notice": "💡 새로운 Luma 버전을 사용할 수 있습니다: v{} ('luma --update' 실행하여 업데이트)"
+        "update_error": "❌ 업데이트 오류: {}",
+        "update_permission_error": "⚠️  {} 업데이트 권한이 거부되었습니다. sudo lumart -uu 를 실행해 보세요",
+        "update_notice": "💡 새로운 Luma 버전을 사용할 수 있습니다: v{} ('lumart -uu' 실행하여 업데이트)",
+        "downgrade_checking": "🔍 버전 롤백 준비 중...",
+        "downgrade_success": "⏪ Luma를 v{} 버전으로 성공적으로 롤백했습니다!",
+        "downgrade_error": "❌ 롤백 오류: {}",
+        "downgrade_no_backup": "❌ 백업 또는 이전 버전을 찾을 수 없습니다.",
     }
 }
 
@@ -1024,9 +1073,63 @@ def check_cached_update():
         return True, cached_latest
     return False, None
 
-def self_update():
+def fetch_all_releases():
+    """Consulta los tags y releases públicos disponibles en GitHub."""
     import urllib.request
+    import json
+    # 1. Intentar API de releases
+    try:
+        req = urllib.request.Request(
+            "https://api.github.com/repos/SilentBlox01/Luma/releases",
+            headers={"User-Agent": f"Luma-CLI/{VERSION}"}
+        )
+        with urllib.request.urlopen(req, timeout=6) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            tags = [r.get("tag_name", "").lstrip("v") for r in data if r.get("tag_name")]
+            if tags:
+                return tags
+    except Exception:
+        pass
+
+    # 2. Respaldo: API de tags
+    try:
+        req = urllib.request.Request(
+            "https://api.github.com/repos/SilentBlox01/Luma/tags",
+            headers={"User-Agent": f"Luma-CLI/{VERSION}"}
+        )
+        with urllib.request.urlopen(req, timeout=6) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            tags = [r.get("name", "").lstrip("v") for r in data if r.get("name")]
+            if tags:
+                return tags
+    except Exception:
+        pass
+    return []
+
+def check_for_updates():
+    """Comprueba si existe una versión más reciente sin instalar nada."""
+    print(_("update_checking"))
+    latest_ver = fetch_latest_version()
+    if not latest_ver:
+        print(_("update_error", "No se pudo consultar información de versiones en GitHub."))
+        return False
+        
+    if parse_version(latest_ver) <= parse_version(VERSION):
+        save_update_cache(latest_ver)
+        print(_("update_already_latest", VERSION))
+        return True
+    
+    save_update_cache(latest_ver)
+    print(_("update_available", latest_ver, VERSION))
+    return True
+
+def perform_upgrade():
+    """Descarga e instala la última versión disponible, creando un backup previo para rollback."""
+    import urllib.request
+    import shutil
     import py_compile
+    import time
+    import json
     
     print(_("update_checking"))
     latest_ver = fetch_latest_version()
@@ -1040,43 +1143,173 @@ def self_update():
         return True
         
     print(_("update_downloading", latest_ver))
-    target_path = os.path.realpath(__file__)
+    is_frozen = getattr(sys, 'frozen', False)
+    target_path = sys.executable if is_frozen else os.path.realpath(__file__)
     target_dir = os.path.dirname(target_path)
     
-    # Comprobar permisos de escritura
     if not os.access(target_path, os.W_OK) or not os.access(target_dir, os.W_OK):
         print(_("update_permission_error", target_path))
         return False
         
+    # Crear copia de seguridad antes de modificar nada
+    backup_dir = os.path.expanduser("~/.config/luma/backup")
+    try:
+        os.makedirs(backup_dir, exist_ok=True)
+        backup_file = os.path.join(backup_dir, f"lumart-v{VERSION}")
+        shutil.copy2(target_path, backup_file)
+        info_file = os.path.join(backup_dir, "last_backup.json")
+        with open(info_file, "w") as f:
+            json.dump({
+                "version": VERSION,
+                "backup_path": backup_file,
+                "target_path": target_path,
+                "is_frozen": is_frozen,
+                "timestamp": int(time.time())
+            }, f, indent=2)
+    except Exception as e:
+        print(f"⚠️  Aviso: No se pudo crear la copia de seguridad previa ({e}). Continuando...")
+
     tmp_path = target_path + ".tmp"
     try:
-        req = urllib.request.Request(
-            GITHUB_RAW_URL,
-            headers={"User-Agent": f"Luma-CLI/{VERSION}"}
-        )
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        if is_frozen:
+            download_url = f"https://github.com/SilentBlox01/Luma/releases/download/v{latest_ver}/lumart"
+        else:
+            download_url = f"https://raw.githubusercontent.com/SilentBlox01/Luma/v{latest_ver}/lumart.py"
+            
+        req = urllib.request.Request(download_url, headers={"User-Agent": f"Luma-CLI/{VERSION}"})
+        with urllib.request.urlopen(req, timeout=20) as resp:
             content = resp.read()
             
         with open(tmp_path, "wb") as f:
             f.write(content)
             
-        # Validar que el archivo descargado compila sin errores de sintaxis
-        py_compile.compile(tmp_path, doraise=True)
-        
-        # Reemplazo atómico
+        if not is_frozen:
+            py_compile.compile(tmp_path, doraise=True)
+            
         os.replace(tmp_path, target_path)
         os.chmod(target_path, 0o755)
         
         save_update_cache(latest_ver)
         print(_("update_success", VERSION, latest_ver))
+        print("🛡️  Copia de seguridad guardada. Si la nueva versión rompe algo, vuelve atrás con: lumart -dg (o lumart --downgrade)")
         return True
     except Exception as e:
         if os.path.exists(tmp_path):
-            try:
-                os.remove(tmp_path)
-            except Exception:
-                pass
+            try: os.remove(tmp_path)
+            except Exception: pass
         print(_("update_error", e))
+        return False
+
+def perform_downgrade(target_ver=None):
+    """
+    Restaura una versión anterior de Luma.
+    Si target_ver es None o 'prev', restaura desde el backup local si existe,
+    o busca la versión inmediatamente anterior en GitHub Releases.
+    Si target_ver se especifica (ej. '2.1.0'), descarga o restaura esa versión específica.
+    """
+    import urllib.request
+    import shutil
+    import py_compile
+    import json
+    
+    print(_("downgrade_checking"))
+    is_frozen = getattr(sys, 'frozen', False)
+    target_path = sys.executable if is_frozen else os.path.realpath(__file__)
+    target_dir = os.path.dirname(target_path)
+    
+    if not os.access(target_path, os.W_OK) or not os.access(target_dir, os.W_OK):
+        print(_("update_permission_error", target_path))
+        return False
+
+    backup_dir = os.path.expanduser("~/.config/luma/backup")
+    os.makedirs(backup_dir, exist_ok=True)
+    info_file = os.path.join(backup_dir, "last_backup.json")
+    
+    # 1. Si se solicita la versión previa y tenemos backup local exacto
+    if target_ver in (None, "prev") and os.path.exists(info_file):
+        try:
+            with open(info_file, "r") as f:
+                binfo = json.load(f)
+            bpath = binfo.get("backup_path", "")
+            bver = binfo.get("version", "")
+            if os.path.exists(bpath) and bver and bver != VERSION:
+                tmp_path = target_path + ".tmp"
+                shutil.copy2(bpath, tmp_path)
+                os.replace(tmp_path, target_path)
+                os.chmod(target_path, 0o755)
+                print(_("downgrade_success", bver))
+                print(f"📦 Restaurado instantáneamente desde la copia de seguridad local ({bpath}).")
+                return True
+        except Exception:
+            pass
+
+    # 2. Si se solicitó una versión específica o no hay backup local, buscar en GitHub
+    dest_ver = None
+    if target_ver not in (None, "prev"):
+        dest_ver = str(target_ver).lstrip("v").strip()
+    else:
+        # Buscar la versión inmediatamente anterior a la actual
+        all_releases = fetch_all_releases()
+        all_releases.sort(key=parse_version, reverse=True)
+        cur_tuple = parse_version(VERSION)
+        for r in all_releases:
+            if parse_version(r) < cur_tuple:
+                dest_ver = r
+                break
+                
+    if not dest_ver:
+        print(_("downgrade_no_backup"))
+        return False
+
+    # Verificar si tenemos un backup archivado con ese número de versión
+    named_backup = os.path.join(backup_dir, f"lumart-v{dest_ver}")
+    if os.path.exists(named_backup):
+        try:
+            tmp_path = target_path + ".tmp"
+            shutil.copy2(named_backup, tmp_path)
+            os.replace(tmp_path, target_path)
+            os.chmod(target_path, 0o755)
+            print(_("downgrade_success", dest_ver))
+            print(f"📦 Restaurado desde archivo local: {named_backup}")
+            return True
+        except Exception:
+            pass
+
+    # Descargar desde GitHub Releases / Tags
+    print(f"⬇️  Descargando versión v{dest_ver} desde GitHub...")
+    tmp_path = target_path + ".tmp"
+    try:
+        if is_frozen:
+            download_url = f"https://github.com/SilentBlox01/Luma/releases/download/v{dest_ver}/lumart"
+        else:
+            download_url = f"https://raw.githubusercontent.com/SilentBlox01/Luma/v{dest_ver}/lumart.py"
+            
+        req = urllib.request.Request(download_url, headers={"User-Agent": f"Luma-CLI/{VERSION}"})
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            content = resp.read()
+            
+        with open(tmp_path, "wb") as f:
+            f.write(content)
+            
+        if not is_frozen:
+            py_compile.compile(tmp_path, doraise=True)
+            
+        # Crear backup de la versión que estamos reemplazando por si acaso
+        try:
+            cur_backup = os.path.join(backup_dir, f"lumart-v{VERSION}")
+            shutil.copy2(target_path, cur_backup)
+        except Exception:
+            pass
+
+        os.replace(tmp_path, target_path)
+        os.chmod(target_path, 0o755)
+        print(_("downgrade_success", dest_ver))
+        return True
+    except Exception as e:
+        if os.path.exists(tmp_path):
+            try: os.remove(tmp_path)
+            except Exception: pass
+        print(_("downgrade_error", e))
         return False
 
 def try_render_native_monochrome(image_path, width, mode="braille", dither=False, invert=False):
@@ -1225,7 +1458,9 @@ def main():
     parser = argparse.ArgumentParser(prog="lumart", description=_( "desc" ), add_help=False)
     parser.add_argument("-h", "--help", action="help", help=_("help_help"))
     parser.add_argument("-v", "--version", action="store_true", help=_("help_version"))
-    parser.add_argument("-u", "--update", action="store_true", help=_("help_update"))
+    parser.add_argument("-u", "--update", "--check-update", action="store_true", help=_("help_update"))
+    parser.add_argument("-uu", "--upgrade", action="store_true", help=_("help_upgrade"))
+    parser.add_argument("-dg", "--downgrade", "--rollback", nargs="?", const="prev", default=None, help=_("help_downgrade"))
 
     parser.add_argument("image_path", nargs="?", default=None, help=_("help_image_path"))
     parser.add_argument("-w", "--width", type=int, default=None, help=_("help_width"))
@@ -1252,9 +1487,23 @@ def main():
         print(banner)
         sys.exit(0)
 
-    # Si se solicitó actualización explícita (--update / -u)
+    # Comprobar actualizaciones sin instalar (-u / --update / --check-update)
     if args.update:
-        success = self_update()
+        print(banner)
+        check_for_updates()
+        sys.exit(0)
+
+    # Descargar e instalar la actualización más reciente (-uu / --upgrade)
+    if args.upgrade:
+        print(banner)
+        success = perform_upgrade()
+        sys.exit(0 if success else 1)
+
+    # Volver a la versión anterior o especificada (-dg / --downgrade / --rollback)
+    if args.downgrade is not None:
+        print(banner)
+        target = None if args.downgrade == "prev" else args.downgrade
+        success = perform_downgrade(target)
         sys.exit(0 if success else 1)
 
     if not args.image_path:
