@@ -3,7 +3,7 @@ set -e
 
 # Detect version dynamically from lumart.py
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
-LUMA_VERSION=$(grep -m1 -oP 'VERSION\s*=\s*"\K[^"]+' "$SCRIPT_DIR/lumart.py" 2>/dev/null || echo "2.1.1")
+LUMA_VERSION=$(grep -m1 -oP 'VERSION\s*=\s*"\K[^"]+' "$SCRIPT_DIR/lumart.py" 2>/dev/null || echo "2.1.2")
 
 TARGET="auto"
 for arg in "$@"; do

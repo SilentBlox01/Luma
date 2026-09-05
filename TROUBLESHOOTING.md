@@ -30,6 +30,7 @@ If an image looks distorted, wrong, or fails to render, run this quick check:
 | Washed out colors or weird banding | Terminal does not support 24-bit TrueColor | Verify `$COLORTERM` or switch to a modern terminal (Kitty, Alacritty, Ghostty) |
 | Output wraps and looks shredded | Image width (`-w`) is wider than terminal columns | Reduce width with `-w 80` or use `-w $(tput cols)` |
 | B&W Braille shows negative image | Terminal background is light instead of dark | Add the `-i` / `--invert` flag |
+| Monochrome engine slow or using Python fallback | `g++` was not present during installation | Install C++ compiler (`g++` / `build-essential`) and re-run `./install.sh` |
 
 ---
 
@@ -44,6 +45,52 @@ Luma includes an automated installer that handles permissions, path links, and s
 # Or directly from GitHub:
 curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
 ```
+
+### Native C / C++ Compiler & Acceleration Setup
+Luma's Monochrome & Manga Engine is written in modern **C++17** for sub-10ms performance. While Luma contains a 100% equivalent pure-Python fallback, the native engine provides instant, zero-lag rendering.
+
+#### Installing the C++ Compiler (`g++` / C++17)
+To enable native C++ acceleration, ensure a C++17 compiler is installed before running `./install.sh`:
+- **Ubuntu / Debian / Linux Mint / Pop!_OS**:
+  ```bash
+  sudo apt install -y build-essential g++
+  ```
+- **Fedora / RHEL / CentOS / AlmaLinux**:
+  ```bash
+  sudo dnf install -y gcc-c++ make
+  ```
+- **Arch Linux / Manjaro / EndeavourOS**:
+  ```bash
+  sudo pacman -S --noconfirm base-devel
+  ```
+- **openSUSE**:
+  ```bash
+  sudo zypper install -y gcc-c++ make
+  ```
+- **macOS**:
+  ```bash
+  xcode-select --install
+  ```
+
+#### Manual Compilation of Native Binaries
+If you cloned the repository or need to compile the native engine manually:
+```bash
+# 1. Compile the standalone CLI binary:
+g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
+
+# 2. Compile the shared library (used by Python via ctypes for zero-overhead in-process rendering):
+g++ -O3 -std=c++17 -fPIC -shared monochrome.cpp -o libmonochrome.so
+```
+*(Notice: The C++ engine is self-contained and uses public domain single-file headers `stb_image.h` and `stb_image_resize2.h`. You don't need OpenCV, libpng, or any external packages!)*
+
+#### Verifying Native Acceleration
+Run the diagnostic command:
+```bash
+luma -v
+```
+Check the **⚡ Motores de Renderizado** line:
+- `Motor Monocromático: Activo (.../libmonochrome.so)` -> ✅ Native C++ running at full speed.
+- `Motor Monocromático: No detectado (usando fallback en Python)` -> ⚠️ Running pure Python fallback.
 
 ### Distribution-Specific Package Installation
 
@@ -156,26 +203,50 @@ luma input.png --raw-colors --braille
 
 ## 5. Black & White, Manga Screentone & Dual-Engine Architecture
 
-Starting with v2.1.1, Luma features a **Dual-Engine Architecture** giving you explicit control over rendering pipelines:
+Starting with v2.1.2, Luma features an overhauled **Dual-Engine Architecture** giving you granular control over color and artistic monochrome rendering:
 1. **The Color Engine** (Python): Linear RGB blending, HDR contrast curves, and ANSI 24-bit TrueColor.
-2. **The Monochrome Engine** (Native C++ / Python fallback): Specialized for Manga screen-tones (*Ami-tone*), Sobel edge preservation, ordered dithering, and pure black-and-white ink.
+2. **The Monochrome Engine** (Native C++ / Python fallback): Difference of Gaussians (DoG) edge extraction, Bill Atkinson (1984 MacPaint) error-diffusion dithering, Smart Manga Screentone 2.0 (DoG outlines + Bayer 8x8 halftone screentone for midtones), and 2x2 Quadrant HD Blocks (`--blocks`).
 
 ### Selecting Engines with `-E` / `--engine`
 You can explicitly choose the engine using the `-E` or `--engine` flag:
 - `-E color` (Default): Uses the high-fidelity color engine.
 - `-E mono` or `-E bw`: Forces the monochrome rendering pipeline without colors.
-- `-E manga`: Enables the manga screentone engine (high-contrast line sharpening + screen dithering).
+- `-E sketch` (or `-s`): Pure line art sketch mode. Extracts crisp G-pen style contours using Difference of Gaussians without halftoning or background noise.
+- `-E manga` (or `-m`): Enables the Manga Screentone 2.0 engine (crisp DoG lineart + 8x8 Bayer screentone for clothing/shadows + pure white skin/paper).
 
 ```bash
-# Explicit manga screentone mode:
+# Pure line art sketch:
+luma anime_girl.png -E sketch -w 100
+
+# Advanced manga screentone:
 luma anime_girl.png -E manga -w 120
 
-# Pure monochrome Braille:
-luma illustration.png -E mono --braille -w 100
+# Atkinson error-diffusion dithering:
+luma photo.png -E mono -d atkinson -w 100
+
+# 2x2 Quadrant Subpixel HD Blocks:
+luma photo.png -E mono --blocks -w 80
 ```
 
-### Native C++ Acceleration (`luma-mono` and `libmonochrome.so`)
-If `libmonochrome.so` or `luma-mono` is present next to the executable, Luma will automatically offload monochrome calculations to the compiled C++ engine for near-instant rendering with zero Python overhead.
+### Dithering Algorithms (`-d` / `--dither`)
+- `-d atkinson` (Default when `-d` is specified): 3/8 error diffusion designed by Bill Atkinson for the 1984 Apple Macintosh. Keeps clean white spaces while delivering organic shading.
+- `-d floyd`: Classic 1976 Floyd-Steinberg error diffusion (7/16, 3/16, 5/16, 1/16).
+- `-d bayer`: 8x8 ordered Bayer dithering matrix for retro game/print halftone patterns.
+
+### Native C++ Acceleration & Mathematical Pipeline
+If `libmonochrome.so` or `luma-mono` is present next to the executable, Luma automatically offloads monochrome calculations to the compiled C++ engine for near-instant (<10ms) rendering with zero Python overhead:
+
+1. **Difference of Gaussians (DoG) Edge Extraction**:
+   $$\text{DoG}(x, y) = G_{\sigma_1}(x, y) - G_{\sigma_2}(x, y) \quad (\sigma_1 = 0.7, \; \sigma_2 = 1.8)$$
+   Convolutions are computed using separable 1D horizontal and vertical kernels to run in $O(N \cdot K)$ time rather than $O(N \cdot K^2)$. This suppresses flat surface noise while cleanly isolating lineart contours.
+2. **Bill Atkinson Error Diffusion (1984, MacPaint)**:
+   Unlike Floyd-Steinberg which diffuses 100% of the quantization error across adjacent pixels, Atkinson diffuses only $6/8$ ($75\%$) of the error across 6 neighbors:
+   - $(x+1, y)$ and $(x+2, y)$
+   - $(x-1, y+1)$, $(x, y+1)$, and $(x+1, y+1)$
+   - $(x, y+2)$
+   By discarding the remaining $25\%$ of error, light areas remain pristine white and dark areas remain solid black, preventing the "dirty sand" speckled noise common in traditional halftones.
+3. **C ABI Memory Management (`extern "C"`)**:
+   The native library exports a C-compatible ABI (`render_monochrome_c`) that transfers ownership of the rendered string buffer to the caller. Python's `ctypes` wrapper immediately consumes the string and calls `free_monochrome_buffer` in a `try...finally` block, ensuring zero memory leaks even in batch processing or animation loops.
 
 ### Light vs Dark Terminals (`-i` / `--invert`)
 - **Dark Terminal (Default)**: Dark image contours are rendered as luminous Braille dots (`⣿`, `⠶`) or characters against the dark background.

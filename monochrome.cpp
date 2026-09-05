@@ -1,12 +1,14 @@
 /*
- * Luma Monochrome Engine (C++)
+ * Luma Monochrome Engine (C++) - v2.1.2
  * Ultra-high-performance black & white terminal art generator.
  * Features:
+ *  - Difference of Gaussians (DoG) artistic lineart extraction (G-pen / Maru-pen simulation)
+ *  - Smart Manga Screentone 2.0 (zoned midtones with 8x8 Bayer, zero skin/paper noise)
+ *  - Pure Sketch / Outline mode without halftoning
+ *  - Bill Atkinson error diffusion dithering (1984) & Floyd-Steinberg
  *  - High-definition Braille micropoints (2x4 resolution per cell)
- *  - Manga / Ink mode with Sobel edge preservation and screentone dithering
- *  - Floyd-Steinberg error diffusion & Bayer matrix ordered dithering
+ *  - High-definition Quadrant Unicode blocks (2x2 subpixels per cell: ▘▝▀▖▌▞▛▗▚▐▜▄▙▟█)
  *  - Extended 70-character perceptual ASCII luminance ramp
- *  - Unicode density blocks (░, ▒, ▓, █)
  *  - Autonomous single-binary compilation with stb_image & stb_image_resize2
  */
 
@@ -30,7 +32,28 @@
 static const char* ASCII_70 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
 static const char* ASCII_10 = "@%#*+=-:. ";
 
-// Unicode Density Blocks (UTF-8 encoded)
+// Unicode Quadrant Blocks (2x2 subpixels per character cell)
+// Bitmask: bit 0 = Top-Left, bit 1 = Top-Right, bit 2 = Bottom-Left, bit 3 = Bottom-Right
+static const char* QUADRANT_BLOCKS[16] = {
+    " ", // 0000
+    "▘", // 0001 (TL)
+    "▝", // 0010 (TR)
+    "▀", // 0011 (TL+TR)
+    "▖", // 0100 (BL)
+    "▌", // 0101 (TL+BL)
+    "▞", // 0110 (TR+BL)
+    "▛", // 0111 (TL+TR+BL)
+    "▗", // 1000 (BR)
+    "▚", // 1001 (TL+BR)
+    "▐", // 1010 (TR+BR)
+    "▜", // 1011 (TL+TR+BR)
+    "▄", // 1100 (BL+BR)
+    "▙", // 1101 (TL+BL+BR)
+    "▟", // 1110 (TR+BL+BR)
+    "█"  // 1111 (ALL)
+};
+
+// Unicode Density Blocks (UTF-8 encoded single-char shades)
 static const char* BLOCK_SHADES[5] = {
     "█", // 100%
     "▓", // 75%
@@ -78,23 +101,100 @@ static void autocontrast_gray(std::vector<float>& gray, int count) {
     }
 }
 
-// 3x3 Sobel Edge Detection for Manga Lineart extraction
-static std::vector<float> compute_sobel_edges(const std::vector<float>& gray, int w, int h) {
-    std::vector<float> edges(w * h, 0.0f);
-    for (int y = 1; y < h - 1; ++y) {
-        for (int x = 1; x < w - 1; ++x) {
-            float gx = -1.0f * gray[(y-1)*w + (x-1)] + 1.0f * gray[(y-1)*w + (x+1)]
-                       -2.0f * gray[y*w + (x-1)]     + 2.0f * gray[y*w + (x+1)]
-                       -1.0f * gray[(y+1)*w + (x-1)] + 1.0f * gray[(y+1)*w + (x+1)];
-            
-            float gy = -1.0f * gray[(y-1)*w + (x-1)] - 2.0f * gray[(y-1)*w + x] - 1.0f * gray[(y-1)*w + (x+1)]
-                       +1.0f * gray[(y+1)*w + (x-1)] + 2.0f * gray[(y+1)*w + x] + 1.0f * gray[(y+1)*w + (x+1)];
-                       
-            float mag = std::sqrt(gx * gx + gy * gy);
-            edges[y * w + x] = mag;
+// -------------------------------------------------------------
+// Separable 1D Gaussian Blur & Difference of Gaussians (DoG)
+// -------------------------------------------------------------
+static std::vector<float> make_gaussian_kernel(float sigma) {
+    int radius = static_cast<int>(std::ceil(2.5f * sigma));
+    if (radius < 1) radius = 1;
+    int size = 2 * radius + 1;
+    std::vector<float> kernel(size);
+    float sum = 0.0f;
+    for (int i = -radius; i <= radius; ++i) {
+        float val = std::exp(-(i * i) / (2.0f * sigma * sigma));
+        kernel[i + radius] = val;
+        sum += val;
+    }
+    for (float& v : kernel) v /= sum;
+    return kernel;
+}
+
+static std::vector<float> gaussian_blur_2d(const std::vector<float>& src, int w, int h, float sigma) {
+    std::vector<float> kernel = make_gaussian_kernel(sigma);
+    int radius = static_cast<int>(kernel.size()) / 2;
+    std::vector<float> temp(w * h, 0.0f);
+    std::vector<float> out(w * h, 0.0f);
+
+    // Horizontal pass
+    for (int y = 0; y < h; ++y) {
+        int row_offset = y * w;
+        for (int x = 0; x < w; ++x) {
+            float sum = 0.0f;
+            for (int k = -radius; k <= radius; ++k) {
+                int cx = std::max(0, std::min(w - 1, x + k));
+                sum += src[row_offset + cx] * kernel[k + radius];
+            }
+            temp[row_offset + x] = sum;
         }
     }
-    return edges;
+
+    // Vertical pass
+    for (int x = 0; x < w; ++x) {
+        for (int y = 0; y < h; ++y) {
+            float sum = 0.0f;
+            for (int k = -radius; k <= radius; ++k) {
+                int cy = std::max(0, std::min(h - 1, y + k));
+                sum += temp[cy * w + x] * kernel[k + radius];
+            }
+            out[y * w + x] = sum;
+        }
+    }
+    return out;
+}
+
+// Difference of Gaussians (DoG) for artistic line drawing
+static std::vector<float> compute_dog_edges(const std::vector<float>& gray, int w, int h, float sigma1 = 0.7f, float sigma2 = 1.8f) {
+    std::vector<float> g1 = gaussian_blur_2d(gray, w, h, sigma1);
+    std::vector<float> g2 = gaussian_blur_2d(gray, w, h, sigma2);
+    std::vector<float> dog(w * h, 0.0f);
+    for (int i = 0; i < w * h; ++i) {
+        // Dark ink lines have lower g1 than g2, so g2 - g1 is positive at line centers
+        dog[i] = g2[i] - g1[i];
+    }
+    return dog;
+}
+
+// -------------------------------------------------------------
+// Dithering Algorithms
+// -------------------------------------------------------------
+
+// Bill Atkinson error diffusion dithering (1984, MacPaint)
+// Diffuses only 75% (6/8) of the error, leaving pure whites and deep blacks
+static std::vector<uint8_t> atkinson_dither(const std::vector<float>& input, int w, int h, float threshold = 128.0f) {
+    std::vector<float> buffer = input;
+    std::vector<uint8_t> result(w * h, 0);
+
+    for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < w; ++x) {
+            int idx = y * w + x;
+            float old_val = buffer[idx];
+            uint8_t new_val = (old_val >= threshold) ? 255 : 0;
+            result[idx] = new_val;
+            float err = (old_val - new_val) / 8.0f;
+
+            if (x + 1 < w) buffer[y * w + (x + 1)] += err;
+            if (x + 2 < w) buffer[y * w + (x + 2)] += err;
+            if (y + 1 < h) {
+                if (x - 1 >= 0) buffer[(y + 1) * w + (x - 1)] += err;
+                buffer[(y + 1) * w + x] += err;
+                if (x + 1 < w) buffer[(y + 1) * w + (x + 1)] += err;
+            }
+            if (y + 2 < h) {
+                buffer[(y + 2) * w + x] += err;
+            }
+        }
+    }
+    return result;
 }
 
 // Floyd-Steinberg error diffusion dithering
@@ -139,9 +239,8 @@ static std::vector<uint8_t> bayer_dither(const std::vector<float>& input, int w,
 
 struct RenderConfig {
     int target_width = 90;
-    std::string mode = "braille"; // braille, manga, ascii, blocks
-    bool dither = false;
-    bool bayer = false;
+    std::string mode = "braille"; // braille, manga, sketch, blocks, ascii, shades
+    std::string dither = "none";  // atkinson, floyd, bayer, none
     bool invert = false;
     bool high_contrast = true;
     float gamma = 1.0f;
@@ -159,17 +258,18 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
 
     // Resolution dimensions based on selected mode
     int scaled_w = 0, scaled_h = 0;
-    if (cfg.mode == "braille" || cfg.mode == "manga") {
+    if (cfg.mode == "braille" || cfg.mode == "manga" || cfg.mode == "sketch") {
         // Braille has 2x4 dots per character cell
         scaled_w = cfg.target_width * 2;
         scaled_h = static_cast<int>(scaled_w * aspect * 0.5f * 2.0f);
         scaled_h = scaled_h + (4 - scaled_h % 4) % 4; // multiple of 4
     } else if (cfg.mode == "blocks") {
-        // Blocks mode (1 char cell = 1 block)
-        scaled_w = cfg.target_width;
-        scaled_h = static_cast<int>(cfg.target_width * aspect * 0.5f);
+        // Quadrant HD Blocks (2x2 subpixels per character cell)
+        scaled_w = cfg.target_width * 2;
+        scaled_h = static_cast<int>(cfg.target_width * 2 * aspect * 0.5f);
+        scaled_h = scaled_h + (2 - scaled_h % 2) % 2; // multiple of 2
     } else {
-        // ASCII mode (1 char cell = 1 char)
+        // ASCII or single-character shades mode (1 char cell = 1 sample)
         scaled_w = cfg.target_width;
         scaled_h = static_cast<int>(cfg.target_width * aspect * 0.5f);
     }
@@ -210,66 +310,78 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
     }
 
     std::string ascii_art;
-    ascii_art.reserve(cfg.target_width * (scaled_h / 4 + 1) * 4);
+    ascii_art.reserve(cfg.target_width * (scaled_h / 2 + 1) * 4);
+
+    // Ink density: 255 = dark ink, 0 = pure white paper
+    std::vector<float> ink_density(total_pixels);
+    for (int i = 0; i < total_pixels; ++i) {
+        ink_density[i] = 255.0f - luminance[i];
+    }
 
     // -------------------------------------------------------------
-    // MODE 1 & 2: Braille and Manga (Screentone / Lineart)
+    // MODES: Braille, Manga 2.0, Sketch, Quadrants HD
     // -------------------------------------------------------------
-    if (cfg.mode == "braille" || cfg.mode == "manga") {
+    if (cfg.mode == "braille" || cfg.mode == "manga" || cfg.mode == "sketch") {
         std::vector<uint8_t> binary_grid(total_pixels, 0);
 
-        // On a dark terminal:
-        // Ink/drawing strokes (dark pixels in original) should be illuminated as dots (255).
-        // White background paper (bright pixels in original) should be empty (0).
-        // We invert luminance so ink = 255 (bright dot) and paper = 0 (empty).
-        std::vector<float> ink_density(total_pixels);
-        for (int i = 0; i < total_pixels; ++i) {
-            ink_density[i] = 255.0f - luminance[i];
-        }
-
-        if (cfg.mode == "manga") {
-            // Authentic Manga mode: Sobel lineart strokes + Bayer matrix screentone (amidate)
-            std::vector<float> edges = compute_sobel_edges(luminance, scaled_w, scaled_h);
+        if (cfg.mode == "sketch") {
+            // Pure Sketch / Lineart: DoG edge contours without screentones
+            std::vector<float> dog = compute_dog_edges(luminance, scaled_w, scaled_h, 0.7f, 1.8f);
+            for (int i = 0; i < total_pixels; ++i) {
+                if (dog[i] > 6.0f || luminance[i] < 35.0f) {
+                    binary_grid[i] = 255;
+                }
+            }
+        } else if (cfg.mode == "manga") {
+            // Smart Manga Screentone 2.0:
+            // 1. Clean paper & skin: pure white (zero dot noise)
+            // 2. Line art: crisp solid ink via DoG filter
+            // 3. Clothing / hair shadows: 8x8 Bayer screentone (Ami-tone)
+            // 4. Deep shadows: solid black
+            std::vector<float> dog = compute_dog_edges(luminance, scaled_w, scaled_h, 0.7f, 1.8f);
 
             for (int y = 0; y < scaled_h; ++y) {
                 for (int x = 0; x < scaled_w; ++x) {
                     int i = y * scaled_w + x;
                     float ink = ink_density[i];
-                    float edge = edges[i];
+                    bool is_line = (dog[i] > 6.0f);
 
-                    // 1. Lineart stroke: sharp gradient or deep black line
-                    if (edge > 38.0f || luminance[i] < 65.0f) {
-                        binary_grid[i] = 255;
-                    } 
-                    // 2. Screentone: midtone shading (clothing, shadows, hair)
-                    // Light paper / highlights (ink < 60) remain clean
-                    else if (ink >= 60.0f && ink <= 205.0f) {
+                    if (is_line) {
+                        binary_grid[i] = 255; // Line art contour
+                    } else if (ink > 215.0f) {
+                        binary_grid[i] = 255; // Solid deep shadow
+                    } else if (ink > 110.0f) {
+                        // Midtones / clothing: Bayer screentone
                         float threshold = (BAYER_8X8[y % 8][x % 8] + 0.5f) * (255.0f / 64.0f);
-                        binary_grid[i] = (ink >= threshold) ? 255 : 0;
-                    } 
-                    // 3. Deep shadows: solid ink
-                    else if (ink > 205.0f) {
-                        binary_grid[i] = 255;
+                        if ((ink - 50.0f) >= threshold) {
+                            binary_grid[i] = 255;
+                        }
                     }
                 }
             }
-        } else if (cfg.dither) {
-            // Clamp near-white paper noise before error diffusion
+        } else if (cfg.dither == "atkinson" || cfg.dither == "1" || cfg.dither == "true" || cfg.dither == "default") {
+            // Atkinson error diffusion: clean paper highlights
+            std::vector<float> cleaned_ink = ink_density;
+            for (float& val : cleaned_ink) {
+                if (val < 25.0f) val = 0.0f;
+            }
+            binary_grid = atkinson_dither(cleaned_ink, scaled_w, scaled_h, 128.0f);
+        } else if (cfg.dither == "floyd") {
             std::vector<float> cleaned_ink = ink_density;
             for (float& val : cleaned_ink) {
                 if (val < 25.0f) val = 0.0f;
             }
             binary_grid = floyd_steinberg_dither(cleaned_ink, scaled_w, scaled_h, 128.0f);
-        } else if (cfg.bayer) {
+        } else if (cfg.dither == "bayer") {
             binary_grid = bayer_dither(ink_density, scaled_w, scaled_h);
         } else {
-            // Simple crisp threshold: ink is drawn if luminance is darker than threshold
+            // Crisp luminance threshold
             for (int i = 0; i < total_pixels; ++i) {
                 binary_grid[i] = (luminance[i] < 128.0f) ? 255 : 0;
             }
         }
 
-        // Standard Braille dot map specification (Unicode U+2800)
+        // Standard Braille dot map (Unicode U+2800)
         static const int dot_map[4][2] = {
             {0x01, 0x08},
             {0x02, 0x10},
@@ -280,7 +392,6 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
         for (int y = 0; y < scaled_h; y += 4) {
             for (int x = 0; x < scaled_w; x += 2) {
                 int braille_val = 0;
-                bool is_transparent = false;
 
                 for (int dy = 0; dy < 4; ++dy) {
                     for (int dx = 0; dx < 2; ++dx) {
@@ -289,7 +400,6 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
                         if (cur_x < scaled_w && cur_y < scaled_h) {
                             int idx = cur_y * scaled_w + cur_x;
                             if (alpha[idx] < 128) {
-                                is_transparent = true;
                                 continue;
                             }
                             bool is_on = (binary_grid[idx] > 0);
@@ -311,7 +421,56 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
         }
     }
     // -------------------------------------------------------------
-    // MODE 3: High-Density Extended ASCII
+    // MODE: High-Definition Quadrant Blocks (2x2 subpixels)
+    // -------------------------------------------------------------
+    else if (cfg.mode == "blocks") {
+        std::vector<uint8_t> binary_grid(total_pixels, 0);
+
+        if (cfg.dither == "floyd") {
+            binary_grid = floyd_steinberg_dither(ink_density, scaled_w, scaled_h, 128.0f);
+        } else if (cfg.dither == "bayer") {
+            binary_grid = bayer_dither(ink_density, scaled_w, scaled_h);
+        } else {
+            // Default to Atkinson for blocks: clean, sharp edges
+            std::vector<float> cleaned_ink = ink_density;
+            for (float& val : cleaned_ink) {
+                if (val < 25.0f) val = 0.0f;
+            }
+            binary_grid = atkinson_dither(cleaned_ink, scaled_w, scaled_h, 128.0f);
+        }
+
+        for (int y = 0; y < scaled_h; y += 2) {
+            for (int x = 0; x < scaled_w; x += 2) {
+                int mask = 0;
+                // Bit 0: Top-Left
+                int idx_tl = y * scaled_w + x;
+                if (alpha[idx_tl] >= 128 && (binary_grid[idx_tl] > 0) != cfg.invert) mask |= 1;
+
+                // Bit 1: Top-Right
+                if (x + 1 < scaled_w) {
+                    int idx_tr = y * scaled_w + (x + 1);
+                    if (alpha[idx_tr] >= 128 && (binary_grid[idx_tr] > 0) != cfg.invert) mask |= 2;
+                }
+
+                // Bit 2: Bottom-Left
+                if (y + 1 < scaled_h) {
+                    int idx_bl = (y + 1) * scaled_w + x;
+                    if (alpha[idx_bl] >= 128 && (binary_grid[idx_bl] > 0) != cfg.invert) mask |= 4;
+                }
+
+                // Bit 3: Bottom-Right
+                if (y + 1 < scaled_h && x + 1 < scaled_w) {
+                    int idx_br = (y + 1) * scaled_w + (x + 1);
+                    if (alpha[idx_br] >= 128 && (binary_grid[idx_br] > 0) != cfg.invert) mask |= 8;
+                }
+
+                ascii_art += QUADRANT_BLOCKS[mask];
+            }
+            ascii_art.push_back('\n');
+        }
+    }
+    // -------------------------------------------------------------
+    // MODE: Extended 70-character ASCII Density Ramp
     // -------------------------------------------------------------
     else if (cfg.mode == "ascii") {
         int ramp_len = strlen(ASCII_70);
@@ -332,9 +491,9 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
         }
     }
     // -------------------------------------------------------------
-    // MODE 4: Unicode Shading Blocks (░, ▒, ▓, █)
+    // MODE: Unicode Shading Blocks (░, ▒, ▓, █)
     // -------------------------------------------------------------
-    else if (cfg.mode == "blocks") {
+    else {
         for (int y = 0; y < scaled_h; ++y) {
             for (int x = 0; x < scaled_w; ++x) {
                 int idx = y * scaled_w + x;
@@ -357,11 +516,11 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
 
 // C-compatible Exported API for Python ctypes bindings
 extern "C" {
-    const char* render_monochrome_c(const char* image_path, int width, const char* mode, bool dither, bool invert) {
+    const char* render_monochrome_c(const char* image_path, int width, const char* mode, const char* dither, bool invert) {
         RenderConfig cfg;
         cfg.target_width = width > 0 ? width : 90;
         cfg.mode = mode ? mode : "braille";
-        cfg.dither = dither;
+        cfg.dither = dither ? dither : "none";
         cfg.invert = invert;
 
         std::string result = render_monochrome_image(image_path, cfg);
@@ -378,7 +537,7 @@ extern "C" {
 static void print_banner() {
     std::cout << "\033[1;37m"
               << " █    █ █ █▄ ▄█ ▄▀▄   █▄ ▄█ ▄▀▄ █▄ █ ▄▀▄\n"
-              << " █▄▄▄ ▀▄█ █ ▀ █ █▀█ ▀ █ ▀ █ ▀▄▀ █ ▀█ ▀▄▀ (B&W Engine v1.0)\033[0m\n\n";
+              << " █▄▄▄ ▀▄█ █ ▀ █ █▀█ ▀ █ ▀ █ ▀▄▀ █ ▀█ ▀▄▀ (B&W Engine v2.1.2)\033[0m\n\n";
 }
 
 static void print_usage(const char* prog) {
@@ -386,9 +545,8 @@ static void print_usage(const char* prog) {
     std::cout << "Usage: " << prog << " [options] <image_path>\n\n"
               << "Options:\n"
               << "  -w, --width <num>    Output width in terminal cells (default: auto-detected)\n"
-              << "  -m, --mode <type>    Rendering mode: braille (default), manga, ascii, blocks\n"
-              << "  -d, --dither         Enable Floyd-Steinberg error diffusion dithering\n"
-              << "  -b, --bayer          Enable Bayer matrix retro ordered dithering\n"
+              << "  -m, --mode <type>    Rendering mode: braille (default), manga, sketch, blocks, ascii, shades\n"
+              << "  -d, --dither <algo>  Dithering algorithm: atkinson (default), floyd, bayer, none\n"
               << "  -i, --invert         Invert lightness (useful for dark vs light terminals)\n"
               << "  -g, --gamma <val>    Adjust gamma curve (e.g. 1.5 for punchier contrast)\n"
               << "  -o, --output <file>  Save output directly to text file\n"
@@ -422,9 +580,13 @@ int main(int argc, char** argv) {
         } else if (arg == "-m" || arg == "--mode") {
             if (i + 1 < argc) cfg.mode = argv[++i];
         } else if (arg == "-d" || arg == "--dither") {
-            cfg.dither = true;
+            if (i + 1 < argc && argv[i + 1][0] != '-') {
+                cfg.dither = argv[++i];
+            } else {
+                cfg.dither = "atkinson";
+            }
         } else if (arg == "-b" || arg == "--bayer") {
-            cfg.bayer = true;
+            cfg.dither = "bayer";
         } else if (arg == "-i" || arg == "--invert") {
             cfg.invert = true;
         } else if (arg == "-g" || arg == "--gamma") {

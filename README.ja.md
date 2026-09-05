@@ -2,25 +2,33 @@
 
 # Luma
 
-**Pythonで書かれた高忠実度の画像からターミナルへのレンダリングエンジン。**
+**PythonとモダンC/C++で書かれた高忠実度の画像からターミナルへのレンダリングエンジン。**
 
 Lumaは、たった一つの目標に焦点を当てたオープンソースのターミナルレンダリングエンジンです：
 
 > **最小限のターミナルスペースで最大限の視覚的忠実度を実現すること。**
 
-画像の明るさを単純に文字にマッピングする従来のASCIIコンバーターとは異なり、Lumaは異なるターミナルグリフシステム、リニアRGBカラー演算、レンダリング技術を探求し、限られた数のターミナルセル内で可能な限り多くの視覚情報を保持します。
+画像の明るさを単純に文字にマッピングする従来のASCIIコンバーターとは異なり、Lumaは異なるターミナルグリフシステム、リニアRGBカラー演算、そしてネイティブC/C++コンピュータビジョンアルゴリズムを探求し、限られた数のターミナルセル内で可能な限り多くの視覚情報を保持します。
 
 ## 機能
 
 * ターミナルでの高忠実度画像レンダリング
 * ASCII、点字、ブロックベースのレンダリング
+* **ハイブリッドデュアルエンジンアーキテクチャ**:
+  * **リニアRGBカラーエンジン** (Python / Pillow): 動的HDRコントラスト曲線、リニア色空間でのブレンド ($C_{\text{linear}} = C_{\text{srgb}}^{2.2}$)、24ビットANSI TrueColor。
+  * **高性能モノクロ＆マンガエンジン** (ネイティブC++17): 10ミリ秒未満の高速処理、ガウス差分法 (DoG) による線画輪郭抽出、Bill Atkinson誤差拡散 (1984年 MacPaint)、8x8 Bayerスクリーントーン (*Ami-tone*)。
+* **エンジンセレクター (`-E`, `--engine`)**: `color`、`mono`、`bw`、`manga`、`sketch` を動的に切り替え可能。
+* **純粋な線画スケッチモード (`-s`, `-E sketch`)**: アニメやイラストのためのノイズのない輪郭抽出。
+* **マンガスクリーントーン 2.0 (`-m`, `-E manga`)**: 中間トーンに本物の網点スクリーントーンを適用し、純白の肌と濃黒のインクを両立。
+* **Atkinson ＆ ハーフトーンディザリング (`-d` / `--dither`)**: `atkinson`、`floyd`、`bayer`、`none` をサポート。
+* **2x2 象限HDブロック (`--blocks`)**: Unicode象限文字 (`▘▝▀▖▌▞▛▗▚▐▜▄▙▟█`) によるセルあたり4サブピクセル描画。
 * **OSスタイルレンダリング (`--os-style`)**: Neofetchスタイルのロゴのためのクラシックなターミナル文字（ドット、文字）。
 * **リアルタイムカラー交換 (`--swap`)**: 3Dユークリッド色距離に基づいて最大5つの色を動的に交換します。
-* **エピックカラーエンジン（デフォルト）**: 濁った出力を防ぐためにリニアRGB空間で色を平均化し、同時に動的なコントラストと彩度（HDR）を適用します。
-* 設定可能な出力幅
-* Truecolorターミナルのサポート（24ビットANSI）
-* 非常に小さな出力サイズ向けに設計
-* Pythonベースで高い拡張性
+* **外部ネイティブ依存関係ゼロ**: パブリックドメインのヘッダー (`stb_image.h` および `stb_image_resize2.h`) で自己完結。OpenCVやlibpngは不要です。
+* **完全なPythonフォールバックパリティ**: C++コンパイラがない環境でも、同一の純粋なPython実装にシームレスに切り替わります。
+* 設定可能な出力幅と明暗ターミナルの自動検出 (`-i`, `--invert`)
+* インタラクティブなアップデート (`-uu`)、ロールバック (`-dg`)、更新確認 (`-u`) スイート
+* 包括的なシステム・エンジン診断 (`-v`, `--version`)
 
 ## 例
 
@@ -31,112 +39,160 @@ luma image.png -w 45 --braille -c --swap purple pink
 
 ## インストール
 
-Lumaをソースコードから直接実行するか、ネイティブLinuxパッケージ（DEB、RPM、またはArch PKGBUILD）にビルドすることができます。
+Lumaは1行のコマンドでインストールするか、ソースコードから直接実行するか、ネイティブLinuxパッケージ（DEB、RPM、またはArch PKGBUILD）にビルドすることができます。
 
-**オプション 1: コンパイル済みパッケージをダウンロードする（推奨）**
-すぐに使用できる `.deb` または `.rpm` パッケージを [GitHub Releases](https://github.com/SilentBlox01/Luma/releases) ページから直接ダウンロードできます。
+**クイックインストール（推奨）:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
 
-**オプション 2: ソースから直接実行する**
+**オプション 1: ソースから直接実行 / ローカルインストーラー**
 ```bash
 git clone https://github.com/SilentBlox01/Luma.git
 cd Luma
-# Pillowがインストールされていることを確認してください
-pip install -r requirements.txt
-python3 lumart.py --help
+./install.sh
 ```
 
+**オプション 2: コンパイル済みパッケージをダウンロードする**
+[GitHub Releases](https://github.com/SilentBlox01/Luma/releases) ページから直接 `.deb` または `.rpm` パッケージをダウンロードできます。
+
 **オプション 3: ネイティブパッケージを自分でコンパイルして構築する**
-Lumaには、PyInstallerを使用してツールをスタンドアロンバイナリにパッケージ化するための自動ビルドスクリプトが含まれています。
+Lumaには、PyInstallerを使用してツールをスタンドアロンバイナリにパッケージ化するための自動ビルドスクリプトが含まれています：
 ```bash
 chmod +x build_packages.sh
 ./build_packages.sh
 ```
 コンパイル後、パッケージマネージャーを使用してグローバルにインストールできます：
-- **Debian/Ubuntu**: `sudo apt install ./dist/lumart-2.0.0.deb`
-- **Fedora/RHEL**: `sudo dnf install ./dist/lumart-2.0.0.rpm`
+- **Debian/Ubuntu**: `sudo apt install ./dist/lumart-*.deb`
+- **Fedora/RHEL**: `sudo dnf install ./dist/lumart-*.rpm`
 - **Arch Linux**: `cd dist/arch && makepkg -si`
+
+**オプション 4: ネイティブC++エンジンの手動コンパイル**
+完全なパッケージを作らずにネイティブC++エンジンのみをコンパイルする場合：
+```bash
+# スタンドアロンCLIバイナリ:
+g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
+
+# 共有ライブラリ (Pythonからctypes経由でインプロセス高速化):
+g++ -O3 -std=c++17 -fPIC -shared monochrome.cpp -o libmonochrome.so
+```
 
 ## 使用法
 
-パッケージをインストールした場合、どこからでも `lumart` または `luma` を実行できます。そうでない場合は、直接pythonスクリプトを実行してください。
+パッケージをインストールしたかインストーラーを実行した場合は、どこからでも `lumart` または `luma` を実行できます。それ以外の場合は、Pythonスクリプトを直接実行してください。
 
-> **💡 プロのヒント:** Luma は背景が透明な画像で最もよく機能します！ エンジンは透明なピクセルを自動的に無視するため、ロゴやキャラクターがターミナルの背景に完璧に浮かび上がります。
+> **💡 プロのヒント:** Lumaは透過背景の画像と美しく連携します！透過ピクセルを自動的に無視するため、ロゴやキャラクターがターミナル背景に綺麗に映えます。
 
 ```bash
-# 基本的な使用方法
+# 基本的な使用法
 python3 lumart.py image.png
 ```
 
-出力幅（文字数）を指定する：
+出力幅の指定（文字数）:
 ```bash
 python3 lumart.py image.png -w 30
 ```
 
-Truecolorを使用した高忠実度点字レンダリングを有効にする：
+点字レンダリングとTruecolorの有効化:
 ```bash
 python3 lumart.py image.png --braille -c
 ```
 
-レトロなOSスタイルの文字レンダリングを強制する（OSロゴに便利です）：
+純粋な線画スケッチモード（クリーンなDoG輪郭線）:
+```bash
+python3 lumart.py image.png -E sketch -w 100
+# または: python3 lumart.py image.png -s -w 100
+```
+
+マンガスクリーントーン 2.0 モード (DoG輪郭 + 8x8 Bayer網点):
+```bash
+python3 lumart.py image.png -E manga -w 120
+# または: python3 lumart.py image.png -m -w 120
+```
+
+Atkinsonディザリングによるモノクロ表示 (1984 MacPaint):
+```bash
+python3 lumart.py image.png -E mono -d atkinson -w 100
+# または従来のFloyd-Steinberg: python3 lumart.py image.png -E mono -d floyd -w 100
+```
+
+2x2 象限HDブロック:
+```bash
+python3 lumart.py image.png -E mono --blocks -w 80
+```
+
+純粋な白黒モノクロ:
+```bash
+python3 lumart.py image.png -E mono --braille -w 100
+```
+
+クラシックなOSスタイルレンダリング:
 ```bash
 python3 lumart.py image.png --os-style -c
 ```
 
+完全なシステムおよびエンジン診断の表示:
+```bash
+luma -v
+# または: luma --version
+```
+
+## 更新とロールバック
+
+Lumaはアップデートと復元を明示的に制御できます：
+
+- **アップデートの確認（ダウンロードや変更は行いません）:**
+  ```bash
+  luma -u
+  # または: luma --update / luma --check-update
+  ```
+- **インタラクティブアップグレード:**
+  ```bash
+  luma -uu
+  # または: luma --upgrade
+  ```
+  *(リリースノートを確認しながらバージョンを選択可能。`~/.config/luma/backup/` に自動バックアップ)*
+
+- **インタラクティブロールバック / ダウングレード:**
+  ```bash
+  luma -dg
+  # または: luma --downgrade / luma --rollback
+  ```
+  *(ローカルバックアップまたはGitHubリリースのいずれかを選択して復元)*
+
+  バージョンを直接指定することも可能です：
+  ```bash
+  luma -dg 2.1.0
+  ```
+
 ## アンインストール
 
-システムからLumaを削除する場合、インストール方法によってコマンドが異なります：
+Lumaをシステムから削除する場合：
 
-**パッケージマネージャー経由でインストールした場合 (.deb, .rpm, PKGBUILD):**
+**パッケージマネージャー経由の場合 (.deb, .rpm, PKGBUILD):**
 - **Debian/Ubuntu**: `sudo apt remove lumart`
 - **Fedora/RHEL**: `sudo dnf remove lumart`
 - **Arch Linux**: `sudo pacman -Rns lumart`
 
-**pip経由でインストールした場合:**
+**pip経由の場合:**
 ```bash
 pip uninstall lumart
 ```
 
-**手動でインストールした場合:**
-提供されているアンインストールスクリプトを実行できます：
+**手動インストールの場合:**
 ```bash
 chmod +x uninstall.sh
 ./uninstall.sh
 ```
 
-## 哲学
+## 理念
 
-ターミナルレンダリングは視覚的圧縮の一形態です。
+ターミナルレンダリングは、視覚的圧縮の一形態です。
 
-課題は、単に画像を文字に変換することではありません。課題は、最小限のターミナルセルを使用して、可能な限り多くの視覚情報を表現することです。
+課題は、単に画像を文字に変換することではありません。最小限のターミナルセルを使用して、可能な限り多くの視覚情報を表現することです。
 
-したがって、Lumaは単純に認識可能なASCIIアートを生成するのではなく、数学的に正確な色空間（Linear RGB vs sRGB）と動的HDRカーブを利用して、**知覚的忠実度**に焦点を当てています。
+したがって、Lumaは単に認識可能なASCIIアートを生成するのではなく、数学的に正確な色空間（リニアRGB vs sRGB）と動的HDR曲線を使用した**知覚的忠実度**に焦点を当てています。
 
 ## トラブルシューティング
 
-フォント、色、またはモジュールの欠落に関する問題がありますか？ 一般的な問題の迅速な解決については、[トラブルシューティングガイド](TROUBLESHOOTING.md)をご覧ください。
-
-## ロードマップ
-
-* [x] 初期の画像からターミナルへのレンダラー
-* [x] 点字レンダリング
-* [x] ブロックベースのレンダリング
-* [x] 改善された知覚的レンダリング（Linear RGBエンジン）
-* [x] コントラストと輝度の処理（エピックエンジン）
-* [x] リアルタイムカラーマッピングと閾値
-* [ ] 高度なディザリング
-* [ ] 自動グリフ選択
-* [ ] 画像類似度ベンチマーク
-* [ ] レンダリングの最適化
-* [ ] 機械学習（Machine Learning）支援レンダリング
-* [ ] ビデオおよびGIFレンダリングのサポート
-* [ ] 拡張されたターミナルグリフシステム
-
-## 貢献
-
-Lumaはオープンソースプロジェクトであり、貢献を歓迎します。
-
-レンダリングアルゴリズム、最適化、グリフシステム、ベンチマーク、または改善に関するアイデアがある場合は、気軽にissueを開くかpull requestを送信してください。（詳細は [CONTRIBUTING.ja.md](CONTRIBUTING.ja.md) を参照してください）。
-
-## ライセンス
-
-LumaはGNU Affero General Public License v3.0 (AGPL-3.0)の下でリリースされています。詳細については `LICENSE` ファイルを参照してください。
+フォント、色、またはモジュールの欠落でお困りですか？[トラブルシューティングガイド](TROUBLESHOOTING.md) をご覧ください。

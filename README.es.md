@@ -2,26 +2,33 @@
 
 # Luma
 
-**Un motor de renderizado de imagen a terminal de alta fidelidad escrito en Python.**
+**Un motor de renderizado de imagen a terminal de alta fidelidad escrito en Python y C/C++ moderno.**
 
 Luma es un motor de renderizado de terminal de código abierto centrado en un único objetivo:
 
 > **Máxima fidelidad visual en el mínimo espacio de terminal.**
 
-A diferencia de los conversores ASCII tradicionales que simplemente mapean el brillo de la imagen a caracteres, Luma explora diferentes sistemas de glifos de terminal, matemáticas de color RGB Lineal y técnicas de renderizado para preservar la mayor cantidad de información visual posible dentro de un número limitado de celdas de terminal.
+A diferencia de los conversores ASCII tradicionales que simplemente mapean el brillo de la imagen a caracteres, Luma explora diferentes sistemas de glifos de terminal, matemáticas de color RGB Lineal y algoritmos nativos de visión artificial en C/C++ para preservar la mayor cantidad de información visual posible dentro de un número limitado de celdas de terminal.
 
 ## Características
 
 * Renderizado de imágenes de alta fidelidad en la terminal
 * Renderizado basado en ASCII, Braille y Bloques
-* **Arquitectura de Motor Dual**: Cuenta con un **Motor de Color RGB Lineal** (curvas HDR y promediado de color sub-píxel) y un **Motor Monocromático y Manga** nativo (dithering ordenado Bayer, preservación de trazo y entintado).
-* **Selector de Motor (`-E`, `--engine`)**: Alterna dinámicamente entre `color`, `mono`, `bw` y `manga`.
+* **Arquitectura Híbrida de Motor Dual**:
+  * **Motor de Color RGB Lineal** (Python / Pillow): Curvas HDR dinámicas, mezcla en espacio de color lineal ($C_{\text{lineal}} = C_{\text{srgb}}^{2.2}$) y TrueColor ANSI de 24 bits.
+  * **Motor Monocromático y Manga de Alto Rendimiento** (C++17 Nativo): Ejecución en menos de 10 milisegundos, extracción de trazos finos con Diferencia de Gaussianas (DoG), difusión de error Atkinson (MacPaint 1984) y tramas de semitono Bayer 8x8 (*Ami-tone*).
+* **Selector de Motor (`-E`, `--engine`)**: Alterna dinámicamente entre `color`, `mono`, `bw`, `manga` y `sketch`.
+* **Modo Boceto de Trazo Puro (`-s`, `-E sketch`)**: Extracción de contornos limpios sin ruido para anime e ilustraciones.
+* **Manga Screentone 2.0 (`-m`, `-E manga`)**: Auténticas tramas de impresión de cómic japonés para tonos medios con blancos de papel puros y tinta negra sólida.
+* **Tramado Atkinson y Halftone (`-d` / `--dither`)**: Soporta `atkinson`, `floyd`, `bayer` y `none`.
+* **Bloques Cuadrantes HD 2x2 (`--blocks`)**: 4 subpíxeles por celda usando caracteres de cuadrante Unicode (`▘▝▀▖▌▞▛▗▚▐▜▄▙▟█`).
 * **Renderizado Estilo OS (`--os-style`)**: Caracteres de terminal clásicos (puntos, letras) para logotipos al estilo Neofetch.
-* **Intercambio de Color en Tiempo Real (`--swap`)**: Intercambia dinámicamente hasta 5 colores basados en distancia de color Euclidiana en 3D.
-* Ancho de salida configurable
-* Soporte para terminales Truecolor (ANSI 24-bit)
-* Diseñado para tamaños de salida extremadamente pequeños
-* Basado en Python y altamente extensible
+* **Intercambio de Color en Tiempo Real (`--swap`)**: Intercambia dinámicamente colores basados en distancia de color Euclidiana en 3D.
+* **Cero Dependencias Externas Nativas**: El motor C++ está autocontenido con cabeceras libres de dominio público (`stb_image.h` y `stb_image_resize2.h`). No requiere OpenCV ni libpng.
+* **Paridad Total con Fallback en Python**: Si un sistema no cuenta con compilador C++, Luma conmuta a la implementación pura en Python sin romperse.
+* Ancho de salida configurable y autodetección de fondos claros/oscuros (`-i`, `--invert`)
+* Suite interactiva de actualización (`-uu`), restauración/downgrade (`-dg`) y chequeo (`-u`)
+* Panel de diagnóstico integral del sistema y motores (`-v`, `--version`)
 
 ## Ejemplo
 
@@ -60,6 +67,17 @@ Después de compilar, puedes instalarlo globalmente a través de tu administrado
 - **Fedora/RHEL**: `sudo dnf install ./dist/lumart-*.rpm`
 - **Arch Linux**: `cd dist/arch && makepkg -si`
 
+**Opción 4: Compilación manual del motor nativo C++**
+Si solo deseas compilar el motor nativo en C++ sin construir paquetes completos:
+```bash
+# Binario CLI independiente:
+g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
+
+# Librería compartida (para aceleración en proceso vía ctypes desde Python):
+g++ -O3 -std=c++17 -fPIC -shared monochrome.cpp -o libmonochrome.so
+```
+*(Sin dependencias externas pesadas — utiliza las cabeceras embebidas `stb_image.h` y `stb_image_resize2.h`)*
+
 ## Uso
 
 Si instalaste el paquete o utilizaste el instalador, puedes ejecutar `lumart` o `luma` desde cualquier directorio. De lo contrario, ejecuta el script de python directamente.
@@ -81,9 +99,27 @@ Habilitar renderizado Braille de alta fidelidad con Truecolor:
 python3 lumart.py image.png --braille -c
 ```
 
-Renderizar con el motor Manga Screentone (tramado de semitono y trazo de tinta):
+Renderizar en Modo Boceto de Trazo Puro (contornos nítidos DoG sin ruido):
+```bash
+python3 lumart.py image.png -E sketch -w 100
+# o: python3 lumart.py image.png -s -w 100
+```
+
+Renderizar con el motor Manga Screentone 2.0 (trazos DoG + retícula Bayer 8x8 inteligente):
 ```bash
 python3 lumart.py image.png -E manga -w 120
+# o: python3 lumart.py image.png -m -w 120
+```
+
+Renderizar en monocromático con Tramado Atkinson (difusión de error de MacPaint 1984):
+```bash
+python3 lumart.py image.png -E mono -d atkinson -w 100
+# o floyd-steinberg clásico: python3 lumart.py image.png -E mono -d floyd -w 100
+```
+
+Renderizar en Bloques Cuadrantes HD (2x2 subpíxeles por celda en B&W):
+```bash
+python3 lumart.py image.png -E mono --blocks -w 80
 ```
 
 Renderizar en monocromático puro sin colores:
@@ -96,29 +132,39 @@ Forzar renderizado de caracteres estilo OS retro (útil para logotipos de SO):
 python3 lumart.py image.png --os-style -c
 ```
 
+Mostrar Diagnóstico Completo del Sistema y Motores:
+```bash
+luma -v
+# o: luma --version
+```
+
 ## Actualizaciones y Rollback
 
-Luma separa la comprobación de actualizaciones de su instalación para que nada se te actualice a traición sin avisar:
+Luma te da control explícito sobre las actualizaciones y restauraciones:
 
 - **Comprobar si hay actualizaciones (sin descargar ni tocar nada):**
   ```bash
   luma -u
   # o: luma --update / luma --check-update
   ```
-- **Descargar e instalar la actualización más reciente:**
+  *(Muestra tu versión actual, la última versión en GitHub, historial de versiones y estado)*
+
+- **Actualización Interactiva:**
   ```bash
   luma -uu
   # o: luma --upgrade
   ```
-  *(Luma crea automáticamente una copia de seguridad de tu ejecutable actual en `~/.config/luma/backup/` antes de tocar nada)*
+  *(Permite seleccionar a qué versión subir o instalar la última con notas de versión, guardando backup en `~/.config/luma/backup/`)*
 
-- **Volver a la versión anterior / Downgrade (si algo se rompe):**
+- **Restauración Interactiva / Downgrade:**
   ```bash
-  # Restauración instantánea a tu versión anterior desde el backup local:
   luma -dg
   # o: luma --downgrade / luma --rollback
+  ```
+  *(Abre un selector interactivo en la terminal para elegir entre copias locales de seguridad o versiones publicadas en GitHub)*
 
-  # O restaurar una versión específica desde los releases:
+  También puedes especificar la versión directamente:
+  ```bash
   luma -dg 2.1.0
   ```
 
