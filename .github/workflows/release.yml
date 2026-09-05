@@ -44,5 +44,7 @@ jobs:
           dist/lumart
           dist/luma-mono
           dist/libmonochrome.so
+          dist/luma-mary
+          dist/libmary.so
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
