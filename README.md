@@ -74,7 +74,7 @@ Lumart avoids one-size-fits-all compromises. Different image types demand distin
 * **C++17 Engine Core**: Multi-threaded with OpenMP and vectorized SIMD instructions (`libmary.so` shared library and `luma-mary` binary).
 * **Exact Global Minimum Oklab Bipartition ($2^5 - 1 = 31$ discrete combinations evaluated per cell)**: Eliminates heuristic K-means local minima traps. Exhaustively evaluates all mathematical bipartitions of cell colors, guaranteeing the absolute global minimum $\Delta E$ in less than 700 nanoseconds per cell.
 * **$O(1)$ Fast Guided Filter with Specular Boost ($L > 0.82$)**: Sharpens specular highlights in eyes, metals, water, and gloss while smoothing skin tones and sky gradients.
-* **Default Unicode 13.0 Sextants 2x3 (`-S`, `--sextants`)**: 6 subpixels per terminal character using solid Unicode sextants (`🬀`-`🬻`, `█`, `▌`, `▐`). Also supports dual-color Braille 2x4 (`-B`), Quadrants 2x2 (`-Q`), Half Blocks (`--blocks`), and Directional Scharr Edge ASCII.
+* **Default Unicode 13.0 Sextants 2x3**: 6 subpixels per terminal character using solid Unicode sextants (`🬀`-`🬻`, `█`, `▌`, `▐`). Also supports dual-color Braille 2x4 (`-B`), Quadrants 2x2 (`-Q`), and Half Blocks (`--blocks`).
 * **Alpha Edge Isolation**: Transparent pixels are excluded from color clustering, preventing dark halos around character silhouettes.
 * **Terminal Canvas Export**: Renderings saved to `.png` or `.jpg` are exported onto a dark terminal canvas (`#0c0c0c`), preserving terminal art aesthetics without looking like a downsampled image.
 
@@ -114,7 +114,7 @@ Lumart avoids one-size-fits-all compromises. Different image types demand distin
 | **Subpixel Density**| Up to 6 subpixels/cell | Up to 4 subpixels/cell | Up to 4 subpixels/cell | Dynamic based on cols |
 | **Edge Inking** | Smooth Anti-aliasing | **Canny 1-to-1 Subpixel** | **Adaptive DoG Lineart** | Optional (Manga Shader) |
 | **Export Canvas** | Terminal Canvas (`.png`, `.jpg`)| Terminal Canvas (`.png`, `.jpg`)| **PNG Stickers (`--transparent`)**| Snapshot on the fly |
-| **CLI Flag** | `-E mary -S` | `-E trumble --blocks` | `-E luris -m` | `-W` or `--webcam` |
+| **CLI Flag** | `lumart img.jpg` *(Default)* | `lumart img.jpg -E trumble` | `lumart img.jpg -m` | `-W` or `--webcam` |
 
 ---
 
@@ -132,8 +132,10 @@ Lumart includes a built-in terminal-to-image rasterizer (`-o output.png` or `-o 
 ### 2. Transparent Stickers Exclusive to Luris Mono
 * **Why don't color engines create transparent cutouts?**
   When exporting high-resolution 160-column color text over a transparent background, viewing it in standard image galleries removes the terminal frame context, creating the misleading impression of a downsampled or compressed graphic. When exported on a sleek **dark terminal canvas (`#0c0c0c`)**, it is immediately recognized as a stunning, high-definition terminal art masterwork.
-* **Black & White Manga Stickers (Luris Mono)**:
-  The `--transparent` flag is **exclusive to Luris Mono** (`-m`, `-s`, `-E luris`). Bayer screentone patterns and DoG ink lines authentically emulate manga print cutouts, producing transparent `.png` stickers with >95% validated alpha transparency.
+
+> [!NOTE]
+> The `--transparent` flag is **exclusive to Luris Mono** (`-m`, `-s`, `-d`). Bayer screentone patterns and DoG ink lines authentically emulate manga print cutouts, producing transparent `.png` stickers with >95% validated alpha transparency.
+
 * If `--transparent` is supplied with Mary or Trumble, Lumart issues a helpful notice and exports the artwork with its terminal canvas to guarantee maximum color fidelity.
 
 ---
@@ -198,43 +200,35 @@ g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
 Usage: lumart [OPTIONS] <image_path_or_url>
 ```
 
-### 1. Engine & Character Modes
+### 1. Style & Character Modifiers
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
-| `-E`, `--engine` | `mary` \| `trumble` \| `luris` \| `spectra` | Explicitly choose rendering engine. |
-| `-S`, `--sextants`| — | Enable Unicode 13.0 Sextants 2x3 (6 subpixels/cell). |
-| `-B`, `--braille` | — | Enable Unicode Braille 2x4 (8 subpixels/cell). |
-| `-Q`, `--quadrants`| — | Enable Unicode Quadrants 2x2 (4 subpixels/cell). |
-| `--blocks` | — | Enable optimized terminal block characters. |
-| `-a`, `--ascii` | — | Use traditional alphanumeric ASCII characters only. |
-| `-m`, `--manga` | — | Enable Manga Screentone 2.0 (*Ami-tone* Bayer 8x8 + DoG lines). |
-| `-s`, `--sketch`| — | Enable clean DoG line art sketch mode. |
-| `--os-style` | — | Force retro OS-style characters (Neofetch logo aesthetic). |
-| `-b`, `--binary`| — | Pure black and white threshold rendering. |
-| `-c`, `--color` | — | Force 24-bit TrueColor output. |
+| `-m`, `--manga` | — | Transform artwork into Manga Screentone 2.0 (*Ami-tone* Bayer 8x8 + DoG lineart). |
+| `-s`, `--sketch`| — | Transform artwork into pure line art sketch mode (clean contours). |
+| `-B`, `--braille` | — | Render using Unicode Braille 2x4 (8 subpixels/cell). |
+| `-Q`, `--quadrants`| — | Render using Unicode Quadrants 2x2 (4 subpixels/cell). |
+| `--blocks` | — | Render using optimized half-blocks (`▀`). |
 
 ### 2. Dimensions & Visual Tuning
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
-| `-w`, `--width` | `<int>` | Output width in columns (default: auto-fit to terminal). |
-| `--font-ratio` | `<float>` | Terminal character aspect ratio compensation (default: `0.5`). |
-| `-i`, `--invert`| — | Invert brightness mapping (essential for light-theme terminals). |
-| `--raw-colors` | — | Bypass cel-shading, guided filters, and color punch curves. |
+| `-w`, `--width` | `<int>` | Output width in columns (default: auto-fit to terminal window). |
+| `--boost`, `--vibrant` | — | Apply enhanced saturation, contrast, and Retinex curves for punchy arcade output. |
+| `-i`, `--invert`| — | Invert brightness mapping (essential for light-theme terminals; auto-detected in `-m`). |
 | `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | Dithering algorithm for shading. |
 | `--swap` | `<color1> <color2>` | Dynamically swap colors in 3D Euclidean RGB space. |
 
-### 3. Graphic Export & Stickers
+### 3. Graphic Export & Clipboard
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
 | `-o`, `-O`, `--output` | `<file.png / .jpg>` | Rasterize and export terminal artwork to high-res image. |
 | `--transparent` | — | **Luris Mono exclusive**: exports transparent-background stickers. |
+| `--paste` | — | Load and render image currently in system clipboard. |
 
 ### 4. Webcam & Live Video
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
 | `-W`, `--webcam`| `[id]` | Stream live webcam to terminal at 30-60 FPS (default ID: `0`). |
-| `--instant` | — | Disable progressive scanline reveal effect. |
-| `--paste` | — | Load and render image currently in system clipboard. |
 
 ### 5. Management, History & Language
 | Flag | Parameter | Description |
@@ -253,31 +247,40 @@ Usage: lumart [OPTIONS] <image_path_or_url>
 
 ## Cookbook & Practical Examples
 
-### 1. Photorealistic Rendering with Mary Apex 3.5 (Sextants 2x3)
+### 1. High-Definition Terminal Art (Default Zero-Flag)
 ```bash
-# Render high-detail photo with Oklab color science at 90 columns
-lumart photo.jpg -E mary -S -w 90
+# Render directly at full terminal width with natural TrueColor fidelity
+lumart photo.jpg
 
-# Portrait with specular eye highlights and instant output
-lumart portrait.png -E mary -S -w 110 --instant
+# Specify custom width in columns
+lumart portrait.png -w 110
+
+# Arcade punch with saturation & Retinex enhancement
+lumart photo.jpg --boost
 ```
 
-### 2. Arcade Comic & Anime Cel-Shading with Trumble Orelx 2.2
+### 2. Character Texture Modes
 ```bash
-# Character illustration with 1-to-1 Canny inking and Capcom CPS-2 punch
-lumart character.png -E trumble --blocks -w 85
+# Smooth Braille 2x4 subpixels
+lumart character.png -B
 
-# Retro arcade poster with Bayer ordered dithering
-lumart poster.jpg -E trumble --blocks -d bayer -w 100
+# Dense Quadrants 2x2 blocks
+lumart character.png -Q
+
+# Capcom CPS-2 / Neo-Geo half-blocks
+lumart character.png --blocks -w 85
 ```
 
-### 3. Transparent Japanese Manga Sticker with Luris Mono 2.6
+### 3. Transparent Japanese Manga Sticker with Luris Mono
 ```bash
 # Create transparent PNG sticker for Discord or Telegram
 lumart artwork.png -m --transparent -o manga_sticker.png
 
 # Pure architectural pen sketch
 lumart building.jpg -s -w 120
+
+# Retro poster with Bayer ordered dithering
+lumart poster.jpg -m -d bayer -w 100
 ```
 
 ### 4. Live Webcam Streaming in Terminal (Spectra Weep 1.4)
@@ -292,19 +295,19 @@ lumart -W 1
 ### 5. Web URLs, Clipboard, and Unix Pipelines
 ```bash
 # Fetch and render directly from HTTPS URL
-lumart https://example.com/art.png -E mary -S -w 80
+lumart https://example.com/art.png -w 80
 
 # Render image currently copied in clipboard
-lumart --paste -E trumble --blocks
+lumart --paste
 
 # Pipeline input from curl
-curl -sL https://example.com/photo.jpg | lumart - -E mary -S
+curl -sL https://example.com/photo.jpg | lumart -
 ```
 
 ### 6. Dynamic Color Swapping
 ```bash
 # Replace purple tones with bubblegum pink
-lumart sprite.png -E trumble --blocks --swap purple pink
+lumart sprite.png --blocks --swap purple pink
 ```
 
 ---

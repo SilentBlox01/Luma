@@ -72,7 +72,7 @@ Ao contrário dos conversores ASCII convencionais que apenas mapeiam o brilho de
 * **C++17 Multi-Core**: Acelerado com OpenMP e instruções SIMD (`libmary.so` e executável `luma-mary`).
 * **Bipartição Global Oklab Exata (31 combinações por célula)**: Elimina mínimos locais de algoritmos heurísticos. Avalia exaustivamente todas as 31 bipartições de cores por célula em menos de 700 nanossegundos, garantindo o mínimo absoluto de erro perceptual ($\Delta E$).
 * **Filtro Guiado Rápido $O(1)$ com Realce Especular ($L > 0.82$)**: Realça reflexos e brilhos nos olhos e superfícies lustrosas enquanto preserva gradientes naturais na pele.
-* **Sextantes Unicode 2x3 por Padrão (`-S`, `--sextants`)**: 6 subpixels por caractere terminal em blocos sólidos Unicode 13.0 (`🬀`-`🬻`, `█`, `▌`, `▐`). Suporta também Braille 2x4 dual-color (`-B`), Quadrantes 2x2 (`-Q`), Meios-Blocos (`--blocks`) e ASCII Direcional Scharr.
+* **Sextantes Unicode 2x3 por Padrão**: 6 subpixels por caractere terminal em blocos sólidos Unicode 13.0 (`🬀`-`🬻`, `█`, `▌`, `▐`). Suporta também Braille 2x4 dual-color (`-B`), Quadrantes 2x2 (`-Q`) e Meios-Blocos (`--blocks`).
 * **Isolamento Alfa Rigoroso**: Áreas transparentes não contaminam as bordas do objeto, eliminando bordas escuras.
 * **Exportação com Fundo de Terminal**: Imagens salvas em `.png` ou `.jpg` são geradas sobre um fundo escuro de terminal (`#0c0c0c`), preservando a estética de arte de terminal em alta fidelidade.
 
@@ -179,27 +179,24 @@ Uso: lumart [OPÇÕES] <caminho_ou_url_da_imagem>
 
 | Opção | Parâmetro | Descrição |
 | :--- | :--- | :--- |
-| `-E`, `--engine` | `mary` \| `trumble` \| `luris` \| `spectra` | Seleciona o motor de renderização. |
-| `-S`, `--sextants`| — | Ativa blocos Sextantes Unicode 2x3 (6 subpixels/célula). |
-| `-B`, `--braille` | — | Ativa caracteres Braille Unicode 2x4 (8 subpixels/célula). |
-| `-Q`, `--quadrants`| — | Ativa blocos Quadrantes Unicode 2x2 (4 subpixels/célula). |
-| `--blocks` | — | Ativa modo de blocos otimizados. |
-| `-a`, `--ascii` | — | Renderiza exclusivamente com caracteres ASCII alfanuméricos. |
 | `-m`, `--manga` | — | Ativa modo Manga Screentone 2.0 (trama Bayer 8x8 + linhas DoG). |
 | `-s`, `--sketch`| — | Ativa modo de esboço limpo de linhas puras. |
+| `-B`, `--braille` | — | Ativa caracteres Braille Unicode 2x4 (8 subpixels/célula). |
+| `-Q`, `--quadrants`| — | Ativa blocos Quadrantes Unicode 2x2 (4 subpixels/célula). |
+| `--blocks` | — | Ativa modo de blocos de terminal otimizados (`▀`). |
 | `-w`, `--width` | `<int>` | Largura de saída em colunas (padrão: tamanho da janela). |
-| `-i`, `--invert`| — | Inverte o mapa de brilho (para terminais com fundo claro). |
-| `--raw-colors` | — | Desativa filtros e cel-shading (cores puras da imagem original). |
+| `-i`, `--invert`| — | Inverte o mapa de brilho (para terminais com fundo claro; autodetectado em `-m`). |
+| `--boost`, `--vibrant` | — | Aplica realce de saturação, contraste e curvas Retinex para saída estilo arcade vibrante. |
 | `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | Algoritmo de difusão de erro ou retícula. |
 | `--swap` | `<cor1> <cor2>` | Substitui dinamicamente cores em espaço RGB 3D. |
 | `-o`, `--output` | `<arquivo.png / .jpg>` | Exporta a arte para arquivo de imagem de alta definição. |
 | `--transparent` | — | **Exclusivo Luris Mono**: exporta stickers recortados com transparência. |
-| `-W`, `--webcam`| `[id]` | Transmite vídeo de webcam ao vivo no terminal (30-60 FPS). |
-| `--instant` | — | Desativa o efeito de varredura reveal e exibe imediatamente. |
 | `--paste` | — | Carrega e renderiza a imagem atualmente na área de transferência. |
+| `-W`, `--webcam`| `[id]` | Transmite vídeo de webcam ao vivo no terminal (30-60 FPS). |
 | `--lang` | `<code>` | Define o idioma da interface (`pt`, `en`, `es`, `fr`, etc.). |
 | `-H`, `--history` | `[N]` | Exibe os últimos N comandos executados no histórico. |
 | `-R`, `--replay` | `[N]` | Reexecuta o comando N do histórico (padrão: o último). |
+| `--clear-history`| — | Limpa o histórico de comandos salvos. |
 | `--install-desktop` | — | Adiciona ação "Abrir com Lumart" no menu de contexto do Linux. |
 | `-v`, `--version` | — | Exibe o diagnóstico completo do sistema e dos motores. |
 | `-u`, `--check-update`| — | Verifica se há novas versões disponíveis no GitHub. |
@@ -210,14 +207,14 @@ Uso: lumart [OPÇÕES] <caminho_ou_url_da_imagem>
 
 ## Exemplos Práticos e Cookbook
 
-### 1. Fotorrealismo Máximo com Mary Apex 3.5
+### 1. Renderização de Alta Definição (Sem Flags / Padrão)
 ```bash
-lumart foto.jpg -E mary -S -w 90
+lumart foto.jpg -w 90
 ```
 
-### 2. Arte de Anime com Trumble Orelx 2.2
+### 2. Arte em Blocos Otimizados
 ```bash
-lumart personagem.png -E trumble --blocks -w 85
+lumart personagem.png --blocks -w 85
 ```
 
 ### 3. Sticker de Mangá com Fundo Transparente (Luris Mono)
@@ -232,7 +229,7 @@ lumart -W
 
 ### 5. Imagem da Área de Transferência
 ```bash
-lumart --paste -E trumble --blocks
+lumart --paste
 ```
 
 ---

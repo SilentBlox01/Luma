@@ -200,29 +200,20 @@ TRANSLATIONS = {
         "help_help": "Show this help message and exit.",
         "help_version": "Show program's version, system diagnostics, and engine status.",
         "help_image_path": "Path to the input image file (works best with transparent backgrounds).",
-        "help_width": "Width of the output ASCII art (in characters). Default: 90",
-        "help_engine": "Select rendering engine: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), or 'spectra' (Spectra Weep 1.4 live webcam).",
+        "help_width": "Width of the output ASCII art (in characters). Default: auto-fit to terminal window.",
         "help_webcam": "Stream live webcam feed to terminal (exclusive 'Spectra' engine).",
-        "help_instant": "Disable progressive reveal effect and output immediately.",
         "help_transparent": "Export PNG sticker with transparent background (Luris Mono exclusive).",
         "help_history": "Show command execution history (optional: number of entries).",
         "help_replay": "Re-execute a previous command from history (default: last command).",
         "help_clear_history": "Clear the saved command history.",
         "help_paste": "Load image directly from the system clipboard.",
         "help_install_desktop": "Install Linux desktop entry and file manager right-click integration.",
-        "help_color": "Output ASCII art in color (Color Engine).",
-        "help_no_color": "Disable color output and use B&W engine.",
         "help_invert": "Invert the ASCII characters (useful for dark terminals).",
         "help_output": "Save the ASCII art to a file instead of printing to the console.",
-        "help_binary": "Use only 1s and 0s for the ASCII characters.",
-        "help_ascii": "Force classic ASCII characters density ramp rendering.",
         "help_blocks": "Use half-blocks (Color) or 2x2 Quadrant HD blocks (B&W) for high resolution.",
         "help_quadrants": "Use 2x2 Unicode quadrant blocks for ultra-dense subpixel rendering.",
-        "help_sextants": "Use 2x3 Unicode sextant blocks for solid subpixel rendering (Mary Apex flagship).",
-        "help_font_ratio": "Terminal font aspect ratio width/height calibration (default: 0.5).",
-        "help_braille": "Use Braille characters for smooth edges and high resolution shape (overrides binary).",
-        "help_raw_colors": "Disable enhanced color processing and use the original raw image colors.",
-        "help_os_style": "Use classic Neofetch/OS style characters (dots, letters, shapes).",
+        "help_braille": "Use Braille characters for smooth edges and high resolution shape.",
+        "help_boost": "Apply enhanced color saturation, contrast, and Retinex processing for vivid arcade-style output.",
         "help_swap": "Swap colors using names (e.g. --swap purple pink blue red). Must provide an even number of arguments.",
         "help_dither": "Dithering algorithm for B&W shading: 'atkinson' (default), 'floyd', 'bayer', or 'none'.",
         "help_manga": "Authentic Manga/Anime style (clean DoG lineart, 8x8 Bayer screentone).",
@@ -345,29 +336,20 @@ TRANSLATIONS = {
         "help_help": "Mostrar este mensaje de ayuda y salir.",
         "help_version": "Mostrar versión del programa, diagnóstico del sistema y estado de aceleración.",
         "help_image_path": "Ruta al archivo de imagen de entrada (funciona mejor con fondos transparentes).",
-        "help_width": "Ancho del arte ASCII de salida (en caracteres). Por defecto: 90",
-        "help_engine": "Seleccionar motor: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) o 'spectra' (Spectra Weep 1.4 en vivo).",
+        "help_width": "Ancho del arte ASCII de salida (en caracteres). Por defecto: ancho real de la terminal.",
         "help_webcam": "Transmitir vídeo de cámara web en vivo a la terminal (motor exclusivo 'Spectra').",
-        "help_instant": "Desactivar efecto de escaneo reveal y mostrar de inmediato.",
         "help_transparent": "Exportar sticker PNG con fondo transparente (exclusivo de Luris Mono).",
         "help_history": "Mostrar historial de comandos de Lumart (opcional: número de entradas).",
         "help_replay": "Re-ejecutar un comando previo del historial (por defecto: el último).",
         "help_clear_history": "Vaciar el historial de comandos guardado.",
         "help_paste": "Cargar imagen directamente desde el portapapeles del sistema.",
         "help_install_desktop": "Instalar integración de escritorio y clic derecho en gestores de archivos.",
-        "help_color": "Generar arte ASCII en color (Motor de Color).",
-        "help_no_color": "Desactivar salida de color y usar motor blanco y negro.",
         "help_invert": "Invertir los caracteres ASCII (útil para terminales oscuras).",
         "help_output": "Guardar el arte ASCII en un archivo en lugar de imprimirlo en consola.",
-        "help_binary": "Usar solo 1s y 0s para los caracteres ASCII.",
-        "help_ascii": "Forzar renderizado clásico con rampa de densidad ASCII.",
         "help_blocks": "Usar medio-bloques (Color) o bloques cuadrantes 2x2 HD (B&W) para alta resolución.",
         "help_quadrants": "Usar bloques cuadrantes 2x2 Unicode para renderizado subpíxel ultra denso.",
-        "help_sextants": "Usar bloques sextantes 2x3 Unicode para renderizado subpíxel sólido (buque insignia Mary Apex).",
-        "help_font_ratio": "Calibración de relación aspecto ancho/alto de fuente de terminal (por defecto: 0.5).",
         "help_braille": "Usar caracteres Braille para bordes suaves y formas de alta resolución.",
-        "help_raw_colors": "Desactiva el realce de color y utiliza los colores originales sin procesar.",
-        "help_os_style": "Usar caracteres clásicos estilo Neofetch/OS (puntos, letras, formas).",
+        "help_boost": "Aplicar saturación, contraste y procesamiento Retinex para una salida vibrante estilo arcade.",
         "help_swap": "Intercambiar colores por nombre (ej. --swap purple pink blue red). Debe ser un número par de argumentos.",
         "help_dither": "Algoritmo de tramado: 'atkinson' (por defecto), 'floyd', 'bayer' o 'none'.",
         "help_manga": "Estilo Manga/Anime auténtico (trazos limpios DoG, sombreado screentone 8x8 Bayer).",
@@ -490,29 +472,20 @@ TRANSLATIONS = {
         "help_help": "Mostrar esta mensagem de ajuda e sair.",
         "help_version": "Mostrar o número da versão do programa, diagnóstico e status do motor.",
         "help_image_path": "Caminho para o arquivo de imagem de entrada (funciona melhor com fundos transparentes).",
-        "help_width": "Largura da arte ASCII de saída (em caracteres). Padrão: 90",
-        "help_engine": "Selecionar motor: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) ou 'spectra' (Spectra Weep 1.4 ao vivo).",
+        "help_width": "Largura da arte ASCII de saída (em caracteres). Padrão: largura real do terminal.",
         "help_webcam": "Transmitir vídeo de webcam ao vivo para o terminal (motor exclusivo 'Spectra').",
-        "help_instant": "Desativar efeito de revelação progressiva e exibir imediatamente.",
         "help_transparent": "Exportar sticker PNG com fundo transparente (exclusivo do Luris Mono).",
         "help_history": "Mostrar histórico de comandos do Lumart (opcional: número de entradas).",
         "help_replay": "Reexecutar um comando anterior do histórico (padrão: o último).",
         "help_clear_history": "Limpar o histórico de comandos salvo.",
         "help_paste": "Carregar imagem diretamente da área de transferência do sistema.",
         "help_install_desktop": "Instalar atalho de área de trabalho e integração de clique direito no gerenciador de arquivos.",
-        "help_color": "Gerar arte ASCII em cores (Motor de Cores).",
-        "help_no_color": "Desativar saída colorida e usar motor preto e branco.",
         "help_invert": "Inverter os caracteres ASCII (útil para terminais escuros).",
         "help_output": "Salvar a arte ASCII em um arquivo em vez de imprimir no console.",
-        "help_binary": "Usar apenas 1s e 0s para os caracteres ASCII.",
-        "help_ascii": "Forçar renderização clássica com rampa de caracteres ASCII.",
         "help_blocks": "Usar meios-blocos ou blocos quadrantes 2x2 para alta resolução.",
         "help_quadrants": "Usar blocos de quadrantes 2x2 Unicode para renderização subpíxel ultradensa.",
-        "help_sextants": "Usar blocos de sextantes 2x3 Unicode para renderização subpíxel sólida (flagship Mary Apex).",
-        "help_font_ratio": "Calibração da proporção largura/altura da fonte do terminal (padrão: 0.5).",
         "help_braille": "Usar caracteres Braille para bordas suaves e formas de alta resolução.",
-        "help_raw_colors": "Desativar o realce de cor e usar as cores originais sem processamento.",
-        "help_os_style": "Usar caracteres clássicos estilo Neofetch/OS (pontos, letras, formas).",
+        "help_boost": "Aplicar saturação, contraste e processamento Retinex para saída vibrante estilo arcade.",
         "help_swap": "Trocar cores usando nomes (ex: --swap purple pink blue red). Deve fornecer um número par de argumentos.",
         "help_dither": "Algoritmo de pontilhamento: 'atkinson' (padrão), 'floyd', 'bayer' ou 'none'.",
         "help_manga": "Estilo Manga/Anime autêntico (traços limpos DoG, sombreamento retícula 8x8).",
@@ -635,29 +608,20 @@ TRANSLATIONS = {
         "help_help": "Показать это справочное сообщение и выйти.",
         "help_version": "Показать версию программы, диагностику системы и статус движка.",
         "help_image_path": "Путь к исходному файлу изображения (лучше всего работает с прозрачным фоном).",
-        "help_width": "Ширина выходного ASCII-арта (в символах). По умолчанию: 90",
-        "help_engine": "Выбрать движок: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) или 'spectra' (Spectra Weep 1.4 живая веб-камера).",
+        "help_width": "Ширина выходного ASCII-арта (в символах). По умолчанию: ширина окна терминала.",
         "help_webcam": "Трансляция видео с веб-камеры в терминал (эксклюзивный движок 'Spectra').",
-        "help_instant": "Отключить эффект плавного сканирования и вывести результат мгновенно.",
         "help_transparent": "Экспортировать PNG-стикер с прозрачным фоном (только для Luris Mono).",
         "help_history": "Показать историю команд Lumart (опционально: количество записей).",
         "help_replay": "Повторно выполнить предыдущую команду из истории (по умолчанию: последнюю).",
         "help_clear_history": "Очистить сохраненную историю команд.",
         "help_paste": "Загрузить изображение прямо из системного буфера обмена.",
         "help_install_desktop": "Установить ярлык на рабочий стол и контекстное меню файлового менеджера.",
-        "help_color": "Выводить ASCII-арт в цвете (Цветовой движок).",
-        "help_no_color": "Отключить цветной вывод и использовать черно-белый движок.",
         "help_invert": "Инвертировать символы ASCII (полезно для темных терминалов).",
         "help_output": "Сохранить ASCII-арт в файл вместо вывода в консоль.",
-        "help_binary": "Использовать только 1 и 0 для символов ASCII.",
-        "help_ascii": "Принудительный классический рендеринг символами ASCII.",
         "help_blocks": "Использовать полублоки или 2x2 квадранты для высокого разрешения.",
         "help_quadrants": "Использовать квадранты 2x2 Unicode для сверхплотного субпиксельного рендеринга.",
-        "help_sextants": "Использовать секстанты 2x3 Unicode для монолитного субпиксельного рендеринга (флагман Mary Apex).",
-        "help_font_ratio": "Калибровка соотношения сторон шрифта терминала ширина/высота (по умолчанию: 0.5).",
         "help_braille": "Использовать шрифт Брайля для сглаженных краев и высокого разрешения.",
-        "help_raw_colors": "Отключить улучшение цветов и использовать исходные цвета без обработки.",
-        "help_os_style": "Использовать классические символы в стиле Neofetch/OS (точки, буквы, формы).",
+        "help_boost": "Применить усиленную насыщенность, контраст и обработку Retinex для яркого аркадного вывода.",
         "help_swap": "Менять цвета по названию (напр. --swap purple pink blue red). Должно быть четное количество аргументов.",
         "help_dither": "Алгоритм дизеринга: 'atkinson' (по умолчанию), 'floyd', 'bayer' или 'none'.",
         "help_manga": "Стиль манги/аниме (чистый лайн-арт DoG, скринтоны 8x8).",
@@ -780,29 +744,20 @@ TRANSLATIONS = {
         "help_help": "このヘルプメッセージを表示して終了します。",
         "help_version": "プログラムのバージョン、診断情報、エンジン状態を表示して終了します。",
         "help_image_path": "入力画像ファイルへのパス（透明な背景が最適です）。",
-        "help_width": "出力するASCIIアートの幅（文字数）。デフォルト: 90",
-        "help_engine": "レンダリングエンジンの選択: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), 'spectra' (Spectra Weep 1.4 ライブWebカメラ)。",
+        "help_width": "出力するASCIIアートの幅（文字数）。デフォルト: ターミナル画面幅に自動適合。",
         "help_webcam": "ライブWebカメラ映像をターミナルにストリーミング（専用エンジン 'Spectra'）。",
-        "help_instant": "プログレッシブスキャン効果を無効にして即時出力します。",
         "help_transparent": "透明な背景でPNGステッカーをエクスポートします（Luris Mono専用）。",
         "help_history": "Lumartのコマンド履歴を表示します（オプション：表示件数）。",
         "help_replay": "履歴から以前のコマンドを再実行します（デフォルト：最後のコマンド）。",
         "help_clear_history": "保存されたコマンド履歴をクリアします。",
         "help_paste": "システムのクリップボードから直接画像を読み込みます。",
         "help_install_desktop": "デスクトップエントリとファイルマネージャーの右クリック統合をインストールします。",
-        "help_color": "ASCIIアートをカラーで出力します (カラーエンジン)。",
-        "help_no_color": "カラー出力を無効にし、白黒エンジンを使用します。",
         "help_invert": "ASCII文字を反転します（暗いターミナルで便利です）。",
         "help_output": "コンソールに出力する代わりに、ASCIIアートをファイルに保存します。",
-        "help_binary": "ASCII文字として1と0のみを使用します。",
-        "help_ascii": "クラシックなASCII文字密度ランプでの描画を強制します。",
         "help_blocks": "高解像度のためにハーフブロックまたは2x2ブロックを使用します。",
         "help_quadrants": "2x2 Unicode象限ブロックを使用した超高密度サブピクセルレンダリング。",
-        "help_sextants": "2x3 Unicode六分儀ブロックによる高密度ソリッド描画（Mary Apexフラッグシップ）。",
-        "help_font_ratio": "ターミナルフォントの幅/高さアスペクト比キャリブレーション（デフォルト：0.5）。",
         "help_braille": "滑らかなエッジと高解像度の形状のために点字文字を使用します。",
-        "help_raw_colors": "カラー補正を無効にし、元の画像の色を処理なしで使用します。",
-        "help_os_style": "クラシックなNeofetch/OSスタイルの文字（ドット、文字、図形）を使用します。",
+        "help_boost": "鮮やかなアーケード風の出力のために彩度・コントラスト・Retinex処理を適用します。",
         "help_swap": "名前を使用して色を交換します（例: --swap purple pink blue red）。偶数個の引数を指定する必要があります。",
         "help_dither": "ディザリングアルゴリズム: 'atkinson' (デフォルト), 'floyd', 'bayer', 'none'。",
         "help_manga": "本物のマンガ/アニメスタイル (DoG線画、8x8スクリーントーン)。",
@@ -925,29 +880,20 @@ TRANSLATIONS = {
         "help_help": "Diese Hilfemeldung anzeigen und beenden.",
         "help_version": "Versionsnummer, Systemdiagnose und Engine-Status anzeigen.",
         "help_image_path": "Pfad zur Eingabebilddatei (funktioniert am besten mit transparentem Hintergrund).",
-        "help_width": "Breite der ASCII-Kunst (in Zeichen). Standard: 90",
-        "help_engine": "Rendering-Engine auswählen: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) oder 'spectra' (Spectra Weep 1.4 Live-Webcam).",
+        "help_width": "Breite der ASCII-Kunst (in Zeichen). Standard: automatische Anpassung an Terminalgröße.",
         "help_webcam": "Live-Webcam-Stream im Terminal anzeigen (exklusive 'Spectra'-Engine).",
-        "help_instant": "Progressiven Reveal-Effekt deaktivieren und sofort ausgeben.",
         "help_transparent": "PNG-Sticker mit transparentem Hintergrund exportieren (exklusiv für Luris Mono).",
         "help_history": "Lumart-Befehlsverlauf anzeigen (optional: Anzahl der Einträge).",
         "help_replay": "Vorherigen Befehl aus dem Verlauf erneut ausführen (Standard: letzter Befehl).",
         "help_clear_history": "Gespeicherten Befehlsverlauf löschen.",
         "help_paste": "Bild direkt aus der Systemzwischenablage laden.",
         "help_install_desktop": "Desktop-Eintrag und Kontextmenü-Integration für Dateimanager installieren.",
-        "help_color": "ASCII-Kunst in Farbe ausgeben (Farb-Engine).",
-        "help_no_color": "Farbausgabe deaktivieren und Schwarz-Weiß-Engine verwenden.",
         "help_invert": "ASCII-Zeichen umkehren (nützlich für dunkle Terminals).",
         "help_output": "ASCII-Kunst in einer Datei speichern, anstatt sie auf der Konsole auszugeben.",
-        "help_binary": "Nur 1en und 0en für die ASCII-Zeichen verwenden.",
-        "help_ascii": "Klassisches Rendern mit ASCII-Zeichen-Dichterampe erzwingen.",
         "help_blocks": "Halbblöcke oder 2x2 Quadrant-Blöcke für hohe Auflösung verwenden.",
         "help_quadrants": "2x2 Unicode-Quadrantblöcke für ultra-dichtes Subpixel-Rendering verwenden.",
-        "help_sextants": "2x3 Unicode-Sextantenblöcke für solides Subpixel-Rendering verwenden (Mary Apex Flaggschiff).",
-        "help_font_ratio": "Kalibrierung des Schrift-Seitenverhältnisses Breite/Höhe des Terminals (Standard: 0.5).",
         "help_braille": "Braille-Zeichen für weiche Kanten und hohe Auflösung verwenden.",
-        "help_raw_colors": "Farbverbesserung deaktivieren und die ursprünglichen Bildfarben verwenden.",
-        "help_os_style": "Klassische Neofetch/OS-Zeichen (Punkte, Buchstaben, Formen) verwenden.",
+        "help_boost": "Verbesserte Farbsättigung, Kontrast und Retinex-Verarbeitung für lebhafte Arcade-Ausgabe anwenden.",
         "help_swap": "Farben nach Name tauschen (z.B. --swap purple pink blue red). Es muss eine gerade Anzahl von Argumenten angegeben werden.",
         "help_dither": "Dithering-Algorithmus: 'atkinson' (Standard), 'floyd', 'bayer' oder 'none'.",
         "help_manga": "Authentischer Manga/Anime-Stil (saubere DoG-Linienführung, 8x8 Rastertönung).",
@@ -1070,29 +1016,20 @@ TRANSLATIONS = {
         "help_help": "이 도움말 메시지를 표시하고 종료합니다.",
         "help_version": "프로그램의 버전 번호, 시스템 진단 및 엔진 상태를 표시합니다.",
         "help_image_path": "입력 이미지 파일의 경로입니다 (투명한 배경이 가장 좋습니다).",
-        "help_width": "출력 ASCII 아트의 너비(문자 수)입니다. 기본값: 90",
-        "help_engine": "렌더링 엔진 선택: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) 또는 'spectra' (Spectra Weep 1.4 라이브 웹캠).",
+        "help_width": "출력 ASCII 아트의 너비(문자 수). 기본값: 터미널 창 너비에 자동 맞춤.",
         "help_webcam": "터미널에 라이브 웹캠 영상 스트리밍 (전용 'Spectra' 엔진).",
-        "help_instant": "프로그레시브 스캔 효과를 비활성화하고 즉시 출력합니다.",
         "help_transparent": "투명 배경으로 PNG 스티커를 내보냅니다 (Luris Mono 전용).",
         "help_history": "Lumart 명령 실행 기록을 표시합니다 (선택 사항: 항목 수).",
         "help_replay": "기록에서 이전 명령을 다시 실행합니다 (기본값: 마지막 명령).",
         "help_clear_history": "저장된 명령 기록을 삭제합니다.",
         "help_paste": "시스템 클립보드에서 직접 이미지를 불러옵니다.",
         "help_install_desktop": "데스크톱 항목 및 파일 관리자 우클릭 통합을 설치합니다.",
-        "help_color": "컬러로 ASCII 아트를 출력합니다 (컬러 엔진).",
-        "help_no_color": "컬러 출력을 비활성화하고 흑백 엔진을 사용합니다.",
         "help_invert": "ASCII 문자를 반전시킵니다(어두운 터미널에 유용).",
         "help_output": "콘솔에 출력하는 대신 ASCII 아트를 파일에 저장합니다.",
-        "help_binary": "ASCII 문자에 1과 0만 사용합니다.",
-        "help_ascii": "클래식 ASCII 문자 밀도 램프로 강제 렌더링합니다.",
         "help_blocks": "고해상도를 위해 하프 블록 또는 2x2 쿼드런트 블록을 사용합니다.",
         "help_quadrants": "초고밀도 서브픽셀 렌더링을 위해 2x2 유니코드 사분면 블록을 사용합니다.",
-        "help_sextants": "솔리드 서브픽셀 렌더링을 위해 2x3 유니코드 육분의 블록 사용 (Mary Apex 플래그십).",
-        "help_font_ratio": "터미널 폰트 가로/세로 비율 보정 (기본값: 0.5).",
         "help_braille": "부드러운 가장자리와 고해상도 모양을 위해 점자 문자를 사용합니다.",
-        "help_raw_colors": "컬러 향상을 비활성화하고 처리 없이 원래 이미지 색상을 사용합니다.",
-        "help_os_style": "클래식 Neofetch/OS 스타일 문자(점, 글자, 도형)를 사용합니다.",
+        "help_boost": "선명한 아케이드 스타일 출력을 위해 향상된 색상 채도, 대비 및 Retinex 처리를 적용합니다.",
         "help_swap": "이름을 사용하여 색상을 교환합니다(예: --swap purple pink blue red). 짝수 개의 인수를 제공해야 합니다.",
         "help_dither": "디더링 알고리즘: 'atkinson' (기본값), 'floyd', 'bayer' 또는 'none'.",
         "help_manga": "정통 만화/애니메이션 스타일 (깔끔한 DoG 라인아트, 8x8 스크린톤).",
@@ -1215,29 +1152,20 @@ TRANSLATIONS = {
         "help_help": "Afficher ce message d'aide et quitter.",
         "help_version": "Afficher la version du programme, les diagnostics système et l'état des moteurs.",
         "help_image_path": "Chemin du fichier image d'entrée (fonctionne mieux avec des arrière-plans transparents).",
-        "help_width": "Largeur de l'art ASCII en sortie (en caractères). Par défaut : 90",
-        "help_engine": "Sélectionner le moteur de rendu : 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), ou 'spectra' (Spectra Weep 1.4 webcam en direct).",
+        "help_width": "Largeur de l'art ASCII en sortie (en caractères). Par défaut : ajustement automatique au terminal.",
         "help_webcam": "Diffuser le flux de la webcam en direct dans le terminal (moteur exclusif 'Spectra').",
-        "help_instant": "Désactiver l'effet de révélation progressive et afficher immédiatement.",
         "help_transparent": "Exporter un sticker PNG avec arrière-plan transparent (exclusif à Luris Mono).",
         "help_history": "Afficher l'historique des commandes Lumart (optionnel : nombre d'entrées).",
         "help_replay": "Réexécuter une commande précédente de l'historique (par défaut : la dernière).",
         "help_clear_history": "Effacer l'historique des commandes enregistrées.",
         "help_paste": "Charger une image directement depuis le presse-papiers système.",
         "help_install_desktop": "Installer l'entrée de bureau Linux et l'intégration au menu contextuel des gestionnaires de fichiers.",
-        "help_color": "Générer de l'art ASCII en couleur (Moteur Couleur).",
-        "help_no_color": "Désactiver la sortie couleur et utiliser le moteur noir et blanc.",
         "help_invert": "Inverser les caractères ASCII (utile pour les terminaux sombres).",
         "help_output": "Enregistrer l'art ASCII dans un fichier au lieu de l'imprimer dans la console.",
-        "help_binary": "Utiliser uniquement des 1 et des 0 pour les caractères ASCII.",
-        "help_ascii": "Forcer le rendu classique avec rampe de densité de caractères ASCII.",
         "help_blocks": "Utiliser des demi-blocs (Couleur) ou des blocs quadrants 2x2 HD (N&B) pour une haute résolution.",
         "help_quadrants": "Utiliser des blocs quadrants Unicode 2x2 pour un rendu sous-pixel ultra-dense.",
-        "help_sextants": "Utiliser des blocs sextants Unicode 2x3 pour un rendu sous-pixel solide (fleuron Mary Apex).",
-        "help_font_ratio": "Calibration du ratio largeur/hauteur de la police du terminal (par défaut : 0.5).",
         "help_braille": "Utiliser des caractères Braille pour des contours lisses et des formes haute résolution.",
-        "help_raw_colors": "Désactiver l'amélioration des couleurs et utiliser les couleurs brutes d'origine de l'image.",
-        "help_os_style": "Utiliser des caractères classiques de style Neofetch/OS (points, lettres, formes).",
+        "help_boost": "Appliquer une saturation, un contraste et un traitement Retinex améliorés pour une sortie arcade vibrante.",
         "help_swap": "Échanger des couleurs par leur nom (ex : --swap purple pink blue red). Nombre pair d'arguments requis.",
         "help_dither": "Algorithme de tramage pour le dégradé N&B : 'atkinson' (par défaut), 'floyd', 'bayer' ou 'none'.",
         "help_manga": "Style authentique Manga/Anime (traits DoG nets, trames de points 8x8 Bayer).",
@@ -3146,32 +3074,12 @@ def export_ansi_to_image(ansi_text, out_path, transparent=False, font_size=16):
 # ==============================================================================
 # EFECTO REVEAL (ESCÁNER LÁSER PROGRESIVO)
 # ==============================================================================
-def print_with_reveal(ansi_text, instant=False, delay=0.0015):
+def print_with_reveal(ansi_text, instant=True, delay=0.0):
     """
-    Efecto Reveal cinematográfico: muestra la imagen con un barrido dinámico línea por línea.
-    Si instant=True o la salida se redirige fuera de la terminal, imprime de golpe.
+    Imprime la salida visual instantáneamente en la terminal sin demoras.
     """
-    if instant or not sys.stdout.isatty():
-        sys.stdout.write(ansi_text + "\n")
-        sys.stdout.flush()
-        return
-
-    lines = ansi_text.rstrip("\n").split("\n")
-    try:
-        for line in lines:
-            sys.stdout.write(line + "\n")
-            sys.stdout.flush()
-            if delay > 0:
-                time.sleep(delay)
-    except KeyboardInterrupt:
-        # En caso de Ctrl+C, volcar el resto inmediatamente
-        try:
-            cur_idx = lines.index(line)
-            if cur_idx < len(lines) - 1:
-                sys.stdout.write("\n".join(lines[cur_idx + 1:]) + "\n")
-                sys.stdout.flush()
-        except Exception:
-            pass
+    sys.stdout.write(ansi_text + "\n")
+    sys.stdout.flush()
 
 # ==============================================================================
 # ENTRADAS MODERNAS (URLS DIRECTAS, PORTAPAPELES Y STDIN)
@@ -3717,36 +3625,26 @@ def main():
 
     parser.add_argument("image_path", nargs="?", default=None, help=_("help_image_path"))
     parser.add_argument("-w", "--width", type=int, default=None, help=_("help_width"))
-    parser.add_argument("-E", "--engine", choices=["mary", "trumble", "luris", "spectra", "color", "mono", "bw", "manga", "sketch"], default=None, help=_("help_engine"))
-    parser.add_argument("-d", "--dither", nargs="?", const="atkinson", default=None, help=_("help_dither"))
-    parser.add_argument("--no-color", action="store_false", dest="color", help=_("help_no_color"))
-    parser.add_argument("-c", "--color", action="store_true", dest="color", default=True, help=_("help_color"))
-    parser.add_argument("-i", "--invert", action="store_true", help=_("help_invert"))
-    parser.add_argument("-o", "-O", "--output", help=_("help_output"))
-    parser.add_argument("-b", "--binary", action="store_true", help=_("help_binary"))
-    parser.add_argument("-a", "--ascii", action="store_true", help=_("help_ascii"))
-    parser.add_argument("--blocks", action="store_true", help=_("help_blocks"))
-    parser.add_argument("-Q", "--quadrants", action="store_true", help=_("help_quadrants"))
-    parser.add_argument("-S", "--sextants", action="store_true", help=_("help_sextants"))
-    parser.add_argument("-B", "--braille", action="store_true", help=_("help_braille"))
-    parser.add_argument("--font-ratio", type=float, default=0.5, help=_("help_font_ratio"))
     parser.add_argument("-m", "--manga", action="store_true", help=_("help_manga"))
     parser.add_argument("-s", "--sketch", action="store_true", help=_("help_sketch"))
-    parser.add_argument("--epic", action="store_true", help=argparse.SUPPRESS)
-    parser.add_argument("--raw-colors", action="store_true", help=_("help_raw_colors"))
-    parser.add_argument("--os-style", action="store_true", help=_("help_os_style"))
+    parser.add_argument("--boost", "--vibrant", action="store_true", default=False, help=_("help_boost"))
+    parser.add_argument("-i", "--invert", action="store_true", help=_("help_invert"))
     parser.add_argument("--swap", nargs="+", help=_("help_swap"))
+    parser.add_argument("-B", "--braille", action="store_true", help=_("help_braille"))
+    parser.add_argument("-Q", "--quadrants", action="store_true", help=_("help_quadrants"))
+    parser.add_argument("--blocks", action="store_true", help=_("help_blocks"))
+    parser.add_argument("-d", "--dither", nargs="?", const="atkinson", default=None, help=_("help_dither"))
+    parser.add_argument("-o", "-O", "--output", help=_("help_output"))
+    parser.add_argument("--transparent", action="store_true", help=_("help_transparent"))
+    parser.add_argument("--paste", action="store_true", help=_("help_paste"))
     parser.add_argument("--lang", help=_("help_lang"))
 
-    # Nuevas funciones de la versión 2.3.0
+    # Utilidades del sistema
     parser.add_argument("-W", "--webcam", nargs="?", const=0, default=None, type=int, help=_("help_webcam"))
-    parser.add_argument("--instant", "--no-reveal", action="store_true", help=_("help_instant"))
-    parser.add_argument("--transparent", action="store_true", help=_("help_transparent"))
     parser.add_argument("-H", "--history", nargs="?", const="all", default=None, help=_("help_history"))
     parser.add_argument("-R", "--replay", "--last", nargs="?", const="1", default=None, help=_("help_replay"))
     parser.add_argument("--clear-history", action="store_true", help=_("help_clear_history"))
     parser.add_argument("--install-desktop", action="store_true", help=_("help_install_desktop"))
-    parser.add_argument("--paste", action="store_true", help=_("help_paste"))
     
     args = parser.parse_args()
 
@@ -3788,14 +3686,8 @@ def main():
     # Motor Spectra exclusivo para webcam
     if args.webcam is not None:
         record_command_to_history()
-        success = run_spectra_webcam(cam_index=args.webcam, target_width=args.width, font_ratio=args.font_ratio)
+        success = run_spectra_webcam(cam_index=args.webcam, target_width=args.width, font_ratio=0.5)
         sys.exit(0 if success else 1)
-
-    if args.engine == "spectra":
-        print("\n\033[1;36m █    █ █ █▄ ▄█ ▄▀▄ █▀▄ ▀█▀\033[0m")
-        print("\033[1;36m █▄▄▄ ▀▄█ █ ▀ █ █▀█ █▀▄  █\033[0m")
-        print(f"\n{_('spectra_webcam_only')}")
-        sys.exit(0)
 
     # Comprobar actualizaciones sin instalar (-u / --update / --check-update)
     if args.update:
@@ -3826,50 +3718,27 @@ def main():
     if has_update:
         print(f"\033[1;33m{_('update_notice', update_ver)}\033[0m\n", file=sys.stderr)
 
-    # Selección y resolución de motor: 'mary', 'trumble', o 'luris'
-    engine = None
-    if args.engine:
-        eng_lower = args.engine.lower()
-        if eng_lower in ("mary", "trumble", "luris"):
-            engine = eng_lower
-        elif eng_lower == "color":
-            engine = "mary"
-        elif eng_lower in ("mono", "bw"):
-            engine = "luris"
-            args.color = False
-        elif eng_lower == "manga":
-            engine = "luris"
-            args.color = False
+    # Selección y resolución de motor: Luris (monocromo / manga / sketch / dither) o Mary (color HD por defecto)
+    is_mono = bool(
+        getattr(args, "manga", False) or 
+        getattr(args, "sketch", False) or 
+        getattr(args, "dither", None) is not None or 
+        "NO_COLOR" in os.environ
+    )
+
+    if is_mono:
+        engine = "luris"
+        args.color = False
+        if getattr(args, "manga", False) or getattr(args, "sketch", False):
             args.braille = True
-            args.manga = True
-        elif eng_lower == "sketch":
-            engine = "luris"
-            args.color = False
-            args.braille = True
-            args.sketch = True
+    else:
+        engine = "mary"
+        args.color = True
 
-    if getattr(args, "manga", False):
-        engine = "luris"
-        args.color = False
-        args.braille = True
+    # Calibración fija de proporción de caracteres terminal
+    font_ratio = 0.5
 
-    if getattr(args, "sketch", False):
-        engine = "luris"
-        args.color = False
-        args.braille = True
-
-    # 1. Autodetección del estándar NO_COLOR (https://no-color.org)
-    if "NO_COLOR" in os.environ and "--color" not in sys.argv and "-c" not in sys.argv:
-        args.color = False
-
-    if not args.color:
-        engine = "luris"
-    elif engine is None:
-        # Por defecto para renderizado a color: Trumble (estable)
-        # Mary (v2.2.0) se invoca explícitamente con -E mary
-        engine = "trumble"
-
-    # 2. Autodetección del ancho de la terminal: si no se especifica -w, nos adaptamos
+    # Autodetección del ancho de la terminal: si no se especifica -w, nos adaptamos
     if args.width is None:
         if args.output and os.path.splitext(args.output)[1].lower() in (".png", ".jpg", ".jpeg"):
             # Para exportación a imagen gráfica / stickers, usar resolución Ultra-HD de estudio (160 cols)
@@ -3877,15 +3746,14 @@ def main():
         else:
             try:
                 import shutil
-                term_cols = shutil.get_terminal_size((90, 24)).columns
-                args.width = min(90, max(20, term_cols))
+                term_cols = shutil.get_terminal_size((120, 24)).columns
+                # Usar el ancho real de la terminal sin límite artificial.
+                # Mínimo de seguridad: 20 columnas para evitar renders rotos.
+                args.width = max(20, term_cols)
             except Exception:
-                args.width = 90
+                args.width = 120
     elif args.width < 5:
         args.width = 5
-
-    if args.font_ratio is not None and (args.font_ratio <= 0.05 or args.font_ratio >= 3.0):
-        args.font_ratio = 0.5
 
     # 3. Autodetección de terminal clara (Light mode) para inversión automática de caracteres
     invert_mode = args.invert or is_light_terminal()
@@ -3902,6 +3770,35 @@ def main():
             print(_("error_swap"))
             sys.exit(1)
         image = apply_color_swap(image, args.swap)
+
+    # Autodetección de fondo claro/blanco para Luris Mono:
+    # Si la imagen tiene fondo predominantemente blanco/claro y el usuario no forzó -i manualmente,
+    # invertimos automáticamente para preservar el papel blanco limpio estilo manga.
+    if engine == "luris" and not args.invert and "-i" not in sys.argv and "--invert" not in sys.argv:
+        try:
+            _detect_img = image.convert("RGBA")
+            w, h = _detect_img.size
+            # Muestrear bordes y esquinas de la imagen para detectar fondo claro
+            border_pixels = []
+            for x in range(0, w, max(1, w // 20)):
+                for y_offset in [0, 1, h - 2, h - 1]:
+                    if 0 <= y_offset < h:
+                        p = _detect_img.getpixel((x, y_offset))
+                        if p[3] > 200:  # Solo píxeles opacos
+                            border_pixels.append(p[:3])
+            for y in range(0, h, max(1, h // 20)):
+                for x_offset in [0, 1, w - 2, w - 1]:
+                    if 0 <= x_offset < w:
+                        p = _detect_img.getpixel((x_offset, y))
+                        if p[3] > 200:
+                            border_pixels.append(p[:3])
+            if border_pixels:
+                avg_lum = sum((0.299 * r + 0.587 * g + 0.114 * b) for r, g, b in border_pixels) / len(border_pixels)
+                light_count = sum(1 for r, g, b in border_pixels if (0.299 * r + 0.587 * g + 0.114 * b) > 140)
+                if light_count / len(border_pixels) > 0.50 and avg_lum > 150:
+                    invert_mode = True
+        except Exception:
+            pass
 
     ascii_art = ""
 
@@ -3925,16 +3822,16 @@ def main():
             luris_input_path = temp_luris_path
 
         try:
-            if getattr(args, "sketch", False) or args.engine == "sketch":
+            if getattr(args, "sketch", False):
                 mono_mode = "sketch"
-            elif getattr(args, "manga", False) or args.engine == "manga":
+            elif getattr(args, "manga", False):
                 mono_mode = "manga"
-            elif args.braille:
+            elif getattr(args, "braille", False):
                 mono_mode = "braille"
-            elif args.blocks or getattr(args, "quadrants", False):
+            elif getattr(args, "blocks", False) or getattr(args, "quadrants", False):
                 mono_mode = "blocks"
             else:
-                mono_mode = "ascii"
+                mono_mode = "braille"
 
             dither_algo = "none"
             if args.dither:
@@ -3956,10 +3853,8 @@ def main():
                         image = apply_bayer_dither(image)
                     if args.braille:
                         ascii_art = convert_image_to_braille(image, args.color, invert_mode)
-                    elif args.blocks:
-                        ascii_art = convert_image_to_blocks(image)
                     else:
-                        ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style)
+                        ascii_art = convert_image_to_blocks(image)
         finally:
             if temp_luris_path and os.path.exists(temp_luris_path):
                 try: os.unlink(temp_luris_path)
@@ -3969,68 +3864,64 @@ def main():
     # 2. MOTOR MARY: Apex Perceptual Color Engine (Oklab, Fast Guided Filter, Sextants/Braille/Quadrants)
     # -------------------------------------------------------------
     elif engine == "mary":
-        if not args.binary and not args.os_style:
-            if getattr(args, "ascii", False):
-                mode = "ascii"
-            elif getattr(args, "braille", False):
-                mode = "braille"
-            elif getattr(args, "quadrants", False):
-                mode = "quadrants"
-            elif getattr(args, "blocks", False):
-                mode = "blocks"
-            elif getattr(args, "sextants", False):
-                mode = "sextants"
-            else:
-                # Por defecto en Mary Apex 3.5: Sextantes HD 2x3 (6 subpíxeles por celda, máxima resolución continua)
-                mode = "sextants"
+        if getattr(args, "braille", False):
+            mode = "braille"
+        elif getattr(args, "quadrants", False):
+            mode = "quadrants"
+        elif getattr(args, "blocks", False):
+            mode = "blocks"
+        else:
+            # Por defecto en Mary Apex 3.5: Sextantes HD 2x3 (6 subpíxeles por celda, máxima resolución continua)
+            mode = "sextants"
 
-            # MOTOR A COLOR: Remover fondo ANTES DE FINALIZAR EL PROCESO
-            temp_mary_path = None
-            mary_image = image
-            mary_input_path = args.image_path
-            if getattr(args, "transparent", False):
-                mary_image = remove_image_background(image)
-                with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-                    temp_mary_path = tmp.name
-                    mary_image.save(temp_mary_path)
-                mary_input_path = temp_mary_path
-            elif not args.image_path or not os.path.exists(args.image_path):
-                with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-                    temp_mary_path = tmp.name
-                    mary_image.save(temp_mary_path)
-                mary_input_path = temp_mary_path
+        # MOTOR A COLOR: Remover fondo ANTES DE FINALIZAR EL PROCESO
+        temp_mary_path = None
+        mary_image = image
+        mary_input_path = args.image_path
+        if getattr(args, "transparent", False):
+            mary_image = remove_image_background(image)
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                temp_mary_path = tmp.name
+                mary_image.save(temp_mary_path)
+            mary_input_path = temp_mary_path
+        elif not args.image_path or not os.path.exists(args.image_path):
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                temp_mary_path = tmp.name
+                mary_image.save(temp_mary_path)
+            mary_input_path = temp_mary_path
 
-            try:
-                # 1. Intentar aceleración nativa C++ (luma-mary / libmary.so)
-                native_mary = try_render_native_mary(
-                    mary_input_path,
+        try:
+            # Colores naturales fieles por defecto. Si se especificó --boost, se desactiva raw_colors.
+            is_raw_colors = not args.boost
+
+            # 1. Intentar aceleración nativa C++ (luma-mary / libmary.so)
+            native_mary = try_render_native_mary(
+                mary_input_path,
+                args.width,
+                mode=mode,
+                raw_colors=is_raw_colors,
+                invert=invert_mode,
+                font_ratio=font_ratio
+            )
+            if native_mary is not None:
+                ascii_art = native_mary
+            elif mary is not None:
+                # 2. Fallback al motor Mary en Python puro
+                ascii_art = mary.render_mary(
+                    mary_image,
                     args.width,
                     mode=mode,
-                    raw_colors=args.raw_colors,
+                    raw_colors=is_raw_colors,
                     invert=invert_mode,
-                    font_ratio=args.font_ratio
+                    font_ratio=font_ratio
                 )
-                if native_mary is not None:
-                    ascii_art = native_mary
-                elif mary is not None:
-                    # 2. Fallback al motor Mary en Python puro
-                    ascii_art = mary.render_mary(
-                        mary_image,
-                        args.width,
-                        mode=mode,
-                        raw_colors=args.raw_colors,
-                        invert=invert_mode,
-                        font_ratio=args.font_ratio
-                    )
-                else:
-                    # 3. Fallback seguro al motor clásico Trumble
-                    engine = "trumble"
-            finally:
-                if temp_mary_path and os.path.exists(temp_mary_path):
-                    try: os.unlink(temp_mary_path)
-                    except Exception: pass
-        else:
-            engine = "trumble"
+            else:
+                # 3. Fallback seguro al motor clásico Trumble
+                engine = "trumble"
+        finally:
+            if temp_mary_path and os.path.exists(temp_mary_path):
+                try: os.unlink(temp_mary_path)
+                except Exception: pass
 
     # -------------------------------------------------------------
     # 3. MOTOR TRUMBLE ORELX 2.2: Retro-Arcade & Anime Cel-Shading
@@ -4040,9 +3931,10 @@ def main():
         if getattr(args, "transparent", False):
             image = remove_image_background(image)
 
-        is_blocks_mode = args.blocks or getattr(args, "quadrants", False) or (args.output and not args.ascii and not args.braille)
+        # Trumble por defecto renderiza en Bloques HD TrueColor (medios bloques ▀)
+        is_blocks_mode = not getattr(args, "braille", False)
 
-        if not args.raw_colors:
+        if args.boost:
             image, was_resized = apply_trumble_cel_shading(image, target_width=args.width, is_blocks=is_blocks_mode, is_braille=args.braille)
             if not was_resized:
                 image = resize_image(image, args.width, is_blocks=is_blocks_mode, is_braille=args.braille)
@@ -4055,10 +3947,8 @@ def main():
         
         if args.braille:
             ascii_art = convert_image_to_braille(image, args.color, invert_mode)
-        elif is_blocks_mode:
-            ascii_art = convert_image_to_blocks(image)
         else:
-            ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style)
+            ascii_art = convert_image_to_blocks(image)
     
     if args.output:
         ext = os.path.splitext(args.output)[1].lower()
@@ -4085,8 +3975,8 @@ def main():
                 # Error al guardar el archivo en disco
                 print(_("error_save", e))
     else:
-        # Imprimir salida con efecto reveal progresivo (bypassed si --instant)
-        print_with_reveal(ascii_art, instant=args.instant)
+        # Imprimir salida instantáneamente en la terminal
+        print_with_reveal(ascii_art)
 
     # Registrar el comando en el historial
     record_command_to_history()

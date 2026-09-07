@@ -72,7 +72,7 @@ Im Gegensatz zu herkömmlichen ASCII-Konvertern, die lediglich die Helligkeit vo
 * **C++17 Multi-Core-Kern**: Beschleunigt mit OpenMP und SIMD-Vektorisierung (`libmary.so` und Binary `luma-mary`).
 * **Exakte Globale Diskrete Oklab-Bipartition (31 Kombinationen pro Zelle)**: Vollständige Überwindung lokaler Minima-Fallen. Überprüft alle 31 Farbteilungen pro Zelle in unter 700 Nanosekunden und garantiert das absolute globale Minimum des wahrnehmbaren Farbunterschieds ($\Delta E$).
 * **Schneller Geführter Filter $O(1)$ mit Glanz-Verstärkung ($L > 0.82$)**: Hebt Glanzlichter in Augen und spiegelnden Oberflächen hervor, während sanfte Hauttöne erhalten bleiben.
-* **Standardmäßige Unicode 13.0 Sextanten 2x3 (`-S`, `--sextants`)**: 6 Subpixel pro Terminalzeichen in soliden Blöcken (`🬀`-`🬻`, `█`, `▌`, `▐`). Unterstützt außerdem zweifarbiges Braille 2x4 (`-B`), Quadranten 2x2 (`-Q`), Halbblöcke (`--blocks`) und Scharr-Richtungs-ASCII.
+* **Standardmäßige Unicode 13.0 Sextanten 2x3**: 6 Subpixel pro Terminalzeichen in soliden Blöcken (`🬀`-`🬻`, `█`, `▌`, `▐`). Unterstützt außerdem zweifarbiges Braille 2x4 (`-B`), Quadranten 2x2 (`-Q`) und Halbblöcke (`--blocks`).
 * **Strenge Alpha-Isolierung**: Transparente Bereiche verfälschen keine Kantenfarben und verhindern dunkle Ränder.
 * **Export auf Terminal-Leinwand**: PNG- und JPG-Exporte werden auf einem eleganten dunklen Terminal-Hintergrund (`#0c0c0c`) gerendert, um den authentischen Charakter hochwertiger Konsolenkunst zu wahren.
 
@@ -158,27 +158,24 @@ Aufruf: lumart [OPTIONEN] <bildpfad_oder_url>
 
 | Option | Parameter | Beschreibung |
 | :--- | :--- | :--- |
-| `-E`, `--engine` | `mary` \| `trumble` \| `luris` \| `spectra` | Auswahl der Rendering-Engine. |
-| `-S`, `--sextants`| — | Unicode 2x3 Sextanten-Zeichen (6 Subpixel pro Zelle). |
-| `-B`, `--braille` | — | Unicode 2x4 Braille-Zeichen (8 Subpixel pro Zelle). |
-| `-Q`, `--quadrants`| — | Unicode 2x2 Quadranten-Zeichen (4 Subpixel pro Zelle). |
-| `--blocks` | — | Optimierte Terminal-Blockzeichen. |
-| `-a`, `--ascii` | — | Reiner alphanumerischer ASCII-Modus. |
 | `-m`, `--manga` | — | Manga Screentone 2.0 (Bayer 8x8 Raster + DoG-Linien). |
 | `-s`, `--sketch`| — | Sauberer Federzeichnungs-Modus. |
+| `-B`, `--braille` | — | Unicode 2x4 Braille-Zeichen (8 Subpixel pro Zelle). |
+| `-Q`, `--quadrants`| — | Unicode 2x2 Quadranten-Zeichen (4 Subpixel pro Zelle). |
+| `--blocks` | — | Optimierte Terminal-Blockzeichen (`▀`). |
 | `-w`, `--width` | `<int>` | Ausgabebreite in Spalten (Standard: automatische Erkennung). |
-| `-i`, `--invert`| — | Invertiert die Helligkeit (für helle Terminal-Themes). |
-| `--raw-colors` | — | Deaktiviert Farbfilter und Cel-Shading (Originalfarben). |
+| `-i`, `--invert`| — | Invertiert die Helligkeit (für helle Terminal-Themes; automatische Erkennung in `-m`). |
+| `--boost`, `--vibrant` | — | Aktiviert erhöhte Farbsättigung, Kontrast und Retinex-Verarbeitung für lebhafte Arcade-Ausgabe. |
 | `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | Dithering-Algorithmus für Halbtöne. |
 | `--swap` | `<farbe1> <farbe2>` | Dynamischer Farbaustausch im 3D-RGB-Farbraum. |
 | `-o`, `--output` | `<datei.png / .jpg>` | Exportiert das Terminal-Kunstwerk als Bilddatei. |
 | `--transparent` | — | **Nur Luris Mono**: erzeugt freigestellte transparente Sticker. |
-| `-W`, `--webcam`| `[id]` | Live-Webcam-Streaming in der Konsole (30-60 FPS). |
-| `--instant` | — | Deaktiviert den schrittweisen Reveal-Scan-Effekt. |
 | `--paste` | — | Rendert das Bild direkt aus der Zwischenablage. |
+| `-W`, `--webcam`| `[id]` | Live-Webcam-Streaming in der Konsole (30-60 FPS). |
 | `--lang` | `<code>` | Legt die Sprache fest (`de`, `en`, `es`, etc.). |
 | `-H`, `--history` | `[N]` | Zeigt die letzten N Befehle aus dem Verlauf. |
 | `-R`, `--replay` | `[N]` | Wiederholt den N-ten Befehl aus dem Verlauf. |
+| `--clear-history`| — | Löscht den gespeicherten Befehlsverlauf. |
 | `--install-desktop` | — | Fügt "Mit Lumart öffnen" zum Linux-Kontextmenü hinzu. |
 | `-v`, `--version` | — | Zeigt System-, Terminal- und Engine-Diagnosen an. |
 | `-u`, `--check-update`| — | Sucht nach neuen Versionen auf GitHub. |
@@ -189,14 +186,14 @@ Aufruf: lumart [OPTIONEN] <bildpfad_oder_url>
 
 ## Praxisbeispiele
 
-### 1. Fotorealismus mit Mary Apex 3.5
+### 1. High-Definition Terminal-Kunst (Standard ohne Flags)
 ```bash
-lumart foto.jpg -E mary -S -w 90
+lumart foto.jpg -w 90
 ```
 
-### 2. Anime-Illustration mit Trumble Orelx 2.2
+### 2. Anime-Illustration mit Blöcken
 ```bash
-lumart anime.png -E trumble --blocks -w 85
+lumart anime.png --blocks -w 85
 ```
 
 ### 3. Freigestellter transparenter Manga-Sticker (Luris Mono)
@@ -211,7 +208,7 @@ lumart -W
 
 ### 5. Direktes Rendern aus der Zwischenablage
 ```bash
-lumart --paste -E trumble --blocks
+lumart --paste
 ```
 
 ---

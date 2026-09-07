@@ -74,7 +74,7 @@ Lumart no aplica una fórmula genérica. Cada tipo de imagen posee exigencias es
 * **Núcleo de C++17**: Acelerado nativamente con OpenMP multi-núcleo y vectorización SIMD (`libmary.so` y ejecutable `luma-mary`).
 * **Bipartición Oklab Global Exacta ($2^5 - 1 = 31$ combinaciones discretas evaluadas por celda)**: Cero trampas de mínimos locales de K-Means. Encuentra por fuerza bruta matemática el mínimo global de error perceptual ($\Delta E$) en cada celda en menos de 700 nanosegundos.
 * **Filtro Guiado Rápido $O(1)$ con Realce Especular ($L > 0.82$)**: Preserva destellos brillantes en ojos, joyas, metales y reflejos mientras suaviza transiciones cromáticas continuas en tonos de piel.
-* **Sextantes Unicode 2x3 por Defecto (`-S`, `--sextants`)**: 6 subpíxeles por carácter terminal utilizando la tabla Unicode 13.0 (`🬀`-`🬻`, `█`, `▌`, `▐`). Soporta además Braille 2x4 dual-color (`-B`), Cuadrantes 2x2 (`-Q`), Medios Bloques (`--blocks`) y ASCII Direccional Scharr.
+* **Sextantes Unicode 2x3 por Defecto**: 6 subpíxeles por carácter terminal utilizando la tabla Unicode 13.0 (`🬀`-`🬻`, `█`, `▌`, `▐`). Soporta además Braille 2x4 dual-color (`-B`), Cuadrantes 2x2 (`-Q`) y Medios Bloques (`--blocks`).
 * **Aislamiento Alfa**: Las áreas transparentes no contaminan los colores de borde, evitando halos oscuros perimetrales.
 * **Exportación de Alta Definición**: Las capturas a `.png` o `.jpg` se generan sobre un lienzo de terminal (`#0c0c0c`), garantizando que la imagen conserve su naturaleza de arte terminal sin parecer una imagen comprimida.
 
@@ -114,7 +114,7 @@ Lumart no aplica una fórmula genérica. Cada tipo de imagen posee exigencias es
 | **Resolución Subpíxel**| Hasta 6 subpíxeles/celda | Hasta 4 subpíxeles/celda | Hasta 4 subpíxeles/celda | Dinámica según terminal |
 | **Entintado de Trazos**| Anti-aliasing suave | **Canny 1-a-1 subpíxel** | **DoG Adaptativo** | Opcional (Shader Manga) |
 | **Lienzo de Exportación**| Terminal Canvas (`.png`, `.jpg`)| Terminal Canvas (`.png`, `.jpg`)| **Stickers PNG (`--transparent`)**| Capturas al vuelo |
-| **Comando Rápido** | `-E mary -S` | `-E trumble --blocks` | `-E luris -m` | `-W` o `--webcam` |
+| **Comando Rápido** | `lumart img.jpg` *(Por defecto)* | `lumart img.jpg --blocks` | `lumart img.jpg -m` | `-W` o `--webcam` |
 
 ---
 
@@ -133,7 +133,7 @@ Lumart incorpora un rasterizador de texto terminal a imagen gráfica de ultra-al
 * **¿Por qué los modelos a color no hacen stickers transparentes?**
   Al recortar un personaje a color con 160 columnas de texto sobre un fondo transparente, en un visor de imágenes tradicional la silueta pierde el marco estético de la terminal y puede dar la falsa impresión de ser una "imagen comprimida o de menor calidad". En cambio, exportada con su **lienzo oscuro de terminal (`#0c0c0c`)**, la pieza se aprecia en todo su esplendor como una obra de arte digital terminal de alta gama.
 * **Stickers Manga en Blanco y Negro (Luris Mono)**:
-  La opción `--transparent` es **exclusiva de Luris Mono** (`-m`, `-s`, `-E luris`). El tramado screentone Bayer y los trazos DoG emulan a la perfección los recortes de cómics japoneses, produciendo stickers con canal alfa puro (>95% de transparencia comprobada).
+  La opción `--transparent` es **exclusiva de Luris Mono** (`-m`, `-s`, `-d`). El tramado screentone Bayer y los trazos DoG emulan a la perfección los recortes de cómics japoneses, produciendo stickers con canal alfa puro (>95% de transparencia comprobada).
 * Si se invoca `--transparent` en Mary o Trumble, Lumart emite un aviso didáctico y exporta la imagen completa preservando el lienzo terminal para mantener la máxima fidelidad cromática.
 
 ---
@@ -204,43 +204,35 @@ g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
 Uso: lumart [OPCIONES] <ruta_o_url_de_imagen>
 ```
 
-### 1. Selección de Motores y Estilos Principales
+### 1. Modificadores de Estilo y Textura
 | Parámetro | Argumento | Descripción |
 | :--- | :--- | :--- |
-| `-E`, `--engine` | `mary` \| `trumble` \| `luris` \| `spectra` | Selecciona el motor de renderizado explícitamente. |
-| `-S`, `--sextants`| — | Activa bloques Sextantes Unicode 2x3 (6 subpíxeles por carácter). |
-| `-B`, `--braille` | — | Activa caracteres Braille Unicode 2x4 (8 subpíxeles por carácter). |
-| `-Q`, `--quadrants`| — | Activa bloques Cuadrantes Unicode 2x2 (4 subpíxeles por carácter). |
-| `--blocks` | — | Activa modo de bloques de terminal optimizados. |
-| `-a`, `--ascii` | — | Utiliza únicamente caracteres alfanuméricos ASCII clásicos. |
-| `-m`, `--manga` | — | Activa el modo Manga Screentone 2.0 (trama Bayer 8x8 + trazos DoG). |
-| `-s`, `--sketch`| — | Activa el modo Boceto limpio de líneas puras. |
-| `--os-style` | — | Fuerza caracteres retro para logos de sistemas operativos (estilo Neofetch). |
-| `-b`, `--binary`| — | Proyección binaria pura en blanco y negro (alto contraste). |
-| `-c`, `--color` | — | Fuerza la salida a color TrueColor de 24 bits. |
+| `-m`, `--manga` | — | Transforma el arte a modo Manga Screentone 2.0 (trama Bayer 8x8 + trazos DoG). |
+| `-s`, `--sketch`| — | Transforma el arte a modo Boceto limpio de líneas puras sin tramado. |
+| `-B`, `--braille` | — | Renderiza mediante caracteres Braille Unicode 2x4 (8 subpíxeles por celda). |
+| `-Q`, `--quadrants`| — | Renderiza mediante bloques Cuadrantes Unicode 2x2 (4 subpíxeles por celda). |
+| `--blocks` | — | Renderiza mediante medios-bloques optimizados (`▀`). |
 
 ### 2. Dimensiones y Parámetros Visuales
 | Parámetro | Argumento | Descripción |
 | :--- | :--- | :--- |
-| `-w`, `--width` | `<entero>` | Ancho de salida en columnas (por defecto: autodetección de terminal). |
-| `--font-ratio` | `<decimal>` | Relación de aspecto de fuente terminal (por defecto: `0.5`). |
-| `-i`, `--invert`| — | Invierte la luminosidad de los caracteres (para terminales claras). |
-| `--raw-colors` | — | Desactiva realces, filtros guiados y cel-shading (colores sin procesar). |
+| `-w`, `--width` | `<entero>` | Ancho de salida en columnas (por defecto: auto-ajuste al ancho de la terminal). |
+| `--boost`, `--vibrant` | — | Aplica realce de saturación, contraste y curvas Retinex para salida estilo arcade vibrante. |
+| `-i`, `--invert`| — | Invierte la luminosidad de los caracteres (para terminales claras; autodetección en `-m`). |
 | `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | Algoritmo de tramado para simulación de gradientes. |
 | `--swap` | `<color1> <color2>` | Intercambia dinámicamente un color por otro en espacio 3D RGB. |
 
-### 3. Exportación a Imagen Gráfica y Stickers
+### 3. Exportación a Imagen Gráfica y Portapapeles
 | Parámetro | Argumento | Descripción |
 | :--- | :--- | :--- |
 | `-o`, `-O`, `--output` | `<archivo.png / .jpg>` | Rasteriza y guarda el arte en imagen gráfica de alta resolución. |
 | `--transparent` | — | **Exclusivo de Luris Mono**: genera stickers recortados con fondo transparente. |
+| `--paste` | — | Carga y procesa automáticamente la imagen presente en el portapapeles. |
 
 ### 4. Cámara Web y Efectos Especiales
 | Parámetro | Argumento | Descripción |
 | :--- | :--- | :--- |
 | `-W`, `--webcam`| `[id]` | Transmite vídeo de cámara web en vivo a 30-60 FPS (por defecto índice `0`). |
-| `--instant` | — | Desactiva el barrido progresivo reveal y muestra la salida al instante. |
-| `--paste` | — | Carga y procesa automáticamente la imagen presente en el portapapeles. |
 
 ### 5. Administración, Historial e Idioma
 | Parámetro | Argumento | Descripción |
@@ -259,31 +251,40 @@ Uso: lumart [OPCIONES] <ruta_o_url_de_imagen>
 
 ## Cookbook y Ejemplos Prácticos
 
-### 1. Fotorrealismo Máximo con Mary Apex 3.5 (Sextantes 2x3)
+### 1. Arte en Alta Definición (Predeterminado sin Banderas)
 ```bash
-# Proyecta una foto con micro-gradientes Oklab a 90 columnas
-lumart foto.jpg -E mary -S -w 90
+# Renderiza directamente al ancho completo de tu terminal con colores naturales
+lumart foto.jpg
 
-# Retrato con destellos especulares en ojos y piel
-lumart retrato.png -E mary -S -w 110 --instant
+# Ajustar un ancho personalizado en columnas
+lumart retrato.png -w 110
+
+# Realce cromático estilo arcade retro con saturación y Retinex
+lumart foto.jpg --boost
 ```
 
-### 2. Ilustración Anime Arcade con Trumble Orelx 2.2
+### 2. Modos de Textura de Caracteres
 ```bash
-# Renderiza personaje de anime con entintado Canny 1-a-1 y color Capcom CPS-2
-lumart personaje.png -E trumble --blocks -w 85
+# Puntos Braille 2x4 suaves
+lumart personaje.png -B
 
-# Arte pop retro con tramado ordenado Bayer
-lumart poster.jpg -E trumble --blocks -d bayer -w 100
+# Bloques Cuadrantes 2x2 ultra densos
+lumart personaje.png -Q
+
+# Medios bloques estilo Capcom CPS-2 / Neo-Geo
+lumart personaje.png --blocks -w 85
 ```
 
-### 3. Sticker de Manga Japonés con Luris Mono 2.6
+### 3. Sticker de Manga Japonés con Luris Mono
 ```bash
 # Crear un sticker con fondo 100% transparente en formato PNG
 lumart ilustracion.png -m --transparent -o sticker_manga.png
 
 # Boceto de arquitectura a pluma limpia DoG
 lumart edificio.jpg -s -w 120
+
+# Arte con tramado ordenado Bayer
+lumart poster.jpg -m -d bayer -w 100
 ```
 
 ### 4. Transmisión de Cámara Web en Vivo (Spectra Weep 1.4)
@@ -298,19 +299,19 @@ lumart -W 1
 ### 5. Carga desde Internet, Portapapeles o Tuberías Unix
 ```bash
 # Cargar directamente desde una URL HTTPS
-lumart https://ejemplo.com/arte.png -E mary -S -w 80
+lumart https://ejemplo.com/arte.png -w 80
 
 # Pegar la imagen que acabas de copiar con Ctrl+C
-lumart --paste -E trumble --blocks
+lumart --paste
 
 # Recibir flujo binario desde la terminal
-curl -sL https://ejemplo.com/foto.jpg | lumart - -E mary -S
+curl -sL https://ejemplo.com/foto.jpg | lumart -
 ```
 
 ### 6. Intercambio de Colores en Caliente
 ```bash
 # Reemplaza dinámicamente tonos morados por rosa pastel
-lumart sprite.png -E trumble --blocks --swap purple pink
+lumart sprite.png --blocks --swap purple pink
 ```
 
 ---

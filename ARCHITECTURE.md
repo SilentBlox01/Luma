@@ -53,13 +53,14 @@ Para ilustraciones, manga, anime o logotipos monocromáticos, la reducción de c
 
 ---
 
-## 3. Selector de Motor (`-E` / `--engine`)
+## 3. Enrutamiento Automático de Motores (Zero-Flag UX)
 
-El CLI permite seleccionar explícitamente el pipeline deseado:
-- `--engine color` (Por defecto): Ejecuta el motor a color con espacio lineal y realce.
-- `--engine mono` o `--engine bw`: Desactiva la paleta cromática y optimiza para luminosidad pura.
-- `--engine manga` (o `-m`): Activa el motor Manga Screentone 2.0 con tramas dither 8x8 y contornos DoG.
-- `--engine sketch` (o `-s`): Activa el modo boceto de trazo puro, aislando líneas sin ruido ni tramas.
+Luma elimina la necesidad de flags de selección de motor, conmutando automáticamente según el contexto y las flags modificadoras de edición:
+- **Baseline Directo (`lumart archivo`)**: Ejecuta Mary Apex 3.5 con Unicode Sextants 2x3 y color perceptual Oklab con máxima fidelidad sin banderas obligatorias.
+- **Modo Manga (`-m` / `--manga`)**: Enruta automáticamente a Luris Mono 2.6 con tramas dither 8x8 y contornos DoG.
+- **Modo Boceto (`-s` / `--sketch`)**: Enruta a Luris Mono para aislar líneas puras de trazo G-Pen.
+- **Modo Dithering Monocromático (`-d`)**: Enruta a Luris Mono con algoritmos Atkinson, Floyd-Steinberg o Bayer en Braille 2x4.
+- **Webcam en Vivo (`-W` / `--webcam`)**: Enruta a Spectra Weep para streaming de vídeo en tiempo real a 30-60 FPS.
 
 ---
 

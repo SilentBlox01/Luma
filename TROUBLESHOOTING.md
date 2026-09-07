@@ -14,7 +14,7 @@ Welcome to the definitive troubleshooting, architectural reference, and operatio
    - [Trumble Orelx 2.2 (Retro-Arcade Cel-Shading & Anime Ink)](#52-trumble-orelx-22-retro-arcade-cel-shading--anime-ink)
    - [Luris Mono 2.6 (Monochrome Manga Screentone & Transparent Stickers)](#53-luris-mono-26-monochrome-manga-screentone--stickers)
    - [Spectra Weep 1.4 (Real-Time Live Webcam Streaming)](#54-spectra-weep-14-real-time-live-webcam-streaming)
-6. [Sizing, Aspect Ratio & Character Font Calibration (`--font-ratio`)](#6-sizing-aspect-ratio--font-calibration)
+6. [Sizing, Aspect Ratio & Character Font Calibration](#6-sizing-aspect-ratio--font-calibration)
 7. [High-Definition Graphic Image & Sticker Export (`-o`)](#7-high-definition-graphic-image--sticker-export)
 8. [Configuration, Persistence & Localization (i18n)](#8-configuration-persistence--localization-i18n)
 9. [Command History & Interactive Replay System (`-H`, `-R`)](#9-command-history--interactive-replay-system)
@@ -36,11 +36,11 @@ If an image looks distorted, pixelated, fails to render, or displays unexpected 
 | Horizontal black gaps cutting through Braille characters | Terminal emulator line-height / row spacing is greater than `1.0` | Set terminal line-height / padding offset to `1.0` or `0px` in terminal config. |
 | Washed-out colors or harsh 16-color banding | Terminal emulator does not advertise or support 24-bit TrueColor | Verify `$COLORTERM` (`echo $COLORTERM`) or switch to Ghostty, Kitty, Alacritty, or WezTerm. |
 | Output wraps around lines and looks shredded | Specified render width (`-w`) exceeds terminal columns | Reduce width with `-w 90` or dynamically fit with `-w $(tput cols)`. |
-| Braille or Monochrome output looks like an inverted photographic negative | Terminal background is light (white/cream) instead of dark | Add the `-i` / `--invert` flag to invert luminance logic. |
+| Braille or Monochrome output looks like an inverted photographic negative | Terminal background is light (white/cream) instead of dark | Luris Mono auto-detects white backgrounds and inverts automatically. For manual override: add `-i` / `--invert`. |
 | Mary or Luris running on Python fallback instead of C++ | C++ shared libraries (`libmary.so`, `libmonochrome.so`) not compiled | Install `g++` (`build-essential` / `gcc-c++`) and run `make -f Makefile.native` or `./install.sh`. |
 | `OpenCV required for Spectra engine` error | `opencv-python` is not installed | Install via your system package manager (`python3-opencv`) or `pip install opencv-python`. |
 | Web camera fails to open in Spectra mode (`-W`) | Missing camera permissions or incorrect `/dev/video*` index | Add user to video group: `sudo usermod -aG video $USER`, or specify camera index: `lumart -W 1`. |
-| Transparent sticker output (`--transparent`) has black background | Transparent alpha is only supported in Luris Mono engine with `.png` | Run `lumart image.png -E luris --transparent -o sticker.png`. Color models export with solid terminal background. |
+| Transparent sticker output (`--transparent`) has black background | Transparent alpha is only supported in Luris Mono engine with `.png` | Run `lumart image.png -m --transparent -o sticker.png`. Color models export with solid terminal background. |
 | WebP export rejected with error | WebP export was permanently disabled to protect visual quality | Export to `.png` or `.jpg` instead (`-o output.png`). |
 | Language remains Spanish or English despite system locale | Locale environment variable not recognized or overridden by config | Set language explicitly: `lumart --lang <code` (e.g., `lumart --lang fr` for French). |
 
@@ -216,12 +216,12 @@ Luma features four dedicated rendering engines, each mathematically engineered f
 ```
 
 ### 5.1 Mary Apex 3.5 (Perceptual Oklab & Subpixel Micro-Blocks)
-- **Flagship Command**: `lumart image.png -E mary -S` (or `-B`, `-Q`, `--blocks`)
+- **Flagship Command**: `lumart image.png` (or `-B`, `-Q`, `--blocks`)
 - **Core Technology**:
   1. **Guided Filter in Oklab Color Space**: Edge-preserving spatial smoothing that suppresses JPEG high-frequency noise while keeping crisp anime and photo silhouettes.
   2. **Weber-Fechner Adaptive Contrast**: Contrast sensitivity adjustment modeled after the human visual cortex, bringing out shadow details without blowing out specular highlights.
   3. **Multi-Subpixel Modes**:
-     - `-S` / `--sextants`: 2x3 solid Unicode sextant blocks. Yields continuous, non-perforated solid color rendering.
+     - *Default*: 2x3 solid Unicode sextant blocks. Yields continuous, non-perforated solid color rendering.
      - `-B` / `--braille`: 2x4 Braille matrix with dual-color foreground and background ANSI pairing.
      - `-Q` / `--quadrants`: 2x2 square subpixel blocks.
      - `--blocks`: Classic half-blocks (`▀` / `▄`).
@@ -231,14 +231,14 @@ Luma features four dedicated rendering engines, each mathematically engineered f
     - *Fix*: Use `-B` (Braille) or `-Q` (Quadrants) which are supported by all fonts, or install JetBrains Mono Nerd Font v3+.
 
 ### 5.2 Trumble Orelx 2.2 (Retro-Arcade Cel-Shading & Anime Ink)
-- **Flagship Command**: `lumart image.png -E trumble --blocks` (Default engine)
+- **Flagship Command**: `lumart image.png --blocks`
 - **Core Technology**:
   1. **Capcom CPS-2 / Neo-Geo Color Punch**: Gamut mapping that maximizes color saturation and contrast for terminal environments without clipping hues.
   2. **Anime Ink Outlines**: Dynamic edge-detection overlay that draws fine dark ink contours around characters and foreground objects.
   3. **Lanczos Downsampling + Bayer Dither**: Smooth anti-aliased geometry reduction with optional retro matrix dithering (`-d bayer`).
 
 ### 5.3 Luris Mono 2.6 (Monochrome Manga Screentone & Stickers)
-- **Flagship Command**: `lumart image.png -E luris -m`
+- **Flagship Command**: `lumart image.png -m`
 - **Core Technology**:
   1. **Difference of Gaussians (DoG) Lineart**:
      $$\text{DoG}(x, y) = G_{\sigma_1}(x, y) - G_{\sigma_2}(x, y)$$
@@ -247,7 +247,7 @@ Luma features four dedicated rendering engines, each mathematically engineered f
   3. **Bill Atkinson Dithering (1984, MacPaint)**: Discards 25% of diffused error to keep clean highlights without speckling.
   4. **Exclusive Transparent Sticker Export (`--transparent`)**:
      ```bash
-     lumart character.png -E luris -m --transparent -o sticker.png
+     lumart character.png -m --transparent -o sticker.png
      ```
      Creates an authentic manga cutout sticker with transparent alpha channel!
 
@@ -266,22 +266,14 @@ Luma features four dedicated rendering engines, each mathematically engineered f
 
 ## 6. Sizing, Aspect Ratio & Font Calibration
 
-### 6.1 The 1:2 Character Cell Problem
+### 6.1 The 1:2 Character Cell Calibration
 Terminal character cells are not square; standard monospace characters are roughly **twice as tall as they are wide** ($1:2$ ratio).
 If an image is downscaled without aspect ratio compensation, it will look vertically stretched by 200%.
 
-Luma automatically applies mathematical scaling based on character geometry:
+Luma automatically applies calibrated mathematical scaling based on character geometry:
 - **Braille Mode (`-B`)**: 2 dots wide $\times$ 4 dots tall ($2:4 = 1:2$). Each Braille cell compensates for font ratio natively!
 - **Half-Blocks (`--blocks`)**: 1 character wide $\times$ 2 pixels tall ($1:2$).
-- **Sextants (`-S`)**: 2 subpixels wide $\times$ 3 subpixels tall ($2:3$).
-
-### 6.2 Custom Font Calibration (`--font-ratio`)
-If your terminal font is unusually wide or tall, fine-tune the vertical scaling ratio:
-```bash
-# Default is 0.5 (standard 1:2 monospace font)
-lumart image.png --font-ratio 0.45   # For taller/slimmer fonts
-lumart image.png --font-ratio 0.55   # For wider/squarer fonts
-```
+- **Sextants (Default)**: 2 subpixels wide $\times$ 3 subpixels tall ($2:3$). Calibrated at the standard 0.5 font ratio for distortion-free geometry.
 
 ---
 
@@ -291,13 +283,13 @@ Luma can rasterize terminal art into crisp, high-resolution graphic images (`.pn
 
 ```bash
 # Export Mary Apex subpixel art to 1080p/4K PNG:
-lumart photo.png -E mary -S -w 120 -o render.png
+lumart photo.png -w 120 -o render.png
 
-# Export Trumble retro cel-shading to JPEG:
-lumart photo.png -E trumble --blocks -w 100 -o render.jpg
+# Export anime block art to JPEG:
+lumart photo.png --blocks -w 100 -o render.jpg
 
 # Export transparent manga sticker (Exclusive to Luris Mono):
-lumart anime.png -E luris -m --transparent -o sticker.png
+lumart anime.png -m --transparent -o sticker.png
 ```
 
 ### Why was WebP (`.webp`) Export Removed?
@@ -342,7 +334,7 @@ Add `--lang <code>` or `--lang=<code>` anywhere in your command line:
 lumart --lang fr -v
 
 # Render an image with Spanish interface:
-lumart character.png --lang es -E mary -S
+lumart character.png --lang es
 
 # View command history in German:
 lumart --lang de -H 5
@@ -399,9 +391,9 @@ Example Output:
 
   [#]   Ver       Date / Time         Command
   ──────────────────────────────────────────────────────────────────────────────
-  [01]  v2.3.1    2026-09-07 15:06:25 lumart render.png -E mary -S -w 100
-  [02]  v2.3.1    2026-09-07 14:58:39 lumart slime.jpg -E luris -m --transparent -o sticker.png
-  [03]  v2.3.0    2026-09-07 13:32:28 lumart photo.jpg -E trumble --blocks -o retro.jpg
+  [01]  v2.3.1    2026-09-07 15:06:25 lumart render.png -w 100
+  [02]  v2.3.1    2026-09-07 14:58:39 lumart slime.jpg -m --transparent -o sticker.png
+  [03]  v2.3.0    2026-09-07 13:32:28 lumart photo.jpg --blocks -o retro.jpg
   ──────────────────────────────────────────────────────────────────────────────
   💡 To re-execute any command, run: lumart --replay <number> (e.g.: lumart -R 1)
 ```
@@ -483,31 +475,32 @@ lumart --lang pt                         # Switch persistent language to Portugu
 lumart --lang ko                         # Switch persistent language to Korean
 
 # ==============================================================================
-# 2. MARY APEX 3.5 (PERCEPTUAL OKLAB COLOR)
+# 2. MARY APEX 3.5 (PERCEPTUAL OKLAB COLOR) — DEFAULT ZERO-FLAG
 # ==============================================================================
-lumart photo.png -E mary -S              # Solid Unicode 2x3 Sextants (Flagship HD)
-lumart photo.png -E mary -B              # Dual-Color TrueColor Braille
-lumart photo.png -E mary -Q              # 2x2 Quadrant Blocks
-lumart photo.png -E mary --blocks        # Half-Blocks (▀ / ▄)
-lumart photo.png -E mary --raw-colors    # Bypass contrast boosting (raw colors)
+lumart photo.png                         # Default: Mary Sextants HD + Natural TrueColor
+lumart photo.png -B                      # Dual-Color TrueColor Braille (2x4)
+lumart photo.png -Q                      # 2x2 Quadrant Blocks
+lumart photo.png --blocks                # Half-Blocks (▀ / ▄)
+lumart photo.png --boost                 # Arcade-style enhanced saturation + Retinex
+lumart photo.png --vibrant               # Same as --boost (alias)
 
 # ==============================================================================
-# 3. TRUMBLE ORELX 2.2 (RETRO-ARCADE CEL-SHADING & ANIME INK)
+# 3. RETRO & VISUAL TUNING
 # ==============================================================================
-lumart anime.png                         # Default render (Trumble Cel-Shading)
-lumart anime.png -E trumble --blocks     # Capcom CPS-2 / Neo-Geo Palette HD Blocks
+lumart anime.png --blocks                # Retro half-block cel rendering
+lumart anime.png --boost                 # Punchy Capcom CPS-2 / Neo-Geo saturation + Ink
 lumart anime.png -d bayer                # Retro Bayer 8x8 ordered dither
 lumart anime.png --swap purple pink      # Dynamic color swapping (3D RGB space)
 
 # ==============================================================================
 # 4. LURIS MONO 2.6 (MONOCHROME MANGA & STICKERS)
 # ==============================================================================
-lumart manga.png -E luris -m             # Authentic Manga Screentone (DoG + Bayer)
-lumart sketch.png -E luris -s            # Clean G-Pen lineart sketch (pure contours)
-lumart photo.png -E luris -d atkinson    # Bill Atkinson 1984 MacPaint Dithering
-lumart photo.png -E luris -d floyd       # Floyd-Steinberg error diffusion
-lumart anime.png -E luris -i             # Invert dot logic (for light terminal themes)
-lumart waifu.png -E luris -m --transparent -o sticker.png  # Transparent sticker!
+lumart manga.png -m                      # Authentic Manga Screentone (DoG + Bayer)
+lumart sketch.png -s                     # Clean G-Pen lineart sketch (pure contours)
+lumart photo.png -d atkinson             # Bill Atkinson 1984 MacPaint Dithering
+lumart photo.png -d floyd                # Floyd-Steinberg error diffusion
+lumart anime.png -i                      # Force invert (auto-detected on white backgrounds)
+lumart waifu.png -m --transparent -o sticker.png  # Transparent sticker!
 
 # ==============================================================================
 # 5. SPECTRA WEEP 1.4 (LIVE WEBCAM STREAMING)
@@ -518,8 +511,8 @@ lumart -W 1                              # Stream alternate webcam (/dev/video1)
 # ==============================================================================
 # 6. GRAPHIC IMAGE EXPORT
 # ==============================================================================
-lumart image.png -E mary -S -w 120 -o art.png   # Export high-res raster PNG
-lumart image.png -E trumble --blocks -o art.jpg # Export high-res raster JPG
+lumart image.png -w 120 -o art.png       # Export high-res raster PNG
+lumart image.png --blocks -o art.jpg     # Export high-res raster JPG
 
 # ==============================================================================
 # 7. HISTORY & REPLAY
