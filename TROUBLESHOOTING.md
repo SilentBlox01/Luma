@@ -1,411 +1,544 @@
 # 🔧 Luma Comprehensive Troubleshooting & Deep Technical Guide
 
-Welcome to the definitive troubleshooting and operational guide for **Luma** (and `lumart`). This document provides comprehensive solutions to common issues, detailed terminal compatibility benchmarks, font rendering explanations, and internal architectural mechanics.
+Welcome to the definitive troubleshooting, architectural reference, and operational manual for **Luma** (and `lumart`). This guide provides in-depth solutions to common issues, terminal emulator compatibility benchmarks, native C++ compilation guides, rendering engine mechanics, localization configuration, and internal architectural details.
 
 ---
 
 ## 📑 Table of Contents
 1. [Quick Diagnostic Checklist](#1-quick-diagnostic-checklist)
-2. [Installation & Dependency Resolution (Fedora, Debian, Arch)](#2-installation--dependency-resolution)
+2. [Installation & Native C++ Dependency Resolution](#2-installation--native-c-dependency-resolution)
 3. [Terminal Emulators & Font Compatibility](#3-terminal-emulators--font-compatibility)
 4. [Color Fidelity & TrueColor (24-bit ANSI)](#4-color-fidelity--truecolor-24-bit-ansi)
-5. [Black & White, Manga Screentone & Braille Art](#5-black--white-manga-screentone--braille-art)
-6. [Sizing, Aspect Ratio & Text-Wrapping Artifacts](#6-sizing-aspect-ratio--text-wrapping-artifacts)
-7. [Color Swapping (`--swap`) Mechanics](#7-color-swapping---swap-mechanics)
+5. [The Four Flagship Rendering Engines (Deep Dive & Troubleshooting)](#5-the-four-flagship-rendering-engines)
+   - [Mary Apex 3.5 (Perceptual Oklab & Subpixel Micro-Blocks)](#51-mary-apex-35-perceptual-oklab--subpixel-micro-blocks)
+   - [Trumble Orelx 2.2 (Retro-Arcade Cel-Shading & Anime Ink)](#52-trumble-orelx-22-retro-arcade-cel-shading--anime-ink)
+   - [Luris Mono 2.6 (Monochrome Manga Screentone & Transparent Stickers)](#53-luris-mono-26-monochrome-manga-screentone--stickers)
+   - [Spectra Weep 1.4 (Real-Time Live Webcam Streaming)](#54-spectra-weep-14-real-time-live-webcam-streaming)
+6. [Sizing, Aspect Ratio & Character Font Calibration (`--font-ratio`)](#6-sizing-aspect-ratio--font-calibration)
+7. [High-Definition Graphic Image & Sticker Export (`-o`)](#7-high-definition-graphic-image--sticker-export)
 8. [Configuration, Persistence & Localization (i18n)](#8-configuration-persistence--localization-i18n)
-9. [Command Reference & Cheat Sheet](#9-command-reference--cheat-sheet)
+9. [Command History & Interactive Replay System (`-H`, `-R`)](#9-command-history--interactive-replay-system)
+10. [Updates, Upgrades & Rollback System (`-u`, `-uu`, `-dg`)](#10-updates-upgrades--rollback-system)
+11. [Linux Desktop & File Manager Integration (`--install-desktop`)](#11-linux-desktop--file-manager-integration)
+12. [Master Command Reference & Cheat Sheet](#12-master-command-reference--cheat-sheet)
 
 ---
 
 ## 1. Quick Diagnostic Checklist
 
-If an image looks distorted, wrong, or fails to render, run this quick check:
+If an image looks distorted, pixelated, fails to render, or displays unexpected output, consult this quick reference:
 
-| Symptom | Primary Cause | Immediate Fix |
+| Symptom | Primary Cause | Immediate Resolution |
 | :--- | :--- | :--- |
-| `command not found: luma` | `~/.local/bin` is not in `$PATH` | Run `./install.sh` or add `export PATH="$HOME/.local/bin:$PATH"` |
-| `error: externally-managed-environment` | PEP 668 restriction on Fedora/Ubuntu | Use `./install.sh` or `sudo dnf install python3-pillow` / `sudo apt install python3-pil` |
-| Braille dots or blocks look like `?`, ``, or boxes | Terminal font lacks Unicode symbols | Switch to a Nerd Font (JetBrains Mono, Fira Code) |
-| Horizontal black lines cutting through Braille | Terminal line-height is greater than `1.0` | Set terminal line-height/spacing to `1.0` |
-| Washed out colors or weird banding | Terminal does not support 24-bit TrueColor | Verify `$COLORTERM` or switch to a modern terminal (Kitty, Alacritty, Ghostty) |
-| Output wraps and looks shredded | Image width (`-w`) is wider than terminal columns | Reduce width with `-w 80` or use `-w $(tput cols)` |
-| B&W Braille shows negative image | Terminal background is light instead of dark | Add the `-i` / `--invert` flag |
-| Monochrome engine slow or using Python fallback | `g++` was not present during installation | Install C++ compiler (`g++` / `build-essential`) and re-run `./install.sh` |
+| `command not found: luma` or `lumart` | `~/.local/bin` is missing from `$PATH` | Run `./install.sh` or add `export PATH="$HOME/.local/bin:$PATH"` to `~/.bashrc` / `~/.zshrc`. |
+| `error: externally-managed-environment` | PEP 668 restriction on Fedora, Debian, or Ubuntu | Install native system packages: `sudo dnf install python3-pillow` / `sudo apt install python3-pil`, or run `./install.sh`. |
+| Braille dots or blocks look like `?`, ``, or empty boxes | Active terminal font lacks Unicode glyph coverage | Switch to a Nerd Font (JetBrains Mono Nerd Font, Fira Code, Cascadia Code). |
+| Horizontal black gaps cutting through Braille characters | Terminal emulator line-height / row spacing is greater than `1.0` | Set terminal line-height / padding offset to `1.0` or `0px` in terminal config. |
+| Washed-out colors or harsh 16-color banding | Terminal emulator does not advertise or support 24-bit TrueColor | Verify `$COLORTERM` (`echo $COLORTERM`) or switch to Ghostty, Kitty, Alacritty, or WezTerm. |
+| Output wraps around lines and looks shredded | Specified render width (`-w`) exceeds terminal columns | Reduce width with `-w 90` or dynamically fit with `-w $(tput cols)`. |
+| Braille or Monochrome output looks like an inverted photographic negative | Terminal background is light (white/cream) instead of dark | Add the `-i` / `--invert` flag to invert luminance logic. |
+| Mary or Luris running on Python fallback instead of C++ | C++ shared libraries (`libmary.so`, `libmonochrome.so`) not compiled | Install `g++` (`build-essential` / `gcc-c++`) and run `make -f Makefile.native` or `./install.sh`. |
+| `OpenCV required for Spectra engine` error | `opencv-python` is not installed | Install via your system package manager (`python3-opencv`) or `pip install opencv-python`. |
+| Web camera fails to open in Spectra mode (`-W`) | Missing camera permissions or incorrect `/dev/video*` index | Add user to video group: `sudo usermod -aG video $USER`, or specify camera index: `lumart -W 1`. |
+| Transparent sticker output (`--transparent`) has black background | Transparent alpha is only supported in Luris Mono engine with `.png` | Run `lumart image.png -E luris --transparent -o sticker.png`. Color models export with solid terminal background. |
+| WebP export rejected with error | WebP export was permanently disabled to protect visual quality | Export to `.png` or `.jpg` instead (`-o output.png`). |
+| Language remains Spanish or English despite system locale | Locale environment variable not recognized or overridden by config | Set language explicitly: `lumart --lang <code` (e.g., `lumart --lang fr` for French). |
 
 ---
 
-## 2. Installation & Dependency Resolution
+## 2. Installation & Native C++ Dependency Resolution
 
-### The Universal Plug & Play Installer
-Luma includes an automated installer that handles permissions, path links, and system dependencies across all major distributions (I think lol):
+Luma utilizes a hybrid architecture: high-level CLI management, color grading, and terminal formatting in Python 3, paired with ultra-optimized, multi-threaded C++17 shared libraries (`libmary.so`, `libmonochrome.so`) for computationally intensive perceptual algorithms.
+
+### 2.1 The Universal Plug & Play Installer
+Run the automated installer from the cloned repository:
 ```bash
-# From local repository:
 ./install.sh
-
-# Or directly from GitHub:
+```
+Or execute directly from GitHub:
+```bash
 curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
 ```
 
-### Native C / C++ Compiler & Acceleration Setup
-Luma's Monochrome & Manga Engine is written in modern **C++17** for sub-10ms performance. While Luma contains a 100% equivalent pure-Python fallback, the native engine provides instant, zero-lag rendering.
+### 2.2 Native C++17 Compiler Setup
+To achieve sub-10 millisecond rendering times on 4K/8K images, Luma compiles native C++ modules. Install a C++17 capable compiler before installation:
 
-#### Installing the C++ Compiler (`g++` / C++17)
-To enable native C++ acceleration, ensure a C++17 compiler is installed before running `./install.sh`:
 - **Ubuntu / Debian / Linux Mint / Pop!_OS**:
   ```bash
-  sudo apt install -y build-essential g++
+  sudo apt update && sudo apt install -y build-essential g++ libgomp1 python3-pil
   ```
-- **Fedora / RHEL / CentOS / AlmaLinux**:
+- **Fedora / RHEL / Rocky Linux / AlmaLinux**:
   ```bash
-  sudo dnf install -y gcc-c++ make
+  sudo dnf install -y gcc-c++ make libgomp python3-pillow
   ```
 - **Arch Linux / Manjaro / EndeavourOS**:
   ```bash
-  sudo pacman -S --noconfirm base-devel
+  sudo pacman -S --noconfirm base-devel gcc python-pillow
   ```
 - **openSUSE**:
   ```bash
-  sudo zypper install -y gcc-c++ make
+  sudo zypper install -y gcc-c++ make python3-Pillow
   ```
-- **macOS**:
+- **macOS (Apple Silicon & Intel)**:
   ```bash
   xcode-select --install
+  brew install libomp pillow
   ```
 
-#### Manual Compilation of Native Binaries
-If you cloned the repository or need to compile the native engine manually:
-```bash
-# 1. Compile the standalone CLI binary:
-g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
+### 2.3 Compiling Native Acceleration Libraries Manually
+If you are developing or compiling binaries manually from source:
 
-# 2. Compile the shared library (used by Python via ctypes for zero-overhead in-process rendering):
+#### 1. Mary Apex 3.5 Native Engine (`libmary.so` & `luma-mary`):
+```bash
+# Shared library (loaded automatically by Python via ctypes):
+g++ -O3 -std=c++17 -fPIC -shared -fopenmp mary.cpp -o libmary.so
+
+# Standalone CLI binary:
+g++ -O3 -std=c++17 -fopenmp mary.cpp -o luma-mary
+```
+
+#### 2. Luris Mono 2.6 Native Engine (`libmonochrome.so` & `luma-mono`):
+```bash
+# Shared library:
 g++ -O3 -std=c++17 -fPIC -shared monochrome.cpp -o libmonochrome.so
-```
-*(Notice: The C++ engine is self-contained and uses public domain single-file headers `stb_image.h` and `stb_image_resize2.h`. You don't need OpenCV, libpng, or any external packages!)*
 
-#### Verifying Native Acceleration
-Run the diagnostic command:
+# Standalone CLI binary:
+g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
+```
+
+> [!NOTE]
+> Both `mary.cpp` and `monochrome.cpp` are self-contained using public domain single-file headers (`stb_image.h`, `stb_image_resize2.h`). You do not need external OpenCV, libpng, or libjpeg packages to compile the core rendering libraries!
+
+### 2.4 Verifying Engine Status (`lumart -v`)
+Run the diagnostics report:
 ```bash
-luma -v
+lumart -v
 ```
-Check the **⚡ Motores de Renderizado** line:
-- `Motor Monocromático: Activo (.../libmonochrome.so)` -> ✅ Native C++ running at full speed.
-- `Motor Monocromático: No detectado (usando fallback en Python)` -> ⚠️ Running pure Python fallback.
-
-### Distribution-Specific Package Installation
-
-#### Fedora / RHEL / Rocky Linux / CentOS
-Modern Fedora (38+) enforces **PEP 668**, because Red Hat decided developers cannot be trusted with their own system Python (and to be fair, they have a point).
-```bash
-# Recommended native package:
-sudo dnf install -y python3-pillow
-
-# Run installer or clone directly:
-./install.sh
-```
-
-#### Debian / Ubuntu / Linux Mint / Pop!_OS
-```bash
-# Recommended native package:
-sudo apt update && sudo apt install -y python3-pil
-
-# Or run installer:
-./install.sh
-```
-
-#### Arch Linux / Manjaro / EndeavourOS
-*(Yes, we know you use Arch btw, congrats, now please stop bringing it up at parties, girls ain't looking at us anymore).*
-```bash
-# Recommended native package:
-sudo pacman -S --noconfirm python-pillow
-
-# Or via AUR (if available) / install.sh:
-./install.sh
-```
-
-#### Isolated Virtual Environment (Universal Rootless Fallback)
-If you do not have `sudo` privileges (for any certain reasons — e.g. you're on a school/work PC you definitely shouldn't be rice-ing up, your sysadmin has trust issues, or you straight up forgot your root password) and system pip is locked:
-```bash
-python3 -m venv ~/.local/share/luma/venv
-~/.local/share/luma/venv/bin/pip install Pillow
-mkdir -p ~/.local/bin
-cat << 'EOF' > ~/.local/bin/luma
-#!/bin/bash
-exec "$HOME/.local/share/luma/venv/bin/python" "/path/to/Luma/lumart.py" "$@"
-EOF
-chmod +x ~/.local/bin/luma
-ln -sf ~/.local/bin/luma ~/.local/bin/lumart
-```
+Inspect the **⚡ Rendering Engines** section:
+- `Mary (Perceptual Color Apex 3.5): Active (Native C++ (.../libmary.so))` -> ✅ Native multi-core acceleration active.
+- `Luris (Monochrome Mono 2.6): Active (.../libmonochrome.so)` -> ✅ Native C++ monochrome active.
+- If it displays `(Python Fallback)`, ensure `libmary.so` and `libmonochrome.so` are placed in the same directory as `lumart.py` or in `/usr/local/lib/` / `/usr/local/share/luma/`.
 
 ---
 
 ## 3. Terminal Emulators & Font Compatibility
 
-Luma relies on two key Unicode character blocks:
-1. **Braille Patterns (`U+2800` - `U+28FF`)**: 2x4 dot matrix cells (`⡀`, `⣿`, `⣾`, `⢦`).
-2. **Half-Blocks (`U+2580` - `U+259F`)**: Top half-block (`▀`), bottom half-block (`▄`), and full blocks (`█`).
+Luma renders complex graphics using specialized Unicode character blocks:
+1. **Braille Patterns (`U+2800` – `U+28FF`)**: 2x4 dot matrix subpixels (`⡀`, `⣿`, `⣾`, `⢦`).
+2. **Sextants (`U+1FB00` – `U+1FB3B`)**: 2x3 solid micro-blocks (`🬀`, `🬭`, `🬵`, `█`).
+3. **Quadrants (`U+2596` – `U+259F`)**: 2x2 square micro-blocks (`▘`, `▝`, `▖`, `▗`, `▚`, `▛`, `▟`).
+4. **Half-Blocks (`U+2580` – `U+2588`)**: Top half (`▀`), bottom half (`▄`), and full blocks (`█`).
 
-### Recommended Terminal Emulators
-- **Tier 1 (Flawless TrueColor & Unicode)**:
-  - **Ghostty**: Exceptional font rendering, perfect Braille cell bounding boxes.
-  - **Kitty**: Fast GPU rendering, customizable line-height.
-  - **Alacritty**: High performance, zero-latency rendering.
-  - **WezTerm**: Native support for custom font ligatures and Braille.
-  - **Windows Terminal**: Modern direct-write engine with full 24-bit ANSI color support.
-  - **iTerm2** (macOS): Comprehensive 24-bit truecolor support.
-- **Problematic / Legacy Terminals**:
-  - **macOS default `Terminal.app`**: Lacks 24-bit Truecolor support (caps at 256 colors like it's 1999). Apple charges $700 for Mac Pro wheels but can't be bothered to give Terminal.app modern color support. Colors will look muddy or approximated. *Recommendation: Install Ghostty, Kitty, or iTerm2 and save your eyeballs.*
-  - **Windows `cmd.exe` / Classic PowerShell**: A Mesozoic relic that only God knows why it's still alive. Terrible UTF-8 character encoding support and breaks if you look at it funny. *Recommendation: Use Windows Terminal with PowerShell 7+.*
+### 3.1 Terminal Emulator Compatibility Matrix
 
-### Fixing Braille Line-Height Glitches
-If you notice horizontal stripes or gaps between lines of Braille art:
-- **Cause**: Many modern terminal emulators add extra line-height (e.g., `1.2` or `1.5`) for code readability because they think you're reading War and Peace. Because Braille characters are expected to touch vertically, extra spacing breaks the continuous dot matrix and makes it look like window blinds.
-- **Fix in Kitty (`~/.config/kitty/kitty.conf`)**:
+| Terminal Emulator | TrueColor (24-bit) | Braille Alignment | Sextants (2x3) | Quadrants (2x2) | Performance | Recommended Status |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Ghostty** | ✅ Flawless | ✅ Pixel-exact | ✅ Full | ✅ Full | ⭐⭐⭐⭐⭐ (GPU) | **Tier 1 (Recommended)** |
+| **Kitty** | ✅ Flawless | ✅ Perfect (with line-height fix) | ✅ Full | ✅ Full | ⭐⭐⭐⭐⭐ (GPU) | **Tier 1 (Recommended)** |
+| **Alacritty** | ✅ Flawless | ✅ Perfect | ✅ Full | ✅ Full | ⭐⭐⭐⭐⭐ (OpenGL) | **Tier 1 (Recommended)** |
+| **WezTerm** | ✅ Flawless | ✅ Perfect | ✅ Full | ✅ Full | ⭐⭐⭐⭐⭐ (GPU) | **Tier 1 (Recommended)** |
+| **Windows Terminal** | ✅ Flawless | ✅ Perfect | ✅ Full | ✅ Full | ⭐⭐⭐⭐ (DirectWrite) | **Tier 1 on Windows** |
+| **iTerm2 (macOS)** | ✅ Flawless | ✅ Perfect | ⚠️ Requires font | ✅ Full | ⭐⭐⭐⭐ | **Tier 1 on macOS** |
+| **GNOME Terminal** | ✅ Supported | ⚠️ Small gaps | ⚠️ Depends on font | ✅ Full | ⭐⭐⭐ | Standard |
+| **macOS Terminal.app** | ❌ 256 colors only | ⚠️ Distorted | ❌ Missing glyphs | ⚠️ Approximate | ⭐⭐ | **Not Recommended** |
+| **Windows cmd.exe** | ❌ Broken | ❌ Broken | ❌ Broken | ❌ Broken | ⭐ | **Unusable (Use Windows Terminal)** |
+
+### 3.2 Fixing Vertical Gaps in Braille & Blocks (Line-Height Fix)
+Many modern terminals inject extra vertical line padding (`1.2` or `1.3`) for text readability. Because subpixel terminal blocks must touch vertically to create a continuous raster image, line spacing will cause horizontal gaps.
+
+- **Kitty**: Add to `~/.config/kitty/kitty.conf`:
   ```conf
   adjust_line_height 0
   ```
-- **Fix in Alacritty (`~/.config/alacritty/alacritty.toml`)**:
+- **Alacritty**: Add to `~/.config/alacritty/alacritty.toml`:
   ```toml
   [font.offset]
   y = 0
   ```
+- **WezTerm**: Add to `~/.wezterm.lua`:
+  ```lua
+  config.line_height = 1.0
+  ```
+
+### 3.3 Recommended Fonts
+For optimal alignment and zero missing glyphs, use a modern monospaced font with extended Unicode coverage:
+- **JetBrains Mono Nerd Font** (Best contrast and dot geometry)
+- **Fira Code Nerd Font**
+- **Symbols Nerd Font** (Fallback for missing icons and sextants)
+- **Cascadia Code** (Built into Windows Terminal)
 
 ---
 
 ## 4. Color Fidelity & TrueColor (24-bit ANSI)
 
-### Checking Truecolor Support
-To check whether your current terminal session supports truecolor:
+### 4.1 Checking TrueColor Support
+Verify that your current shell session supports 24-bit RGB ANSI escape sequences:
 ```bash
 echo $COLORTERM
 ```
-If this prints `truecolor` or `24bit`, your terminal is ready.
+If this outputs `truecolor` or `24bit`, your terminal is ready.
 
-If you are running inside **tmux** or **screen**, truecolor may be disabled unless configured in `~/.tmux.conf`:
+If running inside **tmux**, configure 24-bit pass-through in `~/.tmux.conf`:
 ```tmux
 set -g default-terminal "tmux-256color"
 set -ag terminal-overrides ",xterm-256color:RGB"
 ```
 
-### Linear RGB vs sRGB Color Blending
-Luma performs color blending inside **Linear RGB** rather than standard sRGB:
-- **The Problem in Normal Converters**: Blending colors directly in sRGB creates muddy, dark borders (the "dark halo" effect) because sRGB gamma is non-linear (averaging colors directly in gamma space without linear correction is a mortal sin punishable by 10 years of maintaining legacy COBOL code).
-- **The Luma Fix**: All pixel sub-blocks are linearized ($C_{\text{linear}} = C_{\text{srgb}}^{2.2}$), averaged with physically accurate light summation, and converted back to sRGB.
+### 4.2 Linear RGB vs Standard sRGB Gamma Blending
+Most ASCII converters perform mathematical averaging directly on raw sRGB pixel values. Because sRGB is a non-linear perceptual encoding ($V \approx L^{1/2.2}$), averaging sRGB numbers produces the notorious **dark border artifact** (dirty muddy lines between bright colors).
 
-### Disabling Image Pre-Processing (`--raw-colors`)
-By default, Luma's *Color Engine* dynamically boosts saturation ($1.5\times$), contrast ($1.2\times$), and sharpness ($1.5\times$) to compensate for dark terminal backgrounds.
-If your input image is already saturated or contains delicate pastel shades that look over-processed:
+Luma executes all downsampling and dual-color cell extraction in **linear radiometric space**:
+$$C_{\text{linear}} = \left(\frac{C_{\text{sRGB}}}{255}\right)^{2.2}$$
+Colors are averaged in physical light units, clustered, and re-encoded to sRGB for terminal output, ensuring vibrant, non-muddy transitions.
+
+---
+
+## 5. The Four Flagship Rendering Engines
+
+Luma features four dedicated rendering engines, each mathematically engineered for a distinct visual paradigm:
+
+```
+                  ┌──────────────────────────────────────────────┐
+                  │                 LUMA SUITE                   │
+                  └───────┬──────────────┬───────────────┬───────┘
+                          │              │               │
+            ┌─────────────┴──┐    ┌──────┴────────┐    ┌─┴─────────────┐
+            │   MARY APEX    │    │ TRUMBLE ORELX │    │  LURIS MONO   │
+            │  Perceptual    │    │ Retro-Arcade  │    │  Monochrome   │
+            │  Color 3.5     │    │ Cel-Shading   │    │  Manga 2.6    │
+            └────────────────┘    └───────────────┘    └───────────────┘
+                                         │
+                                  ┌──────┴────────┐
+                                  │ SPECTRA WEEP  │
+                                  │  Live Webcam  │
+                                  │  Stream 1.4   │
+                                  └───────────────┘
+```
+
+### 5.1 Mary Apex 3.5 (Perceptual Oklab & Subpixel Micro-Blocks)
+- **Flagship Command**: `lumart image.png -E mary -S` (or `-B`, `-Q`, `--blocks`)
+- **Core Technology**:
+  1. **Guided Filter in Oklab Color Space**: Edge-preserving spatial smoothing that suppresses JPEG high-frequency noise while keeping crisp anime and photo silhouettes.
+  2. **Weber-Fechner Adaptive Contrast**: Contrast sensitivity adjustment modeled after the human visual cortex, bringing out shadow details without blowing out specular highlights.
+  3. **Multi-Subpixel Modes**:
+     - `-S` / `--sextants`: 2x3 solid Unicode sextant blocks. Yields continuous, non-perforated solid color rendering.
+     - `-B` / `--braille`: 2x4 Braille matrix with dual-color foreground and background ANSI pairing.
+     - `-Q` / `--quadrants`: 2x2 square subpixel blocks.
+     - `--blocks`: Classic half-blocks (`▀` / `▄`).
+- **Troubleshooting Mary**:
+  - *Symptom*: Characters look like strange letters instead of solid blocks.
+    - *Cause*: Your font lacks Unicode 13.0 Symbols for Legacy Computing (`U+1FB00`).
+    - *Fix*: Use `-B` (Braille) or `-Q` (Quadrants) which are supported by all fonts, or install JetBrains Mono Nerd Font v3+.
+
+### 5.2 Trumble Orelx 2.2 (Retro-Arcade Cel-Shading & Anime Ink)
+- **Flagship Command**: `lumart image.png -E trumble --blocks` (Default engine)
+- **Core Technology**:
+  1. **Capcom CPS-2 / Neo-Geo Color Punch**: Gamut mapping that maximizes color saturation and contrast for terminal environments without clipping hues.
+  2. **Anime Ink Outlines**: Dynamic edge-detection overlay that draws fine dark ink contours around characters and foreground objects.
+  3. **Lanczos Downsampling + Bayer Dither**: Smooth anti-aliased geometry reduction with optional retro matrix dithering (`-d bayer`).
+
+### 5.3 Luris Mono 2.6 (Monochrome Manga Screentone & Stickers)
+- **Flagship Command**: `lumart image.png -E luris -m`
+- **Core Technology**:
+  1. **Difference of Gaussians (DoG) Lineart**:
+     $$\text{DoG}(x, y) = G_{\sigma_1}(x, y) - G_{\sigma_2}(x, y)$$
+     Extracts G-pen style manga ink lines while discarding flat background gradients.
+  2. **Smart Manga 2.6 Screentone**: Inks crisp outer lines, applies 8x8 Bayer halftone dots to clothing/shadows, and leaves paper/skin pure white.
+  3. **Bill Atkinson Dithering (1984, MacPaint)**: Discards 25% of diffused error to keep clean highlights without speckling.
+  4. **Exclusive Transparent Sticker Export (`--transparent`)**:
+     ```bash
+     lumart character.png -E luris -m --transparent -o sticker.png
+     ```
+     Creates an authentic manga cutout sticker with transparent alpha channel!
+
+### 5.4 Spectra Weep 1.4 (Real-Time Live Webcam Streaming)
+- **Flagship Command**: `lumart --webcam` (or `lumart -W`)
+- **Core Technology**:
+  1. **Zero-Lag OpenCV Video Pipeline**: Captures video frames, downsamples in real time, and renders high-FPS ANSI terminal streams (30–60 FPS).
+  2. **5 Live Weep Filters**: Real-time edge enhancement, cyber neon, inverted infrared, and retro monochrome streaming.
+- **Troubleshooting Spectra**:
+  - *Symptom*: `Permission denied: '/dev/video0'`
+    - *Fix*: `sudo usermod -aG video $USER` and log out/log back in.
+  - *Symptom*: Blank screen or `Camera index out of range`
+    - *Fix*: Specify alternative camera index: `lumart -W 1` or `lumart -W 2`.
+
+---
+
+## 6. Sizing, Aspect Ratio & Font Calibration
+
+### 6.1 The 1:2 Character Cell Problem
+Terminal character cells are not square; standard monospace characters are roughly **twice as tall as they are wide** ($1:2$ ratio).
+If an image is downscaled without aspect ratio compensation, it will look vertically stretched by 200%.
+
+Luma automatically applies mathematical scaling based on character geometry:
+- **Braille Mode (`-B`)**: 2 dots wide $\times$ 4 dots tall ($2:4 = 1:2$). Each Braille cell compensates for font ratio natively!
+- **Half-Blocks (`--blocks`)**: 1 character wide $\times$ 2 pixels tall ($1:2$).
+- **Sextants (`-S`)**: 2 subpixels wide $\times$ 3 subpixels tall ($2:3$).
+
+### 6.2 Custom Font Calibration (`--font-ratio`)
+If your terminal font is unusually wide or tall, fine-tune the vertical scaling ratio:
 ```bash
-luma input.png --raw-colors --braille
+# Default is 0.5 (standard 1:2 monospace font)
+lumart image.png --font-ratio 0.45   # For taller/slimmer fonts
+lumart image.png --font-ratio 0.55   # For wider/squarer fonts
 ```
 
 ---
 
-## 5. Black & White, Manga Screentone & Dual-Engine Architecture
+## 7. High-Definition Graphic Image & Sticker Export
 
-Starting with v2.1.2, Luma features an overhauled **Dual-Engine Architecture** giving you granular control over color and artistic monochrome rendering:
-1. **The Color Engine** (Python): Linear RGB blending, HDR contrast curves, and ANSI 24-bit TrueColor.
-2. **The Monochrome Engine** (Native C++ / Python fallback): Difference of Gaussians (DoG) edge extraction, Bill Atkinson (1984 MacPaint) error-diffusion dithering, Smart Manga Screentone 2.0 (DoG outlines + Bayer 8x8 halftone screentone for midtones), and 2x2 Quadrant HD Blocks (`--blocks`).
-
-### Selecting Engines with `-E` / `--engine`
-You can explicitly choose the engine using the `-E` or `--engine` flag:
-- `-E color` (Default): Uses the high-fidelity color engine.
-- `-E mono` or `-E bw`: Forces the monochrome rendering pipeline without colors.
-- `-E sketch` (or `-s`): Pure line art sketch mode. Extracts crisp G-pen style contours using Difference of Gaussians without halftoning or background noise.
-- `-E manga` (or `-m`): Enables the Manga Screentone 2.0 engine (crisp DoG lineart + 8x8 Bayer screentone for clothing/shadows + pure white skin/paper).
+Luma can rasterize terminal art into crisp, high-resolution graphic images (`.png`, `.jpg`):
 
 ```bash
-# Pure line art sketch:
-luma anime_girl.png -E sketch -w 100
+# Export Mary Apex subpixel art to 1080p/4K PNG:
+lumart photo.png -E mary -S -w 120 -o render.png
 
-# Advanced manga screentone:
-luma anime_girl.png -E manga -w 120
+# Export Trumble retro cel-shading to JPEG:
+lumart photo.png -E trumble --blocks -w 100 -o render.jpg
 
-# Atkinson error-diffusion dithering:
-luma photo.png -E mono -d atkinson -w 100
-
-# 2x2 Quadrant Subpixel HD Blocks:
-luma photo.png -E mono --blocks -w 80
+# Export transparent manga sticker (Exclusive to Luris Mono):
+lumart anime.png -E luris -m --transparent -o sticker.png
 ```
 
-### Dithering Algorithms (`-d` / `--dither`)
-- `-d atkinson` (Default when `-d` is specified): 3/8 error diffusion designed by Bill Atkinson for the 1984 Apple Macintosh. Keeps clean white spaces while delivering organic shading.
-- `-d floyd`: Classic 1976 Floyd-Steinberg error diffusion (7/16, 3/16, 5/16, 1/16).
-- `-d bayer`: 8x8 ordered Bayer dithering matrix for retro game/print halftone patterns.
-
-### Native C++ Acceleration & Mathematical Pipeline
-If `libmonochrome.so` or `luma-mono` is present next to the executable, Luma automatically offloads monochrome calculations to the compiled C++ engine for near-instant (<10ms) rendering with zero Python overhead:
-
-1. **Difference of Gaussians (DoG) Edge Extraction**:
-   $$\text{DoG}(x, y) = G_{\sigma_1}(x, y) - G_{\sigma_2}(x, y) \quad (\sigma_1 = 0.7, \; \sigma_2 = 1.8)$$
-   Convolutions are computed using separable 1D horizontal and vertical kernels to run in $O(N \cdot K)$ time rather than $O(N \cdot K^2)$. This suppresses flat surface noise while cleanly isolating lineart contours.
-2. **Bill Atkinson Error Diffusion (1984, MacPaint)**:
-   Unlike Floyd-Steinberg which diffuses 100% of the quantization error across adjacent pixels, Atkinson diffuses only $6/8$ ($75\%$) of the error across 6 neighbors:
-   - $(x+1, y)$ and $(x+2, y)$
-   - $(x-1, y+1)$, $(x, y+1)$, and $(x+1, y+1)$
-   - $(x, y+2)$
-   By discarding the remaining $25\%$ of error, light areas remain pristine white and dark areas remain solid black, preventing the "dirty sand" speckled noise common in traditional halftones.
-3. **C ABI Memory Management (`extern "C"`)**:
-   The native library exports a C-compatible ABI (`render_monochrome_c`) that transfers ownership of the rendered string buffer to the caller. Python's `ctypes` wrapper immediately consumes the string and calls `free_monochrome_buffer` in a `try...finally` block, ensuring zero memory leaks even in batch processing or animation loops.
-
-### Light vs Dark Terminals (`-i` / `--invert`)
-- **Dark Terminal (Default)**: Dark image contours are rendered as luminous Braille dots (`⣿`, `⠶`) or characters against the dark background.
-- **Light Terminal (White/Cream Background)**: Invert the dot logic using `-i`:
-  ```bash
-  luma image.png -E manga -i
-  ```
-
----
-
-## 6. Sizing, Aspect Ratio & Text-Wrapping Artifacts
-
-### The 1:2 Character Cell Aspect Ratio
-In standard monospace fonts, a single character cell is roughly **twice as tall as it is wide** ($1:2$ ratio).
-- If an image is rendered with 1 pixel per character without compensation, it will look squished horizontally (stretched vertically), as if flattened by an 18-wheeler truck.
-- Luma automatically adjusts vertical height depending on the chosen rendering engine:
-  - **Braille Mode (`--braille`)**: A Braille character contains 2 horizontal dots and 4 vertical dots. Because $2:4 = 1:2$, Braille dots naturally have a square $1:1$ ratio!
-  - **Half-Block Mode (`--blocks`)**: Each character cell holds 2 vertical pixels (top and bottom half).
-
-### Preventing Line Wrapping
-If an image is rendered wider than your terminal window, each row wraps around, turning the image into an illegible spiral.
-- Match your current terminal width dynamically:
-  ```bash
-  luma image.png --braille -w $(tput cols)
-  ```
-- Or save to a file and view it using `cat` or `less -R` (the `-R` preserves raw ANSI color codes):
-  ```bash
-  luma image.png --braille -w 160 -o art.txt
-  less -R art.txt
-  ```
-
----
-
-## 7. Color Swapping (`--swap`) Mechanics
-
-The `--swap` option dynamically replaces specific color ranges in the image using 3D Euclidean distance in RGB color space (Pythagoras rolling in his grave knowing his theorem is being used to recolor anime waifus in a terminal 😭).
-
-### Rules:
-1. Arguments must be provided in **pairs**: `[color_to_replace] [new_color]`.
-2. Supported color names:
-   `red`, `green`, `blue`, `yellow`, `purple`, `pink`, `cyan`, `orange`, `white`, `black`, `gray`, `magenta`, `blurple`
-
-### Examples:
-```bash
-# Swap purple hair to red, and blue eyes to yellow:
-luma character.png --swap purple red blue yellow --braille
-```
+### Why was WebP (`.webp`) Export Removed?
+WebP lossy and near-lossless compression algorithms apply spatial chroma subsampling and macroblock frequency transforms that blur discrete subpixel glyphs (Sextants, Braille dots, Quadrant boundaries). To guarantee pristine, uncorrupted pixel-art fidelity and transparent alpha cutouts, Luma strictly standardizes on lossless `.png` (with optional transparent alpha) and high-quality `.jpg`.
 
 ---
 
 ## 8. Configuration, Persistence & Localization (i18n)
 
-### Config File Location
-Luma persists user settings (such as chosen language) in:
-```
-~/.config/luma/config.json
-```
+Starting with version 2.3.1 ("Rosetta"), Luma features a comprehensive, zero-leak internationalization engine supporting 8 languages with runtime and persistent configuration.
 
-### Changing Default Language
-Luma defaults to English (`en`). You can switch and persist another language anytime:
+### 8.1 Supported Languages Matrix
+
+| Code | Language | Native Name | Command Example |
+| :---: | :--- | :--- | :--- |
+| `en` | **English** (Default) | English | `lumart --lang en` |
+| `es` | **Spanish** | Español | `lumart --lang es` |
+| `fr` | **French** | Français | `lumart --lang fr` |
+| `pt` | **Portuguese** | Português | `lumart --lang pt` |
+| `ru` | **Russian** | Русский | `lumart --lang ru` |
+| `ja` | **Japanese** | 日本語 | `lumart --lang ja` |
+| `de` | **German** | Deutsch | `lumart --lang de` |
+| `ko` | **Korean** | 한국어 | `lumart --lang ko` |
+
+### 8.2 Persistent vs Ephemeral / Runtime Override
+Luma offers two flexible modes for localization:
+
+#### 1. Persistent Setting (Saves across all future terminal sessions):
+Run `lumart --lang <code>` with no other action arguments. Luma saves your choice to `~/.config/luma/config.json`:
 ```bash
-# Spanish
-luma --lang es
+# Switch default language to French:
+lumart --lang fr
 
-# Japanese
-luma --lang ja
-
-# Portuguese
-luma --lang pt
-
-# Russian
-luma --lang ru
-
-# German
-luma --lang de
-
-# Korean
-luma --lang ko
-
-# English (reset)
-luma --lang en
+# Switch default language to Japanese:
+lumart --lang ja
 ```
 
-### Resetting Configuration
-To reset all configurations back to factory defaults:
+#### 2. Runtime Override (Applies only to current command):
+Add `--lang <code>` or `--lang=<code>` anywhere in your command line:
 ```bash
-rm -rf ~/.config/luma
+# View diagnostic information in French:
+lumart --lang fr -v
+
+# Render an image with Spanish interface:
+lumart character.png --lang es -E mary -S
+
+# View command history in German:
+lumart --lang de -H 5
+```
+
+### 8.3 Hierarchy of Language Resolution
+When Luma starts up, it resolves language using this strict 4-tier hierarchy:
+1. **Command Line Flag**: `--lang <code>` or `--lang=<code>` (highest priority).
+2. **Persistent User Config**: `~/.config/luma/config.json` (if previously saved).
+3. **Environment Locale Detection**: Evaluates `$LC_ALL`, `$LC_MESSAGES`, and `$LANG`, extracting the ISO 639-1 two-letter language code (e.g. `fr_FR.UTF-8` $\to$ `fr`).
+4. **Fallback Default**: English (`en`).
+
+### 8.4 Troubleshooting Localization Issues
+
+- **Issue 1: `UnicodeEncodeError: 'ascii' codec can't encode character` in Docker / Containers**
+  - *Cause*: Minimal Linux containers or chroots often lack UTF-8 locale definitions and default to `POSIX` or `C`.
+  - *Solution*: Export standard UTF-8 environment variables before running:
+    ```bash
+    export LANG=C.UTF-8
+    export LC_ALL=C.UTF-8
+    ```
+
+- **Issue 2: CJK (Japanese / Korean) or Cyrillic Characters Display as Tofu (Empty Rectangles / Question Marks)**
+  - *Cause*: Your terminal's primary monospace font does not contain glyphs for Kanji, Hiragana, Hangul, or Cyrillic.
+  - *Solution*: Install a comprehensive fallback font package:
+    - Debian/Ubuntu: `sudo apt install fonts-noto-cjk fonts-noto-core`
+    - Fedora: `sudo dnf install google-noto-sans-cjk-fonts google-noto-sans-fonts`
+    - Arch Linux: `sudo pacman -S noto-fonts noto-fonts-cjk`
+
+- **Issue 3: Resetting All Configuration to Factory Defaults**
+  - If your `config.json` becomes corrupted or permissions are locked:
+    ```bash
+    rm -rf ~/.config/luma/config.json
+    lumart --lang en
+    ```
+
+---
+
+## 9. Command History & Interactive Replay System
+
+Luma automatically records execution history with timestamps, version tags, and command lines.
+
+### 9.1 Viewing History (`-H` / `--history`)
+```bash
+# View recent commands (default: all):
+lumart -H
+
+# Limit output to the last 5 commands:
+lumart -H 5
+```
+Example Output:
+```
+📜 Lumart Command History (5 recorded):
+
+  [#]   Ver       Date / Time         Command
+  ──────────────────────────────────────────────────────────────────────────────
+  [01]  v2.3.1    2026-09-07 15:06:25 lumart render.png -E mary -S -w 100
+  [02]  v2.3.1    2026-09-07 14:58:39 lumart slime.jpg -E luris -m --transparent -o sticker.png
+  [03]  v2.3.0    2026-09-07 13:32:28 lumart photo.jpg -E trumble --blocks -o retro.jpg
+  ──────────────────────────────────────────────────────────────────────────────
+  💡 To re-execute any command, run: lumart --replay <number> (e.g.: lumart -R 1)
+```
+
+### 9.2 Instant Replay (`-R` / `--replay`)
+Re-execute any previous command directly without retyping:
+```bash
+# Re-run the most recent command:
+lumart -R
+
+# Re-run command #2 from history:
+lumart -R 2
+```
+
+### 9.3 Clearing History (`--clear-history`)
+```bash
+lumart --clear-history
 ```
 
 ---
 
-## 9. Updates, Upgrades & Downgrades / Rollback
+## 10. Updates, Upgrades & Rollback System
 
-Nobody likes software that updates without warning and breaks an established workflow. Luma strictly separates update checks from upgrades and provides instant rollback safeguards:
+Luma includes a built-in release manager with automatic rollback protection:
 
-### Checking for Updates (`-u` / `--update`)
-To check whether a new version is available without modifying any files or downloading packages:
+### 10.1 Checking for Updates (`-u` / `--update`)
+Check GitHub for new releases without modifying any files:
 ```bash
-luma -u
-# or: luma --update / luma --check-update
+lumart -u
 ```
-This queries the official GitHub releases API and informs you of your current version versus the latest release.
 
-### Applying Upgrades (`-uu` / `--upgrade`)
-When you are ready to update to the latest version:
+### 10.2 Applying Upgrades (`-uu` / `--upgrade`)
+Download and atomically upgrade to the latest stable release:
 ```bash
-luma -uu
-# or: luma --upgrade
+lumart -uu
 ```
-Before overwriting any binary or script:
-1. Luma creates an automatic backup in `~/.config/luma/backup/lumart-v<OLD_VERSION>`.
-2. It records the backup metadata into `~/.config/luma/backup/last_backup.json`.
-3. It downloads the new release, verifies Python bytecode syntax (if running script mode), and performs an atomic filesystem replace.
+Before updating, Luma automatically archives your current version in `~/.config/luma/backup/lumart-v<VERSION>`.
 
-### Rolling Back / Downgrading (`-dg` / `--downgrade`)
-If a newly installed version breaks compatibility or behaves unexpectedly, you can instantly revert:
+### 10.3 Rolling Back / Downgrading (`-dg` / `--downgrade`)
+If an update causes issues on your system, roll back immediately:
 ```bash
-# Revert to previous version from local backup:
-luma -dg
-# or: luma --downgrade / luma --rollback
+# Interactive rollback selector (restores from local backup instantly without network):
+lumart -dg
 
-# Or downgrade to an explicit version:
-luma -dg 2.1.0
-```
-If a local backup exists, Luma restores it instantly without needing internet access. If you specify a target version or the backup was purged, Luma fetches the requested release directly from GitHub.
-
----
-
-## 10. Command Reference & Cheat Sheet
-
-```bash
-# 0. Check for Updates / Upgrade / Downgrade
-luma -u          # Check only
-luma -uu         # Download & install upgrade
-luma -dg         # Rollback to previous version
-
-# 1. High-Resolution Color Art (Default Color Engine)
-luma photo.jpg --braille
-
-# 2. Manga Screentone Engine
-luma anime.png -E manga -w 120
-
-# 3. Maximum ANSI Pixel Density (Half-Blocks)
-luma photo.jpg --blocks -w 120
-
-# 4. Pure Monochrome Braille
-luma sketch.png -E mono --braille -w 100
-
-# 5. Classic Terminal ASCII Art
-luma logo.png -w 80
-
-# 6. Save directly to file without polluting terminal buffer
-luma wallpaper.png --blocks -w 180 -o output.txt
-
-# 7. View saved color art
-cat output.txt
-# or with scrolling:
-less -R output.txt
+# Or specify a target version explicitly:
+lumart -dg 2.3.0
 ```
 
 ---
-*Still running into issues? Open an issue on [GitHub](https://github.com/SilentBlox01/Luma/issues) with the output of `luma -v` and your terminal emulator details.*
+
+## 11. Linux Desktop & File Manager Integration
+
+Integrate Luma directly into your desktop environment and file managers (GNOME Files/Nautilus, Nemo, Dolphin, Thunar):
+
+```bash
+lumart --install-desktop
+```
+This performs:
+1. Installs `lumart.desktop` in `~/.local/share/applications` (allowing you to set Lumart as default image viewer).
+2. Installs right-click contextual scripts in Nautilus and Nemo (`Scripts > Abrir con Lumart` / `Open with Lumart`).
+3. Updates system MIME and desktop database caches.
+
+---
+
+## 12. Master Command Reference & Cheat Sheet
+
+```bash
+# ==============================================================================
+# 1. VERSION, SYSTEM DIAGNOSTICS & LOCALIZATION
+# ==============================================================================
+lumart -v                                # Complete system & runtime diagnostics
+lumart --lang fr                         # Switch persistent language to French
+lumart --lang en                         # Switch persistent language to English
+lumart --lang es                         # Switch persistent language to Spanish
+lumart --lang ja                         # Switch persistent language to Japanese
+lumart --lang ru                         # Switch persistent language to Russian
+lumart --lang de                         # Switch persistent language to German
+lumart --lang pt                         # Switch persistent language to Portuguese
+lumart --lang ko                         # Switch persistent language to Korean
+
+# ==============================================================================
+# 2. MARY APEX 3.5 (PERCEPTUAL OKLAB COLOR)
+# ==============================================================================
+lumart photo.png -E mary -S              # Solid Unicode 2x3 Sextants (Flagship HD)
+lumart photo.png -E mary -B              # Dual-Color TrueColor Braille
+lumart photo.png -E mary -Q              # 2x2 Quadrant Blocks
+lumart photo.png -E mary --blocks        # Half-Blocks (▀ / ▄)
+lumart photo.png -E mary --raw-colors    # Bypass contrast boosting (raw colors)
+
+# ==============================================================================
+# 3. TRUMBLE ORELX 2.2 (RETRO-ARCADE CEL-SHADING & ANIME INK)
+# ==============================================================================
+lumart anime.png                         # Default render (Trumble Cel-Shading)
+lumart anime.png -E trumble --blocks     # Capcom CPS-2 / Neo-Geo Palette HD Blocks
+lumart anime.png -d bayer                # Retro Bayer 8x8 ordered dither
+lumart anime.png --swap purple pink      # Dynamic color swapping (3D RGB space)
+
+# ==============================================================================
+# 4. LURIS MONO 2.6 (MONOCHROME MANGA & STICKERS)
+# ==============================================================================
+lumart manga.png -E luris -m             # Authentic Manga Screentone (DoG + Bayer)
+lumart sketch.png -E luris -s            # Clean G-Pen lineart sketch (pure contours)
+lumart photo.png -E luris -d atkinson    # Bill Atkinson 1984 MacPaint Dithering
+lumart photo.png -E luris -d floyd       # Floyd-Steinberg error diffusion
+lumart anime.png -E luris -i             # Invert dot logic (for light terminal themes)
+lumart waifu.png -E luris -m --transparent -o sticker.png  # Transparent sticker!
+
+# ==============================================================================
+# 5. SPECTRA WEEP 1.4 (LIVE WEBCAM STREAMING)
+# ==============================================================================
+lumart --webcam                          # Stream default webcam (/dev/video0)
+lumart -W 1                              # Stream alternate webcam (/dev/video1)
+
+# ==============================================================================
+# 6. GRAPHIC IMAGE EXPORT
+# ==============================================================================
+lumart image.png -E mary -S -w 120 -o art.png   # Export high-res raster PNG
+lumart image.png -E trumble --blocks -o art.jpg # Export high-res raster JPG
+
+# ==============================================================================
+# 7. HISTORY & REPLAY
+# ==============================================================================
+lumart -H                                # View full execution history with version
+lumart -H 10                             # View last 10 commands
+lumart -R                                # Re-execute last command
+lumart -R 3                              # Re-execute command #3 from history
+lumart --clear-history                   # Purge history file
+
+# ==============================================================================
+# 8. UPDATES & DESKTOP INTEGRATION
+# ==============================================================================
+lumart -u                                # Check for GitHub updates without installing
+lumart -uu                               # Download and apply latest update
+lumart -dg                               # Roll back to previous version from backup
+lumart --install-desktop                 # Install desktop launcher & right-click scripts
+lumart --paste                           # Load and render image from system clipboard
+```
+
+---
+*Still experiencing issues? Open an issue on GitHub: [https://github.com/SilentBlox01/Luma/issues](https://github.com/SilentBlox01/Luma/issues) with the output of `lumart -v`.*

@@ -84,7 +84,8 @@ except ImportError:
         mary = None
 
 
-VERSION = "2.3.0"
+VERSION = "2.3.1"
+CODENAME = "Rosetta"
 GITHUB_REPO = "SilentBlox01/Luma"
 GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/lumart.py"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
@@ -105,6 +106,94 @@ COLOR_MAP = {
 # Diccionario de localizaciones para soporte multilingüe
 TRANSLATIONS = {
     "en": {
+        "diag_title_system": "📋 System & Runtime Diagnostics:",
+        "diag_luma_ver": "Luma Version:",
+        "diag_exec_type": "Execution Type:",
+        "diag_standalone": "Standalone Executable (PyInstaller)",
+        "diag_script": "Python Script",
+        "diag_python_env": "Python Environment:",
+        "diag_platform_os": "OS Platform:",
+        "diag_title_engines": "⚡ Rendering Engines:",
+        "diag_trumble_desc": "Active (Default) (Cel-Shading Anime Ink Outlines, Capcom CPS-2 / Neo-Geo Color Punch, Lanczos, Bayer Dither, TrueColor Braille/Blocks)",
+        "diag_mary_desc": "Mary (Perceptual Color Apex 3.5):",
+        "diag_mary_modes": "Supported Mary Modes:",
+        "diag_mary_modes_list": "sextants (2x3 solid HD blocks), braille (2x4 dual-color), quadrants (2x2), blocks, ascii",
+        "diag_luris_desc": "Luris (Monochrome Mono 2.6):",
+        "diag_luris_modes": "Supported Luris Modes:",
+        "diag_luris_modes_list": "braille, manga 2.6 (DoG + Bayer), sketch (pure DoG), blocks (2x2 HD quadrants), ascii",
+        "diag_dither_algos": "Dithering Algorithms:",
+        "diag_dither_list": "atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8",
+        "diag_spectra_desc": "Spectra (Live Webcam Weep 1.4):",
+        "diag_spectra_avail": "Available (OpenCV 30-60 FPS Terminal Stream with 5 Live Weep Filters)",
+        "diag_spectra_req": "Requires opencv-python",
+        "diag_title_terminal": "🖥️  Terminal Diagnostics:",
+        "diag_res_label": "Current Resolution:",
+        "diag_res_format": "{} columns × {} rows",
+        "diag_truecolor_label": "TrueColor (24-bit):",
+        "diag_truecolor_supported": "✅ Supported",
+        "diag_truecolor_unsupported": "⚠️  Not detected (colors may be approximated)",
+        "diag_title_paths": "📁 Paths & Configuration:",
+        "diag_config_label": "Configuration:",
+        "diag_config_exists": "Exists",
+        "diag_config_default": "Default",
+        "diag_backup_label": "Backups:",
+        "diag_backup_count": "{} backups saved",
+        "diag_repo_label": "GitHub Repository:",
+        "diag_native_active": "Active ({})",
+        "diag_native_active_bin": "Active via binary ({})",
+        "diag_native_cpp": "Native C++ ({})",
+        "diag_native_cpp_bin": "Native C++ via binary ({})",
+        "diag_py_fallback": "Not detected (using Python fallback)",
+        "diag_mary_fallback": "Python Fallback",
+        "diag_not_available": "Not available (using Trumble)",
+        "ver_status_title": "📦 Luma Version Status:",
+        "ver_current_installed": "Current installed version:",
+        "ver_latest_github": "Latest version on GitHub:",
+        "ver_new_available": "💡 A new version is available!",
+        "ver_release_title": "Release title:",
+        "ver_install_hint": "To automatically download and install, run:",
+        "ver_up_to_date": "✅ Your installation is up to date with the latest version!",
+        "ver_recent_history": "📜 Recent Version History:",
+        "ver_useful_commands": "💡 Useful Commands:",
+        "ver_cmd_uu": "Download and apply latest update",
+        "ver_cmd_dg": "Interactive selector to roll back to previous version",
+        "ver_cmd_v": "View full system diagnostic report",
+        "ver_tag_current": "(current)",
+        "upg_avail_title": "🚀 Available Versions for Upgrade:",
+        "upg_recommended": "(Latest recommended version)",
+        "upg_cancel": "Cancel",
+        "upg_choose_prompt": "Choose a version [1-{}] or press Enter for [1]: ",
+        "upg_cancelled": "Operation cancelled.",
+        "upg_invalid_sel": "❌ Invalid selection.",
+        "upg_preparing": "⬇️  Preparing to install Luma v{}...",
+        "upg_title": "Title:",
+        "upg_backup_saved": "🛡️  Backup of v{} saved to: {}",
+        "upg_backup_warn": "⚠️  Warning: Could not create backup ({}).",
+        "upg_rollback_hint": "💡 To rollback to previous version at any time, run: lumart -dg",
+        "dg_title": "⏪ Available Versions for Rollback (Downgrade):",
+        "dg_choose_prompt": "Choose a version to restore [1-{}] or press Enter for [1]: ",
+        "hist_title": "📜 Lumart Command History ({} recorded):",
+        "hist_empty": "  (No commands recorded in history yet)",
+        "hist_header_num": "[#]",
+        "hist_header_ver": "Ver",
+        "hist_header_date": "Date / Time",
+        "hist_header_cmd": "Command",
+        "hist_replay_hint": "💡 To re-execute any command, run: lumart --replay <number> (e.g.: lumart -R 1)",
+        "hist_out_of_range": "❌ Index [{}] out of range. There are {} available commands.",
+        "hist_int_required": "❌ Index must be an integer (e.g.: lumart --replay 1).",
+        "hist_replaying": "🚀 Re-executing [{}]: {}",
+        "hist_cleared": "✅ Lumart command history cleared successfully.",
+        "hist_already_empty": "ℹ️ Command history was already empty.",
+        "desktop_installing": "🖥️  Installing desktop integration and file manager actions...",
+        "desktop_installed_launcher": "  ✅ Desktop launcher installed: {}",
+        "desktop_launcher_error": "  ❌ Error creating {}: {}",
+        "desktop_context_menu": "  ✅ {} context menu script: {}",
+        "desktop_completed": "🎉 Desktop integration completed successfully!\n   Now you can right-click any image in your file manager and select 'Open with Lumart'.",
+        "spectra_webcam_only": "💡 The 'Spectra' engine is exclusively for live video and webcam streaming.\n   To activate it, run:\n   lumart --webcam  (or: lumart -W / lumart -W 1 for alternate camera)\n",
+        "export_webp_disabled": "❌ WebP format (.webp) export has been permanently disabled. Please use .png or .jpg.",
+        "export_sticker_mono_only": "ℹ️  Transparent background stickers (--transparent) are exclusive to Luris Mono (B&W). Exporting full image with terminal background for maximum color fidelity.",
+        "export_success": "✨ Terminal art successfully exported to image: {}",
+        "export_error": "❌ Error exporting image: {}",
         "pillow_not_found": "[luma] Pillow not found. Installing dependencies...",
         "usage": "Usage: lumart [options] <image_path>\n\nTry 'lumart --help' if you're too lazy to read docs.",
         "desc": "Lumart - Terminal Art Engine made by and for humans",
@@ -162,6 +251,94 @@ TRANSLATIONS = {
         "downgrade_no_backup": "❌ No backup or previous release found to roll back to.",
     },
     "es": {
+        "diag_title_system": "📋 Información del Sistema y Runtime:",
+        "diag_luma_ver": "Versión Luma:",
+        "diag_exec_type": "Tipo de Ejecución:",
+        "diag_standalone": "Ejecutable Independiente (PyInstaller)",
+        "diag_script": "Script de Python",
+        "diag_python_env": "Entorno Python:",
+        "diag_platform_os": "Plataforma OS:",
+        "diag_title_engines": "⚡ Motores de Renderizado:",
+        "diag_trumble_desc": "Activo (Por defecto) (Cel-Shading Anime Ink Outlines, Capcom CPS-2 / Neo-Geo Color Punch, Lanczos, Bayer Dither, TrueColor Braille/Blocks)",
+        "diag_mary_desc": "Mary (Color Perceptual Apex 3.5):",
+        "diag_mary_modes": "Modos Mary Soportados:",
+        "diag_mary_modes_list": "sextants (bloques sólidos 2x3 HD), braille (2x4 bicolor), quadrants (2x2), blocks, ascii",
+        "diag_luris_desc": "Luris (Monocromático Mono 2.6):",
+        "diag_luris_modes": "Modos Luris Soportados:",
+        "diag_luris_modes_list": "braille, manga 2.6 (DoG + Bayer), sketch (DoG puro), blocks (cuadrantes 2x2 HD), ascii",
+        "diag_dither_algos": "Algoritmos Tramado:",
+        "diag_dither_list": "atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8",
+        "diag_spectra_desc": "Spectra (Cámara Web Weep 1.4):",
+        "diag_spectra_avail": "Disponible (OpenCV 30-60 FPS Terminal Stream con 5 Filtros Weep en Vivo)",
+        "diag_spectra_req": "Requiere opencv-python",
+        "diag_title_terminal": "🖥️  Diagnóstico de Terminal:",
+        "diag_res_label": "Resolución actual:",
+        "diag_res_format": "{} columnas × {} filas",
+        "diag_truecolor_label": "TrueColor (24-bit):",
+        "diag_truecolor_supported": "✅ Soportado",
+        "diag_truecolor_unsupported": "⚠️  No detectado (puede haber colores aproximados)",
+        "diag_title_paths": "📁 Rutas y Configuración:",
+        "diag_config_label": "Configuración:",
+        "diag_config_exists": "Existe",
+        "diag_config_default": "Predeterminado",
+        "diag_backup_label": "Copias de Seguridad:",
+        "diag_backup_count": "{} backups guardados",
+        "diag_repo_label": "Repositorio GitHub:",
+        "diag_native_active": "Activo ({})",
+        "diag_native_active_bin": "Activo vía binario ({})",
+        "diag_native_cpp": "Nativo C++ ({})",
+        "diag_native_cpp_bin": "Nativo C++ vía binario ({})",
+        "diag_py_fallback": "No detectado (usando fallback en Python)",
+        "diag_mary_fallback": "Fallback en Python",
+        "diag_not_available": "No disponible (usando Trumble)",
+        "ver_status_title": "📦 Estado de Versiones de Luma:",
+        "ver_current_installed": "Versión actual instalada:",
+        "ver_latest_github": "Última versión en GitHub:",
+        "ver_new_available": "💡 ¡Hay una nueva versión disponible!",
+        "ver_release_title": "Título del release:",
+        "ver_install_hint": "Para descargar e instalar automáticamente ejecuta:",
+        "ver_up_to_date": "✅ ¡Tu instalación está al día con la versión más reciente!",
+        "ver_recent_history": "📜 Historial de Versiones Recientes:",
+        "ver_useful_commands": "💡 Comandos Útiles:",
+        "ver_cmd_uu": "Descargar y aplicar última actualización",
+        "ver_cmd_dg": "Selector interactivo para volver a versión anterior",
+        "ver_cmd_v": "Ver diagnóstico completo del sistema",
+        "ver_tag_current": "(actual)",
+        "upg_avail_title": "🚀 Versiones disponibles para Upgrade:",
+        "upg_recommended": "(Última versión recomendada)",
+        "upg_cancel": "Cancelar",
+        "upg_choose_prompt": "Elige una versión [1-{}] o presiona Enter para [1]: ",
+        "upg_cancelled": "Operación cancelada.",
+        "upg_invalid_sel": "❌ Selección inválida.",
+        "upg_preparing": "⬇️  Preparando instalación de Luma v{}...",
+        "upg_title": "Título:",
+        "upg_backup_saved": "🛡️  Copia de seguridad de v{} guardada en: {}",
+        "upg_backup_warn": "⚠️  Aviso: No se pudo crear la copia de seguridad previa ({}).",
+        "upg_rollback_hint": "💡 Si deseas volver a la versión anterior en cualquier momento, ejecuta: lumart -dg",
+        "dg_title": "⏪ Versiones disponibles para Restaurar (Downgrade):",
+        "dg_choose_prompt": "Elige una versión para restaurar [1-{}] o presiona Enter para [1]: ",
+        "hist_title": "📜 Historial de Comandos de Lumart ({} registrados):",
+        "hist_empty": "  (No hay comandos registrados en el historial todavía)",
+        "hist_header_num": "[#]",
+        "hist_header_ver": "Ver",
+        "hist_header_date": "Fecha / Hora",
+        "hist_header_cmd": "Comando",
+        "hist_replay_hint": "💡 Para re-ejecutar cualquiera usa: lumart --replay <número> (ej: lumart -R 1)",
+        "hist_out_of_range": "❌ Índice [{}] fuera de rango. Hay {} comandos disponibles.",
+        "hist_int_required": "❌ El índice debe ser un número entero (ej: lumart --replay 1).",
+        "hist_replaying": "🚀 Re-ejecutando [{}]: {}",
+        "hist_cleared": "✅ Historial de comandos de Lumart limpiado exitosamente.",
+        "hist_already_empty": "ℹ️ El historial de comandos ya estaba vacío.",
+        "desktop_installing": "🖥️  Instalando integración de escritorio y gestores de archivos...",
+        "desktop_installed_launcher": "  ✅ Lanzador de escritorio instalado: {}",
+        "desktop_launcher_error": "  ❌ Error creando {}: {}",
+        "desktop_context_menu": "  ✅ Menú contextual de {}: {}",
+        "desktop_completed": "🎉 ¡Integración completada exitosamente!\n   Ahora puedes hacer clic derecho sobre cualquier imagen en tu gestor de archivos\n   y seleccionar 'Abrir con Lumart' o 'Scripts > Abrir con Lumart'.",
+        "spectra_webcam_only": "💡 El motor 'Spectra' es exclusivo para transmisión de vídeo y cámara web en tiempo real.\n   Para activarlo, usa:\n   lumart --webcam  (o: lumart -W / lumart -W 1 para otra cámara)\n",
+        "export_webp_disabled": "❌ La exportación a formato WebP (.webp) ha sido deshabilitada permanentemente. Por favor use .png o .jpg.",
+        "export_sticker_mono_only": "ℹ️  Los stickers con fondo transparente (--transparent) son exclusivos del motor Luris Mono (blanco y negro). Exportando imagen completa con fondo de terminal para máxima fidelidad de color.",
+        "export_success": "✨ Arte terminal exportado exitosamente a imagen: {}",
+        "export_error": "❌ Error al exportar imagen: {}",
         "pillow_not_found": "[luma] Pillow no encontrado. Instalando dependencias...",
         "usage": "Uso: lumart [opciones] <ruta_imagen>\n\nIntenta 'lumart --help' si te da pereza leer la documentación.",
         "desc": "Lumart - Motor de Arte de Terminal hecho por y para humanos",
@@ -219,6 +396,94 @@ TRANSLATIONS = {
         "downgrade_no_backup": "❌ No se encontró copia de seguridad ni versión previa disponible.",
     },
     "pt": {
+        "diag_title_system": "📋 Informações do Sistema e Runtime:",
+        "diag_luma_ver": "Versão Luma:",
+        "diag_exec_type": "Tipo de Execução:",
+        "diag_standalone": "Executável Independente (PyInstaller)",
+        "diag_script": "Script Python",
+        "diag_python_env": "Ambiente Python:",
+        "diag_platform_os": "Plataforma do SO:",
+        "diag_title_engines": "⚡ Motores de Renderização:",
+        "diag_trumble_desc": "Ativo (Padrão) (Cel-Shading Anime Ink Outlines, Capcom CPS-2 / Neo-Geo Color Punch, Lanczos, Bayer Dither, TrueColor Braille/Blocks)",
+        "diag_mary_desc": "Mary (Cor Perceptual Apex 3.5):",
+        "diag_mary_modes": "Modos Mary Suportados:",
+        "diag_mary_modes_list": "sextants (blocos sólidos 2x3 HD), braille (2x4 bicolor), quadrants (2x2), blocks, ascii",
+        "diag_luris_desc": "Luris (Monocromático Mono 2.6):",
+        "diag_luris_modes": "Modos Luris Suportados:",
+        "diag_luris_modes_list": "braille, manga 2.6 (DoG + Bayer), sketch (DoG puro), blocks (quadrantes 2x2 HD), ascii",
+        "diag_dither_algos": "Algoritmos de Pontilhamento:",
+        "diag_dither_list": "atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8",
+        "diag_spectra_desc": "Spectra (Webcam ao Vivo Weep 1.4):",
+        "diag_spectra_avail": "Disponível (Transmissão de Terminal OpenCV 30-60 FPS com 5 Filtros Weep ao Vivo)",
+        "diag_spectra_req": "Requer opencv-python",
+        "diag_title_terminal": "🖥️  Diagnóstico do Terminal:",
+        "diag_res_label": "Resolução atual:",
+        "diag_res_format": "{} colunas × {} linhas",
+        "diag_truecolor_label": "TrueColor (24-bit):",
+        "diag_truecolor_supported": "✅ Suportado",
+        "diag_truecolor_unsupported": "⚠️  Não detectado (as cores podem ser aproximadas)",
+        "diag_title_paths": "📁 Caminhos e Configuração:",
+        "diag_config_label": "Configuração:",
+        "diag_config_exists": "Existe",
+        "diag_config_default": "Padrão",
+        "diag_backup_label": "Cópias de Segurança:",
+        "diag_backup_count": "{} backups salvos",
+        "diag_repo_label": "Repositório GitHub:",
+        "diag_native_active": "Ativo ({})",
+        "diag_native_active_bin": "Ativo via binário ({})",
+        "diag_native_cpp": "Nativo C++ ({})",
+        "diag_native_cpp_bin": "Nativo C++ via binário ({})",
+        "diag_py_fallback": "Não detectado (usando fallback em Python)",
+        "diag_mary_fallback": "Fallback em Python",
+        "diag_not_available": "Não disponível (usando Trumble)",
+        "ver_status_title": "📦 Status de Versões do Luma:",
+        "ver_current_installed": "Versão atual instalada:",
+        "ver_latest_github": "Última versão no GitHub:",
+        "ver_new_available": "💡 Uma nova versão está disponível!",
+        "ver_release_title": "Título do lançamento:",
+        "ver_install_hint": "Para baixar e instalar automaticamente, execute:",
+        "ver_up_to_date": "✅ Sua instalação está atualizada com a versão mais recente!",
+        "ver_recent_history": "📜 Histórico de Versões Recientes:",
+        "ver_useful_commands": "💡 Comandos Úteis:",
+        "ver_cmd_uu": "Baixar e aplicar a atualização mais recente",
+        "ver_cmd_dg": "Seletor interativo para reverter para versão anterior",
+        "ver_cmd_v": "Ver diagnóstico completo do sistema",
+        "ver_tag_current": "(atual)",
+        "upg_avail_title": "🚀 Versões disponíveis para Upgrade:",
+        "upg_recommended": "(Última versão recomendada)",
+        "upg_cancel": "Cancelar",
+        "upg_choose_prompt": "Escolha uma versão [1-{}] ou pressione Enter para [1]: ",
+        "upg_cancelled": "Operação cancelada.",
+        "upg_invalid_sel": "❌ Seleção inválida.",
+        "upg_preparing": "⬇️  Preparando instalação do Luma v{}...",
+        "upg_title": "Título:",
+        "upg_backup_saved": "🛡️  Cópia de segurança da v{} salva em: {}",
+        "upg_backup_warn": "⚠️  Aviso: Não foi possível criar cópia de segurança ({}).",
+        "upg_rollback_hint": "💡 Para voltar à versão anterior a qualquer momento, execute: lumart -dg",
+        "dg_title": "⏪ Versões disponíveis para Reverter (Downgrade):",
+        "dg_choose_prompt": "Escolha uma versão para restaurar [1-{}] ou pressione Enter para [1]: ",
+        "hist_title": "📜 Histórico de Comandos do Lumart ({} registrados):",
+        "hist_empty": "  (Nenhum comando registrado no histórico ainda)",
+        "hist_header_num": "[#]",
+        "hist_header_ver": "Ver",
+        "hist_header_date": "Data / Hora",
+        "hist_header_cmd": "Comando",
+        "hist_replay_hint": "💡 Para reexecutar qualquer comando: lumart --replay <número> (ex: lumart -R 1)",
+        "hist_out_of_range": "❌ Índice [{}] fora do intervalo. Existem {} comandos disponíveis.",
+        "hist_int_required": "❌ O índice deve ser um número inteiro (ex: lumart --replay 1).",
+        "hist_replaying": "🚀 Reexecutando [{}]: {}",
+        "hist_cleared": "✅ Histórico de comandos do Lumart limpo com sucesso.",
+        "hist_already_empty": "ℹ️ O histórico de comandos já estava vazio.",
+        "desktop_installing": "🖥️  Instalando integração com área de trabalho e gerenciadores de arquivos...",
+        "desktop_installed_launcher": "  ✅ Atalho de área de trabalho instalado: {}",
+        "desktop_launcher_error": "  ❌ Erro ao criar {}: {}",
+        "desktop_context_menu": "  ✅ Menu de contexto do {}: {}",
+        "desktop_completed": "🎉 Integração concluída com sucesso!\n   Agora você pode clicar com o botão direito em qualquer imagem no gerenciador de arquivos e selecionar 'Abrir com Lumart'.",
+        "spectra_webcam_only": "💡 O motor 'Spectra' é exclusivo para transmissão de vídeo e webcam em tempo real.\n   Para ativá-lo, use:\n   lumart --webcam  (ou: lumart -W / lumart -W 1 para outra câmera)\n",
+        "export_webp_disabled": "❌ A exportação para o formato WebP (.webp) foi desativada permanentemente. Use .png ou .jpg.",
+        "export_sticker_mono_only": "ℹ️  Adesivos com fundo transparente (--transparent) são exclusivos do motor Luris Mono (preto e branco). Exportando imagem completa com fundo do terminal.",
+        "export_success": "✨ Arte de terminal exportada com sucesso para imagem: {}",
+        "export_error": "❌ Erro ao exportar imagem: {}",
         "pillow_not_found": "[luma] Pillow não encontrado. Instalando dependências...",
         "usage": "Uso: lumart [opções] <caminho_imagem>\n\nTente 'lumart --help' para mais opções.",
         "desc": "Lumart - Motor de Arte de Terminal",
@@ -276,6 +541,94 @@ TRANSLATIONS = {
         "downgrade_no_backup": "❌ Nenhum backup ou versão anterior encontrada.",
     },
     "ru": {
+        "diag_title_system": "📋 Информация о системе и среде выполнения:",
+        "diag_luma_ver": "Версия Luma:",
+        "diag_exec_type": "Тип запуска:",
+        "diag_standalone": "Автономный исполняемый файл (PyInstaller)",
+        "diag_script": "Скрипт Python",
+        "diag_python_env": "Окружение Python:",
+        "diag_platform_os": "Платформа ОС:",
+        "diag_title_engines": "⚡ Движки рендеринга:",
+        "diag_trumble_desc": "Активен (По умолчанию) (Cel-Shading Anime Ink Outlines, палитра Capcom CPS-2 / Neo-Geo, Lanczos, дизеринг Байера, TrueColor Braille/Blocks)",
+        "diag_mary_desc": "Mary (Перцептивный цвет Apex 3.5):",
+        "diag_mary_modes": "Поддерживаемые режимы Mary:",
+        "diag_mary_modes_list": "sextants (сплошные блоки 2x3 HD), braille (2x4 двухцветный), quadrants (2x2), blocks, ascii",
+        "diag_luris_desc": "Luris (Монохромный Mono 2.6):",
+        "diag_luris_modes": "Поддерживаемые режимы Luris:",
+        "diag_luris_modes_list": "braille, manga 2.6 (DoG + Bayer), sketch (чистый DoG), blocks (квадранты 2x2 HD), ascii",
+        "diag_dither_algos": "Алгоритмы дизеринга:",
+        "diag_dither_list": "atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8",
+        "diag_spectra_desc": "Spectra (Веб-камера в реальном времени Weep 1.4):",
+        "diag_spectra_avail": "Доступен (Терминальный поток OpenCV 30-60 кадров/с с 5 живыми фильтрами Weep)",
+        "diag_spectra_req": "Требуется opencv-python",
+        "diag_title_terminal": "🖥️  Диагностика терминала:",
+        "diag_res_label": "Текущее разрешение:",
+        "diag_res_format": "{} колонок × {} строк",
+        "diag_truecolor_label": "TrueColor (24-бит):",
+        "diag_truecolor_supported": "✅ Поддерживается",
+        "diag_truecolor_unsupported": "⚠️  Не обнаружено (цвета могут быть приближенными)",
+        "diag_title_paths": "📁 Пути и конфигурация:",
+        "diag_config_label": "Конфигурация:",
+        "diag_config_exists": "Существует",
+        "diag_config_default": "По умолчанию",
+        "diag_backup_label": "Резервные копии:",
+        "diag_backup_count": "{} резервных копий сохранено",
+        "diag_repo_label": "Репозиторий GitHub:",
+        "diag_native_active": "Активен ({})",
+        "diag_native_active_bin": "Активен через бинарник ({})",
+        "diag_native_cpp": "Нативный C++ ({})",
+        "diag_native_cpp_bin": "Нативный C++ через бинарник ({})",
+        "diag_py_fallback": "Не обнаружен (используется резервный вариант на Python)",
+        "diag_mary_fallback": "Резервный вариант на Python",
+        "diag_not_available": "Недоступен (используется Trumble)",
+        "ver_status_title": "📦 Статус версий Luma:",
+        "ver_current_installed": "Текущая установленная версия:",
+        "ver_latest_github": "Последняя версия на GitHub:",
+        "ver_new_available": "💡 Доступна новая версия!",
+        "ver_release_title": "Название релиза:",
+        "ver_install_hint": "Для автоматической загрузки и установки выполните:",
+        "ver_up_to_date": "✅ Ваша установка обновлена до самой последней версии!",
+        "ver_recent_history": "📜 Недавняя история версий:",
+        "ver_useful_commands": "💡 Полезные команды:",
+        "ver_cmd_uu": "Загрузить и применить последнее обновление",
+        "ver_cmd_dg": "Интерактивный выбор для отката на предыдущую версию",
+        "ver_cmd_v": "Просмотреть полную диагностику системы",
+        "ver_tag_current": "(текущая)",
+        "upg_avail_title": "🚀 Доступные версии для Upgrade:",
+        "upg_recommended": "(Последняя рекомендуемая версия)",
+        "upg_cancel": "Отмена",
+        "upg_choose_prompt": "Выберите версию [1-{}] или нажмите Enter для [1]: ",
+        "upg_cancelled": "Операция отменена.",
+        "upg_invalid_sel": "❌ Неверный выбор.",
+        "upg_preparing": "⬇️  Подготовка к установке Luma v{}...",
+        "upg_title": "Заголовок:",
+        "upg_backup_saved": "🛡️  Резервная копия v{} сохранена в: {}",
+        "upg_backup_warn": "⚠️  Предупреждение: Не удалось создать резервную копию ({}).",
+        "upg_rollback_hint": "💡 Чтобы вернуться к предыдущей версии в любое время, выполните: lumart -dg",
+        "dg_title": "⏪ Доступные версии для отката (Downgrade):",
+        "dg_choose_prompt": "Выберите версию для восстановления [1-{}] или нажмите Enter для [1]: ",
+        "hist_title": "📜 История команд Lumart (записано: {}):",
+        "hist_empty": "  (В истории пока нет зарегистрированных команд)",
+        "hist_header_num": "[#]",
+        "hist_header_ver": "Вер",
+        "hist_header_date": "Дата / Время",
+        "hist_header_cmd": "Команда",
+        "hist_replay_hint": "💡 Для повторного выполнения используйте: lumart --replay <номер> (напр.: lumart -R 1)",
+        "hist_out_of_range": "❌ Индекс [{}] вне диапазона. Доступно {} команд.",
+        "hist_int_required": "❌ Индекс должен быть целым числом (напр.: lumart --replay 1).",
+        "hist_replaying": "🚀 Повторное выполнение [{}]: {}",
+        "hist_cleared": "✅ История команд Lumart успешно очищена.",
+        "hist_already_empty": "ℹ️ История команд уже была пуста.",
+        "desktop_installing": "🖥️  Установка интеграции с рабочим столом и файловыми менеджерами...",
+        "desktop_installed_launcher": "  ✅ Ярлык рабочего стола установлен: {}",
+        "desktop_launcher_error": "  ❌ Ошибка создания {}: {}",
+        "desktop_context_menu": "  ✅ Контекстное меню {}: {}",
+        "desktop_completed": "🎉 Интеграция с рабочим столом успешно завершена!\n   Теперь вы можете нажать правой кнопкой мыши на любое изображение в файловом менеджере и выбрать 'Открыть с помощью Lumart'.",
+        "spectra_webcam_only": "💡 Движок 'Spectra' предназначен исключительно для потоковой передачи видео и веб-камеры в реальном времени.\n   Для запуска используйте:\n   lumart --webcam  (или: lumart -W / lumart -W 1 для другой камеры)\n",
+        "export_webp_disabled": "❌ Экспорт в формат WebP (.webp) навсегда отключен. Пожалуйста, используйте .png или .jpg.",
+        "export_sticker_mono_only": "ℹ️  Стикеры с прозрачным фоном (--transparent) доступны только для Luris Mono (ч/б). Полное изображение экспортируется с фоном терминала.",
+        "export_success": "✨ Терминал-арт успешно экспортирован в изображение: {}",
+        "export_error": "❌ Ошибка при экспорте изображения: {}",
         "pillow_not_found": "[luma] Pillow не найден. Установка зависимостей...",
         "usage": "Использование: lumart [опции] <путь_к_изображению>\n\nПопробуйте 'lumart --help' для дополнительных опций.",
         "desc": "Lumart - Движок терминального искусства",
@@ -333,6 +686,94 @@ TRANSLATIONS = {
         "downgrade_no_backup": "❌ Резервная копия или предыдущая версия не найдены.",
     },
     "ja": {
+        "diag_title_system": "📋 システムおよびランタイム診断:",
+        "diag_luma_ver": "Lumaバージョン:",
+        "diag_exec_type": "実行タイプ:",
+        "diag_standalone": "スタンドアロン実行可能ファイル (PyInstaller)",
+        "diag_script": "Pythonスクリプト",
+        "diag_python_env": "Python環境:",
+        "diag_platform_os": "OSプラットフォーム:",
+        "diag_title_engines": "⚡ レンダリングエンジン:",
+        "diag_trumble_desc": "有効 (デフォルト) (アニメインク輪郭セルシェーディング、Capcom CPS-2 / Neo-Geo鮮烈パレット、Lanczos、Bayerディザ、TrueColor Braille/Blocks)",
+        "diag_mary_desc": "Mary (知覚的カラー Apex 3.5):",
+        "diag_mary_modes": "サポートされているMaryモード:",
+        "diag_mary_modes_list": "sextants (2x3ソリッドHDブロック), braille (2x4デュアルカラー), quadrants (2x2), blocks, ascii",
+        "diag_luris_desc": "Luris (モノクローム Mono 2.6):",
+        "diag_luris_modes": "サポートされているLurisモード:",
+        "diag_luris_modes_list": "braille, manga 2.6 (DoG + Bayer), sketch (純DoG), blocks (2x2 HD象限), ascii",
+        "diag_dither_algos": "ディザリングアルゴリズム:",
+        "diag_dither_list": "atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8",
+        "diag_spectra_desc": "Spectra (ライブWebカメラ Weep 1.4):",
+        "diag_spectra_avail": "利用可能 (OpenCV 30-60 FPS ターミナルストリーム、5つのライブWeepフィルター搭載)",
+        "diag_spectra_req": "opencv-python が必要です",
+        "diag_title_terminal": "🖥️  ターミナル診断:",
+        "diag_res_label": "現在の解像度:",
+        "diag_res_format": "{} 列 × {} 行",
+        "diag_truecolor_label": "TrueColor (24ビット):",
+        "diag_truecolor_supported": "✅ サポートされています",
+        "diag_truecolor_unsupported": "⚠️  未検出 (色が近似される場合があります)",
+        "diag_title_paths": "📁 パスと設定:",
+        "diag_config_label": "設定:",
+        "diag_config_exists": "存在します",
+        "diag_config_default": "デフォルト",
+        "diag_backup_label": "バックアップ:",
+        "diag_backup_count": "{} 件のバックアップが保存されています",
+        "diag_repo_label": "GitHubリポジトリ:",
+        "diag_native_active": "有効 ({})",
+        "diag_native_active_bin": "バイナリ経由で有効 ({})",
+        "diag_native_cpp": "ネイティブ C++ ({})",
+        "diag_native_cpp_bin": "バイナリ経由のネイティブ C++ ({})",
+        "diag_py_fallback": "未検出 (Pythonフォールバックを使用)",
+        "diag_mary_fallback": "Pythonフォールバック",
+        "diag_not_available": "利用不可 (Trumbleを使用)",
+        "ver_status_title": "📦 Lumaのバージョンステータス:",
+        "ver_current_installed": "現在インストールされているバージョン:",
+        "ver_latest_github": "GitHub上の最新バージョン:",
+        "ver_new_available": "💡 新しいバージョンが利用可能です！",
+        "ver_release_title": "リリースタイトル:",
+        "ver_install_hint": "自動ダウンロードおよびインストールを行うには次を実行してください:",
+        "ver_up_to_date": "✅ お使いの環境は最新バージョンに更新されています！",
+        "ver_recent_history": "📜 最近のバージョン履歴:",
+        "ver_useful_commands": "💡 便利なコマンド:",
+        "ver_cmd_uu": "最新の更新プログラムをダウンロードして適用",
+        "ver_cmd_dg": "以前のバージョンにロールバックするための対話型セレクター",
+        "ver_cmd_v": "完全なシステム診断レポートを表示",
+        "ver_tag_current": "(現在)",
+        "upg_avail_title": "🚀 アップグレード可能なバージョン:",
+        "upg_recommended": "(最新推奨バージョン)",
+        "upg_cancel": "キャンセル",
+        "upg_choose_prompt": "バージョンを選択 [1-{}] または Enter で [1]: ",
+        "upg_cancelled": "操作がキャンセルされました。",
+        "upg_invalid_sel": "❌ 無効な選択です。",
+        "upg_preparing": "⬇️  Luma v{} のインストールを準備中...",
+        "upg_title": "タイトル:",
+        "upg_backup_saved": "🛡️  v{} のバックアップを保存しました: {}",
+        "upg_backup_warn": "⚠️  警告: バックアップを作成できませんでした ({}).",
+        "upg_rollback_hint": "💡 いつでも以前のバージョンに戻すには次を実行してください: lumart -dg",
+        "dg_title": "⏪ ロールバック (ダウングレード) 可能なバージョン:",
+        "dg_choose_prompt": "復元するバージョンを選択 [1-{}] または Enter で [1]: ",
+        "hist_title": "📜 Lumartコマンド履歴 ({} 件記録):",
+        "hist_empty": "  (履歴に記録されたコマンドはまだありません)",
+        "hist_header_num": "[#]",
+        "hist_header_ver": "Ver",
+        "hist_header_date": "日付 / 時刻",
+        "hist_header_cmd": "コマンド",
+        "hist_replay_hint": "💡 再実行するには次を使用します: lumart --replay <番号> (例: lumart -R 1)",
+        "hist_out_of_range": "❌ インデックス [{}] は範囲外です。利用可能なコマンドは {} 件です。",
+        "hist_int_required": "❌ インデックスは整数である必要があります (例: lumart --replay 1)。",
+        "hist_replaying": "🚀 再実行中 [{}]: {}",
+        "hist_cleared": "✅ Lumartのコマンド履歴を正常にクリアしました。",
+        "hist_already_empty": "ℹ️ コマンド履歴はすでに空でした。",
+        "desktop_installing": "🖥️  デスクトップ統合とファイルマネージャー操作をインストール中...",
+        "desktop_installed_launcher": "  ✅ デスクトップランチャーをインストールしました: {}",
+        "desktop_launcher_error": "  ❌ {} の作成中にエラーが発生しました: {}",
+        "desktop_context_menu": "  ✅ {} コンテキストメニュー: {}",
+        "desktop_completed": "🎉 デスクトップ統合が正常に完了しました！\n   ファイルマネージャーで任意の画像を右クリックし、「Lumartで開く」を選択できるようになりました。",
+        "spectra_webcam_only": "💡 「Spectra」エンジンは、リアルタイムのビデオおよびWebカメラストリーミング専用です。\n   有効にするには次を実行してください:\n   lumart --webcam  (または別のカメラの場合は lumart -W / lumart -W 1)\n",
+        "export_webp_disabled": "❌ WebP形式 (.webp) のエクスポートは恒久的に無効化されました。.png または .jpg を使用してください。",
+        "export_sticker_mono_only": "ℹ️  透明背景ステッカー (--transparent) は Luris Mono (モノクロ) 専用です。色の忠実度を最大にするため、ターミナル背景付きでエクスポートします。",
+        "export_success": "✨ ターミナルアートが画像として正常にエクスポートされました: {}",
+        "export_error": "❌ 画像のエクスポート中にエラーが発生しました: {}",
         "pillow_not_found": "[luma] Pillowが見つかりません。依存関係をインストールしています...",
         "usage": "使用法: lumart [オプション] <画像パス>\n\n詳細なオプションについては 'lumart --help' をお試しください。",
         "desc": "Lumart - ターミナルアートエンジン",
@@ -390,6 +831,94 @@ TRANSLATIONS = {
         "downgrade_no_backup": "❌ バックアップまたは以前のバージョンが見つかりません。",
     },
     "de": {
+        "diag_title_system": "📋 System- und Laufzeitdiagnose:",
+        "diag_luma_ver": "Luma-Version:",
+        "diag_exec_type": "Ausführungstyp:",
+        "diag_standalone": "Eigenständige ausführbare Datei (PyInstaller)",
+        "diag_script": "Python-Skript",
+        "diag_python_env": "Python-Umgebung:",
+        "diag_platform_os": "Betriebssystem-Plattform:",
+        "diag_title_engines": "⚡ Rendering-Engines:",
+        "diag_trumble_desc": "Aktiv (Standard) (Cel-Shading Anime-Ink-Konturen, Capcom CPS-2 / Neo-Geo Color Punch, Lanczos, Bayer-Dither, TrueColor Braille/Blocks)",
+        "diag_mary_desc": "Mary (Perzeptive Farben Apex 3.5):",
+        "diag_mary_modes": "Unterstützte Mary-Modi:",
+        "diag_mary_modes_list": "sextants (2x3 solide HD-Blöcke), braille (2x4 zweifarbig), quadrants (2x2), blocks, ascii",
+        "diag_luris_desc": "Luris (Monochrom Mono 2.6):",
+        "diag_luris_modes": "Unterstützte Luris-Modi:",
+        "diag_luris_modes_list": "braille, manga 2.6 (DoG + Bayer), sketch (reines DoG), blocks (2x2 HD-Quadranten), ascii",
+        "diag_dither_algos": "Dithering-Algorithmen:",
+        "diag_dither_list": "atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8",
+        "diag_spectra_desc": "Spectra (Live-Webcam Weep 1.4):",
+        "diag_spectra_avail": "Verfügbar (OpenCV 30-60 FPS Terminal-Stream mit 5 Live-Weep-Filtern)",
+        "diag_spectra_req": "Erfordert opencv-python",
+        "diag_title_terminal": "🖥️  Terminal-Diagnose:",
+        "diag_res_label": "Aktuelle Auflösung:",
+        "diag_res_format": "{} Spalten × {} Zeilen",
+        "diag_truecolor_label": "TrueColor (24-Bit):",
+        "diag_truecolor_supported": "✅ Unterstützt",
+        "diag_truecolor_unsupported": "⚠️  Nicht erkannt (Farben können angenähert sein)",
+        "diag_title_paths": "📁 Pfade und Konfiguration:",
+        "diag_config_label": "Konfiguration:",
+        "diag_config_exists": "Vorhanden",
+        "diag_config_default": "Standard",
+        "diag_backup_label": "Backups:",
+        "diag_backup_count": "{} Backups gespeichert",
+        "diag_repo_label": "GitHub-Repository:",
+        "diag_native_active": "Aktiv ({})",
+        "diag_native_active_bin": "Aktiv über Binärdatei ({})",
+        "diag_native_cpp": "Natives C++ ({})",
+        "diag_native_cpp_bin": "Natives C++ über Binärdatei ({})",
+        "diag_py_fallback": "Nicht erkannt (Python-Fallback wird verwendet)",
+        "diag_mary_fallback": "Python-Fallback",
+        "diag_not_available": "Nicht verfügbar (Trumble wird verwendet)",
+        "ver_status_title": "📦 Luma-Versionsstatus:",
+        "ver_current_installed": "Aktuell installierte Version:",
+        "ver_latest_github": "Neueste Version auf GitHub:",
+        "ver_new_available": "💡 Eine neue Version ist verfügbar!",
+        "ver_release_title": "Release-Titel:",
+        "ver_install_hint": "Führen Sie Folgendes aus, um automatisch herunterzuladen und zu installieren:",
+        "ver_up_to_date": "✅ Ihre Installation ist auf dem neuesten Stand!",
+        "ver_recent_history": "📜 Neueste Versionshistorie:",
+        "ver_useful_commands": "💡 Nützliche Befehle:",
+        "ver_cmd_uu": "Neuestes Update herunterladen und anwenden",
+        "ver_cmd_dg": "Interaktive Auswahl zum Zurücksetzen auf eine frühere Version",
+        "ver_cmd_v": "Vollständigen Systemdiagnosebericht anzeigen",
+        "ver_tag_current": "(aktuell)",
+        "upg_avail_title": "🚀 Verfügbare Versionen für Upgrade:",
+        "upg_recommended": "(Neueste empfohlene Version)",
+        "upg_cancel": "Abbrechen",
+        "upg_choose_prompt": "Wählen Sie eine Version [1-{}] oder drücken Sie Enter für [1]: ",
+        "upg_cancelled": "Vorgang abgebrochen.",
+        "upg_invalid_sel": "❌ Ungültige Auswahl.",
+        "upg_preparing": "⬇️  Vorbereitung der Installation von Luma v{}...",
+        "upg_title": "Titel:",
+        "upg_backup_saved": "🛡️  Backup von v{} gespeichert in: {}",
+        "upg_backup_warn": "⚠️  Warnung: Backup konnte nicht erstellt werden ({}).",
+        "upg_rollback_hint": "💡 Um jederzeit zur vorherigen Version zurückzukehren: lumart -dg",
+        "dg_title": "⏪ Verfügbare Versionen für Rollback (Downgrade):",
+        "dg_choose_prompt": "Version zur Wiederherstellung wählen [1-{}] oder Enter für [1]: ",
+        "hist_title": "📜 Lumart-Befehlsverlauf ({} aufgezeichnet):",
+        "hist_empty": "  (Noch keine Befehle im Verlauf aufgezeichnet)",
+        "hist_header_num": "[#]",
+        "hist_header_ver": "Ver",
+        "hist_header_date": "Datum / Uhrzeit",
+        "hist_header_cmd": "Befehl",
+        "hist_replay_hint": "💡 Um einen Befehl erneut auszuführen: lumart --replay <Nummer> (z.B.: lumart -R 1)",
+        "hist_out_of_range": "❌ Index [{}] außerhalb des Bereichs. Es sind {} Befehle verfügbar.",
+        "hist_int_required": "❌ Der Index muss eine ganze Zahl sein (z.B.: lumart --replay 1).",
+        "hist_replaying": "🚀 Erneute Ausführung von [{}]: {}",
+        "hist_cleared": "✅ Lumart-Befehlsverlauf erfolgreich gelöscht.",
+        "hist_already_empty": "ℹ️ Der Befehlsverlauf war bereits leer.",
+        "desktop_installing": "🖥️  Desktop-Integration und Dateimanager-Aktionen werden installiert...",
+        "desktop_installed_launcher": "  ✅ Desktop-Starter installiert: {}",
+        "desktop_launcher_error": "  ❌ Fehler beim Erstellen von {}: {}",
+        "desktop_context_menu": "  ✅ Kontextmenü für {}: {}",
+        "desktop_completed": "🎉 Desktop-Integration erfolgreich abgeschlossen!\n   Sie können jetzt mit der rechten Maustaste auf ein beliebiges Bild im Dateimanager klicken und 'Mit Lumart öffnen' wählen.",
+        "spectra_webcam_only": "💡 Die 'Spectra'-Engine ist ausschließlich für Live-Video- und Webcam-Streaming gedacht.\n   Führen Sie zum Aktivieren Folgendes aus:\n   lumart --webcam  (oder: lumart -W / lumart -W 1 für eine andere Kamera)\n",
+        "export_webp_disabled": "❌ Der Export in das WebP-Format (.webp) wurde dauerhaft deaktiviert. Bitte verwenden Sie .png oder .jpg.",
+        "export_sticker_mono_only": "ℹ️  Sticker mit transparentem Hintergrund (--transparent) sind exklusiv für Luris Mono (S/W). Das vollständige Bild wird mit Terminal-Hintergrund exportiert.",
+        "export_success": "✨ Terminal-Kunst erfolgreich als Bild exportiert: {}",
+        "export_error": "❌ Fehler beim Exportieren des Bildes: {}",
         "pillow_not_found": "[luma] Pillow nicht gefunden. Installiere Abhängigkeiten...",
         "usage": "Verwendung: lumart [Optionen] <bildpfad>\n\nVersuche 'lumart --help' für weitere Optionen.",
         "desc": "Lumart - Terminal-Kunst-Engine",
@@ -447,6 +976,94 @@ TRANSLATIONS = {
         "downgrade_no_backup": "❌ Kein Backup oder vorherige Version gefunden.",
     },
     "ko": {
+        "diag_title_system": "📋 시스템 및 런타임 진단:",
+        "diag_luma_ver": "Luma 버전:",
+        "diag_exec_type": "실행 유형:",
+        "diag_standalone": "독립 실행형 바이너리 (PyInstaller)",
+        "diag_script": "파이썬 스크립트",
+        "diag_python_env": "파이썬 환경:",
+        "diag_platform_os": "OS 플랫폼:",
+        "diag_title_engines": "⚡ 렌더링 엔진:",
+        "diag_trumble_desc": "활성 (기본값) (셀 셰이딩 애니메이션 잉크 외곽선, 캡콤 CPS-2 / 네오지오 펀치 색감, 란초스, 바이어 디더, TrueColor Braille/Blocks)",
+        "diag_mary_desc": "Mary (지각 색상 Apex 3.5):",
+        "diag_mary_modes": "지원되는 Mary 모드:",
+        "diag_mary_modes_list": "sextants (2x3 솔리드 HD 블록), braille (2x4 듀얼 컬러), quadrants (2x2), blocks, ascii",
+        "diag_luris_desc": "Luris (단색 모노 2.6):",
+        "diag_luris_modes": "지원되는 Luris 모드:",
+        "diag_luris_modes_list": "braille, manga 2.6 (DoG + Bayer), sketch (순수 DoG), blocks (2x2 HD 사분면), ascii",
+        "diag_dither_algos": "디더링 알고리즘:",
+        "diag_dither_list": "atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8",
+        "diag_spectra_desc": "Spectra (실시간 웹캠 Weep 1.4):",
+        "diag_spectra_avail": "사용 가능 (OpenCV 30-60 FPS 터미널 스트림, 5개 실시간 Weep 필터 지원)",
+        "diag_spectra_req": "opencv-python 필요",
+        "diag_title_terminal": "🖥️  터미널 진단:",
+        "diag_res_label": "현재 해상도:",
+        "diag_res_format": "{} 열 × {} 행",
+        "diag_truecolor_label": "TrueColor (24비트):",
+        "diag_truecolor_supported": "✅ 지원됨",
+        "diag_truecolor_unsupported": "⚠️  감지되지 않음 (색상이 근사치로 표현될 수 있습니다)",
+        "diag_title_paths": "📁 경로 및 설정:",
+        "diag_config_label": "설정:",
+        "diag_config_exists": "존재함",
+        "diag_config_default": "기본값",
+        "diag_backup_label": "백업:",
+        "diag_backup_count": "{}개 백업 저장됨",
+        "diag_repo_label": "GitHub 저장소:",
+        "diag_native_active": "활성 ({})",
+        "diag_native_active_bin": "바이너리를 통해 활성 ({})",
+        "diag_native_cpp": "네이티브 C++ ({})",
+        "diag_native_cpp_bin": "바이너리를 통한 네이티브 C++ ({})",
+        "diag_py_fallback": "감지되지 않음 (파이썬 대체 모드 사용)",
+        "diag_mary_fallback": "파이썬 대체 모드",
+        "diag_not_available": "사용 불가 (Trumble 사용)",
+        "ver_status_title": "📦 Luma 버전 상태:",
+        "ver_current_installed": "현재 설치된 버전:",
+        "ver_latest_github": "GitHub의 최신 버전:",
+        "ver_new_available": "💡 새로운 버전을 사용할 수 있습니다!",
+        "ver_release_title": "릴리스 제목:",
+        "ver_install_hint": "자동으로 다운로드하고 설치하려면 다음을 실행하세요:",
+        "ver_up_to_date": "✅ 최신 버전으로 업데이트되어 있습니다!",
+        "ver_recent_history": "📜 최근 버전 기록:",
+        "ver_useful_commands": "💡 유용한 명령어:",
+        "ver_cmd_uu": "최신 업데이트 다운로드 및 적용",
+        "ver_cmd_dg": "이전 버전으로 롤백하기 위한 대화형 선택기",
+        "ver_cmd_v": "전체 시스템 진단 보고서 보기",
+        "ver_tag_current": "(현재)",
+        "upg_avail_title": "🚀 업그레이드 가능한 버전:",
+        "upg_recommended": "(최신 권장 버전)",
+        "upg_cancel": "취소",
+        "upg_choose_prompt": "버전 선택 [1-{}] 또는 Enter로 [1] 선택: ",
+        "upg_cancelled": "작업이 취소되었습니다.",
+        "upg_invalid_sel": "❌ 잘못된 선택입니다.",
+        "upg_preparing": "⬇️  Luma v{} 설치 준비 중...",
+        "upg_title": "제목:",
+        "upg_backup_saved": "🛡️  v{} 백업 저장 완료: {}",
+        "upg_backup_warn": "⚠️  경고: 백업을 생성할 수 없습니다 ({}).",
+        "upg_rollback_hint": "💡 언제든지 이전 버전으로 돌아가려면 다음을 실행하세요: lumart -dg",
+        "dg_title": "⏪ 롤백 (다운그레이드) 가능한 버전:",
+        "dg_choose_prompt": "복원할 버전 선택 [1-{}] 또는 Enter로 [1] 선택: ",
+        "hist_title": "📜 Lumart 명령어 기록 ({}개 기록됨):",
+        "hist_empty": "  (기록된 명령어가 아직 없습니다)",
+        "hist_header_num": "[#]",
+        "hist_header_ver": "버전",
+        "hist_header_date": "날짜 / 시간",
+        "hist_header_cmd": "명령어",
+        "hist_replay_hint": "💡 명령어를 재실행하려면 다음을 사용하세요: lumart --replay <번호> (예: lumart -R 1)",
+        "hist_out_of_range": "❌ 인덱스 [{}]가 범위를 벗어났습니다. 사용 가능한 명령어가 {}개 있습니다.",
+        "hist_int_required": "❌ 인덱스는 정수여야 합니다 (예: lumart --replay 1).",
+        "hist_replaying": "🚀 재실행 중 [{}]: {}",
+        "hist_cleared": "✅ Lumart 명령어 기록이 성공적으로 삭제되었습니다.",
+        "hist_already_empty": "ℹ️ 명령어 기록이 이미 비어 있습니다.",
+        "desktop_installing": "🖥️  데스크톱 통합 및 파일 관리자 액션을 설치하는 중...",
+        "desktop_installed_launcher": "  ✅ 데스크톱 런처가 설치되었습니다: {}",
+        "desktop_launcher_error": "  ❌ {} 생성 중 오류 발생: {}",
+        "desktop_context_menu": "  ✅ {} 컨텍스트 메뉴 스크립트: {}",
+        "desktop_completed": "🎉 데스크톱 통합이 성공적으로 완료되었습니다!\n   이제 파일 관리자에서 이미지를 마우스 오른쪽 버튼으로 클릭하고 'Lumart로 열기'를 선택할 수 있습니다.",
+        "spectra_webcam_only": "💡 'Spectra' 엔진은 실시간 비디오 및 웹캠 스트리밍 전용입니다.\n   활성화하려면 다음을 실행하세요:\n   lumart --webcam  (또는 다른 카메라는 lumart -W / lumart -W 1)\n",
+        "export_webp_disabled": "❌ WebP 형식(.webp) 내보내기가 영구적으로 비활성화되었습니다. .png 또는 .jpg를 사용해 주세요.",
+        "export_sticker_mono_only": "ℹ️  투명 배경 스티커(--transparent)는 Luris Mono(흑백) 전용입니다. 최대 색상 재현을 위해 터미널 배경과 함께 전체 이미지를 내보냅니다.",
+        "export_success": "✨ 터미널 아트를 이미지로 성공적으로 내보냈습니다: {}",
+        "export_error": "❌ 이미지 내보내기 오류: {}",
         "pillow_not_found": "[luma] Pillow를 찾을 수 없습니다. 종속성을 설치하는 중...",
         "usage": "사용법: lumart [옵션] <이미지_경로>\n\n자세한 옵션은 'lumart --help'를 시도해 보세요.",
         "desc": "Lumart - 터미널 아트 엔진",
@@ -504,6 +1121,94 @@ TRANSLATIONS = {
         "downgrade_no_backup": "❌ 백업 또는 이전 버전을 찾을 수 없습니다.",
     },
     "fr": {
+        "diag_title_system": "📋 Diagnostics système et environnement d'exécution :",
+        "diag_luma_ver": "Version de Luma :",
+        "diag_exec_type": "Type d'exécution :",
+        "diag_standalone": "Exécutable autonome (PyInstaller)",
+        "diag_script": "Script Python",
+        "diag_python_env": "Environnement Python :",
+        "diag_platform_os": "Plateforme OS :",
+        "diag_title_engines": "⚡ Moteurs de rendu :",
+        "diag_trumble_desc": "Actif (Par défaut) (Contours anime cel-shading encre, palette Capcom CPS-2 / Neo-Geo, Lanczos, tramage Bayer, TrueColor Braille/Blocks)",
+        "diag_mary_desc": "Mary (Couleur perceptive Apex 3.5) :",
+        "diag_mary_modes": "Modes Mary pris en charge :",
+        "diag_mary_modes_list": "sextants (blocs solides 2x3 HD), braille (2x4 bicolore), quadrants (2x2), blocks, ascii",
+        "diag_luris_desc": "Luris (Monochrome Mono 2.6) :",
+        "diag_luris_modes": "Modes Luris pris en charge :",
+        "diag_luris_modes_list": "braille, manga 2.6 (DoG + Bayer), sketch (DoG pur), blocks (quadrants 2x2 HD), ascii",
+        "diag_dither_algos": "Algorithmes de tramage :",
+        "diag_dither_list": "atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8",
+        "diag_spectra_desc": "Spectra (Webcam en direct Weep 1.4) :",
+        "diag_spectra_avail": "Disponible (Flux terminal OpenCV 30-60 FPS avec 5 filtres Weep en direct)",
+        "diag_spectra_req": "Nécessite opencv-python",
+        "diag_title_terminal": "🖥️  Diagnostics du terminal :",
+        "diag_res_label": "Résolution actuelle :",
+        "diag_res_format": "{} colonnes × {} lignes",
+        "diag_truecolor_label": "TrueColor (24 bits) :",
+        "diag_truecolor_supported": "✅ Pris en charge",
+        "diag_truecolor_unsupported": "⚠️  Non détecté (les couleurs peuvent être approximées)",
+        "diag_title_paths": "📁 Chemins et configuration :",
+        "diag_config_label": "Configuration :",
+        "diag_config_exists": "Existe",
+        "diag_config_default": "Par défaut",
+        "diag_backup_label": "Sauvegardes :",
+        "diag_backup_count": "{} sauvegardes enregistrées",
+        "diag_repo_label": "Dépôt GitHub :",
+        "diag_native_active": "Actif ({})",
+        "diag_native_active_bin": "Actif via binaire ({})",
+        "diag_native_cpp": "C++ natif ({})",
+        "diag_native_cpp_bin": "C++ natif via binaire ({})",
+        "diag_py_fallback": "Non détecté (utilisation du secours Python)",
+        "diag_mary_fallback": "Secours Python",
+        "diag_not_available": "Indisponible (utilisation de Trumble)",
+        "ver_status_title": "📦 État des versions de Luma :",
+        "ver_current_installed": "Version actuellement installée :",
+        "ver_latest_github": "Dernière version sur GitHub :",
+        "ver_new_available": "💡 Une nouvelle version est disponible !",
+        "ver_release_title": "Titre de la version :",
+        "ver_install_hint": "Pour télécharger et installer automatiquement, exécutez :",
+        "ver_up_to_date": "✅ Votre installation est à jour avec la version la plus récente !",
+        "ver_recent_history": "📜 Historique des versions récentes :",
+        "ver_useful_commands": "💡 Commandes utiles :",
+        "ver_cmd_uu": "Télécharger et appliquer la dernière mise à jour",
+        "ver_cmd_dg": "Sélecteur interactif pour revenir à une version précédente",
+        "ver_cmd_v": "Afficher le rapport complet de diagnostic système",
+        "ver_tag_current": "(actuelle)",
+        "upg_avail_title": "🚀 Versions disponibles pour Upgrade :",
+        "upg_recommended": "(Dernière version recommandée)",
+        "upg_cancel": "Annuler",
+        "upg_choose_prompt": "Choisissez une version [1-{}] ou appuyez sur Entrée pour [1] : ",
+        "upg_cancelled": "Opération annulée.",
+        "upg_invalid_sel": "❌ Sélection invalide.",
+        "upg_preparing": "⬇️  Préparation de l'installation de Luma v{}...",
+        "upg_title": "Titre :",
+        "upg_backup_saved": "🛡️  Sauvegarde de la v{} enregistrée dans : {}",
+        "upg_backup_warn": "⚠️  Avertissement : Impossible de créer la sauvegarde ({}).",
+        "upg_rollback_hint": "💡 Pour revenir à la version précédente à tout moment, exécutez : lumart -dg",
+        "dg_title": "⏪ Versions disponibles pour Restaurer (Downgrade) :",
+        "dg_choose_prompt": "Choisissez une version à restaurer [1-{}] ou appuyez sur Entrée pour [1] : ",
+        "hist_title": "📜 Historique des commandes Lumart ({} enregistrées) :",
+        "hist_empty": "  (Aucune commande enregistrée dans l'historique pour le moment)",
+        "hist_header_num": "[#]",
+        "hist_header_ver": "Ver",
+        "hist_header_date": "Date / Heure",
+        "hist_header_cmd": "Commande",
+        "hist_replay_hint": "💡 Pour réexécuter une commande : lumart --replay <numéro> (ex : lumart -R 1)",
+        "hist_out_of_range": "❌ Indice [{}] hors limites. Il y a {} commandes disponibles.",
+        "hist_int_required": "❌ L'indice doit être un nombre entier (ex : lumart --replay 1).",
+        "hist_replaying": "🚀 Réexécution de [{}]: {}",
+        "hist_cleared": "✅ Historique des commandes Lumart effacé avec succès.",
+        "hist_already_empty": "ℹ️ L'historique des commandes était déjà vide.",
+        "desktop_installing": "🖥️  Installation de l'intégration au bureau et aux gestionnaires de fichiers...",
+        "desktop_installed_launcher": "  ✅ Lanceur de bureau installé : {}",
+        "desktop_launcher_error": "  ❌ Erreur lors de la création de {} : {}",
+        "desktop_context_menu": "  ✅ Menu contextuel pour {} : {}",
+        "desktop_completed": "🎉 Intégration au bureau terminée avec succès !\n   Vous pouvez désormais faire un clic droit sur n'importe quelle image dans votre gestionnaire de fichiers et sélectionner 'Ouvrir avec Lumart'.",
+        "spectra_webcam_only": "💡 Le moteur 'Spectra' est exclusivement réservé au streaming vidéo et webcam en temps réel.\n   Pour l'activer, exécutez :\n   lumart --webcam  (ou : lumart -W / lumart -W 1 pour une autre caméra)\n",
+        "export_webp_disabled": "❌ L'exportation au format WebP (.webp) a été définitivement désactivée. Veuillez utiliser .png ou .jpg.",
+        "export_sticker_mono_only": "ℹ️  Les stickers à fond transparent (--transparent) sont exclusifs à Luris Mono (N&B). Exportation de l'image complète avec arrière-plan de terminal.",
+        "export_success": "✨ Art de terminal exporté avec succès vers l'image : {}",
+        "export_error": "❌ Erreur lors de l'exportation de l'image : {}",
         "pillow_not_found": "[luma] Pillow introuvable. Installation des dépendances...",
         "usage": "Utilisation : lumart [options] <chemin_image>\n\nEssayez 'lumart --help' si vous avez la flemme de lire la documentation.",
         "desc": "Lumart - Moteur d'art pour terminal fait par et pour les humains",
@@ -1602,7 +2307,7 @@ def get_lumart_banner():
   {c1}██║     {c2}██║   ██║{c3}██║╚██╔╝██║{c4}██╔══██║{c5}██╔══██╗{c6}   ██║   
   {c1}███████╗{c2}╚██████╔╝{c3}██║ ╚═╝ ██║{c4}██║  ██║{c5}██║  ██║{c6}   ██║   
   {c1}╚══════╝{c2} ╚═════╝ {c3}╚═╝     ╚═╝{c4}╚═╝  ╚═╝{c5}╚═╝  ╚═╝{c6}   ╚═╝   {rst}
-   \033[1;37mModern Terminal Visual Suite\033[0m \033[38;2;100;149;237m•\033[0m \033[38;2;0;255;200mv{VERSION}\033[0m
+   \033[1;37mModern Terminal Visual Suite\033[0m \033[38;2;100;149;237m•\033[0m \033[38;2;0;255;200mv{VERSION}\033[0m \033[2m({CODENAME})\033[0m
    \033[2m[ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]\033[0m
 """
 
@@ -1616,19 +2321,19 @@ def show_version_info():
     
     # 1. Runtime environment
     is_frozen = getattr(sys, 'frozen', False)
-    build_type = "Standalone Executable (PyInstaller)" if is_frozen else "Python Script"
+    build_type = _("diag_standalone") if is_frozen else _("diag_script")
     py_ver = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
     os_info = f"{platform.system()} {platform.release()} ({platform.machine()})"
     
-    print("📋 \033[1mInformación del Sistema y Runtime:\033[0m")
-    print(f"  • Versión Luma:        \033[1;32mv{VERSION}\033[0m")
-    print(f"  • Tipo de Ejecución:   {build_type}")
-    print(f"  • Entorno Python:      v{py_ver} ({sys.executable})")
-    print(f"  • Plataforma OS:       {os_info}")
+    print(f"\033[1m{_('diag_title_system')}\033[0m")
+    print(f"  • {_('diag_luma_ver'):<22} \033[1;32mv{VERSION}\033[0m \033[2m({CODENAME})\033[0m")
+    print(f"  • {_('diag_exec_type'):<22} {build_type}")
+    print(f"  • {_('diag_python_env'):<22} v{py_ver} ({sys.executable})")
+    print(f"  • {_('diag_platform_os'):<22} {os_info}")
     
     # 2. Acceleration Engines
     has_cpp = False
-    cpp_detail = "No detectado (usando fallback en Python)"
+    cpp_detail = _("diag_py_fallback")
     exe_dir = os.path.dirname(os.path.abspath(sys.executable))
     base_dir = os.path.dirname(os.path.abspath(__file__))
     for cand in [
@@ -1640,14 +2345,14 @@ def show_version_info():
     ]:
         if os.path.exists(cand):
             has_cpp = True
-            cpp_detail = f"Activo ({cand})"
+            cpp_detail = _("diag_native_active", cand)
             break
     if not has_cpp and shutil.which("luma-mono"):
         has_cpp = True
-        cpp_detail = f"Activo vía binario ({shutil.which('luma-mono')})"
+        cpp_detail = _("diag_native_active_bin", shutil.which("luma-mono"))
 
     has_mary_cpp = False
-    mary_cpp_detail = "Python Fallback"
+    mary_cpp_detail = _("diag_mary_fallback")
     for cand in [
         os.path.join(exe_dir, "libmary.so"),
         os.path.join(base_dir, "libmary.so"),
@@ -1657,32 +2362,32 @@ def show_version_info():
     ]:
         if os.path.exists(cand):
             has_mary_cpp = True
-            mary_cpp_detail = f"Nativo C++ ({cand})"
+            mary_cpp_detail = _("diag_native_cpp", cand)
             break
     if not has_mary_cpp and shutil.which("luma-mary"):
         has_mary_cpp = True
-        mary_cpp_detail = f"Nativo C++ vía binario ({shutil.which('luma-mary')})"
+        mary_cpp_detail = _("diag_native_cpp_bin", shutil.which("luma-mary"))
         
-    print("\n⚡ \033[1mMotores de Renderizado:\033[0m")
-    print(f"  • Trumble (Retro-Arcade Cel-Shading Orelx 2.2):  \033[1;32mActivo (Por defecto)\033[0m (Cel-Shading Anime Ink Outlines, Capcom CPS-2 / Neo-Geo Color Punch, Lanczos, Bayer Dither, TrueColor Braille/Blocks)")
+    print(f"\n\033[1m{_('diag_title_engines')}\033[0m")
+    print(f"  • Trumble (Retro-Arcade Cel-Shading Orelx 2.2):  \033[1;32m{_('diag_trumble_desc')}\033[0m")
     if has_mary_cpp or mary is not None:
-        mary_status = f"\033[1;32mActivo - {mary_cpp_detail}\033[0m (Apex 3.5: Guided Filter Oklab, Weber-Fechner, OpenMP Multi-Core, SIMD)"
+        mary_status = f"\033[1;32m{_('diag_native_active', mary_cpp_detail)}\033[0m (Apex 3.5: Guided Filter Oklab, Weber-Fechner, OpenMP Multi-Core, SIMD)"
     else:
-        mary_status = "\033[1;33mNo disponible (usando Trumble)\033[0m"
-    print(f"  • Mary (Color Perceptual Apex 3.5): {mary_status}")
-    print(f"  • Modos Mary Soportados:    sextants (2x3 bloques sólidos HD), braille (2x4 dual-color), quadrants (2x2), blocks, ascii")
+        mary_status = f"\033[1;33m{_('diag_not_available')}\033[0m"
+    print(f"  • {_('diag_mary_desc')} {mary_status}")
+    print(f"  • {_('diag_mary_modes'):<26} {_('diag_mary_modes_list')}")
     cpp_color = "\033[1;32m" if has_cpp else "\033[1;33m"
-    print(f"  • Luris (Monocromático Mono 2.6):    {cpp_color}{cpp_detail}\033[0m (DoG Lineart adaptativo, Atkinson 1984, Manga 2.6 Screentone, HD Blocks)")
-    print(f"  • Modos Luris Soportados:   braille, manga 2.6 (DoG + Bayer), sketch (DoG puro), blocks (2x2 cuadrantes HD), ascii")
-    print(f"  • Algoritmos Tramado:       atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8")
+    print(f"  • {_('diag_luris_desc'):<32} {cpp_color}{cpp_detail}\033[0m")
+    print(f"  • {_('diag_luris_modes'):<26} {_('diag_luris_modes_list')}")
+    print(f"  • {_('diag_dither_algos'):<26} {_('diag_dither_list')}")
     has_cv2 = False
     try:
         import cv2
         has_cv2 = True
     except ImportError:
         pass
-    spectra_status = "\033[1;32mDisponible\033[0m (OpenCV 30-60 FPS Terminal Stream con 5 Filtros Weep en Vivo)" if has_cv2 else "\033[1;33mRequiere opencv-python\033[0m"
-    print(f"  • Spectra (Cámara Web Weep 1.4): {spectra_status}")
+    spectra_status = f"\033[1;32m{_('diag_spectra_avail')}\033[0m" if has_cv2 else f"\033[1;33m{_('diag_spectra_req')}\033[0m"
+    print(f"  • {_('diag_spectra_desc')} {spectra_status}")
     
     # 3. Terminal Diagnostics
     cols, rows = shutil.get_terminal_size((90, 24))
@@ -1690,12 +2395,12 @@ def show_version_info():
     term = os.environ.get("TERM", "no detectado")
     has_truecolor = colorterm in ("truecolor", "24bit") or "kitty" in term or "alacritty" in term
     
-    print("\n🖥️  \033[1mDiagnóstico de Terminal:\033[0m")
-    print(f"  • Resolución actual:   {cols} columnas × {rows} filas")
+    print(f"\n\033[1m{_('diag_title_terminal')}\033[0m")
+    print(f"  • {_('diag_res_label'):<22} {_('diag_res_format', cols, rows)}")
     print(f"  • $COLORTERM:          {colorterm}")
     print(f"  • $TERM:               {term}")
-    tc_status = "\033[1;32m✅ Soportado" if has_truecolor else "\033[1;33m⚠️  No detectado (puede haber colores aproximados)"
-    print(f"  • TrueColor (24-bit):  {tc_status}\033[0m")
+    tc_status = f"\033[1;32m{_('diag_truecolor_supported')}\033[0m" if has_truecolor else f"\033[1;33m{_('diag_truecolor_unsupported')}\033[0m"
+    print(f"  • {_('diag_truecolor_label'):<22} {tc_status}")
     
     # 4. Storage & Config
     cfg_path = os.path.expanduser("~/.config/luma/config.json")
@@ -1704,10 +2409,11 @@ def show_version_info():
     if os.path.exists(backup_dir):
         backup_count = len([f for f in os.listdir(backup_dir) if f.startswith("lumart-v")])
         
-    print("\n📁 \033[1mRutas y Configuración:\033[0m")
-    print(f"  • Configuración:       {cfg_path} ({'Existe' if os.path.exists(cfg_path) else 'Predeterminado'})")
-    print(f"  • Copias de Seguridad: {backup_dir} ({backup_count} backups guardados)")
-    print(f"  • Repositorio GitHub:  https://github.com/{GITHUB_REPO}")
+    cfg_status = _('diag_config_exists') if os.path.exists(cfg_path) else _('diag_config_default')
+    print(f"\n\033[1m{_('diag_title_paths')}\033[0m")
+    print(f"  • {_('diag_config_label'):<22} {cfg_path} ({cfg_status})")
+    print(f"  • {_('diag_backup_label'):<22} {backup_dir} ({_('diag_backup_count', backup_count)})")
+    print(f"  • {_('diag_repo_label'):<22} https://github.com/{GITHUB_REPO}")
     print()
 
 def fetch_all_releases_with_meta():
@@ -1772,7 +2478,7 @@ def check_for_updates():
     print(_("update_checking"))
     all_releases = fetch_all_releases_with_meta()
     if not all_releases:
-        print(_("update_error", "No se pudo consultar información de versiones en GitHub."))
+        print(_("update_error", "GitHub API error"))
         return False
         
     latest_rel = all_releases[0]
@@ -1780,31 +2486,31 @@ def check_for_updates():
     cur_tuple = parse_version(VERSION)
     latest_tuple = parse_version(latest_ver)
     
-    print(f"\n📦 \033[1mEstado de Versiones de Luma:\033[0m")
-    print(f"   • Versión actual instalada: \033[1;36mv{VERSION}\033[0m")
-    print(f"   • Última versión en GitHub: \033[1;32mv{latest_ver}\033[0m")
+    print(f"\n\033[1m{_('ver_status_title')}\033[0m")
+    print(f"   • {_('ver_current_installed')} \033[1;36mv{VERSION}\033[0m")
+    print(f"   • {_('ver_latest_github')} \033[1;32mv{latest_ver}\033[0m")
     
     if latest_tuple > cur_tuple:
-        print(f"\n💡 \033[1;33m¡Hay una nueva versión disponible!\033[0m")
+        print(f"\n\033[1;33m{_('ver_new_available')}\033[0m")
         if latest_rel.get("name"):
-            print(f"   Título del release: {latest_rel['name']}")
-        print(f"   Para descargar e instalar automáticamente ejecuta:")
+            print(f"   {_('ver_release_title')} {latest_rel['name']}")
+        print(f"   {_('ver_install_hint')}")
         print(f"   \033[1;32mlumart -uu\033[0m (o \033[1;32mlumart --upgrade\033[0m)")
     else:
-        print(f"\n✅ \033[1;32m¡Tu instalación está al día con la versión más reciente!\033[0m")
+        print(f"\n\033[1;32m{_('ver_up_to_date')}\033[0m")
         
-    print(f"\n📜 \033[1mHistorial de Versiones Recientes:\033[0m")
+    print(f"\n\033[1m{_('ver_recent_history')}\033[0m")
     for r in all_releases[:5]:
         v = r["tag_name"]
-        is_cur = " \033[1;36m(actual)\033[0m" if v == VERSION else ""
+        is_cur = f" \033[1;36m{_('ver_tag_current')}\033[0m" if v == VERSION else ""
         date_str = r.get("published_at", "")[:10]
         date_disp = f" [{date_str}]" if date_str else ""
         print(f"   • v{v:<7}{date_disp}{is_cur}")
         
-    print(f"\n💡 \033[1mComandos Útiles:\033[0m")
-    print(f"   • lumart -uu              -> Descargar y aplicar última actualización")
-    print(f"   • lumart -dg              -> Selector interactivo para volver a versión anterior")
-    print(f"   • lumart -v               -> Ver diagnóstico completo del sistema")
+    print(f"\n\033[1m{_('ver_useful_commands')}\033[0m")
+    print(f"   • lumart -uu              -> {_('ver_cmd_uu')}")
+    print(f"   • lumart -dg              -> {_('ver_cmd_dg')}")
+    print(f"   • lumart -v               -> {_('ver_cmd_v')}")
     print()
     return True
 
@@ -2728,7 +3434,7 @@ def record_command_to_history():
 
     try:
         with open(hist_file, "a", encoding="utf-8") as f:
-            f.write(f"{now_str} | {cmd_line}\n")
+            f.write(f"{now_str} | v{VERSION} | {cmd_line}\n")
     except Exception:
         pass
 
@@ -2759,11 +3465,16 @@ def get_combined_history(limit=None, search=None):
                     if not line:
                         continue
                     if " | " in line:
-                        parts = line.split(" | ", 1)
-                        ts, cmd = parts[0], parts[1]
+                        parts = line.split(" | ")
+                        if len(parts) >= 3:
+                            ts, ver, cmd = parts[0], parts[1], " | ".join(parts[2:])
+                        elif len(parts) == 2:
+                            ts, ver, cmd = parts[0], "v2.3.0", parts[1]
+                        else:
+                            ts, ver, cmd = "----", f"v{VERSION}", line
                     else:
-                        ts, cmd = "----", line
-                    entries.append({"timestamp": ts, "cmd": cmd})
+                        ts, ver, cmd = "----", f"v{VERSION}", line
+                    entries.append({"timestamp": ts, "version": ver, "cmd": cmd})
         except Exception:
             pass
 
@@ -2789,40 +3500,45 @@ def display_command_history(limit=None, search=None):
     entries = get_combined_history(limit=limit, search=search)
     print("\n\033[1;36m █    █ █ █▄ ▄█ ▄▀▄ █▀▄ ▀█▀\033[0m")
     print("\033[1;36m █▄▄▄ ▀▄█ █ ▀ █ █▀█ █▀▄  █\033[0m")
-    print(f"\033[1m📜 Historial de Comandos de Lumart ({len(entries)} registrados):\033[0m\n")
+    print(f"\033[1m{_('hist_title', len(entries))}\033[0m\n")
 
     if not entries:
-        print("  (No hay comandos registrados en el historial todavía)\n")
+        print(f"{_('hist_empty')}\n")
         return
 
-    print("  \033[1m[#]   Fecha / Hora        Comando\033[0m")
-    print("  " + "─" * 70)
+    h_num = _("hist_header_num")
+    h_ver = _("hist_header_ver")
+    h_date = _("hist_header_date")
+    h_cmd = _("hist_header_cmd")
+    print(f"  \033[1m{h_num:<5} {h_ver:<9} {h_date:<19} {h_cmd}\033[0m")
+    print("  " + "─" * 78)
 
     for i, item in enumerate(entries, 1):
         ts = item["timestamp"]
+        ver = item.get("version", "legacy")
         cmd = item["cmd"]
         cmd_h = cmd.replace("lumart", "\033[1;32mlumart\033[0m").replace("luma", "\033[1;32mluma\033[0m")
-        print(f"  \033[1;33m[{i:02d}]\033[0m  \033[90m{ts:<18}\033[0m {cmd_h}")
-    print("  " + "─" * 70)
-    print("  💡 \033[3mPara re-ejecutar cualquiera usa: lumart --replay <número> (ej: lumart -R 1)\033[0m\n")
+        print(f"  \033[1;33m[{i:02d}]\033[0m  \033[36m{ver:<9}\033[0m \033[90m{ts:<19}\033[0m {cmd_h}")
+    print("  " + "─" * 78)
+    print(f"  {_('hist_replay_hint')}\n")
 
 def replay_command(target_idx=1):
     entries = get_combined_history()
     if not entries:
-        print("❌ No hay comandos en el historial para re-ejecutar.")
+        print(_("hist_empty"))
         return
 
     try:
         idx = int(target_idx)
         if idx < 1 or idx > len(entries):
-            print(f"❌ Índice [{target_idx}] fuera de rango. Hay {len(entries)} comandos disponibles.")
+            print(_("hist_out_of_range", target_idx, len(entries)))
             return
         selected = entries[idx - 1]["cmd"]
     except ValueError:
-        print(f"❌ El índice debe ser un número entero (ej: lumart --replay 1).")
+        print(_("hist_int_required"))
         return
 
-    print(f"\n🚀 \033[1;32mRe-ejecutando [{target_idx}]:\033[0m \033[1m{selected}\033[0m\n")
+    print(f"\n{_('hist_replaying', target_idx, selected)}\n")
     args_list = shlex.split(selected)
     if args_list and args_list[0] in ("python", "python3"):
         if len(args_list) > 1 and ("lumart" in args_list[1] or "luma" in args_list[1]):
@@ -2842,11 +3558,11 @@ def clear_command_history():
     if os.path.exists(hist_file):
         try:
             os.remove(hist_file)
-            print("✅ Historial de comandos de Lumart limpiado exitosamente.")
+            print(_("hist_cleared"))
         except Exception as e:
-            print(f"❌ Error al limpiar historial: {e}")
+            print(f"❌ {e}")
     else:
-        print("ℹ️ El historial de comandos ya estaba vacío.")
+        print(_("hist_already_empty"))
 
 # ==============================================================================
 # INTEGRACIÓN CON ESCRITORIO LINUX Y GESTORES DE ARCHIVOS
@@ -2931,31 +3647,18 @@ def main():
     
     # Preprocesamiento de --lang para aplicar la configuración de idioma antes de argparse
     lang_override = None
-    if "--lang" in sys.argv:
-        try:
-            lang_idx = sys.argv.index("--lang")
-            lang_override = sys.argv[lang_idx + 1]
-        except IndexError:
-            pass
-            
+    for i, a in enumerate(sys.argv):
+        if a == "--lang" and i + 1 < len(sys.argv):
+            lang_override = sys.argv[i + 1]
+            break
+        elif a.startswith("--lang="):
+            lang_override = a.split("=", 1)[1]
+            break
+
     # Persistir configuración de usuario en ~/.config/luma/config.json
     config_dir = os.path.expanduser("~/.config/luma")
     config_file = os.path.join(config_dir, "config.json")
     
-    # Si la invocación es solo para cambiar el idioma (ej: lumart --lang es), guardar y salir
-    if len(sys.argv) == 3 and "--lang" in sys.argv:
-        if lang_override in TRANSLATIONS:
-            os.makedirs(config_dir, exist_ok=True)
-            with open(config_file, "w") as f:
-                json.dump({"lang": lang_override}, f)
-            set_language(lang_override)
-            print(_("lang_success", lang_override))
-            sys.exit(0)
-        else:
-            set_language("en") # Idioma de respaldo predeterminado
-            print(_("lang_error", lang_override))
-            sys.exit(1)
-            
     # Cargar configuración previa si existe
     saved_lang = None
     if os.path.exists(config_file):
@@ -2972,6 +3675,21 @@ def main():
     else:
         # Autodetección del idioma del sistema
         auto_detect_language()
+
+    # Si la invocación es solo para cambiar el idioma (ej: lumart --lang es), guardar y salir
+    is_lang_only = (len(sys.argv) == 3 and "--lang" in sys.argv) or \
+                   (len(sys.argv) == 2 and any(a.startswith("--lang=") for a in sys.argv))
+    if is_lang_only:
+        if lang_override in TRANSLATIONS:
+            os.makedirs(config_dir, exist_ok=True)
+            with open(config_file, "w") as f:
+                json.dump({"lang": lang_override}, f)
+            print(_("lang_success", lang_override))
+            sys.exit(0)
+        else:
+            set_language("en")
+            print(_("lang_error", lang_override))
+            sys.exit(1)
 
     banner = get_lumart_banner()
     
@@ -3076,9 +3794,7 @@ def main():
     if args.engine == "spectra":
         print("\n\033[1;36m █    █ █ █▄ ▄█ ▄▀▄ █▀▄ ▀█▀\033[0m")
         print("\033[1;36m █▄▄▄ ▀▄█ █ ▀ █ █▀█ █▀▄  █\033[0m")
-        print("\n💡 \033[1mEl motor 'Spectra' es exclusivo para transmisión de vídeo y cámara web en tiempo real.\033[0m")
-        print("   Para activarlo, usa:")
-        print("   \033[1;32mlumart --webcam\033[0m  (o: \033[1;32mlumart -W\033[0m / \033[1;32mlumart -W 1\033[0m para otra cámara)\n")
+        print(f"\n{_('spectra_webcam_only')}")
         sys.exit(0)
 
     # Comprobar actualizaciones sin instalar (-u / --update / --check-update)
@@ -3347,19 +4063,19 @@ def main():
     if args.output:
         ext = os.path.splitext(args.output)[1].lower()
         if ext == ".webp":
-            print("❌ La exportación a formato WebP (.webp) ha sido deshabilitada permanentemente. Por favor use .png o .jpg.")
+            print(_("export_webp_disabled"))
             return
         if ext in (".png", ".jpg", ".jpeg"):
             # Los stickers con fondo transparente son exclusivos del motor a blanco y negro (Luris Mono)
             is_luris = (engine == "luris" or not args.color or args.manga or args.sketch)
             effective_transparent = args.transparent and is_luris
             if args.transparent and not is_luris:
-                print("ℹ️  Los stickers con fondo transparente (--transparent) son exclusivos del motor Luris Mono (blanco y negro). Exportando imagen completa con fondo de terminal para máxima fidelidad de color.")
+                print(_("export_sticker_mono_only"))
             try:
                 export_ansi_to_image(ascii_art, args.output, transparent=effective_transparent)
-                print(f"✨ Arte terminal exportado exitosamente a imagen: {args.output}")
+                print(_("export_success", args.output))
             except Exception as e:
-                print(f"❌ Error al exportar imagen: {e}")
+                print(_("export_error", e))
         else:
             try:
                 with open(args.output, "w", encoding="utf-8") as f:
