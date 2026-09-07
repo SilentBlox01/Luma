@@ -299,7 +299,7 @@ WebP lossy and near-lossless compression algorithms apply spatial chroma subsamp
 
 ## 8. Configuration, Persistence & Localization (i18n)
 
-Starting with version 2.3.1 ("Rosetta"), Luma features a comprehensive, zero-leak internationalization engine supporting 8 languages with runtime and persistent configuration.
+Starting with version 2.3.2 ("Mirror"), Luma features a comprehensive, zero-leak internationalization engine supporting 8 languages with runtime and persistent configuration.
 
 ### 8.1 Supported Languages Matrix
 
@@ -391,8 +391,8 @@ Example Output:
 
   [#]   Ver       Date / Time         Command
   ──────────────────────────────────────────────────────────────────────────────
-  [01]  v2.3.1    2026-09-07 15:06:25 lumart render.png -w 100
-  [02]  v2.3.1    2026-09-07 14:58:39 lumart slime.jpg -m --transparent -o sticker.png
+  [01]  v2.3.2    2026-09-07 15:06:25 lumart render.png -w 100
+  [02]  v2.3.2    2026-09-07 14:58:39 lumart slime.jpg -m --transparent -o sticker.png
   [03]  v2.3.0    2026-09-07 13:32:28 lumart photo.jpg --blocks -o retro.jpg
   ──────────────────────────────────────────────────────────────────────────────
   💡 To re-execute any command, run: lumart --replay <number> (e.g.: lumart -R 1)

@@ -84,8 +84,8 @@ except ImportError:
         mary = None
 
 
-VERSION = "2.3.1"
-CODENAME = "Rosetta"
+VERSION = "2.3.2"
+CODENAME = "Mirror"
 GITHUB_REPO = "SilentBlox01/Luma"
 GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/lumart.py"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
