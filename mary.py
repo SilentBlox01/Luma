@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
- Luma - Mary Engine (v1.0)
+ Luma - Mary Apex 3.5 Engine
  Motor a Color de Nueva Generación basado en Percepción Visual Computacional.
 ==============================================================================
  "Cero redes neuronales, cero modelos de 4 GB, cero humo de Silicon Valley:
@@ -199,11 +199,11 @@ def cluster_cell_two_colors(pixels_rgb):
     """
     Encuentra los dos centroides cromáticos óptimos (Foreground y Background)
     en espacio Oklab para un conjunto de subpíxeles (4 para bloques, 8 para Braille).
-    Retorna: (fg_rgb, bg_rgb, assignments_boolean_list, max_delta_e)
+    Retorna: (fg_rgb, bg_rgb, assignments_boolean_list, max_delta_e, mean_L)
     """
     n = len(pixels_rgb)
     if n == 0:
-        return ((255, 255, 255), (0, 0, 0), [], 0.0)
+        return ((255, 255, 255), (0, 0, 0), [], 0.0, 0.5)
 
     ok_points = [rgb_to_oklab(*p) for p in pixels_rgb]
 
@@ -354,11 +354,14 @@ def render_mary_sextants(image, width, font_ratio=0.5, invert=False):
     adaptativo biofísico de Weber-Fechner y retención de bordes.
     """
     orig_w, orig_h = image.size
+    if orig_w <= 0: orig_w = 1
+    if orig_h <= 0: orig_h = 1
     aspect = orig_h / orig_w
     
-    num_rows = int(round(width * aspect * font_ratio))
-    sub_w = width * 2
-    sub_h = num_rows * 3
+    safe_w = max(5, width)
+    num_rows = max(1, int(round(safe_w * aspect * font_ratio)))
+    sub_w = max(2, safe_w * 2)
+    sub_h = max(3, num_rows * 3)
     
     resample_filter = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
     scaled = image.resize((sub_w, sub_h), resample=resample_filter)
@@ -385,7 +388,15 @@ def render_mary_sextants(image, width, font_ratio=0.5, invert=False):
                         cell_pixels.append((0, 0, 0))
                         cell_alphas.append(0)
                         
-            if all(a < 64 for a in cell_alphas):
+            all_trans = True
+            has_trans = False
+            for a in cell_alphas:
+                if a >= 64:
+                    all_trans = False
+                else:
+                    has_trans = True
+
+            if all_trans:
                 stream.emit_cell(" ", None, None)
                 continue
                 
@@ -394,9 +405,7 @@ def render_mary_sextants(image, width, font_ratio=0.5, invert=False):
             # Ley perceptual de Weber-Fechner: umbral adaptativo dependiente de la luminosidad
             tau = 0.0075 * (((mean_L + 0.08) / 0.58) ** 0.80)
             
-            if max_delta_e < tau:
-                stream.emit_cell(" ", None, bg_col)
-            else:
+            if has_trans:
                 cnt_true = sum(1 for m in mask if m)
                 if cnt_true > 3:
                     fg_col, bg_col = bg_col, fg_col
@@ -408,11 +417,31 @@ def render_mary_sextants(image, width, font_ratio=0.5, invert=False):
                         code |= (1 << i)
                         
                 if code == 0:
-                    stream.emit_cell(" ", None, bg_col)
+                    stream.emit_cell(" ", None, None)
                 elif code == 63:
                     stream.emit_cell(" ", None, fg_col)
                 else:
-                    stream.emit_cell(SEXTANT_BLOCKS[code], fg_col, bg_col)
+                    stream.emit_cell(SEXTANT_BLOCKS[code], fg_col, None)
+            else:
+                if max_delta_e < tau:
+                    stream.emit_cell(" ", None, bg_col)
+                else:
+                    cnt_true = sum(1 for m in mask if m)
+                    if cnt_true > 3:
+                        fg_col, bg_col = bg_col, fg_col
+                        mask = [not m for m in mask]
+                        
+                    code = 0
+                    for i in range(6):
+                        if cell_alphas[i] >= 64 and (mask[i] != invert):
+                            code |= (1 << i)
+                            
+                    if code == 0:
+                        stream.emit_cell(" ", None, bg_col)
+                    elif code == 63:
+                        stream.emit_cell(" ", None, fg_col)
+                    else:
+                        stream.emit_cell(SEXTANT_BLOCKS[code], fg_col, bg_col)
                     
         stream.end_line()
         
@@ -424,11 +453,14 @@ def render_mary_braille(image, width, font_ratio=0.5, invert=False):
     Calcula simultáneamente el color del micropunto y el color del fondo de la celda.
     """
     orig_w, orig_h = image.size
+    if orig_w <= 0: orig_w = 1
+    if orig_h <= 0: orig_h = 1
     aspect = orig_h / orig_w
     
-    num_rows = int(round(width * aspect * font_ratio))
-    sub_w = width * 2
-    sub_h = num_rows * 4
+    safe_w = max(5, width)
+    num_rows = max(1, int(round(safe_w * aspect * font_ratio)))
+    sub_w = max(2, safe_w * 2)
+    sub_h = max(4, num_rows * 4)
     
     resample_filter = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
     scaled = image.resize((sub_w, sub_h), resample=resample_filter)
@@ -455,8 +487,16 @@ def render_mary_braille(image, width, font_ratio=0.5, invert=False):
                         cell_pixels.append((0, 0, 0))
                         cell_alphas.append(0)
 
+            all_trans = True
+            has_trans = False
+            for a in cell_alphas:
+                if a >= 64:
+                    all_trans = False
+                else:
+                    has_trans = True
+
             # Si todos los 8 subpíxeles son transparentes, emitir espacio vacío
-            if all(a < 64 for a in cell_alphas):
+            if all_trans:
                 stream.emit_cell(" ", None, None)
                 continue
 
@@ -466,36 +506,57 @@ def render_mary_braille(image, width, font_ratio=0.5, invert=False):
             # Umbral adaptativo Weber-Fechner dependiente de luminosidad
             tau = 0.0075 * (((mean_L + 0.08) / 0.58) ** 0.80)
             
-            if max_delta_e < tau:
-                stream.emit_cell(" ", None, bg_col)
-            else:
-                # Alto contraste (borde, ojo, cabello, detalle fino) -> Braille Dual-Color
-                # Minority-Cluster FG: los micropuntos siempre representan el detalle fino
+            if has_trans:
                 cnt_true = sum(1 for m in mask if m)
                 if cnt_true > 4:
                     fg_col, bg_col = bg_col, fg_col
                     mask = [not m for m in mask]
 
                 braille_code = 0
-                has_opaque = False
                 for dy in range(4):
                     for dx in range(2):
                         idx = dy * 2 + dx
                         if cell_alphas[idx] >= 64:
-                            has_opaque = True
                             is_dot_on = mask[idx] != invert
                             if is_dot_on:
                                 braille_code |= BRAILLE_DOT_MAP[dy][dx]
 
-                if not has_opaque:
+                if braille_code == 0:
                     stream.emit_cell(" ", None, None)
-                elif braille_code == 0:
-                    stream.emit_cell(" ", None, bg_col)
                 elif braille_code == 0xFF:
                     stream.emit_cell(" ", None, fg_col)
                 else:
                     glyph = chr(0x2800 + braille_code)
-                    stream.emit_cell(glyph, fg_col, bg_col)
+                    stream.emit_cell(glyph, fg_col, None)
+            else:
+                if max_delta_e < tau:
+                    stream.emit_cell(" ", None, bg_col)
+                else:
+                    cnt_true = sum(1 for m in mask if m)
+                    if cnt_true > 4:
+                        fg_col, bg_col = bg_col, fg_col
+                        mask = [not m for m in mask]
+
+                    braille_code = 0
+                    has_opaque = False
+                    for dy in range(4):
+                        for dx in range(2):
+                            idx = dy * 2 + dx
+                            if cell_alphas[idx] >= 64:
+                                has_opaque = True
+                                is_dot_on = mask[idx] != invert
+                                if is_dot_on:
+                                    braille_code |= BRAILLE_DOT_MAP[dy][dx]
+
+                    if not has_opaque:
+                        stream.emit_cell(" ", None, None)
+                    elif braille_code == 0:
+                        stream.emit_cell(" ", None, bg_col)
+                    elif braille_code == 0xFF:
+                        stream.emit_cell(" ", None, fg_col)
+                    else:
+                        glyph = chr(0x2800 + braille_code)
+                        stream.emit_cell(glyph, fg_col, bg_col)
                 
         stream.end_line()
         
@@ -507,11 +568,14 @@ def render_mary_quadrants(image, width, font_ratio=0.5, invert=False):
     Utiliza los 16 glifos Unicode de cuadrante con primer plano y fondo independientes.
     """
     orig_w, orig_h = image.size
+    if orig_w <= 0: orig_w = 1
+    if orig_h <= 0: orig_h = 1
     aspect = orig_h / orig_w
     
-    num_rows = int(round(width * aspect * font_ratio))
-    sub_w = width * 2
-    sub_h = num_rows * 2
+    safe_w = max(5, width)
+    num_rows = max(1, int(round(safe_w * aspect * font_ratio)))
+    sub_w = max(2, safe_w * 2)
+    sub_h = max(2, num_rows * 2)
     
     resample_filter = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
     scaled = image.resize((sub_w, sub_h), resample=resample_filter)
@@ -536,7 +600,15 @@ def render_mary_quadrants(image, width, font_ratio=0.5, invert=False):
                     cell_pixels.append((0, 0, 0))
                     cell_alphas.append(0)
 
-            if all(a < 64 for a in cell_alphas):
+            all_trans = True
+            has_trans = False
+            for a in cell_alphas:
+                if a >= 64:
+                    all_trans = False
+                else:
+                    has_trans = True
+
+            if all_trans:
                 stream.emit_cell(" ", None, None)
                 continue
 
@@ -544,10 +616,7 @@ def render_mary_quadrants(image, width, font_ratio=0.5, invert=False):
             
             tau = 0.0075 * (((mean_L + 0.08) / 0.58) ** 0.80)
             
-            if max_delta_e < tau:
-                stream.emit_cell(" ", None, bg_col)
-            else:
-                # Minority-Cluster FG en cuadrantes
+            if has_trans:
                 cnt_true = sum(1 for m in mask if m)
                 if cnt_true > 2:
                     fg_col, bg_col = bg_col, fg_col
@@ -559,8 +628,35 @@ def render_mary_quadrants(image, width, font_ratio=0.5, invert=False):
                         if mask[i] != invert:
                             q_mask |= bit
 
-                glyph = QUADRANT_BLOCKS[q_mask]
-                stream.emit_cell(glyph, fg_col, bg_col)
+                if q_mask == 0:
+                    stream.emit_cell(" ", None, None)
+                elif q_mask == 15:
+                    stream.emit_cell(" ", None, fg_col)
+                else:
+                    glyph = QUADRANT_BLOCKS[q_mask]
+                    stream.emit_cell(glyph, fg_col, None)
+            else:
+                if max_delta_e < tau:
+                    stream.emit_cell(" ", None, bg_col)
+                else:
+                    cnt_true = sum(1 for m in mask if m)
+                    if cnt_true > 2:
+                        fg_col, bg_col = bg_col, fg_col
+                        mask = [not m for m in mask]
+
+                    q_mask = 0
+                    for i, bit in enumerate([1, 2, 4, 8]):
+                        if cell_alphas[i] >= 64:
+                            if mask[i] != invert:
+                                q_mask |= bit
+
+                    if q_mask == 0:
+                        stream.emit_cell(" ", None, bg_col)
+                    elif q_mask == 15:
+                        stream.emit_cell(" ", None, fg_col)
+                    else:
+                        glyph = QUADRANT_BLOCKS[q_mask]
+                        stream.emit_cell(glyph, fg_col, bg_col)
             
         stream.end_line()
         
@@ -572,11 +668,14 @@ def render_mary_halfblocks(image, width, font_ratio=0.5):
     Superior en foreground '▀', inferior en background.
     """
     orig_w, orig_h = image.size
+    if orig_w <= 0: orig_w = 1
+    if orig_h <= 0: orig_h = 1
     aspect = orig_h / orig_w
     
-    num_rows = int(round(width * aspect * font_ratio))
-    target_w = width
-    target_h = num_rows * 2
+    safe_w = max(5, width)
+    num_rows = max(1, int(round(safe_w * aspect * font_ratio)))
+    target_w = safe_w
+    target_h = max(2, num_rows * 2)
     
     resample_filter = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
     scaled = image.resize((target_w, target_h), resample=resample_filter)
@@ -615,10 +714,12 @@ def render_mary_ascii(image, width, font_ratio=0.5, invert=False):
     Mapea contornos direccionales a '/', '\\', '|', '-', '_', '+', y densidades Oklab.
     """
     orig_w, orig_h = image.size
+    if orig_w <= 0: orig_w = 1
+    if orig_h <= 0: orig_h = 1
     aspect = orig_h / orig_w
     
-    target_w = width
-    target_h = int(round(target_w * aspect * font_ratio))
+    target_w = max(5, width)
+    target_h = max(1, int(round(target_w * aspect * font_ratio)))
     
     resample_filter = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
     scaled = image.resize((target_w, target_h), resample=resample_filter)
@@ -668,9 +769,9 @@ def render_mary_ascii(image, width, font_ratio=0.5, invert=False):
                 elif 67.5 <= abs(angle) <= 112.5:
                     glyph = "-"  # Borde horizontal
                 elif 22.5 < angle < 67.5 or -157.5 < angle < -112.5:
-                    glyph = "\\" # Diagonal positiva
+                    glyph = "/"  # Diagonal perpendicular a (+1, +1)
                 else:
-                    glyph = "/"  # Diagonal negativa
+                    glyph = "\\" # Diagonal perpendicular a (-1, +1)
             else:
                 # Luminancia Oklab para mapeo continuo de densidad
                 ok_L, _, _ = rgb_to_oklab(*rgb)

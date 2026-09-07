@@ -6,7 +6,7 @@
 # ==============================================================================
 set -e
 
-VERSION="2.2.0"
+VERSION="2.3.0"
 
 # Color helpers
 CYAN='\033[1;36m'
@@ -161,7 +161,10 @@ if [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
     [ -f "$SCRIPT_DIR/stb_image_resize2.h" ] && cp "$SCRIPT_DIR/stb_image_resize2.h" "$SHARE_DIR/"
     if command -v g++ &>/dev/null; then
         echo "⚡ Compiling native C++ monochrome engine (luma-mono)..."
+        g++ -O3 -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || \
         g++ -O3 -std=c++17 -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || true
+
+        g++ -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || \
         g++ -O3 -std=c++17 -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || true
     fi
 fi
@@ -248,6 +251,9 @@ EOF
 
 chmod +x "$INSTALL_DIR/lumart"
 ln -sf "$INSTALL_DIR/lumart" "$INSTALL_DIR/luma"
+
+# Configurar integración de escritorio y menú contextual de gestores de archivos
+"$INSTALL_DIR/lumart" --install-desktop &>/dev/null || true
 
 # 6. Verify PATH
 IN_PATH=0

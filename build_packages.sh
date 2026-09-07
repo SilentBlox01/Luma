@@ -59,7 +59,9 @@ mkdir -p dist
 
 if command -v g++ &>/dev/null && [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
     echo "Compiling native C++ monochrome engine (luma-mono)..."
+    g++ -O3 -std=c++17 -fopenmp -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/luma-mono 2>/dev/null || \
     g++ -O3 -std=c++17 -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/luma-mono
+    g++ -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/libmonochrome.so 2>/dev/null || \
     g++ -O3 -std=c++17 -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/libmonochrome.so
 fi
 
@@ -227,6 +229,12 @@ ln -sf lumart "build/$TAR_NAME/luma"
 [ -f "LICENSE" ] && cp LICENSE "build/$TAR_NAME/"
 tar -czf "dist/$TAR_NAME.tar.gz" -C build "$TAR_NAME"
 ln -sf "$TAR_NAME.tar.gz" "dist/lumart-linux-x86_64.tar.gz"
+
+# 5. Python Wheel & Source Distribution
+if command -v python3 &>/dev/null && python3 -m build --help &>/dev/null; then
+    echo "=== Building Python Wheel & sdist ==="
+    python3 -m build --sdist --wheel --outdir dist/ 2>/dev/null || true
+fi
 
 echo -e "\n=== DONE! ==="
 echo "Artifacts ready in 'dist/':"

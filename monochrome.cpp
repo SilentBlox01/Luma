@@ -30,7 +30,6 @@
 
 // Extended 70-character ASCII density ramp (sorted dark to light)
 static const char* ASCII_70 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
-static const char* ASCII_10 = "@%#*+=-:. ";
 
 // Unicode Quadrant Blocks (2x2 subpixels per character cell)
 // Bitmask: bit 0 = Top-Left, bit 1 = Top-Right, bit 2 = Bottom-Left, bit 3 = Bottom-Right
@@ -105,6 +104,7 @@ static void autocontrast_gray(std::vector<float>& gray, int count) {
 // Separable 1D Gaussian Blur & Difference of Gaussians (DoG)
 // -------------------------------------------------------------
 static std::vector<float> make_gaussian_kernel(float sigma) {
+    if (sigma <= 0.001f) sigma = 0.001f;
     int radius = static_cast<int>(std::ceil(2.5f * sigma));
     if (radius < 1) radius = 1;
     int size = 2 * radius + 1;
@@ -126,6 +126,7 @@ static std::vector<float> gaussian_blur_2d(const std::vector<float>& src, int w,
     std::vector<float> out(w * h, 0.0f);
 
     // Horizontal pass
+    #pragma omp parallel for
     for (int y = 0; y < h; ++y) {
         int row_offset = y * w;
         for (int x = 0; x < w; ++x) {
@@ -139,6 +140,7 @@ static std::vector<float> gaussian_blur_2d(const std::vector<float>& src, int w,
     }
 
     // Vertical pass
+    #pragma omp parallel for
     for (int x = 0; x < w; ++x) {
         for (int y = 0; y < h; ++y) {
             float sum = 0.0f;
@@ -157,6 +159,7 @@ static std::vector<float> compute_dog_edges(const std::vector<float>& gray, int 
     std::vector<float> g1 = gaussian_blur_2d(gray, w, h, sigma1);
     std::vector<float> g2 = gaussian_blur_2d(gray, w, h, sigma2);
     std::vector<float> dog(w * h, 0.0f);
+    #pragma omp parallel for
     for (int i = 0; i < w * h; ++i) {
         // Dark ink lines have lower g1 than g2, so g2 - g1 is positive at line centers
         dog[i] = g2[i] - g1[i];
@@ -248,30 +251,40 @@ struct RenderConfig {
 };
 
 std::string render_monochrome_image(const std::string& image_path, const RenderConfig& cfg) {
+    if (image_path.empty()) {
+        return "❌ Error: Empty image path provided.\n";
+    }
+
     int orig_w, orig_h, channels;
     uint8_t* raw_data = stbi_load(image_path.c_str(), &orig_w, &orig_h, &channels, 4);
     if (!raw_data) {
         return "❌ Error: Could not open image: " + image_path + "\n";
     }
 
+    if (orig_w <= 0 || orig_h <= 0) {
+        stbi_image_free(raw_data);
+        return "❌ Error: Invalid image dimensions in: " + image_path + "\n";
+    }
+
+    int target_w = cfg.target_width >= 5 ? cfg.target_width : 90;
     float aspect = static_cast<float>(orig_h) / static_cast<float>(orig_w);
 
     // Resolution dimensions based on selected mode
     int scaled_w = 0, scaled_h = 0;
     if (cfg.mode == "braille" || cfg.mode == "manga" || cfg.mode == "sketch") {
         // Braille has 2x4 dots per character cell
-        scaled_w = cfg.target_width * 2;
-        scaled_h = static_cast<int>(scaled_w * aspect * 0.5f * 2.0f);
+        scaled_w = target_w * 2;
+        scaled_h = static_cast<int>(scaled_w * aspect);
         scaled_h = scaled_h + (4 - scaled_h % 4) % 4; // multiple of 4
     } else if (cfg.mode == "blocks") {
         // Quadrant HD Blocks (2x2 subpixels per character cell)
-        scaled_w = cfg.target_width * 2;
-        scaled_h = static_cast<int>(cfg.target_width * 2 * aspect * 0.5f);
+        scaled_w = target_w * 2;
+        scaled_h = static_cast<int>(target_w * 2 * aspect * 0.5f);
         scaled_h = scaled_h + (2 - scaled_h % 2) % 2; // multiple of 2
     } else {
         // ASCII or single-character shades mode (1 char cell = 1 sample)
-        scaled_w = cfg.target_width;
-        scaled_h = static_cast<int>(cfg.target_width * aspect * 0.5f);
+        scaled_w = target_w;
+        scaled_h = static_cast<int>(target_w * aspect * 0.5f);
     }
 
     if (scaled_w < 2) scaled_w = 2;
@@ -298,11 +311,15 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
         uint8_t a = resized[i * 4 + 3];
         alpha[i] = a;
 
-        float lum = get_luminance(r, g, b);
-        if (cfg.gamma != 1.0f) {
-            lum = std::pow(lum / 255.0f, cfg.gamma) * 255.0f;
+        if (a < 128) {
+            luminance[i] = 255.0f; // Fondo de papel blanco limpio (evita artefactos DoG y sombreado en alfa)
+        } else {
+            float lum = get_luminance(r, g, b);
+            if (cfg.gamma != 1.0f) {
+                lum = std::pow(lum / 255.0f, cfg.gamma) * 255.0f;
+            }
+            luminance[i] = lum;
         }
-        luminance[i] = lum;
     }
 
     if (cfg.high_contrast) {
@@ -324,25 +341,31 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
     if (cfg.mode == "braille" || cfg.mode == "manga" || cfg.mode == "sketch") {
         std::vector<uint8_t> binary_grid(total_pixels, 0);
 
+        float dog_scale = std::max(1.0f, (float)scaled_w / 160.0f);
+
         if (cfg.mode == "sketch") {
             // Pure Sketch / Lineart: DoG edge contours without screentones
-            std::vector<float> dog = compute_dog_edges(luminance, scaled_w, scaled_h, 0.7f, 1.8f);
+            std::vector<float> dog = compute_dog_edges(luminance, scaled_w, scaled_h, 0.7f * dog_scale, 1.8f * dog_scale);
             for (int i = 0; i < total_pixels; ++i) {
-                if (dog[i] > 6.0f || luminance[i] < 35.0f) {
+                if (alpha[i] >= 128 && (dog[i] > 6.0f || luminance[i] < 35.0f)) {
                     binary_grid[i] = 255;
                 }
             }
         } else if (cfg.mode == "manga") {
-            // Smart Manga Screentone 2.0:
+            // Smart Manga Screentone 2.6:
             // 1. Clean paper & skin: pure white (zero dot noise)
             // 2. Line art: crisp solid ink via DoG filter
             // 3. Clothing / hair shadows: 8x8 Bayer screentone (Ami-tone)
             // 4. Deep shadows: solid black
-            std::vector<float> dog = compute_dog_edges(luminance, scaled_w, scaled_h, 0.7f, 1.8f);
+            std::vector<float> dog = compute_dog_edges(luminance, scaled_w, scaled_h, 0.7f * dog_scale, 1.8f * dog_scale);
 
             for (int y = 0; y < scaled_h; ++y) {
                 for (int x = 0; x < scaled_w; ++x) {
                     int i = y * scaled_w + x;
+                    if (alpha[i] < 128) {
+                        binary_grid[i] = 0;
+                        continue;
+                    }
                     float ink = ink_density[i];
                     bool is_line = (dog[i] > 6.0f);
 
@@ -517,6 +540,7 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
 // C-compatible Exported API for Python ctypes bindings
 extern "C" {
     const char* render_monochrome_c(const char* image_path, int width, const char* mode, const char* dither, bool invert) {
+        if (!image_path) return nullptr;
         RenderConfig cfg;
         cfg.target_width = width > 0 ? width : 90;
         cfg.mode = mode ? mode : "braille";

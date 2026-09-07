@@ -1,198 +1,218 @@
-[English](README.md) | [Español](README.es.md) | [Português](README.pt.md) | [Русский](README.ru.md) | [日本語](README.ja.md) | [Deutsch](README.de.md) | [한국어](README.ko.md)
+[English](README.md) | [Español](README.es.md) | [Português](README.pt.md) | [Français](README.fr.md) | [Русский](README.ru.md) | [日本語](README.ja.md) | [Deutsch](README.de.md) | [한국어](README.ko.md)
 
-# Luma
-
-**PythonとモダンC/C++で書かれた高忠実度の画像からターミナルへのレンダリングエンジン。**
-
-Lumaは、たった一つの目標に焦点を当てたオープンソースのターミナルレンダリングエンジンです：
-
-> **最小限のターミナルスペースで最大限の視覚的忠実度を実現すること。**
-
-画像の明るさを単純に文字にマッピングする従来のASCIIコンバーターとは異なり、Lumaは異なるターミナルグリフシステム、リニアRGBカラー演算、そしてネイティブC/C++コンピュータビジョンアルゴリズムを探求し、限られた数のターミナルセル内で可能な限り多くの視覚情報を保持します。
-
-## 機能
-
-* ターミナルでの高忠実度画像レンダリング
-* ASCII、点字、ブロックベースのレンダリング
-* **ハイブリッドデュアルエンジンアーキテクチャ**:
-  * **リニアRGBカラーエンジン** (Python / Pillow): 動的HDRコントラスト曲線、リニア色空間でのブレンド ($C_{\text{linear}} = C_{\text{srgb}}^{2.2}$)、24ビットANSI TrueColor。
-  * **高性能モノクロ＆マンガエンジン** (ネイティブC++17): 10ミリ秒未満の高速処理、ガウス差分法 (DoG) による線画輪郭抽出、Bill Atkinson誤差拡散 (1984年 MacPaint)、8x8 Bayerスクリーントーン (*Ami-tone*)。
-* **エンジンセレクター (`-E`, `--engine`)**: `color`、`mono`、`bw`、`manga`、`sketch` を動的に切り替え可能。
-* **純粋な線画スケッチモード (`-s`, `-E sketch`)**: アニメやイラストのためのノイズのない輪郭抽出。
-* **マンガスクリーントーン 2.0 (`-m`, `-E manga`)**: 中間トーンに本物の網点スクリーントーンを適用し、純白の肌と濃黒のインクを両立。
-* **Atkinson ＆ ハーフトーンディザリング (`-d` / `--dither`)**: `atkinson`、`floyd`、`bayer`、`none` をサポート。
-* **2x2 象限HDブロック (`--blocks`)**: Unicode象限文字 (`▘▝▀▖▌▞▛▗▚▐▜▄▙▟█`) によるセルあたり4サブピクセル描画。
-* **OSスタイルレンダリング (`--os-style`)**: Neofetchスタイルのロゴのためのクラシックなターミナル文字（ドット、文字）。
-* **リアルタイムカラー交換 (`--swap`)**: 3Dユークリッド色距離に基づいて最大5つの色を動的に交換します。
-* **外部ネイティブ依存関係ゼロ**: パブリックドメインのヘッダー (`stb_image.h` および `stb_image_resize2.h`) で自己完結。OpenCVやlibpngは不要です。
-* **完全なPythonフォールバックパリティ**: C++コンパイラがない環境でも、同一の純粋なPython実装にシームレスに切り替わります。
-* 設定可能な出力幅と明暗ターミナルの自動検出 (`-i`, `--invert`)
-* インタラクティブなアップデート (`-uu`)、ロールバック (`-dg`)、更新確認 (`-u`) スイート
-* 包括的なシステム・エンジン診断 (`-v`, `--version`)
-
-## 例
-
-```bash
-# 点字文字、色を使用して画像を変換し、紫色をピンクに置き換えます
-luma image.png -w 45 --braille -c --swap purple pink
 ```
+  ██╗     ██╗   ██╗███╗   ███╗ █████╗ ██████╗ ████████╗
+  ██║     ██║   ██║████╗ ████║██╔══██╗██╔══██╗╚══██╔══╝
+  ██║     ██║   ██║██╔████╔██║███████║██████╔╝   ██║   
+  ██║     ██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗   ██║   
+  ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
+  ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
+   Modern Terminal Visual Suite • v2.3.0
+   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]
+```
+
+# Lumart (Luma) v2.3.0
+
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)
+[![C++: 17 Multi-Core](https://img.shields.io/badge/C%2B%2B-17%20OpenMP%20SIMD-orange.svg)](https://isocpp.org/)
+[![Platform: Linux / macOS / BSD](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20BSD-lightgrey.svg)](https://github.com/SilentBlox01/Luma)
+[![8言語対応](https://img.shields.io/badge/Languages-8%20Locales-purple.svg)](#対応言語)
+
+**Lumart**は、現代のターミナルエミュレータのために開発された高度なビジュアルエンジニアリングスイートです。その設計思想は極めてシンプルです。
+
+> **最小のターミナル領域で最大の視覚密度と審美性を実現する。**
+
+単に画像の輝度を文字記号に置き換える従来のアスキーアート変換器とは根本的に異なり、LumartはネイティブマルチコアC++17（OpenMP）と高度に最適化されたPythonで構築された**4つの専門画像処理・サブピクセルレンダリングエンジン**を統合しています。写真、アニメイラスト、ゲームスプライト、ライブWebカメラ映像を、ターミナル上で圧倒的なグラフィックアート体験へと昇華させます。
+
+---
+
+## 目次
+1. [4大主力レンダリングエンジン](#4大主力レンダリングエンジン)
+   - [Mary Apex 3.5](#1-mary-apex-35-写実的ベクターカラー旗艦)
+   - [Trumble Orelx 2.2](#2-trumble-orelx-22-レトロアーケード--アニメセルルック)
+   - [Luris Mono 2.6](#3-luris-mono-26-漫画スクリーントーン--モノクロ)
+   - [Spectra Weep 1.4](#4-spectra-weep-14-リアルタイムwebカメラ映像)
+2. [エンジン比較マトリックス](#エンジン比較マトリックス)
+3. [画像エクスポートおよび透過ステッカー方針](#画像エクスポートおよび透過ステッカー方針)
+4. [対応言語（8言語）](#対応言語)
+5. [クイックインストール＆パッケージ](#インストール)
+6. [CLIコマンド完全リファレンス](#cliコマンド完全リファレンス)
+7. [実践クックブック＆サンプル](#実践クックブック)
+8. [アップデートおよびロールバックシステム](#アップデートおよびロールバック)
+9. [デスクトップ環境との統合](#デスクトップ環境との統合)
+10. [内部アーキテクチャと数学](#内部アーキテクチャと数学)
+11. [トラブルシューティング](#トラブルシューティング)
+12. [ライセンス](#ライセンス)
+
+---
+
+## 4大主力レンダリングエンジン
+
+```
+                  ┌──────────────────────────────────────────────┐
+                  │                 LUMART CLI                   │
+                  └──────┬────────────┬────────────┬─────────────┘
+                         │            │            │             │
+        ┌────────────────┘            │            │             └────────────────┐
+        ▼                             ▼            ▼                              ▼
+  ┌──────────────┐             ┌──────────────┐  ┌──────────────┐          ┌──────────────┐
+  │  MARY APEX   │             │TRUMBLE ORELX │  │  LURIS MONO  │          │ SPECTRA WEEP │
+  │    v3.5      │             │    v2.2      │  │    v2.6      │          │     v1.4     │
+  ├──────────────┤             ├──────────────┤  ├──────────────┤          ├──────────────┤
+  │• C++17 OpenMP│             │• Subpixel Ink│  │• C++17 Native│          │• Live Webcam │
+  │• Oklab 31-Min│             │• Capcom CPS-2│  │• DoG Lineart │          │• 30-60 FPS   │
+  │• Sextants 2x3│             │• 32-bit Punch│  │• Ami-tone 8x8│          │• 5 Shaders   │
+  │• Specular Fit│             │• Quad-Blocks │  │• Stickers PNG│          │• Zero-Latency│
+  └──────────────┘             └──────────────┘  └──────────────┘          └──────────────┘
+```
+
+### 1. Mary Apex 3.5 (写実的ベクターカラー旗艦)
+* **設計目標**: 連続的なマイクログラデーション、複雑な写真ライティング、写実的なポートレート。
+* **C++17 OpenMPマルチコア**: SIMD並列化アクセラレーション（共有ライブラリ `libmary.so` およびバイナリ `luma-mary`）。
+* **厳密大域最小Oklab二分割法（セルあたり31通りの全離散探索）**: K-Means等の局所解トラップを完全排除。1セルあたり700ナノ秒未満で31通りの色彩二分割を全探索し、知覚色差（$\Delta E$）の大域的絶対最小解を保証。
+* **$O(1)$ 高速ガイデッドフィルタ＆鏡面反射ブースト（$L > 0.82$）**: 肌の階調を滑らかに保持しながら、瞳や金属のハイライト光沢をクリアに強調。
+* **Unicode 13.0 セクスタント 2x3 標準搭載（`-S`, `--sextants`）**: 1文字あたり6サブピクセルを持つブロック文字（`🬀`-`🬻`, `█`, `▌`, `▐`）。さらに2x4点字（`-B`）、2x2クアドラント（`-Q`）、ハーフブロック（`--blocks`）、Scharr方向性ASCIIにも対応。
+* **厳密アルファ分離**: 背景の透過領域が輪郭ピクセルの色計算を汚染せず、暗いフリンジや黒ずみを根絶。
+* **ターミナルキャンバス出力**: 画像ファイル（`.png` / `.jpg`）への書き出し時、端正なターミナルダーク背景（`#0c0c0c`）上で描画され、ターミナルアートとしての高い品位を保証。
+
+### 2. Trumble Orelx 2.2 (レトロアーケード & アニメセルルック)
+* **設計目標**: アニメイラスト、ゲームスプライト、コミック、ポップアート。
+* **1対1サブピクセル先行インキング**: リサイズ処理をバイラテラルフィルタおよびCanny輪郭検出の*前*に実行。黒インク輪郭線が出力解像度において正確に1サブピクセルの太さを維持し、Lanczos補間によるぼやけや色混じりを防止。
+* **32-bit Capcom CPS-2 / SNK Neo-Geo アーケードパレット**: 90年代の格闘ゲームを彷彿とさせる色彩強調（彩度+28%、選択的コントラスト+15%）。
+* **適応型クアドラント形状補正**: 形状ペナルティ下限を30に緩和し、斜めブロック（`▞`, `▚`, `▘`, `▝`）が瞳や衣服の有機的な曲線を忠実に追従。
+
+### 3. Luris Mono 2.6 (漫画スクリーントーン & モノクロ C++17)
+* **設計目標**: 本格的な日本漫画スタイル、インク画、ペン画、透過ステッカー。
+* **DoG（ガウシアン差分法）輪郭抽出**: ターミナル幅に合わせて畳み込み半径を最適化し、テクスチャノイズのないクリーンな線画を抽出。
+* **Manga Screentone 2.0 (*Ami-tone*)**: 伝統的な印刷アミ点をBayer 8x8マトリクスで再現。純白の紙地と深みのある黒インクで階調を表現。
+* **Atkinson誤差拡散法 (MacPaint 1984)**: 25%の誤差をあえて保持することで、不規則なざらつきを抑えた美しいグラデーションを生み出す名作アルゴリズム。
+* **透過ステッカー専用エンジン（`--transparent`）**: Luris Monoは**透過背景付きPNGステッカーを出力できる唯一のエンジン**であり、DiscordやTelegram用スタンプの作成に最適。
+
+### 4. Spectra Weep 1.4 (リアルタイムWebカメラ映像)
+* **設計目標**: ターミナル内での秒間30〜60フレーム超低遅延ビデオストリーミング（`lumart --webcam` または `lumart -W`）。
+* **ゼロレイテンシ**: V4L2/OpenCVの最適化キャプチャとターミナルリフレッシュレートの同期。
+* **5種のリアルタイムシェーダー**: Normal TrueColor, Weep Cyberpunk, Matrix Green Rain, Thermal FLIR, Manga Ink。
+
+---
+
+## 画像エクスポートおよび透過ステッカー方針
+
+Lumartは、ターミナルアートを160列（セクスタントで320×480サブピクセル）のスタジオ解像度で画像出力（`-o output.png` / `-o output.jpg`）できます。
+
+### 1. WebP形式の恒久的一般廃止
+* **`.webp`形式へのエクスポートは恒久的に無効化されました**。
+* `.webp`を指定した場合はエラーを表示し、`.png`または`.jpg`の利用を案内します。
+* 正式対応形式:
+  * **`.png`**: 可逆圧縮、高精細、アルファチャンネル完全対応。
+  * **`.jpg` / `.jpeg`**: 普遍的互換性、品質95%最適化。
+
+### 2. 透過ステッカー出力はLuris Mono専用
+* カラーエンジン（MaryおよびTrumble）を透明背景で切り抜いて通常の画像ビューアで見ると、ターミナルの枠組みがないため解像度の粗い画像と誤認されやすくなります。そのため、カラーモデルは常に**洗練されたダークターミナル背景（`#0c0c0c`）**上で出力されます。
+* 一方、**モノクロ（Luris Mono）**は漫画アミ点とインク線がステッカーとしての美しさを完璧に表現できるため、`--transparent`による透過ステッカー出力が可能です。
+
+---
+
+## 対応言語
+
+Lumartは**8つの言語**に完全対応しています：
+
+| コード | 言語名 | 自動判定 | 手動指定 |
+| :---: | :--- | :--- | :--- |
+| `ja` | 日本語 | `$LANG=ja_*` | `lumart --lang ja` |
+| `en` | English | `$LANG=en_*` (標準) | `lumart --lang en` |
+| `es` | Español | `$LANG=es_*` | `lumart --lang es` |
+| `pt` | Português | `$LANG=pt_*` | `lumart --lang pt` |
+| `fr` | Français | `$LANG=fr_*` | `lumart --lang fr` |
+| `ru` | Русский | `$LANG=ru_*` | `lumart --lang ru` |
+| `de` | Deutsch | `$LANG=de_*` | `lumart --lang de` |
+| `ko` | 한국어 | `$LANG=ko_*` | `lumart --lang ko` |
+
+---
 
 ## インストール
 
-Lumaは1行のコマンドでインストールするか、ソースコードから直接実行するか、ネイティブLinuxパッケージ（DEB、RPM、またはArch PKGBUILD）にビルドすることができます。
-
-**クイックインストール（推奨）:**
+### 自動ワンライナー導入（推奨）
 ```bash
 curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
 ```
 
-**オプション 1: ソースから直接実行 / ローカルインストーラー**
+### ソースコードからの導入
 ```bash
 git clone https://github.com/SilentBlox01/Luma.git
 cd Luma
+chmod +x install.sh
 ./install.sh
 ```
 
-**オプション 2: コンパイル済みパッケージをダウンロードする**
-[GitHub Releases](https://github.com/SilentBlox01/Luma/releases) ページから直接 `.deb` または `.rpm` パッケージをダウンロードできます。
+---
 
-**オプション 3: ネイティブパッケージを自分でコンパイルして構築する**
-Lumaには、PyInstallerを使用してツールをスタンドアロンバイナリにパッケージ化するための自動ビルドスクリプトが含まれています：
-```bash
-chmod +x build_packages.sh
-./build_packages.sh
-```
-コンパイル後、パッケージマネージャーを使用してグローバルにインストールできます：
-- **Debian/Ubuntu**: `sudo apt install ./dist/lumart-*.deb`
-- **Fedora/RHEL**: `sudo dnf install ./dist/lumart-*.rpm`
-- **Arch Linux**: `cd dist/arch && makepkg -si`
+## CLIコマンド完全リファレンス
 
-**オプション 4: ネイティブC++エンジンの手動コンパイル**
-完全なパッケージを作らずにネイティブC++エンジンのみをコンパイルする場合：
-```bash
-# スタンドアロンCLIバイナリ:
-g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
-
-# 共有ライブラリ (Pythonからctypes経由でインプロセス高速化):
-g++ -O3 -std=c++17 -fPIC -shared monochrome.cpp -o libmonochrome.so
+```text
+使用方法: lumart [オプション] <画像ファイルまたはURL>
 ```
 
-## 使用法
+| オプション | 引数 | 説明 |
+| :--- | :--- | :--- |
+| `-E`, `--engine` | `mary` \| `trumble` \| `luris` \| `spectra` | レンダリングエンジンを明示的に指定。 |
+| `-S`, `--sextants`| — | Unicode 2x3 セクスタント文字（1セル6サブピクセル）。 |
+| `-B`, `--braille` | — | Unicode 2x4 点字文字（1セル8サブピクセル）。 |
+| `-Q`, `--quadrants`| — | Unicode 2x2 クアドラント文字（1セル4サブピクセル）。 |
+| `--blocks` | — | 最適化されたターミナルブロック文字を使用。 |
+| `-a`, `--ascii` | — | 英数字ASCIIのみを使用。 |
+| `-m`, `--manga` | — | Manga 2.0 スクリーントーン（Bayerアミ点＋DoG線画）。 |
+| `-s`, `--sketch`| — | クリーンなペン画スケッチモード。 |
+| `-w`, `--width` | `<数値>` | 出力横幅（文字数、デフォルトは画面幅自動検出）。 |
+| `-i`, `--invert`| — | 明暗の反転（白背景ターミナル向け）。 |
+| `--raw-colors` | — | エフェクト処理をオフにし、素のRGBカラーを使用。 |
+| `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | ディザリングアルゴリズムの選択。 |
+| `--swap` | `<色1> <色2>` | RGB空間におけるリアルタイム色彩置換。 |
+| `-o`, `--output` | `<出力先.png / .jpg>` | 高精細画像ファイルへのエクスポート。 |
+| `--transparent` | — | **Luris Mono専用**: 透過背景付きステッカーを出力。 |
+| `-W`, `--webcam`| `[id]` | Webカメラ映像のライブストリーミング（30-60 FPS）。 |
+| `--instant` | — | プログレッシブ走査エフェクトをスキップし即時描画。 |
+| `--paste` | — | クリップボード内の画像を直接読み込んで描画。 |
+| `--lang` | `<言語コード>` | インターフェース言語を設定（`ja`, `en`, `es`等）。 |
+| `-H`, `--history` | `[件数]` | 過去の実行履歴を表示。 |
+| `-R`, `--replay` | `[番号]` | 履歴からコマンドを再実行。 |
+| `--install-desktop` | — | Linux右クリックメニューに「Lumartで開く」を登録。 |
+| `-v`, `--version` | — | ハードウェア・OS・エンジンの詳細診断を表示。 |
+| `-u`, `--check-update`| — | GitHub上の最新バージョンを確認。 |
+| `-uu`, `--upgrade` | — | 対話型自動アップグレードを実行。 |
+| `-dg`, `--downgrade` | `[バージョン]`| 過去バージョンへの安全なロールバック。 |
 
-パッケージをインストールしたかインストーラーを実行した場合は、どこからでも `lumart` または `luma` を実行できます。それ以外の場合は、Pythonスクリプトを直接実行してください。
+---
 
-> **💡 プロのヒント:** Lumaは透過背景の画像と美しく連携します！透過ピクセルを自動的に無視するため、ロゴやキャラクターがターミナル背景に綺麗に映えます。
+## 実践クックブック
 
+### 1. Mary Apex 3.5 による極上の写実的レンダリング
 ```bash
-# 基本的な使用法
-python3 lumart.py image.png
+lumart photo.jpg -E mary -S -w 90
 ```
 
-出力幅の指定（文字数）:
+### 2. Trumble Orelx 2.2 によるアニメアート描画
 ```bash
-python3 lumart.py image.png -w 30
+lumart anime.png -E trumble --blocks -w 85
 ```
 
-点字レンダリングとTruecolorの有効化:
+### 3. 透過背景の漫画ステッカーPNG作成（Luris Mono）
 ```bash
-python3 lumart.py image.png --braille -c
+lumart manga.png -m --transparent -o sticker.png
 ```
 
-純粋な線画スケッチモード（クリーンなDoG輪郭線）:
+### 4. ターミナル内リアルタイムWebカメラ映像
 ```bash
-python3 lumart.py image.png -E sketch -w 100
-# または: python3 lumart.py image.png -s -w 100
+lumart -W
 ```
 
-マンガスクリーントーン 2.0 モード (DoG輪郭 + 8x8 Bayer網点):
+### 5. クリップボード画像の即時投影
 ```bash
-python3 lumart.py image.png -E manga -w 120
-# または: python3 lumart.py image.png -m -w 120
+lumart --paste -E trumble --blocks
 ```
 
-Atkinsonディザリングによるモノクロ表示 (1984 MacPaint):
-```bash
-python3 lumart.py image.png -E mono -d atkinson -w 100
-# または従来のFloyd-Steinberg: python3 lumart.py image.png -E mono -d floyd -w 100
-```
+---
 
-2x2 象限HDブロック:
-```bash
-python3 lumart.py image.png -E mono --blocks -w 80
-```
+## ライセンス
 
-純粋な白黒モノクロ:
-```bash
-python3 lumart.py image.png -E mono --braille -w 100
-```
-
-クラシックなOSスタイルレンダリング:
-```bash
-python3 lumart.py image.png --os-style -c
-```
-
-完全なシステムおよびエンジン診断の表示:
-```bash
-luma -v
-# または: luma --version
-```
-
-## 更新とロールバック
-
-Lumaはアップデートと復元を明示的に制御できます：
-
-- **アップデートの確認（ダウンロードや変更は行いません）:**
-  ```bash
-  luma -u
-  # または: luma --update / luma --check-update
-  ```
-- **インタラクティブアップグレード:**
-  ```bash
-  luma -uu
-  # または: luma --upgrade
-  ```
-  *(リリースノートを確認しながらバージョンを選択可能。`~/.config/luma/backup/` に自動バックアップ)*
-
-- **インタラクティブロールバック / ダウングレード:**
-  ```bash
-  luma -dg
-  # または: luma --downgrade / luma --rollback
-  ```
-  *(ローカルバックアップまたはGitHubリリースのいずれかを選択して復元)*
-
-  バージョンを直接指定することも可能です：
-  ```bash
-  luma -dg 2.1.0
-  ```
-
-## アンインストール
-
-Lumaをシステムから削除する場合：
-
-**パッケージマネージャー経由の場合 (.deb, .rpm, PKGBUILD):**
-- **Debian/Ubuntu**: `sudo apt remove lumart`
-- **Fedora/RHEL**: `sudo dnf remove lumart`
-- **Arch Linux**: `sudo pacman -Rns lumart`
-
-**pip経由の場合:**
-```bash
-pip uninstall lumart
-```
-
-**手動インストールの場合:**
-```bash
-chmod +x uninstall.sh
-./uninstall.sh
-```
-
-## 理念
-
-ターミナルレンダリングは、視覚的圧縮の一形態です。
-
-課題は、単に画像を文字に変換することではありません。最小限のターミナルセルを使用して、可能な限り多くの視覚情報を表現することです。
-
-したがって、Lumaは単に認識可能なASCIIアートを生成するのではなく、数学的に正確な色空間（リニアRGB vs sRGB）と動的HDR曲線を使用した**知覚的忠実度**に焦点を当てています。
-
-## トラブルシューティング
-
-フォント、色、またはモジュールの欠落でお困りですか？[トラブルシューティングガイド](TROUBLESHOOTING.md) をご覧ください。
+Lumartは GNU Affero General Public License v3.0 (**AGPL-3.0**) のもとで公開されています。詳細は `LICENSE` ファイルをご確認ください。

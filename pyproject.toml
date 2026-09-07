@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lumart"
-version = "2.2.0"
-description = "A high-fidelity image-to-terminal renderer written in Python."
+version = "2.3.0"
+description = "A high-fidelity image-to-terminal renderer written in Python and C++."
 readme = "README.md"
 requires-python = ">=3.8"
-license = { text = "AGPL-3.0" }
+license = "AGPL-3.0-only"
 dependencies = [
     "Pillow>=10.0.0"
 ]
@@ -16,3 +16,6 @@ dependencies = [
 [project.scripts]
 lumart = "lumart:main"
 luma = "lumart:main"
+
+[tool.setuptools]
+py-modules = ["lumart", "mary"]

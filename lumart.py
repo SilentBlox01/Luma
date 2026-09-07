@@ -3,6 +3,15 @@ import argparse
 import sys
 import locale
 import os
+import io
+import urllib.request
+import shlex
+import time
+import datetime
+import re
+import subprocess
+import shutil
+import tempfile
 try:
     from PIL import Image, ImageEnhance, ImageOps, ImageFilter
 except ImportError:
@@ -75,7 +84,7 @@ except ImportError:
         mary = None
 
 
-VERSION = "2.2.0"
+VERSION = "2.3.0"
 GITHUB_REPO = "SilentBlox01/Luma"
 GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/lumart.py"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
@@ -103,12 +112,21 @@ TRANSLATIONS = {
         "help_version": "Show program's version, system diagnostics, and engine status.",
         "help_image_path": "Path to the input image file (works best with transparent backgrounds).",
         "help_width": "Width of the output ASCII art (in characters). Default: 90",
-        "help_engine": "Select rendering engine: 'trumble' (classic color, default), 'mary' (perceptual color v2.2.0), or 'luris' (monochrome/manga).",
+        "help_engine": "Select rendering engine: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), or 'spectra' (Spectra Weep 1.4 live webcam).",
+        "help_webcam": "Stream live webcam feed to terminal (exclusive 'Spectra' engine).",
+        "help_instant": "Disable progressive reveal effect and output immediately.",
+        "help_transparent": "Export PNG sticker with transparent background (Luris Mono exclusive).",
+        "help_history": "Show command execution history (optional: number of entries).",
+        "help_replay": "Re-execute a previous command from history (default: last command).",
+        "help_clear_history": "Clear the saved command history.",
+        "help_paste": "Load image directly from the system clipboard.",
+        "help_install_desktop": "Install Linux desktop entry and file manager right-click integration.",
         "help_color": "Output ASCII art in color (Color Engine).",
         "help_no_color": "Disable color output and use B&W engine.",
         "help_invert": "Invert the ASCII characters (useful for dark terminals).",
         "help_output": "Save the ASCII art to a file instead of printing to the console.",
         "help_binary": "Use only 1s and 0s for the ASCII characters.",
+        "help_ascii": "Force classic ASCII characters density ramp rendering.",
         "help_blocks": "Use half-blocks (Color) or 2x2 Quadrant HD blocks (B&W) for high resolution.",
         "help_quadrants": "Use 2x2 Unicode quadrant blocks for ultra-dense subpixel rendering.",
         "help_sextants": "Use 2x3 Unicode sextant blocks for solid subpixel rendering (Mary Apex flagship).",
@@ -120,7 +138,7 @@ TRANSLATIONS = {
         "help_dither": "Dithering algorithm for B&W shading: 'atkinson' (default), 'floyd', 'bayer', or 'none'.",
         "help_manga": "Authentic Manga/Anime style (clean DoG lineart, 8x8 Bayer screentone).",
         "help_sketch": "Pure line art sketch mode (clean contours, no screentone or background noise).",
-        "help_lang": "Force a specific language (en, es, pt, ru, ja, de, ko).",
+        "help_lang": "Force a specific language (en, es, pt, ru, ja, de, ko, fr).",
         "error_open": "❌ Where the hell is the image? Could not open it: {}",
         "error_swap": "❌ Pass pairs of colors to --swap damn it (e.g. --swap purple pink). I can't read your mind.",
         "saved_to": "ASCII art saved to {}",
@@ -151,12 +169,21 @@ TRANSLATIONS = {
         "help_version": "Mostrar versión del programa, diagnóstico del sistema y estado de aceleración.",
         "help_image_path": "Ruta al archivo de imagen de entrada (funciona mejor con fondos transparentes).",
         "help_width": "Ancho del arte ASCII de salida (en caracteres). Por defecto: 90",
-        "help_engine": "Seleccionar motor: 'trumble' (color clásico, por defecto), 'mary' (color perceptual v2.2.0) o 'luris' (monocromático/manga).",
+        "help_engine": "Seleccionar motor: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) o 'spectra' (Spectra Weep 1.4 en vivo).",
+        "help_webcam": "Transmitir vídeo de cámara web en vivo a la terminal (motor exclusivo 'Spectra').",
+        "help_instant": "Desactivar efecto de escaneo reveal y mostrar de inmediato.",
+        "help_transparent": "Exportar sticker PNG con fondo transparente (exclusivo de Luris Mono).",
+        "help_history": "Mostrar historial de comandos de Lumart (opcional: número de entradas).",
+        "help_replay": "Re-ejecutar un comando previo del historial (por defecto: el último).",
+        "help_clear_history": "Vaciar el historial de comandos guardado.",
+        "help_paste": "Cargar imagen directamente desde el portapapeles del sistema.",
+        "help_install_desktop": "Instalar integración de escritorio y clic derecho en gestores de archivos.",
         "help_color": "Generar arte ASCII en color (Motor de Color).",
         "help_no_color": "Desactivar salida de color y usar motor blanco y negro.",
         "help_invert": "Invertir los caracteres ASCII (útil para terminales oscuras).",
         "help_output": "Guardar el arte ASCII en un archivo en lugar de imprimirlo en consola.",
         "help_binary": "Usar solo 1s y 0s para los caracteres ASCII.",
+        "help_ascii": "Forzar renderizado clásico con rampa de densidad ASCII.",
         "help_blocks": "Usar medio-bloques (Color) o bloques cuadrantes 2x2 HD (B&W) para alta resolución.",
         "help_quadrants": "Usar bloques cuadrantes 2x2 Unicode para renderizado subpíxel ultra denso.",
         "help_sextants": "Usar bloques sextantes 2x3 Unicode para renderizado subpíxel sólido (buque insignia Mary Apex).",
@@ -168,7 +195,7 @@ TRANSLATIONS = {
         "help_dither": "Algoritmo de tramado: 'atkinson' (por defecto), 'floyd', 'bayer' o 'none'.",
         "help_manga": "Estilo Manga/Anime auténtico (trazos limpios DoG, sombreado screentone 8x8 Bayer).",
         "help_sketch": "Modo boceto de trazo puro (contornos limpios sin sombreado ni ruido de fondo).",
-        "help_lang": "Forzar un idioma específico (en, es, pt, ru, ja, de, ko).",
+        "help_lang": "Forzar un idioma específico (en, es, pt, ru, ja, de, ko, fr).",
         "error_open": "❌ ¿Dónde coño está la imagen? No se pudo abrir: {}",
         "error_swap": "❌ Pásame pares de colores a --swap (ej: --swap purple pink). No leo mentes.",
         "saved_to": "Arte ASCII guardado en {}",
@@ -199,12 +226,21 @@ TRANSLATIONS = {
         "help_version": "Mostrar o número da versão do programa, diagnóstico e status do motor.",
         "help_image_path": "Caminho para o arquivo de imagem de entrada (funciona melhor com fundos transparentes).",
         "help_width": "Largura da arte ASCII de saída (em caracteres). Padrão: 90",
-        "help_engine": "Selecionar motor: 'trumble' (cor clássica, padrão), 'mary' (cor perceptual v2.2.0) ou 'luris' (monocromático/manga).",
+        "help_engine": "Selecionar motor: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) ou 'spectra' (Spectra Weep 1.4 ao vivo).",
+        "help_webcam": "Transmitir vídeo de webcam ao vivo para o terminal (motor exclusivo 'Spectra').",
+        "help_instant": "Desativar efeito de revelação progressiva e exibir imediatamente.",
+        "help_transparent": "Exportar sticker PNG com fundo transparente (exclusivo do Luris Mono).",
+        "help_history": "Mostrar histórico de comandos do Lumart (opcional: número de entradas).",
+        "help_replay": "Reexecutar um comando anterior do histórico (padrão: o último).",
+        "help_clear_history": "Limpar o histórico de comandos salvo.",
+        "help_paste": "Carregar imagem diretamente da área de transferência do sistema.",
+        "help_install_desktop": "Instalar atalho de área de trabalho e integração de clique direito no gerenciador de arquivos.",
         "help_color": "Gerar arte ASCII em cores (Motor de Cores).",
         "help_no_color": "Desativar saída colorida e usar motor preto e branco.",
         "help_invert": "Inverter os caracteres ASCII (útil para terminais escuros).",
         "help_output": "Salvar a arte ASCII em um arquivo em vez de imprimir no console.",
         "help_binary": "Usar apenas 1s e 0s para os caracteres ASCII.",
+        "help_ascii": "Forçar renderização clássica com rampa de caracteres ASCII.",
         "help_blocks": "Usar meios-blocos ou blocos quadrantes 2x2 para alta resolução.",
         "help_quadrants": "Usar blocos de quadrantes 2x2 Unicode para renderização subpíxel ultradensa.",
         "help_sextants": "Usar blocos de sextantes 2x3 Unicode para renderização subpíxel sólida (flagship Mary Apex).",
@@ -216,7 +252,7 @@ TRANSLATIONS = {
         "help_dither": "Algoritmo de pontilhamento: 'atkinson' (padrão), 'floyd', 'bayer' ou 'none'.",
         "help_manga": "Estilo Manga/Anime autêntico (traços limpos DoG, sombreamento retícula 8x8).",
         "help_sketch": "Modo esboço de linha pura (contornos limpos sem retícula).",
-        "help_lang": "Forçar um idioma específico (en, es, pt, ru, ja, de, ko).",
+        "help_lang": "Forçar um idioma específico (en, es, pt, ru, ja, de, ko, fr).",
         "error_open": "Erro ao abrir a imagem: {}",
         "error_swap": "Erro: --swap requer pares de cores (ex: --swap purple pink).",
         "saved_to": "Arte ASCII salva em {}",
@@ -247,12 +283,21 @@ TRANSLATIONS = {
         "help_version": "Показать версию программы, диагностику системы и статус движка.",
         "help_image_path": "Путь к исходному файлу изображения (лучше всего работает с прозрачным фоном).",
         "help_width": "Ширина выходного ASCII-арта (в символах). По умолчанию: 90",
-        "help_engine": "Выбрать движок: 'trumble' (классический цвет, по умолчанию), 'mary' (перцептивный цвет v2.2.0) или 'luris' (монохром/манга).",
+        "help_engine": "Выбрать движок: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) или 'spectra' (Spectra Weep 1.4 живая веб-камера).",
+        "help_webcam": "Трансляция видео с веб-камеры в терминал (эксклюзивный движок 'Spectra').",
+        "help_instant": "Отключить эффект плавного сканирования и вывести результат мгновенно.",
+        "help_transparent": "Экспортировать PNG-стикер с прозрачным фоном (только для Luris Mono).",
+        "help_history": "Показать историю команд Lumart (опционально: количество записей).",
+        "help_replay": "Повторно выполнить предыдущую команду из истории (по умолчанию: последнюю).",
+        "help_clear_history": "Очистить сохраненную историю команд.",
+        "help_paste": "Загрузить изображение прямо из системного буфера обмена.",
+        "help_install_desktop": "Установить ярлык на рабочий стол и контекстное меню файлового менеджера.",
         "help_color": "Выводить ASCII-арт в цвете (Цветовой движок).",
         "help_no_color": "Отключить цветной вывод и использовать черно-белый движок.",
         "help_invert": "Инвертировать символы ASCII (полезно для темных терминалов).",
         "help_output": "Сохранить ASCII-арт в файл вместо вывода в консоль.",
         "help_binary": "Использовать только 1 и 0 для символов ASCII.",
+        "help_ascii": "Принудительный классический рендеринг символами ASCII.",
         "help_blocks": "Использовать полублоки или 2x2 квадранты для высокого разрешения.",
         "help_quadrants": "Использовать квадранты 2x2 Unicode для сверхплотного субпиксельного рендеринга.",
         "help_sextants": "Использовать секстанты 2x3 Unicode для монолитного субпиксельного рендеринга (флагман Mary Apex).",
@@ -264,7 +309,7 @@ TRANSLATIONS = {
         "help_dither": "Алгоритм дизеринга: 'atkinson' (по умолчанию), 'floyd', 'bayer' или 'none'.",
         "help_manga": "Стиль манги/аниме (чистый лайн-арт DoG, скринтоны 8x8).",
         "help_sketch": "Режим чистого эскиза (четкие контуры без растра).",
-        "help_lang": "Принудительно установить язык (en, es, pt, ru, ja, de, ko).",
+        "help_lang": "Принудительно установить язык (en, es, pt, ru, ja, de, ko, fr).",
         "error_open": "Ошибка при открытии изображения: {}",
         "error_swap": "Ошибка: --swap требует пары цветов (напр. --swap purple pink).",
         "saved_to": "ASCII-арт сохранен в {}",
@@ -295,12 +340,21 @@ TRANSLATIONS = {
         "help_version": "プログラムのバージョン、診断情報、エンジン状態を表示して終了します。",
         "help_image_path": "入力画像ファイルへのパス（透明な背景が最適です）。",
         "help_width": "出力するASCIIアートの幅（文字数）。デフォルト: 90",
-        "help_engine": "レンダリングエンジンの選択: 'trumble' (クラシックカラー、デフォルト), 'mary' (知覚カラー v2.2.0), 'luris' (モノクロ/マンガ)。",
+        "help_engine": "レンダリングエンジンの選択: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), 'spectra' (Spectra Weep 1.4 ライブWebカメラ)。",
+        "help_webcam": "ライブWebカメラ映像をターミナルにストリーミング（専用エンジン 'Spectra'）。",
+        "help_instant": "プログレッシブスキャン効果を無効にして即時出力します。",
+        "help_transparent": "透明な背景でPNGステッカーをエクスポートします（Luris Mono専用）。",
+        "help_history": "Lumartのコマンド履歴を表示します（オプション：表示件数）。",
+        "help_replay": "履歴から以前のコマンドを再実行します（デフォルト：最後のコマンド）。",
+        "help_clear_history": "保存されたコマンド履歴をクリアします。",
+        "help_paste": "システムのクリップボードから直接画像を読み込みます。",
+        "help_install_desktop": "デスクトップエントリとファイルマネージャーの右クリック統合をインストールします。",
         "help_color": "ASCIIアートをカラーで出力します (カラーエンジン)。",
         "help_no_color": "カラー出力を無効にし、白黒エンジンを使用します。",
         "help_invert": "ASCII文字を反転します（暗いターミナルで便利です）。",
         "help_output": "コンソールに出力する代わりに、ASCIIアートをファイルに保存します。",
         "help_binary": "ASCII文字として1と0のみを使用します。",
+        "help_ascii": "クラシックなASCII文字密度ランプでの描画を強制します。",
         "help_blocks": "高解像度のためにハーフブロックまたは2x2ブロックを使用します。",
         "help_quadrants": "2x2 Unicode象限ブロックを使用した超高密度サブピクセルレンダリング。",
         "help_sextants": "2x3 Unicode六分儀ブロックによる高密度ソリッド描画（Mary Apexフラッグシップ）。",
@@ -312,7 +366,7 @@ TRANSLATIONS = {
         "help_dither": "ディザリングアルゴリズム: 'atkinson' (デフォルト), 'floyd', 'bayer', 'none'。",
         "help_manga": "本物のマンガ/アニメスタイル (DoG線画、8x8スクリーントーン)。",
         "help_sketch": "純粋な線画スケッチモード（スクリーントーンなし、クリーンな輪郭）。",
-        "help_lang": "特定の言語を強制します（en, es, pt, ru, ja, de, ko）。",
+        "help_lang": "特定の言語を強制します（en, es, pt, ru, ja, de, ko, fr）。",
         "error_open": "画像を開く際のエラー: {}",
         "error_swap": "エラー: --swapには色のペアが必要です（例: --swap purple pink）。",
         "saved_to": "ASCIIアートを {} に保存しました",
@@ -343,12 +397,21 @@ TRANSLATIONS = {
         "help_version": "Versionsnummer, Systemdiagnose und Engine-Status anzeigen.",
         "help_image_path": "Pfad zur Eingabebilddatei (funktioniert am besten mit transparentem Hintergrund).",
         "help_width": "Breite der ASCII-Kunst (in Zeichen). Standard: 90",
-        "help_engine": "Rendering-Engine auswählen: 'trumble' (klassische Farbe, Standard), 'mary' (wahrnehmungsbasierte Farbe v2.2.0) oder 'luris' (Monochrom/Manga).",
+        "help_engine": "Rendering-Engine auswählen: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) oder 'spectra' (Spectra Weep 1.4 Live-Webcam).",
+        "help_webcam": "Live-Webcam-Stream im Terminal anzeigen (exklusive 'Spectra'-Engine).",
+        "help_instant": "Progressiven Reveal-Effekt deaktivieren und sofort ausgeben.",
+        "help_transparent": "PNG-Sticker mit transparentem Hintergrund exportieren (exklusiv für Luris Mono).",
+        "help_history": "Lumart-Befehlsverlauf anzeigen (optional: Anzahl der Einträge).",
+        "help_replay": "Vorherigen Befehl aus dem Verlauf erneut ausführen (Standard: letzter Befehl).",
+        "help_clear_history": "Gespeicherten Befehlsverlauf löschen.",
+        "help_paste": "Bild direkt aus der Systemzwischenablage laden.",
+        "help_install_desktop": "Desktop-Eintrag und Kontextmenü-Integration für Dateimanager installieren.",
         "help_color": "ASCII-Kunst in Farbe ausgeben (Farb-Engine).",
         "help_no_color": "Farbausgabe deaktivieren und Schwarz-Weiß-Engine verwenden.",
         "help_invert": "ASCII-Zeichen umkehren (nützlich für dunkle Terminals).",
         "help_output": "ASCII-Kunst in einer Datei speichern, anstatt sie auf der Konsole auszugeben.",
         "help_binary": "Nur 1en und 0en für die ASCII-Zeichen verwenden.",
+        "help_ascii": "Klassisches Rendern mit ASCII-Zeichen-Dichterampe erzwingen.",
         "help_blocks": "Halbblöcke oder 2x2 Quadrant-Blöcke für hohe Auflösung verwenden.",
         "help_quadrants": "2x2 Unicode-Quadrantblöcke für ultra-dichtes Subpixel-Rendering verwenden.",
         "help_sextants": "2x3 Unicode-Sextantenblöcke für solides Subpixel-Rendering verwenden (Mary Apex Flaggschiff).",
@@ -360,7 +423,7 @@ TRANSLATIONS = {
         "help_dither": "Dithering-Algorithmus: 'atkinson' (Standard), 'floyd', 'bayer' oder 'none'.",
         "help_manga": "Authentischer Manga/Anime-Stil (saubere DoG-Linienführung, 8x8 Rastertönung).",
         "help_sketch": "Reiner Strichzeichnungsmodus (saubere Konturen ohne Rasterung).",
-        "help_lang": "Eine bestimmte Sprache erzwingen (en, es, pt, ru, ja, de, ko).",
+        "help_lang": "Eine bestimmte Sprache erzwingen (en, es, pt, ru, ja, de, ko, fr).",
         "error_open": "Fehler beim Öffnen des Bildes: {}",
         "error_swap": "Fehler: --swap benötigt Farbpaare (z.B. --swap purple pink).",
         "saved_to": "ASCII-Kunst in {} gespeichert",
@@ -391,12 +454,21 @@ TRANSLATIONS = {
         "help_version": "프로그램의 버전 번호, 시스템 진단 및 엔진 상태를 표시합니다.",
         "help_image_path": "입력 이미지 파일의 경로입니다 (투명한 배경이 가장 좋습니다).",
         "help_width": "출력 ASCII 아트의 너비(문자 수)입니다. 기본값: 90",
-        "help_engine": "렌더링 엔진 선택: 'trumble' (클래식 색상, 기본값), 'mary' (지각 색상 v2.2.0) 또는 'luris' (흑백/만화).",
+        "help_engine": "렌더링 엔진 선택: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) 또는 'spectra' (Spectra Weep 1.4 라이브 웹캠).",
+        "help_webcam": "터미널에 라이브 웹캠 영상 스트리밍 (전용 'Spectra' 엔진).",
+        "help_instant": "프로그레시브 스캔 효과를 비활성화하고 즉시 출력합니다.",
+        "help_transparent": "투명 배경으로 PNG 스티커를 내보냅니다 (Luris Mono 전용).",
+        "help_history": "Lumart 명령 실행 기록을 표시합니다 (선택 사항: 항목 수).",
+        "help_replay": "기록에서 이전 명령을 다시 실행합니다 (기본값: 마지막 명령).",
+        "help_clear_history": "저장된 명령 기록을 삭제합니다.",
+        "help_paste": "시스템 클립보드에서 직접 이미지를 불러옵니다.",
+        "help_install_desktop": "데스크톱 항목 및 파일 관리자 우클릭 통합을 설치합니다.",
         "help_color": "컬러로 ASCII 아트를 출력합니다 (컬러 엔진).",
         "help_no_color": "컬러 출력을 비활성화하고 흑백 엔진을 사용합니다.",
         "help_invert": "ASCII 문자를 반전시킵니다(어두운 터미널에 유용).",
         "help_output": "콘솔에 출력하는 대신 ASCII 아트를 파일에 저장합니다.",
         "help_binary": "ASCII 문자에 1과 0만 사용합니다.",
+        "help_ascii": "클래식 ASCII 문자 밀도 램프로 강제 렌더링합니다.",
         "help_blocks": "고해상도를 위해 하프 블록 또는 2x2 쿼드런트 블록을 사용합니다.",
         "help_quadrants": "초고밀도 서브픽셀 렌더링을 위해 2x2 유니코드 사분면 블록을 사용합니다.",
         "help_sextants": "솔리드 서브픽셀 렌더링을 위해 2x3 유니코드 육분의 블록 사용 (Mary Apex 플래그십).",
@@ -408,7 +480,7 @@ TRANSLATIONS = {
         "help_dither": "디더링 알고리즘: 'atkinson' (기본값), 'floyd', 'bayer' 또는 'none'.",
         "help_manga": "정통 만화/애니메이션 스타일 (깔끔한 DoG 라인아트, 8x8 스크린톤).",
         "help_sketch": "순수 선화 스케치 모드 (스크린톤 없는 깔끔한 윤곽선).",
-        "help_lang": "특정 언어를 강제 적용합니다(en, es, pt, ru, ja, de, ko).",
+        "help_lang": "특정 언어를 강제 적용합니다(en, es, pt, ru, ja, de, ko, fr).",
         "error_open": "이미지 열기 오류: {}",
         "error_swap": "오류: --swap에는 색상 쌍이 필요합니다(예: --swap purple pink).",
         "saved_to": "ASCII 아트를 {}에 저장했습니다.",
@@ -430,6 +502,63 @@ TRANSLATIONS = {
         "downgrade_success": "⏪ Luma를 v{} 버전으로 성공적으로 롤백했습니다!",
         "downgrade_error": "❌ 롤백 오류: {}",
         "downgrade_no_backup": "❌ 백업 또는 이전 버전을 찾을 수 없습니다.",
+    },
+    "fr": {
+        "pillow_not_found": "[luma] Pillow introuvable. Installation des dépendances...",
+        "usage": "Utilisation : lumart [options] <chemin_image>\n\nEssayez 'lumart --help' si vous avez la flemme de lire la documentation.",
+        "desc": "Lumart - Moteur d'art pour terminal fait par et pour les humains",
+        "help_help": "Afficher ce message d'aide et quitter.",
+        "help_version": "Afficher la version du programme, les diagnostics système et l'état des moteurs.",
+        "help_image_path": "Chemin du fichier image d'entrée (fonctionne mieux avec des arrière-plans transparents).",
+        "help_width": "Largeur de l'art ASCII en sortie (en caractères). Par défaut : 90",
+        "help_engine": "Sélectionner le moteur de rendu : 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), ou 'spectra' (Spectra Weep 1.4 webcam en direct).",
+        "help_webcam": "Diffuser le flux de la webcam en direct dans le terminal (moteur exclusif 'Spectra').",
+        "help_instant": "Désactiver l'effet de révélation progressive et afficher immédiatement.",
+        "help_transparent": "Exporter un sticker PNG avec arrière-plan transparent (exclusif à Luris Mono).",
+        "help_history": "Afficher l'historique des commandes Lumart (optionnel : nombre d'entrées).",
+        "help_replay": "Réexécuter une commande précédente de l'historique (par défaut : la dernière).",
+        "help_clear_history": "Effacer l'historique des commandes enregistrées.",
+        "help_paste": "Charger une image directement depuis le presse-papiers système.",
+        "help_install_desktop": "Installer l'entrée de bureau Linux et l'intégration au menu contextuel des gestionnaires de fichiers.",
+        "help_color": "Générer de l'art ASCII en couleur (Moteur Couleur).",
+        "help_no_color": "Désactiver la sortie couleur et utiliser le moteur noir et blanc.",
+        "help_invert": "Inverser les caractères ASCII (utile pour les terminaux sombres).",
+        "help_output": "Enregistrer l'art ASCII dans un fichier au lieu de l'imprimer dans la console.",
+        "help_binary": "Utiliser uniquement des 1 et des 0 pour les caractères ASCII.",
+        "help_ascii": "Forcer le rendu classique avec rampe de densité de caractères ASCII.",
+        "help_blocks": "Utiliser des demi-blocs (Couleur) ou des blocs quadrants 2x2 HD (N&B) pour une haute résolution.",
+        "help_quadrants": "Utiliser des blocs quadrants Unicode 2x2 pour un rendu sous-pixel ultra-dense.",
+        "help_sextants": "Utiliser des blocs sextants Unicode 2x3 pour un rendu sous-pixel solide (fleuron Mary Apex).",
+        "help_font_ratio": "Calibration du ratio largeur/hauteur de la police du terminal (par défaut : 0.5).",
+        "help_braille": "Utiliser des caractères Braille pour des contours lisses et des formes haute résolution.",
+        "help_raw_colors": "Désactiver l'amélioration des couleurs et utiliser les couleurs brutes d'origine de l'image.",
+        "help_os_style": "Utiliser des caractères classiques de style Neofetch/OS (points, lettres, formes).",
+        "help_swap": "Échanger des couleurs par leur nom (ex : --swap purple pink blue red). Nombre pair d'arguments requis.",
+        "help_dither": "Algorithme de tramage pour le dégradé N&B : 'atkinson' (par défaut), 'floyd', 'bayer' ou 'none'.",
+        "help_manga": "Style authentique Manga/Anime (traits DoG nets, trames de points 8x8 Bayer).",
+        "help_sketch": "Mode esquisse au trait pur (contours nets sans trame ni bruit d'arrière-plan).",
+        "help_lang": "Forcer une langue spécifique (en, es, pt, ru, ja, de, ko, fr).",
+        "error_open": "❌ Mais où est passée l'image ? Impossible de l'ouvrir : {}",
+        "error_swap": "❌ Veuillez fournir des paires de couleurs à --swap (ex : --swap purple pink). Je ne lis pas dans vos pensées.",
+        "saved_to": "Art ASCII enregistré dans {}",
+        "error_save": "❌ Échec de l'enregistrement du fichier : {}",
+        "lang_success": "Langue modifiée avec succès vers '{}'.",
+        "lang_error": "❌ Erreur : La langue '{}' n'est pas prise en charge.",
+        "help_update": "Vérifier les mises à jour sans installer (-u, --update, --check-update).",
+        "help_upgrade": "Télécharger et installer la dernière mise à jour avec sélecteur interactif (-uu, --upgrade).",
+        "help_downgrade": "Revenir à la version précédente ou choisir dans le menu interactif (-dg, --downgrade [VER]).",
+        "update_checking": "🔍 Recherche de mises à jour...",
+        "update_already_latest": "✅ Luma est déjà à jour (v{}).",
+        "update_available": "💡 Nouvelle version disponible : v{} (actuelle : v{}).\n   Pour l'installer, exécutez : lumart -uu (ou lumart --upgrade)",
+        "update_downloading": "⬇️  Téléchargement et installation de Luma v{}...",
+        "update_success": "🎉 Luma a été mis à jour avec succès de v{} à v{} !",
+        "update_error": "❌ Erreur lors de la vérification ou de l'application des mises à jour : {}",
+        "update_permission_error": "⚠️  Permission refusée pour mettre à jour {}. Utilisez sudo : sudo lumart -uu",
+        "update_notice": "💡 Une nouvelle version de Luma est disponible : v{} (exécutez 'lumart -uu' pour mettre à niveau)",
+        "downgrade_checking": "🔍 Préparation du retour à une version précédente...",
+        "downgrade_success": "⏪ Luma a été rétrogradé avec succès vers la v{} !",
+        "downgrade_error": "❌ Erreur lors de la rétrogradation : {}",
+        "downgrade_no_backup": "❌ Aucune sauvegarde ou version précédente trouvée.",
     }
 }
 
@@ -451,6 +580,8 @@ def set_language(lang_code):
         CURRENT_LANG = "de"
     elif lang_code and lang_code.startswith("ko"):
         CURRENT_LANG = "ko"
+    elif lang_code and lang_code.startswith("fr"):
+        CURRENT_LANG = "fr"
     else:
         CURRENT_LANG = "en"
 
@@ -544,6 +675,119 @@ def apply_color_swap(image, swap_args):
                     
     return img
 
+def remove_image_background(pil_img, tolerance=32):
+    """
+    Remueve inteligentemente el fondo perimetral / conectado a los bordes para salidas transparentes,
+    stickers PNG/WebP y celdas sin fondo opaco.
+    Utiliza segmentación avanzada GrabCut (Gaussian Mixture Models) de OpenCV para aislar
+    figuras complejas, cabellos y degradados sin halos ni recortes prematuros.
+    """
+    if pil_img is None:
+        return pil_img
+
+    img_rgba = pil_img.convert("RGBA")
+    
+    # 1. Si la imagen ya tiene canal alfa con suficiente transparencia real (>4%), conservarlo intacto
+    try:
+        import numpy as np
+        arr = np.array(img_rgba)
+        if np.mean(arr[:, :, 3] < 128) > 0.04:
+            return img_rgba
+    except Exception:
+        pass
+
+    # 2. Segmentación avanzada con OpenCV GrabCut (GMM con 5 componentes gaussianas)
+    try:
+        import cv2
+        import numpy as np
+
+        arr = np.array(img_rgba)
+        rgb = arr[:, :, :3]
+        h, w = rgb.shape[:2]
+        if h <= 4 or w <= 4:
+            return img_rgba
+
+        # Bounding box con margen perimetral adaptativo (1% - 3% del tamaño)
+        margin_x = max(2, min(20, w // 40))
+        margin_y = max(2, min(20, h // 40))
+        rect = (margin_x, margin_y, w - 2 * margin_x, h - 2 * margin_y)
+
+        bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+        mask = np.zeros((h, w), np.uint8)
+        bgdModel = np.zeros((1, 65), np.float64)
+        fgdModel = np.zeros((1, 65), np.float64)
+
+        # 3 iteraciones de optimización EM para máxima velocidad y nitidez de contorno
+        cv2.grabCut(bgr, mask, rect, bgdModel, fgdModel, 3, cv2.GC_INIT_WITH_RECT)
+        
+        # 0 y 2 son fondo seguro y probable fondo; 1 y 3 son primer plano
+        fg_mask = np.where((mask == 1) | (mask == 3), 255, 0).astype(np.uint8)
+
+        # Refinamiento morfológico para limpiar islas de ruido perimetral y preservar bordes suaves
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_CLOSE, kernel)
+        fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_OPEN, kernel)
+
+        # Verificar que la segmentación no haya borrado la figura por completo (>5% y <98% transparencia)
+        trans_ratio = np.mean(fg_mask == 0)
+        if 0.05 <= trans_ratio <= 0.98:
+            arr[:, :, 3] = fg_mask
+            return Image.fromarray(arr)
+    except Exception:
+        pass
+
+    # 3. Fallback en OpenCV con Connected Components y FloodFill perimetral
+    try:
+        import cv2
+        import numpy as np
+
+        arr = np.array(img_rgba)
+        rgb = arr[:, :, :3]
+        h, w = rgb.shape[:2]
+        bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+        mask = np.zeros((h + 2, w + 2), np.uint8)
+        diff = (tolerance, tolerance, tolerance)
+        flags = 4 | cv2.FLOODFILL_MASK_ONLY | cv2.FLOODFILL_FIXED_RANGE | (255 << 8)
+        seed_points = [
+            (0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1),
+            (w // 2, 0), (w // 2, h - 1), (0, h // 2), (w - 1, h // 2)
+        ]
+        for pt in seed_points:
+            cv2.floodFill(bgr, mask, pt, 0, diff, diff, flags)
+        bg_mask = mask[1:h+1, 1:w+1] == 255
+        arr[bg_mask, 3] = 0
+        return Image.fromarray(arr)
+    except Exception:
+        pass
+
+    # 4. Fallback puro en Python con deque BFS perimetral
+    try:
+        from collections import deque
+        w, h = img_rgba.size
+        pixels = img_rgba.load()
+        visited = set()
+        queue = deque()
+        corners = [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]
+        for cx, cy in corners:
+            color = pixels[cx, cy][:3]
+            queue.append((cx, cy, color))
+            visited.add((cx, cy))
+        
+        while queue:
+            x, y, ref_c = queue.popleft()
+            pixels[x, y] = (0, 0, 0, 0)
+            for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < w and 0 <= ny < h and (nx, ny) not in visited:
+                    nc = pixels[nx, ny][:3]
+                    diff = max(abs(nc[0] - ref_c[0]), abs(nc[1] - ref_c[1]), abs(nc[2] - ref_c[2]))
+                    if diff <= tolerance:
+                        visited.add((nx, ny))
+                        queue.append((nx, ny, ref_c))
+        return img_rgba
+    except Exception:
+        return img_rgba
+
 # Matriz de Bayer 4x4: algoritmo clásico de difuminado ordenado (dithering) estilo retro
 BAYER_MATRIX = [
     [ 0,  8,  2, 10],
@@ -579,6 +823,51 @@ def apply_bayer_dither(image):
                 pixels[x, y] = (r, g, b)
                 
     return img
+
+def apply_trumble_cel_shading(image, target_width=None, is_blocks=True, is_braille=False, edge_strength=0.75, saturation=1.30, contrast=1.18):
+    """
+    Motor Trumble Orelx 2.2: Realce estético Retro-Arcade & Anime Cel-Shading de Alta Fidelidad.
+    - Curva de color y contraste arcade estilo Capcom CPS-2 / Neo-Geo (alta vivacidad y pop).
+    - Escalado preciso al búfer de subpíxeles antes del entintado.
+    - Detección de bordes 1-a-1 subpíxel mediante filtrado bilateral y Canny para trazos anime nítidos.
+    """
+    # 1. Punch de color arcade y contraste S-curve a resolución completa
+    img = image.convert("RGBA")
+    img = ImageEnhance.Color(img).enhance(saturation)
+    img = ImageEnhance.Contrast(img).enhance(contrast)
+    img = img.filter(ImageFilter.UnsharpMask(radius=1.2, percent=140, threshold=2))
+
+    # 2. Redimensionar al espacio de subpíxeles antes del entintado para evitar que el remuestreo difumine las líneas
+    if target_width is not None:
+        scaled = resize_image(img, target_width, is_blocks=is_blocks, is_braille=is_braille)
+        was_resized = True
+    else:
+        scaled = img
+        was_resized = False
+
+    try:
+        import cv2
+        import numpy as np
+        rgba = np.array(scaled)
+        rgb = rgba[:, :, :3]
+        alpha = rgba[:, :, 3]
+
+        # Detección de bordes estructurados en luminancia con filtro bilateral afinado
+        gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
+        smooth = cv2.bilateralFilter(gray, d=5, sigmaColor=40, sigmaSpace=40)
+        canny_edges = cv2.Canny(smooth, 50, 130)
+
+        # Contorno perimetral exterior desde canal alpha
+        alpha_edges = cv2.Canny(alpha, 100, 200)
+        combined = cv2.bitwise_or(canny_edges, alpha_edges)
+
+        # Entintado subpíxel nítido
+        inv_edge = 1.0 - (combined.astype(np.float32) / 255.0 * edge_strength)
+        darkened_rgb = (rgb.astype(np.float32) * inv_edge[:, :, None]).clip(0, 255).astype(np.uint8)
+        res_pil = Image.fromarray(np.dstack([darkened_rgb, alpha]))
+        return res_pil, was_resized
+    except Exception:
+        return scaled, was_resized
 
 def render_python_sketch(image, width, invert=False):
     """Fallback en Python para modo Sketch (Diferencia de Gaussianas pura, contornos sin tramado)."""
@@ -860,7 +1149,7 @@ def convert_image_to_blocks(image):
             
             # Baja varianza (color plano) -> penalización alta para favorecer bloques sólidos
             # Alta varianza (líneas/bordes) -> penalización reducida para permitir diagonales y esquinas
-            shape_penalty = max(100.0, 1800.0 - variance * 0.5)
+            shape_penalty = max(30.0, 900.0 - variance * 0.75)
             
             best_shape = 0
             min_error = float('inf')
@@ -1296,16 +1585,33 @@ def check_cached_update():
         return True, cached_latest
     return False, None
 
+def get_lumart_banner():
+    """Genera el logotipo oficial de Lumart en arte ANSI con gradiente cromático."""
+    c1 = "\033[38;2;64;224;208m"   # Turquesa
+    c2 = "\033[38;2;72;191;227m"   # Cyan cielo
+    c3 = "\033[38;2;94;142;240m"   # Azul eléctrico
+    c4 = "\033[38;2;123;104;238m"  # Púrpura medio
+    c5 = "\033[38;2;171;71;238m"   # Magenta brillante
+    c6 = "\033[38;2;218;112;214m"  # Orquídea pastel
+    rst = "\033[0m"
+
+    return f"""
+  {c1}██╗     {c2}██╗   ██╗{c3}███╗   ███╗{c4} █████╗ {c5}██████╗ {c6}████████╗
+  {c1}██║     {c2}██║   ██║{c3}████╗ ████║{c4}██╔══██╗{c5}██╔══██╗{c6}╚══██╔══╝
+  {c1}██║     {c2}██║   ██║{c3}██╔████╔██║{c4}███████║{c5}██████╔╝{c6}   ██║   
+  {c1}██║     {c2}██║   ██║{c3}██║╚██╔╝██║{c4}██╔══██║{c5}██╔══██╗{c6}   ██║   
+  {c1}███████╗{c2}╚██████╔╝{c3}██║ ╚═╝ ██║{c4}██║  ██║{c5}██║  ██║{c6}   ██║   
+  {c1}╚══════╝{c2} ╚═════╝ {c3}╚═╝     ╚═╝{c4}╚═╝  ╚═╝{c5}╚═╝  ╚═╝{c6}   ╚═╝   {rst}
+   \033[1;37mModern Terminal Visual Suite\033[0m \033[38;2;100;149;237m•\033[0m \033[38;2;0;255;200mv{VERSION}\033[0m
+   \033[2m[ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]\033[0m
+"""
+
 def show_version_info():
     """Muestra un informe diagnóstico completo del sistema, entorno y motores de renderizado."""
     import platform
     import shutil
     
-    banner = f"""\033[1;36m
- █    █ █ █▄ ▄█ ▄▀▄ █▀▄ ▀█▀
- █▄▄▄ ▀▄█ █ ▀ █ █▀█ █▀▄  █
- \033[0;36mv{VERSION} - Terminal Art Engine\033[0m
-"""
+    banner = get_lumart_banner()
     print(banner)
     
     # 1. Runtime environment
@@ -1358,17 +1664,25 @@ def show_version_info():
         mary_cpp_detail = f"Nativo C++ vía binario ({shutil.which('luma-mary')})"
         
     print("\n⚡ \033[1mMotores de Renderizado:\033[0m")
-    print(f"  • Trumble (Color Clásico):  \033[1;32mActivo (Por defecto)\033[0m (Linear RGB 2.2, Lanczos, Bayer Dither, TrueColor Braille/Blocks)")
+    print(f"  • Trumble (Retro-Arcade Cel-Shading Orelx 2.2):  \033[1;32mActivo (Por defecto)\033[0m (Cel-Shading Anime Ink Outlines, Capcom CPS-2 / Neo-Geo Color Punch, Lanczos, Bayer Dither, TrueColor Braille/Blocks)")
     if has_mary_cpp or mary is not None:
-        mary_status = f"\033[1;32mActivo - {mary_cpp_detail}\033[0m (Apex 3.0: Guided Filter Oklab, Weber-Fechner, OpenMP Multi-Core, SIMD)"
+        mary_status = f"\033[1;32mActivo - {mary_cpp_detail}\033[0m (Apex 3.5: Guided Filter Oklab, Weber-Fechner, OpenMP Multi-Core, SIMD)"
     else:
         mary_status = "\033[1;33mNo disponible (usando Trumble)\033[0m"
-    print(f"  • Mary (Color Perceptual v2.2.0): {mary_status}")
+    print(f"  • Mary (Color Perceptual Apex 3.5): {mary_status}")
     print(f"  • Modos Mary Soportados:    sextants (2x3 bloques sólidos HD), braille (2x4 dual-color), quadrants (2x2), blocks, ascii")
     cpp_color = "\033[1;32m" if has_cpp else "\033[1;33m"
-    print(f"  • Luris (Monocromático):    {cpp_color}{cpp_detail}\033[0m (DoG Lineart, Atkinson 1984, Manga 2.0, HD Blocks)")
-    print(f"  • Modos Luris Soportados:   braille, manga 2.0 (DoG + Bayer), sketch (DoG puro), blocks (2x2 cuadrantes HD), ascii")
+    print(f"  • Luris (Monocromático Mono 2.6):    {cpp_color}{cpp_detail}\033[0m (DoG Lineart adaptativo, Atkinson 1984, Manga 2.6 Screentone, HD Blocks)")
+    print(f"  • Modos Luris Soportados:   braille, manga 2.6 (DoG + Bayer), sketch (DoG puro), blocks (2x2 cuadrantes HD), ascii")
     print(f"  • Algoritmos Tramado:       atkinson (1984, MacPaint), floyd-steinberg, bayer 8x8")
+    has_cv2 = False
+    try:
+        import cv2
+        has_cv2 = True
+    except ImportError:
+        pass
+    spectra_status = "\033[1;32mDisponible\033[0m (OpenCV 30-60 FPS Terminal Stream con 5 Filtros Weep en Vivo)" if has_cv2 else "\033[1;33mRequiere opencv-python\033[0m"
+    print(f"  • Spectra (Cámara Web Weep 1.4): {spectra_status}")
     
     # 3. Terminal Diagnostics
     cols, rows = shutil.get_terminal_size((90, 24))
@@ -1909,7 +2223,7 @@ def try_render_native_mary(image_path, width, mode="sextants", raw_colors=False,
             try:
                 cmd = [b, image_path, "-w", str(width), "-m", mode, "-r", str(font_ratio)]
                 if raw_colors:
-                    cmd.append("--raw")
+                    cmd.append("--raw-colors")
                 if invert:
                     cmd.append("-i")
                 proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -1919,6 +2233,688 @@ def try_render_native_mary(image_path, width, mode="sextants", raw_colors=False,
                 pass
 
     return None
+
+# ==============================================================================
+# SEXTANTES, CUADRANTES Y RASTERIZADOR ANSI A IMAGEN (PNG, WEBP, JPG)
+# ==============================================================================
+SEXTANT_GLYPHS = (
+    " ", "🬀", "🬁", "🬂", "🬃", "🬄", "🬅", "🬆",
+    "🬇", "🬈", "🬉", "🬊", "🬋", "🬌", "🬍", "🬎",
+    "🬏", "🬐", "🬑", "🬒", "🬓", "▌", "🬔", "🬕",
+    "🬖", "🬗", "🬘", "🬙", "🬚", "🬛", "🬜", "🬝",
+    "🬞", "🬟", "🬠", "🬡", "🬢", "🬣", "🬤", "🬥",
+    "🬦", "🬧", "▐", "🬨", "🬩", "🬪", "🬫", "🬬",
+    "🬭", "🬮", "🬯", "🬰", "🬱", "🬲", "🬳", "🬴",
+    "🬵", "🬶", "🬷", "🬸", "🬹", "🬺", "🬻", "█"
+)
+SEXTANT_MAP = {ch: idx for idx, ch in enumerate(SEXTANT_GLYPHS) if ch not in (" ", "█")}
+
+QUADRANT_GLYPHS = (
+    " ", "▘", "▝", "▀",
+    "▖", "▌", "▞", "▛",
+    "▗", "▚", "▐", "▜",
+    "▄", "▙", "▟", "█"
+)
+QUADRANT_MAP = {ch: idx for idx, ch in enumerate(QUADRANT_GLYPHS) if ch not in (" ", "▀", "▄", "█")}
+
+def export_ansi_to_image(ansi_text, out_path, transparent=False, font_size=16):
+    """
+    Rasteriza arte ANSI / Unicode a una imagen gráfica de alta definición (.png, .jpg)
+    con geometría subpíxel exacta para bloques y glifos.
+    """
+    from PIL import ImageDraw, ImageFont
+
+    ext = os.path.splitext(out_path)[1].lower()
+    if ext == ".webp":
+        raise ValueError("El formato .webp no está soportado para exportación. Por favor use .png o .jpg.")
+    if ext not in (".png", ".jpg", ".jpeg"):
+        raise ValueError(f"Formato no soportado: '{ext}'. Solo se permite exportar a .png y .jpg.")
+
+    is_alpha_supported = (ext == ".png")
+    use_transparent = transparent and is_alpha_supported
+
+    ansi_pattern = re.compile(r'\033\[([0-9;]+)m')
+    raw_lines = ansi_text.split('\n')
+    while raw_lines and not raw_lines[-1].strip():
+        raw_lines.pop()
+
+    if not raw_lines:
+        raise ValueError("El texto ANSI está vacío.")
+
+    # Buscar fuentes monospace comunes del sistema
+    font_candidates = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+        "/usr/share/fonts/truetype/ubuntu/UbuntuMono-R.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf",
+        "/usr/share/fonts/TTF/DejaVuSansMono.ttf",
+        "/usr/share/fonts/dejavu-sans-mono-fonts/DejaVuSansMono.ttf"
+    ]
+    font = None
+    for fc in font_candidates:
+        if os.path.exists(fc):
+            try:
+                font = ImageFont.truetype(fc, font_size)
+                break
+            except Exception:
+                pass
+    if font is None:
+        font = ImageFont.load_default()
+
+    cell_w = 9
+    cell_h = 18
+
+    parsed_lines = []
+    max_cols = 0
+
+    for line in raw_lines:
+        parsed_chars = []
+        cur_fg = (220, 220, 220)
+        cur_bg = None
+        pos = 0
+        while pos < len(line):
+            m = ansi_pattern.match(line, pos)
+            if m:
+                code_str = m.group(1)
+                codes = [int(x) for x in code_str.split(';') if x.isdigit()]
+                if not codes or 0 in codes:
+                    cur_fg = (220, 220, 220)
+                    cur_bg = None
+                i = 0
+                while i < len(codes):
+                    c = codes[i]
+                    if c == 0:
+                        cur_fg = (220, 220, 220)
+                        cur_bg = None
+                        i += 1
+                    elif c == 39:
+                        cur_fg = (220, 220, 220)
+                        i += 1
+                    elif c == 49:
+                        cur_bg = None
+                        i += 1
+                    elif c == 38 and i + 4 < len(codes) and codes[i + 1] == 2:
+                        cur_fg = (codes[i + 2], codes[i + 3], codes[i + 4])
+                        i += 5
+                    elif c == 48 and i + 4 < len(codes) and codes[i + 1] == 2:
+                        cur_bg = (codes[i + 2], codes[i + 3], codes[i + 4])
+                        i += 5
+                    else:
+                        i += 1
+                pos = m.end()
+            else:
+                ch = line[pos]
+                if ch != '\r':
+                    parsed_chars.append((ch, cur_fg, cur_bg))
+                pos += 1
+        max_cols = max(max_cols, len(parsed_chars))
+        parsed_lines.append(parsed_chars)
+
+    pad_x = 24
+    pad_y = 24
+    img_w = max_cols * cell_w + pad_x * 2
+    img_h = len(parsed_lines) * cell_h + pad_y * 2
+
+    mode = "RGBA" if use_transparent else "RGB"
+    bg_color = (0, 0, 0, 0) if use_transparent else (17, 17, 22)
+
+    img = Image.new(mode, (img_w, img_h), color=bg_color)
+    draw = ImageDraw.Draw(img)
+
+    y_offset = pad_y
+    for row in parsed_lines:
+        x_offset = pad_x
+        for ch, fg, bg in row:
+            if bg is not None:
+                bg_rgba = (*bg, 255) if use_transparent else bg
+                draw.rectangle([x_offset, y_offset, x_offset + cell_w, y_offset + cell_h], fill=bg_rgba)
+
+            fg_rgba = (*fg, 255) if use_transparent else fg
+
+            # Dibujo geométrico exacto
+            if ch == '▀':
+                draw.rectangle([x_offset, y_offset, x_offset + cell_w, y_offset + cell_h // 2], fill=fg_rgba)
+            elif ch == '▄':
+                draw.rectangle([x_offset, y_offset + cell_h // 2, x_offset + cell_w, y_offset + cell_h], fill=fg_rgba)
+            elif ch == '█':
+                draw.rectangle([x_offset, y_offset, x_offset + cell_w, y_offset + cell_h], fill=fg_rgba)
+            elif ch == '▌':
+                draw.rectangle([x_offset, y_offset, x_offset + cell_w // 2, y_offset + cell_h], fill=fg_rgba)
+            elif ch == '▐':
+                draw.rectangle([x_offset + cell_w // 2, y_offset, x_offset + cell_w, y_offset + cell_h], fill=fg_rgba)
+            elif ch in SEXTANT_MAP:
+                mask = SEXTANT_MAP[ch]
+                sw = cell_w / 2.0
+                sh = cell_h / 3.0
+                for bit in range(6):
+                    if mask & (1 << bit):
+                        col = bit % 2
+                        row_idx = bit // 2
+                        x0 = int(x_offset + col * sw)
+                        y0 = int(y_offset + row_idx * sh)
+                        x1 = int(x_offset + (col + 1) * sw)
+                        y1 = int(y_offset + (row_idx + 1) * sh)
+                        draw.rectangle([x0, y0, x1, y1], fill=fg_rgba)
+            elif ch in QUADRANT_MAP:
+                mask = QUADRANT_MAP[ch]
+                hw = cell_w // 2
+                hh = cell_h // 2
+                if mask & 1: draw.rectangle([x_offset, y_offset, x_offset + hw, y_offset + hh], fill=fg_rgba)
+                if mask & 2: draw.rectangle([x_offset + hw, y_offset, x_offset + cell_w, y_offset + hh], fill=fg_rgba)
+                if mask & 4: draw.rectangle([x_offset, y_offset + hh, x_offset + hw, y_offset + cell_h], fill=fg_rgba)
+                if mask & 8: draw.rectangle([x_offset + hw, y_offset + hh, x_offset + cell_w, y_offset + cell_h], fill=fg_rgba)
+            elif 0x2800 <= ord(ch) <= 0x28FF:
+                val = ord(ch) - 0x2800
+                dot_coords = [
+                    (0, 0), (0, 1), (0, 2), (1, 0),
+                    (1, 1), (1, 2), (0, 3), (1, 3)
+                ]
+                dw = cell_w / 2.0
+                dh = cell_h / 4.0
+                r = 1.2
+                for bit in range(8):
+                    if val & (1 << bit):
+                        col, row_idx = dot_coords[bit]
+                        cx = x_offset + (col + 0.5) * dw
+                        cy = y_offset + (row_idx + 0.5) * dh
+                        draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=fg_rgba)
+            elif ch != ' ':
+                draw.text((x_offset + 1, y_offset), ch, font=font, fill=fg_rgba)
+
+            x_offset += cell_w
+        y_offset += cell_h
+
+    # Guardar imagen con opciones óptimas
+    out_dir = os.path.dirname(os.path.abspath(out_path))
+    if out_dir and not os.path.exists(out_dir):
+        os.makedirs(out_dir, exist_ok=True)
+
+    save_kwargs = {}
+    if ext in (".jpg", ".jpeg"):
+        save_kwargs = {"quality": 95, "optimize": True}
+    elif ext == ".png":
+        save_kwargs = {"optimize": True}
+
+    img.save(out_path, **save_kwargs)
+    return True
+
+# ==============================================================================
+# EFECTO REVEAL (ESCÁNER LÁSER PROGRESIVO)
+# ==============================================================================
+def print_with_reveal(ansi_text, instant=False, delay=0.0015):
+    """
+    Efecto Reveal cinematográfico: muestra la imagen con un barrido dinámico línea por línea.
+    Si instant=True o la salida se redirige fuera de la terminal, imprime de golpe.
+    """
+    if instant or not sys.stdout.isatty():
+        sys.stdout.write(ansi_text + "\n")
+        sys.stdout.flush()
+        return
+
+    lines = ansi_text.rstrip("\n").split("\n")
+    try:
+        for line in lines:
+            sys.stdout.write(line + "\n")
+            sys.stdout.flush()
+            if delay > 0:
+                time.sleep(delay)
+    except KeyboardInterrupt:
+        # En caso de Ctrl+C, volcar el resto inmediatamente
+        try:
+            cur_idx = lines.index(line)
+            if cur_idx < len(lines) - 1:
+                sys.stdout.write("\n".join(lines[cur_idx + 1:]) + "\n")
+                sys.stdout.flush()
+        except Exception:
+            pass
+
+# ==============================================================================
+# ENTRADAS MODERNAS (URLS DIRECTAS, PORTAPAPELES Y STDIN)
+# ==============================================================================
+def load_image_from_source(source_path, paste=False):
+    """
+    Carga una imagen desde múltiples orígenes (portapapeles, URL http/https, STDIN o archivo en disco).
+    """
+    import io
+    # 1. Portapapeles (--paste o 'clip:')
+    if paste or source_path in ("clip:", "clipboard"):
+        # Wayland (wl-paste)
+        if shutil.which("wl-paste"):
+            try:
+                proc = subprocess.run(["wl-paste", "--type", "image/png"], capture_output=True, timeout=3)
+                if proc.returncode == 0 and len(proc.stdout) > 0:
+                    return Image.open(io.BytesIO(proc.stdout)).convert("RGBA")
+            except Exception:
+                pass
+        # X11 (xclip)
+        if shutil.which("xclip"):
+            try:
+                proc = subprocess.run(["xclip", "-selection", "clipboard", "-t", "image/png", "-o"], capture_output=True, timeout=3)
+                if proc.returncode == 0 and len(proc.stdout) > 0:
+                    return Image.open(io.BytesIO(proc.stdout)).convert("RGBA")
+            except Exception:
+                pass
+        # Pillow ImageGrab
+        try:
+            from PIL import ImageGrab
+            clip_img = ImageGrab.grabclipboard()
+            if isinstance(clip_img, Image.Image):
+                return clip_img.convert("RGBA")
+        except Exception:
+            pass
+        raise ValueError("No se encontró ninguna imagen en el portapapeles del sistema (o faltan 'wl-paste' / 'xclip').")
+
+    # 2. STDIN Pipe (cat imagen | lumart)
+    if source_path == "-" or (source_path is None and not sys.stdin.isatty()):
+        try:
+            stdin_data = sys.stdin.buffer.read()
+            if len(stdin_data) > 0:
+                return Image.open(io.BytesIO(stdin_data)).convert("RGBA")
+        except Exception as e:
+            raise ValueError(f"Error al leer imagen desde STDIN: {e}")
+
+    # 3. URL directa (http / https)
+    if source_path and (source_path.startswith("http://") or source_path.startswith("https://")):
+        try:
+            req = urllib.request.Request(
+                source_path,
+                headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Lumart/2.3.0"}
+            )
+            with urllib.request.urlopen(req, timeout=12) as response:
+                data = response.read()
+                return Image.open(io.BytesIO(data)).convert("RGBA")
+        except Exception as e:
+            raise ValueError(f"No se pudo descargar la imagen desde la URL: {e}")
+
+    # 4. Archivo local en disco
+    if not source_path:
+        raise ValueError("No se especificó ninguna ruta de imagen ni fuente de entrada.")
+    
+    return Image.open(source_path)
+
+# ==============================================================================
+# ==============================================================================
+# MOTOR SPECTRA WEEP 1.4: CÁMARA WEB EN VIVO EN TIEMPO REAL CON FILTROS
+# ==============================================================================
+def run_spectra_webcam(cam_index=0, target_width=None, font_ratio=0.5):
+    """
+    Motor Spectra Weep 1.4: Transmisión de cámara web en vivo y tiempo real en la terminal a 30-60 FPS
+    con 5 filtros de gradación cromática interactivos intercambiables al vuelo.
+    """
+    try:
+        import cv2
+        import numpy as np
+    except ImportError:
+        print("\n\033[1;31m❌ [Spectra Weep] Se requiere el paquete 'opencv-python' para usar la cámara web.\033[0m")
+        print("   Instálalo fácilmente ejecutando:")
+        print("   \033[1;32mpip install opencv-python --user\033[0m\n")
+        return False
+
+    print(f"\033[1;35m[Spectra Weep 1.4]\033[0m Conectando con cámara web (índice {cam_index})...")
+    cap = cv2.VideoCapture(cam_index)
+    if not cap.isOpened():
+        print(f"❌ Error: No se pudo conectar a la cámara web en el índice {cam_index}.")
+        return False
+
+    term_size = shutil.get_terminal_size((80, 24))
+    if target_width is None:
+        target_width = min(120, max(30, term_size.columns))
+
+    aspect = 0.75
+    target_h_chars = int(target_width * aspect * font_ratio)
+    target_h_chars = max(10, min(term_size.lines - 3, target_h_chars))
+    frame_h_px = target_h_chars * 2
+
+    # Configuración de entrada no bloqueante en terminal para alternar filtros
+    old_term_settings = None
+    is_interactive_tty = sys.stdin.isatty() and sys.stdout.isatty()
+    if is_interactive_tty:
+        try:
+            import tty
+            import termios
+            old_term_settings = termios.tcgetattr(sys.stdin)
+            tty.setcbreak(sys.stdin.fileno())
+        except Exception:
+            pass
+
+    sys.stdout.write("\033[?25l\033[2J\033[H")
+    sys.stdout.flush()
+
+    fps_count = 0
+    fps_start = time.time()
+    cur_fps = 30.0
+    active_filter = 0
+
+    FILTER_NAMES = [
+        "Normal (TrueColor)",
+        "Weep Cyberpunk",
+        "Matrix Phosphor",
+        "Thermal FLIR",
+        "Manga Ink (B&W)"
+    ]
+
+    try:
+        while True:
+            # Comprobar si el usuario presionó una tecla (1-5 o q)
+            if is_interactive_tty:
+                try:
+                    import select
+                    r, _, _ = select.select([sys.stdin], [], [], 0)
+                    if r:
+                        ch = sys.stdin.read(1)
+                        if ch in ('q', 'Q', '\x03'): # 'q' o Ctrl+C
+                            break
+                        elif ch == '1': active_filter = 0
+                        elif ch == '2': active_filter = 1
+                        elif ch == '3': active_filter = 2
+                        elif ch == '4': active_filter = 3
+                        elif ch == '5': active_filter = 4
+                except Exception:
+                    pass
+
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            frame_resized = cv2.resize(frame, (target_width, frame_h_px), interpolation=cv2.INTER_AREA)
+
+            # Aplicar filtro de imagen en vivo
+            if active_filter == 0:
+                frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
+            elif active_filter == 1:
+                # Weep Cyberpunk: Realce de cian, magenta y saturación alta
+                rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB).astype(np.float32)
+                rgb[:, :, 0] = np.clip(rgb[:, :, 0] * 1.35, 0, 255)
+                rgb[:, :, 1] = np.clip(rgb[:, :, 1] * 0.70, 0, 255)
+                rgb[:, :, 2] = np.clip(rgb[:, :, 2] * 1.40, 0, 255)
+                frame_rgb = rgb.astype(np.uint8)
+            elif active_filter == 2:
+                # Matrix Phosphor: Monocromático verde fósforo P1
+                gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
+                frame_rgb = np.zeros((frame_h_px, target_width, 3), dtype=np.uint8)
+                frame_rgb[:, :, 1] = gray
+                frame_rgb[:, :, 0] = (gray * 0.12).astype(np.uint8)
+                frame_rgb[:, :, 2] = (gray * 0.15).astype(np.uint8)
+            elif active_filter == 3:
+                # Thermal FLIR: Espectro térmico infrarrojo
+                gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
+                thermal_bgr = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
+                frame_rgb = cv2.cvtColor(thermal_bgr, cv2.COLOR_BGR2RGB)
+            elif active_filter == 4:
+                # Manga Ink: Alto contraste estilo cómic / tinta
+                gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
+                _, thresh = cv2.threshold(gray, 110, 255, cv2.THRESH_BINARY)
+                frame_rgb = cv2.cvtColor(thresh, cv2.COLOR_GRAY2RGB)
+            else:
+                frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
+
+            lines = []
+            for y in range(0, frame_h_px, 2):
+                row_top = frame_rgb[y]
+                row_bot = frame_rgb[y + 1] if y + 1 < frame_h_px else row_top
+                line_parts = []
+                last_fg = None
+                last_bg = None
+                for x in range(target_width):
+                    r1, g1, b1 = int(row_top[x, 0]), int(row_top[x, 1]), int(row_top[x, 2])
+                    r2, g2, b2 = int(row_bot[x, 0]), int(row_bot[x, 1]), int(row_bot[x, 2])
+                    color_code = ""
+                    if (r1, g1, b1) != last_fg:
+                        color_code += f"\033[38;2;{r1};{g1};{b1}m"
+                        last_fg = (r1, g1, b1)
+                    if (r2, g2, b2) != last_bg:
+                        color_code += f"\033[48;2;{r2};{g2};{b2}m"
+                        last_bg = (r2, g2, b2)
+                    line_parts.append(color_code + "▀")
+                line_parts.append("\033[0m")
+                lines.append("".join(line_parts))
+
+            fps_count += 1
+            if time.time() - fps_start >= 1.0:
+                cur_fps = fps_count / (time.time() - fps_start)
+                fps_count = 0
+                fps_start = time.time()
+
+            filter_tag = FILTER_NAMES[active_filter]
+            status_bar = f"\033[1;30;45m SPECTRA WEEP 1.4 \033[0m \033[1;37mCámara: {cam_index} | {target_width}x{target_h_chars} | {cur_fps:.1f} FPS | Filtro: [{filter_tag}] (1-5) | 'q' salir\033[0m"
+            sys.stdout.write("\033[H" + "\n".join(lines) + "\n" + status_bar)
+            sys.stdout.flush()
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cap.release()
+        if old_term_settings and is_interactive_tty:
+            try:
+                import termios
+                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_term_settings)
+            except Exception:
+                pass
+        sys.stdout.write("\033[?25h\033[0m\n")
+        sys.stdout.flush()
+        print("✨ Transmisión en vivo de Spectra Weep 1.4 finalizada.")
+
+    return True
+
+# ==============================================================================
+# GESTIÓN DE HISTORIAL INTELIGENTE Y REPLAY
+# ==============================================================================
+def get_history_file():
+    config_dir = os.path.expanduser("~/.config/luma")
+    os.makedirs(config_dir, exist_ok=True)
+    return os.path.join(config_dir, "history.log")
+
+def record_command_to_history():
+    """Registra la invocación de Lumart en ~/.config/luma/history.log"""
+    skip_args = {"-H", "--history", "-R", "--replay", "--last", "--clear-history", "-h", "--help", "-v", "--version", "--install-desktop"}
+    if any(arg in skip_args for arg in sys.argv[1:]):
+        return
+
+    if len(sys.argv) < 2:
+        return
+
+    hist_file = get_history_file()
+    now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    cmd_line = "lumart " + " ".join(shlex.quote(a) for a in sys.argv[1:])
+
+    # Evitar duplicados consecutivos
+    if os.path.exists(hist_file):
+        try:
+            with open(hist_file, "r", encoding="utf-8", errors="replace") as f:
+                lines = f.readlines()
+                if lines and lines[-1].strip().endswith(cmd_line):
+                    return
+        except Exception:
+            pass
+
+    try:
+        with open(hist_file, "a", encoding="utf-8") as f:
+            f.write(f"{now_str} | {cmd_line}\n")
+    except Exception:
+        pass
+
+def get_combined_history(limit=None, search=None):
+    """Combina ~/.bash_history (antiguos) y ~/.config/luma/history.log (recientes)."""
+    entries = []
+
+    # 1. Leer comandos previos de ~/.bash_history primero (son los más antiguos)
+    bash_hist = os.path.expanduser("~/.bash_history")
+    if os.path.exists(bash_hist):
+        try:
+            with open(bash_hist, "r", encoding="utf-8", errors="replace") as f:
+                for line in f:
+                    line = line.strip()
+                    if line.startswith("lumart ") or line.startswith("luma ") or line.startswith("python3 lumart.py "):
+                        if not any(sw in line for sw in ("--history", "-H", "--clear-history", "--replay", "-R", "--last")):
+                            entries.append({"timestamp": "(anterior)", "cmd": line})
+        except Exception:
+            pass
+
+    # 2. Leer history.log de Luma (los más recientes y con timestamp exacto)
+    hist_file = get_history_file()
+    if os.path.exists(hist_file):
+        try:
+            with open(hist_file, "r", encoding="utf-8", errors="replace") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    if " | " in line:
+                        parts = line.split(" | ", 1)
+                        ts, cmd = parts[0], parts[1]
+                    else:
+                        ts, cmd = "----", line
+                    entries.append({"timestamp": ts, "cmd": cmd})
+        except Exception:
+            pass
+
+    if search:
+        s_low = search.lower()
+        entries = [e for e in entries if s_low in e["cmd"].lower()]
+
+    # Deduplicar preservando los más recientes
+    deduped = []
+    seen = set()
+    for e in reversed(entries):
+        cmd_clean = e["cmd"].strip()
+        if cmd_clean not in seen:
+            seen.add(cmd_clean)
+            deduped.append(e)
+
+    if limit and isinstance(limit, int) and limit > 0:
+        deduped = deduped[:limit]
+
+    return deduped
+
+def display_command_history(limit=None, search=None):
+    entries = get_combined_history(limit=limit, search=search)
+    print("\n\033[1;36m █    █ █ █▄ ▄█ ▄▀▄ █▀▄ ▀█▀\033[0m")
+    print("\033[1;36m █▄▄▄ ▀▄█ █ ▀ █ █▀█ █▀▄  █\033[0m")
+    print(f"\033[1m📜 Historial de Comandos de Lumart ({len(entries)} registrados):\033[0m\n")
+
+    if not entries:
+        print("  (No hay comandos registrados en el historial todavía)\n")
+        return
+
+    print("  \033[1m[#]   Fecha / Hora        Comando\033[0m")
+    print("  " + "─" * 70)
+
+    for i, item in enumerate(entries, 1):
+        ts = item["timestamp"]
+        cmd = item["cmd"]
+        cmd_h = cmd.replace("lumart", "\033[1;32mlumart\033[0m").replace("luma", "\033[1;32mluma\033[0m")
+        print(f"  \033[1;33m[{i:02d}]\033[0m  \033[90m{ts:<18}\033[0m {cmd_h}")
+    print("  " + "─" * 70)
+    print("  💡 \033[3mPara re-ejecutar cualquiera usa: lumart --replay <número> (ej: lumart -R 1)\033[0m\n")
+
+def replay_command(target_idx=1):
+    entries = get_combined_history()
+    if not entries:
+        print("❌ No hay comandos en el historial para re-ejecutar.")
+        return
+
+    try:
+        idx = int(target_idx)
+        if idx < 1 or idx > len(entries):
+            print(f"❌ Índice [{target_idx}] fuera de rango. Hay {len(entries)} comandos disponibles.")
+            return
+        selected = entries[idx - 1]["cmd"]
+    except ValueError:
+        print(f"❌ El índice debe ser un número entero (ej: lumart --replay 1).")
+        return
+
+    print(f"\n🚀 \033[1;32mRe-ejecutando [{target_idx}]:\033[0m \033[1m{selected}\033[0m\n")
+    args_list = shlex.split(selected)
+    if args_list and args_list[0] in ("python", "python3"):
+        if len(args_list) > 1 and ("lumart" in args_list[1] or "luma" in args_list[1]):
+            args_list = args_list[2:]
+        else:
+            args_list = args_list[1:]
+    elif args_list and args_list[0] in ("lumart", "luma"):
+        args_list = args_list[1:]
+    elif args_list and ("lumart.py" in args_list[0] or "luma.py" in args_list[0]):
+        args_list = args_list[1:]
+
+    sys.argv = [sys.argv[0]] + args_list
+    main()
+
+def clear_command_history():
+    hist_file = get_history_file()
+    if os.path.exists(hist_file):
+        try:
+            os.remove(hist_file)
+            print("✅ Historial de comandos de Lumart limpiado exitosamente.")
+        except Exception as e:
+            print(f"❌ Error al limpiar historial: {e}")
+    else:
+        print("ℹ️ El historial de comandos ya estaba vacío.")
+
+# ==============================================================================
+# INTEGRACIÓN CON ESCRITORIO LINUX Y GESTORES DE ARCHIVOS
+# ==============================================================================
+def install_desktop_integration():
+    """Instala el lanzador de escritorio y scripts de clic derecho para gestores de archivos."""
+    print("\n🖥️  \033[1mInstalando integración de escritorio y gestores de archivos...\033[0m")
+    app_dir = os.path.expanduser("~/.local/share/applications")
+    os.makedirs(app_dir, exist_ok=True)
+
+    desktop_file = os.path.join(app_dir, "lumart.desktop")
+    desktop_content = """[Desktop Entry]
+Type=Application
+Name=Lumart Terminal Art
+Comment=Render images as high-fidelity terminal art
+Exec=lumart %f
+Icon=image-x-generic
+Terminal=true
+Categories=Graphics;Viewer;
+MimeType=image/jpeg;image/png;image/webp;image/gif;image/bmp;image/tiff;
+NoDisplay=false
+"""
+    try:
+        with open(desktop_file, "w") as f:
+            f.write(desktop_content)
+        print(f"  ✅ Lanzador de escritorio instalado: {desktop_file}")
+    except Exception as e:
+        print(f"  ❌ Error creando {desktop_file}: {e}")
+
+    # Scripts de clic derecho para Nautilus y Nemo
+    for fm, fm_path in [("Nautilus", "~/.local/share/nautilus/scripts"), ("Nemo", "~/.local/share/nemo/scripts")]:
+        s_dir = os.path.expanduser(fm_path)
+        os.makedirs(s_dir, exist_ok=True)
+        s_file = os.path.join(s_dir, "Abrir con Lumart")
+        s_content = """#!/bin/bash
+for f in "$@"; do
+    if command -v x-terminal-emulator &>/dev/null; then
+        x-terminal-emulator -e bash -c "lumart '$f'; echo ''; read -p 'Presiona Enter para cerrar...' key" &
+    elif command -v gnome-terminal &>/dev/null; then
+        gnome-terminal -- bash -c "lumart '$f'; echo ''; read -p 'Presiona Enter para cerrar...' key" &
+    elif command -v kitty &>/dev/null; then
+        kitty bash -c "lumart '$f'; echo ''; read -p 'Presiona Enter para cerrar...' key" &
+    elif command -v alacritty &>/dev/null; then
+        alacritty -e bash -c "lumart '$f'; echo ''; read -p 'Presiona Enter para cerrar...' key" &
+    elif command -v konsole &>/dev/null; then
+        konsole -e bash -c "lumart '$f'; echo ''; read -p 'Presiona Enter para cerrar...' key" &
+    elif command -v xterm &>/dev/null; then
+        xterm -e bash -c "lumart '$f'; echo ''; read -p 'Presiona Enter para cerrar...' key" &
+    fi
+done
+"""
+        try:
+            with open(s_file, "w") as f:
+                f.write(s_content)
+            os.chmod(s_file, 0o755)
+            print(f"  ✅ Menú contextual de {fm}: {s_file}")
+        except Exception:
+            pass
+
+    if shutil.which("update-desktop-database"):
+        try:
+            subprocess.run(["update-desktop-database", app_dir], capture_output=True)
+        except Exception:
+            pass
+
+    print("\n🎉 \033[1;32m¡Integración completada exitosamente!\033[0m")
+    print("   Ahora puedes hacer clic derecho sobre cualquier imagen en tu gestor de archivos")
+    print("   y seleccionar 'Abrir con Lumart' o 'Scripts > Abrir con Lumart'.\n")
 
 def main():
     import json
@@ -1977,11 +2973,7 @@ def main():
         # Autodetección del idioma del sistema
         auto_detect_language()
 
-    banner = f"""\033[1;36m
- █    █ █ █▄ ▄█ ▄▀▄ █▀▄ ▀█▀
- █▄▄▄ ▀▄█ █ ▀ █ █▀█ █▀▄  █
- \033[0;36mv{VERSION} - Terminal Art Engine\033[0m
-"""
+    banner = get_lumart_banner()
     
     # Intercepción inmediata de -v / --version para mostrar el diagnóstico e info completa
     if "-v" in sys.argv or "--version" in sys.argv:
@@ -1989,7 +2981,7 @@ def main():
         sys.exit(0)
 
     # Sin argumentos: mostrar banner informativo y ayuda básica de uso
-    if len(sys.argv) == 1:
+    if len(sys.argv) == 1 and sys.stdin.isatty():
         print(banner)
         print(_("usage"))
         sys.exit(1)
@@ -2007,14 +2999,14 @@ def main():
 
     parser.add_argument("image_path", nargs="?", default=None, help=_("help_image_path"))
     parser.add_argument("-w", "--width", type=int, default=None, help=_("help_width"))
-    parser.add_argument("-E", "--engine", choices=["mary", "trumble", "luris", "color", "mono", "bw", "manga", "sketch"], default=None, help=_("help_engine"))
+    parser.add_argument("-E", "--engine", choices=["mary", "trumble", "luris", "spectra", "color", "mono", "bw", "manga", "sketch"], default=None, help=_("help_engine"))
     parser.add_argument("-d", "--dither", nargs="?", const="atkinson", default=None, help=_("help_dither"))
     parser.add_argument("--no-color", action="store_false", dest="color", help=_("help_no_color"))
     parser.add_argument("-c", "--color", action="store_true", dest="color", default=True, help=_("help_color"))
     parser.add_argument("-i", "--invert", action="store_true", help=_("help_invert"))
     parser.add_argument("-o", "-O", "--output", help=_("help_output"))
     parser.add_argument("-b", "--binary", action="store_true", help=_("help_binary"))
-    parser.add_argument("-a", "--ascii", action="store_true", help="Forzar renderizado clásico ASCII")
+    parser.add_argument("-a", "--ascii", action="store_true", help=_("help_ascii"))
     parser.add_argument("--blocks", action="store_true", help=_("help_blocks"))
     parser.add_argument("-Q", "--quadrants", action="store_true", help=_("help_quadrants"))
     parser.add_argument("-S", "--sextants", action="store_true", help=_("help_sextants"))
@@ -2027,12 +3019,66 @@ def main():
     parser.add_argument("--os-style", action="store_true", help=_("help_os_style"))
     parser.add_argument("--swap", nargs="+", help=_("help_swap"))
     parser.add_argument("--lang", help=_("help_lang"))
+
+    # Nuevas funciones de la versión 2.3.0
+    parser.add_argument("-W", "--webcam", nargs="?", const=0, default=None, type=int, help=_("help_webcam"))
+    parser.add_argument("--instant", "--no-reveal", action="store_true", help=_("help_instant"))
+    parser.add_argument("--transparent", action="store_true", help=_("help_transparent"))
+    parser.add_argument("-H", "--history", nargs="?", const="all", default=None, help=_("help_history"))
+    parser.add_argument("-R", "--replay", "--last", nargs="?", const="1", default=None, help=_("help_replay"))
+    parser.add_argument("--clear-history", action="store_true", help=_("help_clear_history"))
+    parser.add_argument("--install-desktop", action="store_true", help=_("help_install_desktop"))
+    parser.add_argument("--paste", action="store_true", help=_("help_paste"))
     
     args = parser.parse_args()
 
     # Si se solicitó versión
     if args.version:
         show_version_info()
+        sys.exit(0)
+
+    # Limpiar historial
+    if args.clear_history:
+        clear_command_history()
+        sys.exit(0)
+
+    # Mostrar historial
+    if args.history is not None:
+        limit = None
+        if args.history != "all":
+            try:
+                limit = int(args.history)
+            except ValueError:
+                limit = None
+        display_command_history(limit=limit)
+        sys.exit(0)
+
+    # Re-ejecutar comando del historial
+    if args.replay is not None:
+        try:
+            target_idx = int(args.replay)
+        except ValueError:
+            target_idx = 1
+        replay_command(target_idx=target_idx)
+        sys.exit(0)
+
+    # Instalar integración de escritorio y gestores de archivos
+    if args.install_desktop:
+        install_desktop_integration()
+        sys.exit(0)
+
+    # Motor Spectra exclusivo para webcam
+    if args.webcam is not None:
+        record_command_to_history()
+        success = run_spectra_webcam(cam_index=args.webcam, target_width=args.width, font_ratio=args.font_ratio)
+        sys.exit(0 if success else 1)
+
+    if args.engine == "spectra":
+        print("\n\033[1;36m █    █ █ █▄ ▄█ ▄▀▄ █▀▄ ▀█▀\033[0m")
+        print("\033[1;36m █▄▄▄ ▀▄█ █ ▀ █ █▀█ █▀▄  █\033[0m")
+        print("\n💡 \033[1mEl motor 'Spectra' es exclusivo para transmisión de vídeo y cámara web en tiempo real.\033[0m")
+        print("   Para activarlo, usa:")
+        print("   \033[1;32mlumart --webcam\033[0m  (o: \033[1;32mlumart -W\033[0m / \033[1;32mlumart -W 1\033[0m para otra cámara)\n")
         sys.exit(0)
 
     # Comprobar actualizaciones sin instalar (-u / --update / --check-update)
@@ -2054,7 +3100,7 @@ def main():
         success = perform_downgrade(target)
         sys.exit(0 if success else 1)
 
-    if not args.image_path:
+    if not args.image_path and not args.paste and sys.stdin.isatty():
         print(banner)
         print(_("usage"))
         sys.exit(1)
@@ -2109,18 +3155,27 @@ def main():
 
     # 2. Autodetección del ancho de la terminal: si no se especifica -w, nos adaptamos
     if args.width is None:
-        try:
-            import shutil
-            term_cols = shutil.get_terminal_size((90, 24)).columns
-            args.width = min(90, max(20, term_cols))
-        except Exception:
-            args.width = 90
+        if args.output and os.path.splitext(args.output)[1].lower() in (".png", ".jpg", ".jpeg"):
+            # Para exportación a imagen gráfica / stickers, usar resolución Ultra-HD de estudio (160 cols)
+            args.width = 160
+        else:
+            try:
+                import shutil
+                term_cols = shutil.get_terminal_size((90, 24)).columns
+                args.width = min(90, max(20, term_cols))
+            except Exception:
+                args.width = 90
+    elif args.width < 5:
+        args.width = 5
+
+    if args.font_ratio is not None and (args.font_ratio <= 0.05 or args.font_ratio >= 3.0):
+        args.font_ratio = 0.5
 
     # 3. Autodetección de terminal clara (Light mode) para inversión automática de caracteres
     invert_mode = args.invert or is_light_terminal()
     
     try:
-        image = Image.open(args.image_path)
+        image = load_image_from_source(args.image_path, paste=args.paste)
     except Exception as e:
         # Error al abrir la imagen en la ruta especificada
         print(_("error_open", e))
@@ -2138,41 +3193,61 @@ def main():
     # 1. MOTOR LURIS: Blanco y Negro (Nativo C++ con fallback Python)
     # -------------------------------------------------------------
     if engine == "luris":
-        if getattr(args, "sketch", False) or args.engine == "sketch":
-            mono_mode = "sketch"
-        elif getattr(args, "manga", False) or args.engine == "manga":
-            mono_mode = "manga"
-        elif args.braille:
-            mono_mode = "braille"
-        elif args.blocks or getattr(args, "quadrants", False):
-            mono_mode = "blocks"
-        else:
-            mono_mode = "ascii"
+        # MOTOR EN BLANCO Y NEGRO: Remover fondo ANTES DE EMPEZARLO
+        temp_luris_path = None
+        luris_input_path = args.image_path
+        if getattr(args, "transparent", False):
+            image = remove_image_background(image)
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                temp_luris_path = tmp.name
+                image.save(temp_luris_path)
+            luris_input_path = temp_luris_path
+        elif not args.image_path or not os.path.exists(args.image_path):
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                temp_luris_path = tmp.name
+                image.save(temp_luris_path)
+            luris_input_path = temp_luris_path
 
-        dither_algo = "none"
-        if args.dither:
-            dither_algo = "atkinson" if args.dither is True else str(args.dither).lower()
-
-        native_art = try_render_native_monochrome(args.image_path, args.width, mono_mode, dither_algo, invert_mode)
-        if native_art is not None:
-            ascii_art = native_art
-        else:
-            if mono_mode == "sketch":
-                ascii_art = render_python_sketch(image, args.width, invert_mode)
-            elif mono_mode == "manga":
-                ascii_art = render_python_manga(image, args.width, invert_mode)
-            elif mono_mode == "blocks":
-                ascii_art = render_python_bw_quadrants(image, args.width, dither_algo, invert_mode)
+        try:
+            if getattr(args, "sketch", False) or args.engine == "sketch":
+                mono_mode = "sketch"
+            elif getattr(args, "manga", False) or args.engine == "manga":
+                mono_mode = "manga"
+            elif args.braille:
+                mono_mode = "braille"
+            elif args.blocks or getattr(args, "quadrants", False):
+                mono_mode = "blocks"
             else:
-                image = resize_image(image, args.width, args.blocks, args.braille)
-                if dither_algo in ("atkinson", "bayer", "floyd") or args.dither:
-                    image = apply_bayer_dither(image)
-                if args.braille:
-                    ascii_art = convert_image_to_braille(image, args.color, invert_mode)
-                elif args.blocks:
-                    ascii_art = convert_image_to_blocks(image)
+                mono_mode = "ascii"
+
+            dither_algo = "none"
+            if args.dither:
+                dither_algo = "atkinson" if args.dither is True else str(args.dither).lower()
+
+            native_art = try_render_native_monochrome(luris_input_path, args.width, mono_mode, dither_algo, invert_mode)
+            if native_art is not None:
+                ascii_art = native_art
+            else:
+                if mono_mode == "sketch":
+                    ascii_art = render_python_sketch(image, args.width, invert_mode)
+                elif mono_mode == "manga":
+                    ascii_art = render_python_manga(image, args.width, invert_mode)
+                elif mono_mode == "blocks":
+                    ascii_art = render_python_bw_quadrants(image, args.width, dither_algo, invert_mode)
                 else:
-                    ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style)
+                    image = resize_image(image, args.width, args.blocks, args.braille)
+                    if dither_algo in ("atkinson", "bayer", "floyd") or args.dither:
+                        image = apply_bayer_dither(image)
+                    if args.braille:
+                        ascii_art = convert_image_to_braille(image, args.color, invert_mode)
+                    elif args.blocks:
+                        ascii_art = convert_image_to_blocks(image)
+                    else:
+                        ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style)
+        finally:
+            if temp_luris_path and os.path.exists(temp_luris_path):
+                try: os.unlink(temp_luris_path)
+                except Exception: pass
 
     # -------------------------------------------------------------
     # 2. MOTOR MARY: Apex Perceptual Color Engine (Oklab, Fast Guided Filter, Sextants/Braille/Quadrants)
@@ -2181,57 +3256,82 @@ def main():
         if not args.binary and not args.os_style:
             if getattr(args, "ascii", False):
                 mode = "ascii"
-            elif getattr(args, "sextants", False):
-                mode = "sextants"
+            elif getattr(args, "braille", False):
+                mode = "braille"
             elif getattr(args, "quadrants", False):
                 mode = "quadrants"
-            elif args.blocks:
+            elif getattr(args, "blocks", False):
                 mode = "blocks"
-            elif args.braille:
-                mode = "braille"
+            elif getattr(args, "sextants", False):
+                mode = "sextants"
             else:
-                # Por defecto en Mary 3.0: Braille 2x4 Dual-Color (soporte 100% universal en todas las fuentes de terminal)
-                mode = "braille"
+                # Por defecto en Mary Apex 3.5: Sextantes HD 2x3 (6 subpíxeles por celda, máxima resolución continua)
+                mode = "sextants"
 
-            # 1. Intentar aceleración nativa C++ (luma-mary / libmary.so)
-            native_mary = try_render_native_mary(
-                args.image_path,
-                args.width,
-                mode=mode,
-                raw_colors=args.raw_colors,
-                invert=invert_mode,
-                font_ratio=args.font_ratio
-            )
-            if native_mary is not None:
-                ascii_art = native_mary
-            elif mary is not None:
-                # 2. Fallback al motor Mary en Python puro
-                ascii_art = mary.render_mary(
-                    image,
+            # MOTOR A COLOR: Remover fondo ANTES DE FINALIZAR EL PROCESO
+            temp_mary_path = None
+            mary_image = image
+            mary_input_path = args.image_path
+            if getattr(args, "transparent", False):
+                mary_image = remove_image_background(image)
+                with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                    temp_mary_path = tmp.name
+                    mary_image.save(temp_mary_path)
+                mary_input_path = temp_mary_path
+            elif not args.image_path or not os.path.exists(args.image_path):
+                with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                    temp_mary_path = tmp.name
+                    mary_image.save(temp_mary_path)
+                mary_input_path = temp_mary_path
+
+            try:
+                # 1. Intentar aceleración nativa C++ (luma-mary / libmary.so)
+                native_mary = try_render_native_mary(
+                    mary_input_path,
                     args.width,
                     mode=mode,
                     raw_colors=args.raw_colors,
                     invert=invert_mode,
                     font_ratio=args.font_ratio
                 )
-            else:
-                # 3. Fallback seguro al motor clásico Trumble
-                engine = "trumble"
+                if native_mary is not None:
+                    ascii_art = native_mary
+                elif mary is not None:
+                    # 2. Fallback al motor Mary en Python puro
+                    ascii_art = mary.render_mary(
+                        mary_image,
+                        args.width,
+                        mode=mode,
+                        raw_colors=args.raw_colors,
+                        invert=invert_mode,
+                        font_ratio=args.font_ratio
+                    )
+                else:
+                    # 3. Fallback seguro al motor clásico Trumble
+                    engine = "trumble"
+            finally:
+                if temp_mary_path and os.path.exists(temp_mary_path):
+                    try: os.unlink(temp_mary_path)
+                    except Exception: pass
         else:
             engine = "trumble"
 
     # -------------------------------------------------------------
-    # 3. MOTOR TRUMBLE: Motor Clásico de Color (100% Preservado e Intacto)
+    # 3. MOTOR TRUMBLE ORELX 2.2: Retro-Arcade & Anime Cel-Shading
     # -------------------------------------------------------------
     if engine == "trumble":
+        # MOTOR A COLOR: Remover fondo ANTES DE FINALIZAR EL PROCESO
+        if getattr(args, "transparent", False):
+            image = remove_image_background(image)
+
+        is_blocks_mode = args.blocks or getattr(args, "quadrants", False) or (args.output and not args.ascii and not args.braille)
+
         if not args.raw_colors:
-            # Convertir a RGBA para compatibilidad con paletas indexadas y transparencia
-            image = image.convert("RGBA")
-            image = image.filter(ImageFilter.UnsharpMask(radius=1.2, percent=140, threshold=2))
-            image = ImageEnhance.Color(image).enhance(1.25)
-            image = ImageEnhance.Contrast(image).enhance(1.15)
-            
-        image = resize_image(image, args.width, args.blocks, args.braille)
+            image, was_resized = apply_trumble_cel_shading(image, target_width=args.width, is_blocks=is_blocks_mode, is_braille=args.braille)
+            if not was_resized:
+                image = resize_image(image, args.width, is_blocks=is_blocks_mode, is_braille=args.braille)
+        else:
+            image = resize_image(image, args.width, is_blocks=is_blocks_mode, is_braille=args.braille)
         
         # Difuminado ordenado con matriz de Bayer para simular sombreado retro
         if args.dither:
@@ -2239,22 +3339,41 @@ def main():
         
         if args.braille:
             ascii_art = convert_image_to_braille(image, args.color, invert_mode)
-        elif args.blocks:
+        elif is_blocks_mode:
             ascii_art = convert_image_to_blocks(image)
         else:
             ascii_art = convert_image_to_ascii(image, args.color, invert_mode, args.binary, args.os_style)
     
     if args.output:
-        try:
-            with open(args.output, "w") as f:
-                f.write(ascii_art)
-            print(_("saved_to", args.output))
-        except Exception as e:
-            # Error al guardar el archivo en disco
-            print(_("error_save", e))
+        ext = os.path.splitext(args.output)[1].lower()
+        if ext == ".webp":
+            print("❌ La exportación a formato WebP (.webp) ha sido deshabilitada permanentemente. Por favor use .png o .jpg.")
+            return
+        if ext in (".png", ".jpg", ".jpeg"):
+            # Los stickers con fondo transparente son exclusivos del motor a blanco y negro (Luris Mono)
+            is_luris = (engine == "luris" or not args.color or args.manga or args.sketch)
+            effective_transparent = args.transparent and is_luris
+            if args.transparent and not is_luris:
+                print("ℹ️  Los stickers con fondo transparente (--transparent) son exclusivos del motor Luris Mono (blanco y negro). Exportando imagen completa con fondo de terminal para máxima fidelidad de color.")
+            try:
+                export_ansi_to_image(ascii_art, args.output, transparent=effective_transparent)
+                print(f"✨ Arte terminal exportado exitosamente a imagen: {args.output}")
+            except Exception as e:
+                print(f"❌ Error al exportar imagen: {e}")
+        else:
+            try:
+                with open(args.output, "w", encoding="utf-8") as f:
+                    f.write(ascii_art)
+                print(_("saved_to", args.output))
+            except Exception as e:
+                # Error al guardar el archivo en disco
+                print(_("error_save", e))
     else:
-        # Imprimir salida directamente en la consola
-        print(ascii_art)
+        # Imprimir salida con efecto reveal progresivo (bypassed si --instant)
+        print_with_reveal(ascii_art, instant=args.instant)
+
+    # Registrar el comando en el historial
+    record_command_to_history()
 
 if __name__ == "__main__":
     main()

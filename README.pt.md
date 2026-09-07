@@ -1,199 +1,242 @@
-[English](README.md) | [Español](README.es.md) | [Português](README.pt.md) | [Русский](README.ru.md) | [日本語](README.ja.md) | [Deutsch](README.de.md) | [한국어](README.ko.md)
+[English](README.md) | [Español](README.es.md) | [Português](README.pt.md) | [Français](README.fr.md) | [Русский](README.ru.md) | [日本語](README.ja.md) | [Deutsch](README.de.md) | [한국어](README.ko.md)
 
-# Luma
-
-**Um motor de renderização de imagem para terminal de alta fidelidade escrito em Python e C/C++ moderno.**
-
-O Luma é um motor de renderização de terminal de código aberto focado em um único objetivo:
-
-> **Máxima fidelidade visual com o mínimo de espaço no terminal.**
-
-Ao contrário dos conversores ASCII tradicionais que simplesmente mapeiam o brilho da imagem para caracteres, o Luma explora diferentes sistemas de glifos de terminal, matemática de cores RGB Linear e algoritmos nativos de visão computacional em C/C++ para preservar a maior quantidade de informações visuais possível dentro de um número limitado de células do terminal.
-
-## Recursos
-
-* Renderização de imagens de alta fidelidade no terminal
-* Renderização baseada em ASCII, Braille e Blocos
-* **Arquitetura Híbrida de Motor Duplo**:
-  * **Motor de Cores RGB Linear** (Python / Pillow): Curvas de contraste HDR dinâmicas, mistura em espaço de cor linear ($C_{\text{linear}} = C_{\text{srgb}}^{2.2}$) e TrueColor ANSI de 24 bits.
-  * **Motor Monocromático e Manga de Alto Desempenho** (C++17 Nativo): Execução sub-10ms, extração de contornos por Diferença de Gaussianas (DoG), difusão de erro Bill Atkinson (1984, MacPaint) e retículas de meio-tom Bayer 8x8 (*Ami-tone*).
-* **Seletor de Motor (`-E`, `--engine`)**: Alterne dinamicamente entre `color`, `mono`, `bw`, `manga` e `sketch`.
-* **Modo Esboço de Traço Puro (`-s`, `-E sketch`)**: Extração de contornos nítidos sem ruído para anime e ilustrações.
-* **Manga Screentone 2.0 (`-m`, `-E manga`)**: Retículas autênticas de impressão de mangá para tons médios com brancos de papel puros e tinta preta sólida.
-* **Pontilhado Atkinson e Halftone (`-d` / `--dither`)**: Suporta `atkinson`, `floyd`, `bayer` e `none`.
-* **Blocos Quadrantes HD 2x2 (`--blocks`)**: 4 subpixels por célula usando caracteres de quadrante Unicode (`▘▝▀▖▌▞▛▗▚▐▜▄▙▟█`).
-* **Renderização Estilo OS (`--os-style`)**: Caracteres clássicos de terminal (pontos, letras) para logotipos estilo Neofetch.
-* **Troca de Cor em Tempo Real (`--swap`)**: Troque dinamicamente até 5 cores com base na distância de cor Euclidiana em 3D.
-* **Zero Dependências Nativas Externas**: O motor C++ é autocontido com cabeçalhos de domínio público (`stb_image.h` e `stb_image_resize2.h`). Não requer OpenCV nem libpng.
-* **Paridade Total com Fallback em Python**: Se o compilador C++ não estiver disponível, o Luma utiliza uma implementação equivalente em Python puro sem quebras.
-* Largura de saída configurável e autodetecção de fundo claro/escuro (`-i`, `--invert`)
-* Suíte interativa de atualização (`-uu`), restauração/downgrade (`-dg`) e verificação (`-u`)
-* Painel de diagnóstico integral do sistema e motores (`-v`, `--version`)
-
-## Exemplo
-
-```bash
-# Converta uma imagem usando caracteres Braille, cores, e trocando roxo por rosa
-luma image.png -w 45 --braille -c --swap purple pink
 ```
+  ██╗     ██╗   ██╗███╗   ███╗ █████╗ ██████╗ ████████╗
+  ██║     ██║   ██║████╗ ████║██╔══██╗██╔══██╗╚══██╔══╝
+  ██║     ██║   ██║██╔████╔██║███████║██████╔╝   ██║   
+  ██║     ██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗   ██║   
+  ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
+  ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
+   Modern Terminal Visual Suite • v2.3.0
+   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]
+```
+
+# Lumart (Luma) v2.3.0
+
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)
+[![C++: 17 Multi-Core](https://img.shields.io/badge/C%2B%2B-17%20OpenMP%20SIMD-orange.svg)](https://isocpp.org/)
+[![Platform: Linux / macOS / BSD](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20BSD-lightgrey.svg)](https://github.com/SilentBlox01/Luma)
+[![8 Idiomas Suportados](https://img.shields.io/badge/Idiomas-8%20Locales-purple.svg)](#idiomas-suportados)
+
+**Lumart** é uma suíte visual de alta engenharia para terminais modernos, concebida com um único princípio fundamental:
+
+> **Máxima densidade visual e impacto estético no menor espaço de terminal.**
+
+Ao contrário dos conversores ASCII convencionais que apenas mapeiam o brilho de pixels para caracteres alfanuméricos, o Lumart integra **quatro motores especializados de visão computacional e renderização subpixel** desenvolvidos em C++17 nativo multi-core (OpenMP) e Python otimizado. Ele transforma qualquer fotografia, ilustração de anime, sprite de jogo arcade ou transmissão de webcam ao vivo em uma experiência gráfica imersiva no seu emulador de terminal.
+
+---
+
+## Índice
+1. [Os Quatro Motores Principais](#os-quatro-motores-principais)
+   - [Mary Apex 3.5](#1-mary-apex-35-fotorrealista-vetorial)
+   - [Trumble Orelx 2.2](#2-trumble-orelx-22-retro-arcade--anime-cel-shading)
+   - [Luris Mono 2.6](#3-luris-mono-26-manga-screentone--monocromático)
+   - [Spectra Weep 1.4](#4-spectra-weep-14-webcam-ao-vivo)
+2. [Matriz Comparativa de Motores](#matriz-comparativa-de-motores)
+3. [Exportação Gráfica e Política de Stickers](#exportação-gráfica-e-política-de-stickers)
+4. [Idiomas Suportados (8 Idiomas)](#idiomas-suportados)
+5. [Instalação Rápida e Pacotes](#instalação)
+6. [Referência Completa de Comandos (CLI)](#referência-completa-de-comandos)
+7. [Exemplos Práticos e Cookbook](#exemplos-práticos-e-cookbook)
+8. [Sistema de Atualizações e Rollback](#sistema-de-atualizações-e-rollback)
+9. [Integração com o Sistema Operacional](#integração-com-o-sistema)
+10. [Arquitetura e Engenharia Interna](#arquitetura-e-engenharia-interna)
+11. [Solução de Problemas](#solução-de-problemas)
+12. [Licença](#licença)
+
+---
+
+## Os Quatro Motores Principais
+
+```
+                  ┌──────────────────────────────────────────────┐
+                  │                 LUMART CLI                   │
+                  └──────┬────────────┬────────────┬─────────────┘
+                         │            │            │             │
+        ┌────────────────┘            │            │             └────────────────┐
+        ▼                             ▼            ▼                              ▼
+  ┌──────────────┐             ┌──────────────┐  ┌──────────────┐          ┌──────────────┐
+  │  MARY APEX   │             │TRUMBLE ORELX │  │  LURIS MONO  │          │ SPECTRA WEEP │
+  │    v3.5      │             │    v2.2      │  │    v2.6      │          │     v1.4     │
+  ├──────────────┤             ├──────────────┤  ├──────────────┤          ├──────────────┤
+  │• C++17 OpenMP│             │• Subpixel Ink│  │• C++17 Native│          │• Live Webcam │
+  │• Oklab 31-Min│             │• Capcom CPS-2│  │• DoG Lineart │          │• 30-60 FPS   │
+  │• Sextants 2x3│             │• 32-bit Punch│  │• Ami-tone 8x8│          │• 5 Shaders   │
+  │• Specular Fit│             │• Quad-Blocks │  │• Stickers PNG│          │• Zero-Latency│
+  └──────────────┘             └──────────────┘  └──────────────┘          └──────────────┘
+```
+
+### 1. Mary Apex 3.5 (Fotorrealista Vetorial)
+* **Objetivo**: Microdegradês contínuos, fotografias complexas, iluminação realista e retratos fiéis.
+* **C++17 Multi-Core**: Acelerado com OpenMP e instruções SIMD (`libmary.so` e executável `luma-mary`).
+* **Bipartição Global Oklab Exata (31 combinações por célula)**: Elimina mínimos locais de algoritmos heurísticos. Avalia exaustivamente todas as 31 bipartições de cores por célula em menos de 700 nanossegundos, garantindo o mínimo absoluto de erro perceptual ($\Delta E$).
+* **Filtro Guiado Rápido $O(1)$ com Realce Especular ($L > 0.82$)**: Realça reflexos e brilhos nos olhos e superfícies lustrosas enquanto preserva gradientes naturais na pele.
+* **Sextantes Unicode 2x3 por Padrão (`-S`, `--sextants`)**: 6 subpixels por caractere terminal em blocos sólidos Unicode 13.0 (`🬀`-`🬻`, `█`, `▌`, `▐`). Suporta também Braille 2x4 dual-color (`-B`), Quadrantes 2x2 (`-Q`), Meios-Blocos (`--blocks`) e ASCII Direcional Scharr.
+* **Isolamento Alfa Rigoroso**: Áreas transparentes não contaminam as bordas do objeto, eliminando bordas escuras.
+* **Exportação com Fundo de Terminal**: Imagens salvas em `.png` ou `.jpg` são geradas sobre um fundo escuro de terminal (`#0c0c0c`), preservando a estética de arte de terminal em alta fidelidade.
+
+### 2. Trumble Orelx 2.2 (Retro-Arcade & Anime Cel-Shading)
+* **Objetivo**: Ilustrações de anime, sprites de jogos, quadrinhos e pop-art retrô.
+* **Contorno 1-a-1 na Resolução Subpixel**: O redimensionamento é executado *antes* do filtro bilateral e detecção de bordas Canny. Os traços pretos mantêm exatamente 1 subpixel de espessura, evitando que a redução Lanczos borre as linhas.
+* **Paleta Arcade Capcom CPS-2 / SNK Neo-Geo de 32 bits**: Curva de contraste e saturação (+28% vivacidade, +15% contraste seletivo) inspirada em clássicos jogos de luta dos anos 90.
+* **Penalidade de Forma Adaptativa**: Piso de `shape_penalty` reduzido para 30, permitindo que glifos diagonais (`▞`, `▚`, `▘`, `▝`) acompanhem com perfeição o contorno dos olhos, cabelos e roupas.
+
+### 3. Luris Mono 2.6 (Manga Screentone & Monocromático C++17)
+* **Objetivo**: Mangás japoneses autênticos, arte a nanquim, bicos de pena e stickers recortados.
+* **Extração de Traços DoG (Diferença de Gaussianas)**: Linhas limpas sem ruído de textura, adaptando os raios de convolução à resolução do terminal.
+* **Manga Screentone 2.0 (*Ami-tone*)**: Retícula pontilhada de impressão japonesa com matrizes Bayer 8x8, entregando tons médios equilibrados com brancos puros e preto absoluto.
+* **Difusão de Erro Atkinson (MacPaint 1984)**: O consagrado algoritmo de Bill Atkinson que retém 25% de energia residual para criar texturas limpas e sem desordem estocástica.
+* **Exclusividade de Stickers Transparentes (`--transparent`)**: Luris Mono é o **único motor autorizado a gerar stickers recortados em `.png` com fundo transparente real**, ideal para WhatsApp, Telegram e Discord.
+
+### 4. Spectra Weep 1.4 (Webcam ao Vivo no Terminal)
+* **Objetivo**: Streaming interativo em tempo real a 30-60 FPS diretamente no terminal (`lumart --webcam` ou `lumart -W`).
+* **Latência Zero**: Captura otimizada via OpenCV/V4L2 com sincronização direta à taxa de atualização do emulador.
+* **5 Filtros em Tempo Real**: Normal TrueColor, Weep Cyberpunk, Matrix Green Rain, Thermal FLIR Infravermelho e Manga Ink.
+
+---
+
+## Matriz Comparativa de Motores
+
+| Recurso | Mary Apex 3.5 | Trumble Orelx 2.2 | Luris Mono 2.6 | Spectra Weep 1.4 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Estilo Visual** | Fotorrealista Vetorial | Retro-Arcade / Cel-Shading | Mangá Japonês / Tinta | Vídeo ao Vivo / Webcam |
+| **Linguagem Base** | C++17 OpenMP + SIMD | Python + OpenCV Otimizado | C++17 Nativo | Python + OpenCV V4L2 |
+| **Espaço de Cor** | Oklab Perceptual ($\Delta E$) | 32-bit Capcom CPS-2 | Monocromático / Ami-tone | TrueColor / Shaders RGB |
+| **Modo Padrão** | **Sextantes 2x3 (`-S`)** | **Quadrantes 2x2 (`--blocks`)**| **Manga 2.0 (`-m`)** | **Streaming 30-60 FPS** |
+| **Densidade Subpixel**| Até 6 subpixels/célula | Até 4 subpixels/célula | Até 4 subpixels/célula | Dinâmico |
+| **Contorno de Linhas** | Suave Anti-aliasing | **Canny 1-a-1 Subpixel** | **DoG Adaptativo** | Opcional (Shader Manga) |
+| **Exportação Gráfica** | Fundo de Terminal (`.png`, `.jpg`)| Fundo de Terminal (`.png`, `.jpg`)| **Stickers PNG (`--transparent`)**| Captura instantânea |
+| **Comando Rápido** | `-E mary -S` | `-E trumble --blocks` | `-E luris -m` | `-W` ou `--webcam` |
+
+---
+
+## Exportação Gráfica e Política de Stickers
+
+O Lumart conta com exportador de alta definição (`-o imagem.png` ou `-o imagem.jpg`) com largura padrão de estúdio de **160 colunas**.
+
+### 1. Desativação Permanente do Formato WebP
+* **O formato `.webp` foi desativado permanentemente para exportação gráfica**.
+* Caso seja especificado um arquivo com extensão `.webp`, o Lumart encerra a operação com aviso informativo solicitando `.png` ou `.jpg`.
+* Formatos suportados:
+  * **`.png`**: Alta definição sem perdas, compressão otimizada e suporte a canal alfa transparente.
+  * **`.jpg` / `.jpeg`**: Máxima compatibilidade, qualidade 95% e tabelas Huffman otimizadas.
+
+### 2. Stickers Transparentes Exclusivos do Luris Mono
+* **Por que os motores a cores não fazem stickers transparentes?**
+  Ao recortar um personagem colorido com 160 colunas em fundo transparente, visualizadores de imagem padrão exibem o contorno sem o contraste da terminal, dando a impressão de imagem comprimida ou em baixa qualidade. Ao exportar com seu **fundo escuro de terminal (`#0c0c0c`)**, a peça se destaca com total clareza como uma legítima obra de arte de terminal de alta resolução.
+* **Stickers em Preto e Branco (Luris Mono)**:
+  A opção `--transparent` é **exclusiva do Luris Mono** (`-m`, `-s`, `-E luris`). As tramas de mangá e traços DoG criam stickers de recorte autênticos com canal alfa transparente (>95% de transparência verificada).
+* Se `--transparent` for usado com Mary ou Trumble, o sistema emite um aviso e exporta a imagem completa com fundo de terminal para preservar a fidelidade cromática.
+
+---
+
+## Idiomas Suportados
+
+O Lumart conta com suporte completo a **8 idiomas**:
+
+| Código | Idioma | Autodetecção | Forçar no Terminal |
+| :---: | :--- | :--- | :--- |
+| `pt` | Português | Automática via `$LANG=pt_*` | `lumart --lang pt` |
+| `en` | English | Automática via `$LANG=en_*` (Padrão) | `lumart --lang en` |
+| `es` | Español | Automática via `$LANG=es_*` | `lumart --lang es` |
+| `fr` | Français | Automática via `$LANG=fr_*` | `lumart --lang fr` |
+| `ru` | Русский | Automática via `$LANG=ru_*` | `lumart --lang ru` |
+| `ja` | 日本語 | Automática via `$LANG=ja_*` | `lumart --lang ja` |
+| `de` | Deutsch | Automática via `$LANG=de_*` | `lumart --lang de` |
+| `ko` | 한국어 | Automática via `$LANG=ko_*` | `lumart --lang ko` |
+
+---
 
 ## Instalação
 
-Você pode instalar o Luma com um único comando, executá-lo diretamente do código fonte ou compilá-lo em um pacote nativo do Linux (DEB, RPM ou Arch PKGBUILD).
-
-**Instalação Rápida (Recomendado):**
+### Método 1: Instalador Automático de Linha Única (Recomendado)
 ```bash
 curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
 ```
 
-**Opção 1: Executar diretamente do código fonte / Instalador local**
+### Método 2: Instalação Manual do Repositório
 ```bash
 git clone https://github.com/SilentBlox01/Luma.git
 cd Luma
+chmod +x install.sh
 ./install.sh
 ```
 
-**Opção 2: Baixar Pacotes Pré-compilados**
-Você pode baixar os pacotes `.deb` ou `.rpm` prontos para uso diretamente da página de [GitHub Releases](https://github.com/SilentBlox01/Luma/releases).
+### Método 3: Pacotes Nativos Linux
+Baixe pacotes pré-compilados em [GitHub Releases](https://github.com/SilentBlox01/Luma/releases):
+* **Debian / Ubuntu**: `sudo apt install ./lumart-*.deb`
+* **Fedora / RHEL**: `sudo dnf install ./lumart-*.rpm`
+* **Arch Linux**: Execute `makepkg -si` no diretório `dist/arch`
 
-**Opção 3: Compilar e construir pacotes nativos você mesmo**
-O Luma inclui um script de construção automatizado para empacotar a ferramenta em um binário autônomo usando o PyInstaller:
-```bash
-chmod +x build_packages.sh
-./build_packages.sh
-```
-Após compilar, você pode instalá-lo globalmente através do seu gerenciador de pacotes:
-- **Debian/Ubuntu**: `sudo apt install ./dist/lumart-*.deb`
-- **Fedora/RHEL**: `sudo dnf install ./dist/lumart-*.rpm`
-- **Arch Linux**: `cd dist/arch && makepkg -si`
+---
 
-**Opção 4: Compilação manual do motor nativo C++**
-Se deseja compilar apenas o motor nativo em C++ sem gerar pacotes completos:
-```bash
-# Binário CLI independente:
-g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
+## Referência Completa de Comandos
 
-# Biblioteca compartilhada (para aceleração em processo via ctypes a partir do Python):
-g++ -O3 -std=c++17 -fPIC -shared monochrome.cpp -o libmonochrome.so
+```text
+Uso: lumart [OPÇÕES] <caminho_ou_url_da_imagem>
 ```
 
-## Uso
+| Opção | Parâmetro | Descrição |
+| :--- | :--- | :--- |
+| `-E`, `--engine` | `mary` \| `trumble` \| `luris` \| `spectra` | Seleciona o motor de renderização. |
+| `-S`, `--sextants`| — | Ativa blocos Sextantes Unicode 2x3 (6 subpixels/célula). |
+| `-B`, `--braille` | — | Ativa caracteres Braille Unicode 2x4 (8 subpixels/célula). |
+| `-Q`, `--quadrants`| — | Ativa blocos Quadrantes Unicode 2x2 (4 subpixels/célula). |
+| `--blocks` | — | Ativa modo de blocos otimizados. |
+| `-a`, `--ascii` | — | Renderiza exclusivamente com caracteres ASCII alfanuméricos. |
+| `-m`, `--manga` | — | Ativa modo Manga Screentone 2.0 (trama Bayer 8x8 + linhas DoG). |
+| `-s`, `--sketch`| — | Ativa modo de esboço limpo de linhas puras. |
+| `-w`, `--width` | `<int>` | Largura de saída em colunas (padrão: tamanho da janela). |
+| `-i`, `--invert`| — | Inverte o mapa de brilho (para terminais com fundo claro). |
+| `--raw-colors` | — | Desativa filtros e cel-shading (cores puras da imagem original). |
+| `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | Algoritmo de difusão de erro ou retícula. |
+| `--swap` | `<cor1> <cor2>` | Substitui dinamicamente cores em espaço RGB 3D. |
+| `-o`, `--output` | `<arquivo.png / .jpg>` | Exporta a arte para arquivo de imagem de alta definição. |
+| `--transparent` | — | **Exclusivo Luris Mono**: exporta stickers recortados com transparência. |
+| `-W`, `--webcam`| `[id]` | Transmite vídeo de webcam ao vivo no terminal (30-60 FPS). |
+| `--instant` | — | Desativa o efeito de varredura reveal e exibe imediatamente. |
+| `--paste` | — | Carrega e renderiza a imagem atualmente na área de transferência. |
+| `--lang` | `<code>` | Define o idioma da interface (`pt`, `en`, `es`, `fr`, etc.). |
+| `-H`, `--history` | `[N]` | Exibe os últimos N comandos executados no histórico. |
+| `-R`, `--replay` | `[N]` | Reexecuta o comando N do histórico (padrão: o último). |
+| `--install-desktop` | — | Adiciona ação "Abrir com Lumart" no menu de contexto do Linux. |
+| `-v`, `--version` | — | Exibe o diagnóstico completo do sistema e dos motores. |
+| `-u`, `--check-update`| — | Verifica se há novas versões disponíveis no GitHub. |
+| `-uu`, `--upgrade` | — | Atualização assistida para a versão mais recente. |
+| `-dg`, `--downgrade` | `[ver]` | Restauração interativa para versões anteriores. |
 
-Se você instalou o pacote ou executou o instalador, pode executar `lumart` ou `luma` de qualquer lugar. Caso contrário, execute o script python diretamente.
+---
 
-> **💡 Dica Pro:** O Luma funciona perfeitamente com imagens sem fundo (transparentes)! O motor ignora automaticamente os pixels transparentes, fazendo com que logotipos e personagens se destaquem contra o fundo do seu terminal.
+## Exemplos Práticos e Cookbook
 
+### 1. Fotorrealismo Máximo com Mary Apex 3.5
 ```bash
-# Uso básico
-python3 lumart.py image.png
+lumart foto.jpg -E mary -S -w 90
 ```
 
-Especificar a largura de saída (em caracteres):
+### 2. Arte de Anime com Trumble Orelx 2.2
 ```bash
-python3 lumart.py image.png -w 30
+lumart personagem.png -E trumble --blocks -w 85
 ```
 
-Habilitar renderização Braille de alta fidelidade com Truecolor:
+### 3. Sticker de Mangá com Fundo Transparente (Luris Mono)
 ```bash
-python3 lumart.py image.png --braille -c
+lumart manga.png -m --transparent -o sticker.png
 ```
 
-Renderizar no Modo Esboço de Traço Puro (contornos nítidos DoG sem ruído):
+### 4. Transmissão de Webcam ao Vivo
 ```bash
-python3 lumart.py image.png -E sketch -w 100
-# ou: python3 lumart.py image.png -s -w 100
+lumart -W
 ```
 
-Renderizar com o motor Manga Screentone 2.0 (tinta DoG + retícula Bayer 8x8):
+### 5. Imagem da Área de Transferência
 ```bash
-python3 lumart.py image.png -E manga -w 120
-# ou: python3 lumart.py image.png -m -w 120
+lumart --paste -E trumble --blocks
 ```
 
-Renderizar em monocromático com Pontilhado Atkinson (MacPaint 1984):
-```bash
-python3 lumart.py image.png -E mono -d atkinson -w 100
-# ou floyd-steinberg clássico: python3 lumart.py image.png -E mono -d floyd -w 100
-```
+---
 
-Renderizar em Blocos Quadrantes HD (2x2 subpixels por célula em P&B):
-```bash
-python3 lumart.py image.png -E mono --blocks -w 80
-```
+## Licença
 
-Renderizar em monocromático puro sem cores:
-```bash
-python3 lumart.py image.png -E mono --braille -w 100
-```
-
-Forçar renderização clássica de caracteres estilo OS retro (útil para logotipos de SO):
-```bash
-python3 lumart.py image.png --os-style -c
-```
-
-Exibir Diagnóstico Completo do Sistema e Motores:
-```bash
-luma -v
-# ou: luma --version
-```
-
-## Atualizações e Rollback
-
-O Luma oferece controle explícito sobre atualizações e restaurações:
-
-- **Verificar se há atualizações (sem baixar nada):**
-  ```bash
-  luma -u
-  # ou: luma --update / luma --check-update
-  ```
-- **Atualização Interativa:**
-  ```bash
-  luma -uu
-  # ou: luma --upgrade
-  ```
-  *(Permite selecionar qual versão instalar com pré-visualização de notas e backup automático em `~/.config/luma/backup/`)*
-
-- **Restauração Interativa / Downgrade:**
-  ```bash
-  luma -dg
-  # ou: luma --downgrade / luma --rollback
-  ```
-  *(Abre um menu interativo no terminal para escolher entre backups locais ou releases do GitHub)*
-
-  Você também pode passar a versão diretamente:
-  ```bash
-  luma -dg 2.1.0
-  ```
-
-## Desinstalação
-
-Se você deseja remover o Luma do seu sistema, o comando depende de como você o instalou:
-
-**Se instalado via Gerenciador de Pacotes (.deb, .rpm, PKGBUILD):**
-- **Debian/Ubuntu**: `sudo apt remove lumart`
-- **Fedora/RHEL**: `sudo dnf remove lumart`
-- **Arch Linux**: `sudo pacman -Rns lumart`
-
-**Se instalado via pip:**
-```bash
-pip uninstall lumart
-```
-
-**Se instalado manualmente:**
-Você pode executar o script de desinstalação fornecido:
-```bash
-chmod +x uninstall.sh
-./uninstall.sh
-```
-
-## Filosofia
-
-Renderização de terminal é uma forma de compressão visual.
-
-O desafio não é simplesmente converter uma imagem em caracteres. O desafio é representar a maior quantidade de informações visuais possível usando o menor número de células do terminal.
-
-Portanto, o Luma foca na **fidelidade perceptiva**, utilizando espaços de cores matematicamente precisos (RGB Linear vs sRGB) e curvas HDR dinâmicas, em vez de simplesmente produzir arte ASCII reconhecível.
-
-## Solução de Problemas
-
-Com problemas em fontes, cores ou módulos ausentes? Confira nosso [Guia de Solução de Problemas](TROUBLESHOOTING.md) para correções rápidas.
+Lumart é distribuído sob a Licença Pública Geral Affero GNU v3.0 (**AGPL-3.0**). Consulte o arquivo `LICENSE` para os termos completos.

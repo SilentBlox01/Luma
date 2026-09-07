@@ -1,6 +1,6 @@
 /*
  * ==============================================================================
- *  Luma - Mary 3.0 Apex Engine (C++17 Native)
+ *  Luma - Mary Apex 3.5 Engine (C++17 Native)
  * ==============================================================================
  *  Perceptual Visual Computing & Computational Optics Super-Model for Terminals.
  *  Zero AI / Zero Neural Networks. Pure human biophysical vision mathematics:
@@ -158,7 +158,7 @@ static void box_filter_2d(const std::vector<float>& src, std::vector<float>& dst
     }
 }
 
-static void apply_oklab_guided_filter(std::vector<uint8_t>& img_rgba, int w, int h, int r = 2, float eps = 0.0004f) {
+static void apply_oklab_guided_filter(std::vector<uint8_t>& img_rgba, int w, int h, int r = 1, float eps = 0.0003f) {
     int total = w * h;
     std::vector<float> L(total), a_ch(total), b_ch(total);
 
@@ -209,6 +209,12 @@ static void apply_oklab_guided_filter(std::vector<uint8_t>& img_rgba, int w, int
             L_curved = 1.0f - 0.5f * std::pow(2.0f * (1.0f - sharp_L), 1.15f);
         }
 
+        // Realce de brillos especulares (ojos, destellos, cabello lustroso)
+        if (L_curved > 0.82f) {
+            float spec = (L_curved - 0.82f) / 0.18f;
+            L_curved = std::min(1.0f, L_curved + spec * 0.06f);
+        }
+
         // Realce cromático biofísico (+25%) en espacio Oklab
         float new_a = a_ch[i] * 1.25f;
         float new_b = b_ch[i] * 1.25f;
@@ -246,7 +252,60 @@ static ClusterResult cluster_cell_oklab(const std::vector<RGB>& pixels) {
     }
     mean_L /= n; mean_a /= n; mean_b /= n;
 
-    // Primer centroide: punto más lejano de la media
+    if (n == 1) {
+        RGB rgb = oklab_to_rgb(pts[0].L, pts[0].a, pts[0].b);
+        return { rgb, rgb, { true }, 0.0f, mean_L };
+    }
+
+    // Para n <= 6 (Cuadrantes n=4, Sextantes n=6):
+    // Particionado bipartito exacto global que minimiza el error cuadrático Oklab
+    if (n <= 6) {
+        float best_err = 1e9f;
+        int best_m = 1;
+        Oklab best_c1{0,0,0}, best_c2{0,0,0};
+
+        for (int m_idx = 1; m_idx < (1 << n); m_idx += 2) {
+            float L1 = 0, a1 = 0, b1 = 0; int cnt1 = 0;
+            float L2 = 0, a2 = 0, b2 = 0; int cnt2 = 0;
+            for (int i = 0; i < n; ++i) {
+                if (m_idx & (1 << i)) {
+                    L1 += pts[i].L; a1 += pts[i].a; b1 += pts[i].b; cnt1++;
+                } else {
+                    L2 += pts[i].L; a2 += pts[i].a; b2 += pts[i].b; cnt2++;
+                }
+            }
+            if (cnt1 == 0 || cnt2 == 0) continue;
+
+            Oklab c1 = { L1 / cnt1, a1 / cnt1, b1 / cnt1 };
+            Oklab c2 = { L2 / cnt2, a2 / cnt2, b2 / cnt2 };
+
+            float err = 0;
+            for (int i = 0; i < n; ++i) {
+                if (m_idx & (1 << i)) err += oklab_dist_sq(pts[i], c1);
+                else err += oklab_dist_sq(pts[i], c2);
+            }
+
+            if (err < best_err) {
+                best_err = err;
+                best_m = m_idx;
+                best_c1 = c1;
+                best_c2 = c2;
+            }
+        }
+
+        if (best_c1.L < best_c2.L) {
+            std::swap(best_c1, best_c2);
+            best_m = (~best_m) & ((1 << n) - 1);
+        }
+
+        std::vector<bool> mask(n);
+        for (int i = 0; i < n; ++i) mask[i] = (best_m & (1 << i)) != 0;
+
+        float de = std::sqrt(oklab_dist_sq(best_c1, best_c2));
+        return { oklab_to_rgb(best_c1.L, best_c1.a, best_c1.b), oklab_to_rgb(best_c2.L, best_c2.a, best_c2.b), mask, de, mean_L };
+    }
+
+    // Fallback K-Means para n > 6 (Braille n=8)
     float max_d1 = -1.0f;
     int c1_idx = 0;
     for (int i = 0; i < n; ++i) {
@@ -255,7 +314,6 @@ static ClusterResult cluster_cell_oklab(const std::vector<RGB>& pixels) {
     }
     Oklab c1 = pts[c1_idx];
 
-    // Segundo centroide: punto más lejano de c1
     float max_d2 = -1.0f;
     int c2_idx = 0;
     for (int i = 0; i < n; ++i) {
@@ -264,8 +322,7 @@ static ClusterResult cluster_cell_oklab(const std::vector<RGB>& pixels) {
     }
     Oklab c2 = pts[c2_idx];
 
-    // 2 iteraciones de refinamiento K-Means rápido
-    for (int it = 0; it < 2; ++it) {
+    for (int it = 0; it < 3; ++it) {
         float g1_L = 0, g1_a = 0, g1_b = 0; int cnt1 = 0;
         float g2_L = 0, g2_a = 0, g2_b = 0; int cnt2 = 0;
         for (int i = 0; i < n; ++i) {
@@ -279,7 +336,6 @@ static ClusterResult cluster_cell_oklab(const std::vector<RGB>& pixels) {
         if (cnt2 > 0) c2 = { g2_L / cnt2, g2_a / cnt2, g2_b / cnt2 };
     }
 
-    // Asegurar que c1 sea el más luminoso
     if (c1.L < c2.L) std::swap(c1, c2);
 
     std::vector<bool> mask(n);
@@ -287,7 +343,8 @@ static ClusterResult cluster_cell_oklab(const std::vector<RGB>& pixels) {
         mask[i] = (oklab_dist_sq(pts[i], c1) <= oklab_dist_sq(pts[i], c2));
     }
 
-    return { oklab_to_rgb(c1.L, c1.a, c1.b), oklab_to_rgb(c2.L, c2.a, c2.b), mask, max_d2, mean_L };
+    float de = std::sqrt(oklab_dist_sq(c1, c2));
+    return { oklab_to_rgb(c1.L, c1.a, c1.b), oklab_to_rgb(c2.L, c2.a, c2.b), mask, de, mean_L };
 }
 
 // ==============================================================================
@@ -377,11 +434,23 @@ static const char* SEXTANTS[64] = {
 std::string render_mary_pipeline(const std::string& image_path, int target_w, const std::string& mode, bool raw_colors, bool invert, float font_ratio = 0.5f) {
     init_oklab_luts();
 
+    if (image_path.empty()) {
+        return "❌ Error: Empty image path provided.";
+    }
+
     int orig_w = 0, orig_h = 0, channels = 0;
     unsigned char* raw_data = stbi_load(image_path.c_str(), &orig_w, &orig_h, &channels, 4);
     if (!raw_data) {
         return "❌ Error: Could not load image " + image_path;
     }
+
+    if (orig_w <= 0 || orig_h <= 0) {
+        stbi_image_free(raw_data);
+        return "❌ Error: Invalid image dimensions in " + image_path;
+    }
+
+    if (target_w < 5) target_w = 5;
+    if (font_ratio <= 0.05f || font_ratio >= 3.0f) font_ratio = 0.5f;
 
     float aspect = (float)orig_h / (float)orig_w;
 
@@ -389,9 +458,9 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
     // MODO A: SEXTANTES HD 2x3 (Unicode 13.0, 6 Subpíxeles, Bloques 100% Sólidos)
     // -------------------------------------------------------------
     if (mode == "sextants" || mode == "sextant" || mode == "s") {
-        int sub_w = target_w * 2;
-        int num_rows = (int)std::round(target_w * aspect * font_ratio);
-        int sub_h = num_rows * 3;
+        int sub_w = std::max(2, target_w * 2);
+        int num_rows = std::max(1, (int)std::round(target_w * aspect * font_ratio));
+        int sub_h = std::max(3, num_rows * 3);
 
         std::vector<uint8_t> scaled(sub_w * sub_h * 4);
         stbir_resize_uint8_linear(raw_data, orig_w, orig_h, 0, scaled.data(), sub_w, sub_h, 0, STBIR_RGBA);
@@ -429,42 +498,74 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                 }
 
                 bool all_trans = true;
-                for (uint8_t a : cell_a) if (a >= 64) { all_trans = false; break; }
+                bool has_trans = false;
+                for (uint8_t a : cell_a) {
+                    if (a >= 64) all_trans = false;
+                    else has_trans = true;
+                }
                 if (all_trans) {
                     row_buf.emit_cell(" ");
                     continue;
                 }
 
-                ClusterResult cr = cluster_cell_oklab(cell_p);
-
-                // Umbral adaptativo Weber-Fechner dependiente de la luminosidad local
-                float tau = 0.0075f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.80f);
-
-                if (cr.max_delta_e < tau) {
-                    // Superficie lisa o fondo uniforme: emisión limpia sin glifos parásitos
-                    row_buf.emit_cell(" ", nullptr, &cr.bg);
-                } else {
-                    // Alto contraste (bordes de dibujo, ojos, pelo) -> Sextantes HD 2x3
-                    int cnt_true = 0;
-                    for (bool m : cr.mask) if (m) cnt_true++;
-                    if (cnt_true > 3) {
-                        std::swap(cr.fg, cr.bg);
-                        for (int i = 0; i < 6; ++i) cr.mask[i] = !cr.mask[i];
-                    }
-
-                    int sextant_code = 0;
+                if (has_trans) {
+                    std::vector<RGB> opaque_p;
+                    std::vector<int> opaque_indices;
                     for (int i = 0; i < 6; ++i) {
-                        if (cell_a[i] >= 64 && (cr.mask[i] != invert)) {
-                            sextant_code |= (1 << i);
+                        if (cell_a[i] >= 64) {
+                            opaque_p.push_back(cell_p[i]);
+                            opaque_indices.push_back(i);
                         }
                     }
 
+                    if (opaque_p.empty()) {
+                        row_buf.emit_cell(" ");
+                        continue;
+                    }
+
+                    ClusterResult cr = cluster_cell_oklab(opaque_p);
+
+                    int sextant_code = 0;
+                    for (int idx : opaque_indices) {
+                        sextant_code |= (1 << idx);
+                    }
+
                     if (sextant_code == 0) {
-                        row_buf.emit_cell(" ", nullptr, &cr.bg);
+                        row_buf.emit_cell(" ");
                     } else if (sextant_code == 63) {
                         row_buf.emit_cell(" ", nullptr, &cr.fg);
                     } else {
-                        row_buf.emit_cell(SEXTANTS[sextant_code], &cr.fg, &cr.bg);
+                        row_buf.emit_cell(SEXTANTS[sextant_code], &cr.fg, nullptr);
+                    }
+                } else {
+                    ClusterResult cr = cluster_cell_oklab(cell_p);
+                    float tau = 0.0075f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.80f);
+
+                    if (cr.max_delta_e < tau) {
+                        // Superficie lisa o fondo uniforme: emisión limpia sin glifos parásitos
+                        row_buf.emit_cell(" ", nullptr, &cr.bg);
+                    } else {
+                        int cnt_true = 0;
+                        for (bool m : cr.mask) if (m) cnt_true++;
+                        if (cnt_true > 3) {
+                            std::swap(cr.fg, cr.bg);
+                            for (int i = 0; i < 6; ++i) cr.mask[i] = !cr.mask[i];
+                        }
+
+                        int sextant_code = 0;
+                        for (int i = 0; i < 6; ++i) {
+                            if (cell_a[i] >= 64 && (cr.mask[i] != invert)) {
+                                sextant_code |= (1 << i);
+                            }
+                        }
+
+                        if (sextant_code == 0) {
+                            row_buf.emit_cell(" ", nullptr, &cr.bg);
+                        } else if (sextant_code == 63) {
+                            row_buf.emit_cell(" ", nullptr, &cr.fg);
+                        } else {
+                            row_buf.emit_cell(SEXTANTS[sextant_code], &cr.fg, &cr.bg);
+                        }
                     }
                 }
             }
@@ -483,9 +584,9 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
     // MODO B: BRAILLE SUPER-HYBRID (Bordes finos 2x4 + Superficies sólidas)
     // -------------------------------------------------------------
     else if (mode == "braille" || mode == "hybrid" || mode == "super" || mode == "b") {
-        int sub_w = target_w * 2;
-        int num_rows = (int)std::round(target_w * aspect * font_ratio);
-        int sub_h = num_rows * 4;
+        int sub_w = std::max(2, target_w * 2);
+        int num_rows = std::max(1, (int)std::round(target_w * aspect * font_ratio));
+        int sub_h = std::max(4, num_rows * 4);
 
         std::vector<uint8_t> scaled(sub_w * sub_h * 4);
         stbir_resize_uint8_linear(raw_data, orig_w, orig_h, 0, scaled.data(), sub_w, sub_h, 0, STBIR_RGBA);
@@ -523,7 +624,11 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                 }
 
                 bool all_trans = true;
-                for (uint8_t a : cell_a) if (a >= 64) { all_trans = false; break; }
+                bool has_trans = false;
+                for (uint8_t a : cell_a) {
+                    if (a >= 64) all_trans = false;
+                    else has_trans = true;
+                }
                 if (all_trans) {
                     row_buf.emit_cell(" ");
                     continue;
@@ -534,9 +639,7 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                 // Umbral adaptativo Weber-Fechner
                 float tau = 0.0075f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.80f);
 
-                if (cr.max_delta_e < tau) {
-                    row_buf.emit_cell(" ", nullptr, &cr.bg);
-                } else {
+                if (has_trans) {
                     int cnt_true = 0;
                     for (bool m : cr.mask) if (m) cnt_true++;
                     if (cnt_true > 4) {
@@ -556,7 +659,7 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                     }
 
                     if (braille_code == 0) {
-                        row_buf.emit_cell(" ", nullptr, &cr.bg);
+                        row_buf.emit_cell(" ");
                     } else if (braille_code == 0xFF) {
                         row_buf.emit_cell(" ", nullptr, &cr.fg);
                     } else {
@@ -565,7 +668,42 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                         glyph += (char)(0xE0 | ((cp >> 12) & 0x0F));
                         glyph += (char)(0x80 | ((cp >> 6) & 0x3F));
                         glyph += (char)(0x80 | (cp & 0x3F));
-                        row_buf.emit_cell(glyph, &cr.fg, &cr.bg);
+                        row_buf.emit_cell(glyph, &cr.fg, nullptr);
+                    }
+                } else {
+                    if (cr.max_delta_e < tau) {
+                        row_buf.emit_cell(" ", nullptr, &cr.bg);
+                    } else {
+                        int cnt_true = 0;
+                        for (bool m : cr.mask) if (m) cnt_true++;
+                        if (cnt_true > 4) {
+                            std::swap(cr.fg, cr.bg);
+                            for (int i = 0; i < 8; ++i) cr.mask[i] = !cr.mask[i];
+                        }
+
+                        int braille_code = 0;
+                        for (int dy = 0; dy < 4; ++dy) {
+                            for (int dx = 0; dx < 2; ++dx) {
+                                int idx = dy * 2 + dx;
+                                if (cell_a[idx] >= 64) {
+                                    bool is_on = cr.mask[idx] != invert;
+                                    if (is_on) braille_code |= BRAILLE_DOTS[dy][dx];
+                                }
+                            }
+                        }
+
+                        if (braille_code == 0) {
+                            row_buf.emit_cell(" ", nullptr, &cr.bg);
+                        } else if (braille_code == 0xFF) {
+                            row_buf.emit_cell(" ", nullptr, &cr.fg);
+                        } else {
+                            uint32_t cp = 0x2800 + braille_code;
+                            std::string glyph;
+                            glyph += (char)(0xE0 | ((cp >> 12) & 0x0F));
+                            glyph += (char)(0x80 | ((cp >> 6) & 0x3F));
+                            glyph += (char)(0x80 | (cp & 0x3F));
+                            row_buf.emit_cell(glyph, &cr.fg, &cr.bg);
+                        }
                     }
                 }
             }
@@ -584,9 +722,9 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
     // MODO C: CUADRANTES HD 2x2 (4 Subpíxeles con Cobertura 100% Sólida)
     // -------------------------------------------------------------
     else if (mode == "quadrants" || mode == "quadrant" || mode == "q") {
-        int sub_w = target_w * 2;
-        int num_rows = (int)std::round(target_w * aspect * font_ratio);
-        int sub_h = num_rows * 2;
+        int sub_w = std::max(2, target_w * 2);
+        int num_rows = std::max(1, (int)std::round(target_w * aspect * font_ratio));
+        int sub_h = std::max(2, num_rows * 2);
 
         std::vector<uint8_t> scaled(sub_w * sub_h * 4);
         stbir_resize_uint8_linear(raw_data, orig_w, orig_h, 0, scaled.data(), sub_w, sub_h, 0, STBIR_RGBA);
@@ -622,37 +760,71 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                 }
 
                 bool all_trans = true;
-                for (uint8_t a : quad_a) if (a >= 64) { all_trans = false; break; }
+                bool has_trans = false;
+                for (uint8_t a : quad_a) {
+                    if (a >= 64) all_trans = false;
+                    else has_trans = true;
+                }
                 if (all_trans) {
                     row_buf.emit_cell(" ");
                     continue;
                 }
 
-                ClusterResult cr = cluster_cell_oklab(quad_p);
-
-                // Umbral adaptativo Weber-Fechner
-                float tau = 0.0075f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.80f);
-
-                if (cr.max_delta_e < tau) {
-                    row_buf.emit_cell(" ", nullptr, &cr.bg);
-                } else {
-                    int cnt_true = 0;
-                    for (bool m : cr.mask) if (m) cnt_true++;
-                    if (cnt_true > 2) {
-                        std::swap(cr.fg, cr.bg);
-                        for (int i = 0; i < 4; ++i) cr.mask[i] = !cr.mask[i];
-                    }
-
-                    int q_mask = 0;
+                if (has_trans) {
+                    std::vector<RGB> opaque_p;
+                    std::vector<int> opaque_indices;
                     for (int i = 0; i < 4; ++i) {
                         if (quad_a[i] >= 64) {
-                            bool is_on = cr.mask[i] != invert;
-                            if (is_on) q_mask |= (1 << i);
+                            opaque_p.push_back(quad_p[i]);
+                            opaque_indices.push_back(i);
                         }
                     }
 
-                    const char* glyph = QUADRANTS[q_mask & 0x0F];
-                    row_buf.emit_cell(glyph, &cr.fg, &cr.bg);
+                    if (opaque_p.empty()) {
+                        row_buf.emit_cell(" ");
+                        continue;
+                    }
+
+                    ClusterResult cr = cluster_cell_oklab(opaque_p);
+
+                    int q_mask = 0;
+                    for (int idx : opaque_indices) {
+                        q_mask |= (1 << idx);
+                    }
+
+                    if (q_mask == 0) {
+                        row_buf.emit_cell(" ");
+                    } else if (q_mask == 15) {
+                        row_buf.emit_cell(" ", nullptr, &cr.fg);
+                    } else {
+                        const char* glyph = QUADRANTS[q_mask & 0x0F];
+                        row_buf.emit_cell(glyph, &cr.fg, nullptr);
+                    }
+                } else {
+                    ClusterResult cr = cluster_cell_oklab(quad_p);
+                    float tau = 0.0075f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.80f);
+
+                    if (cr.max_delta_e < tau) {
+                        row_buf.emit_cell(" ", nullptr, &cr.bg);
+                    } else {
+                        int cnt_true = 0;
+                        for (bool m : cr.mask) if (m) cnt_true++;
+                        if (cnt_true > 2) {
+                            std::swap(cr.fg, cr.bg);
+                            for (int i = 0; i < 4; ++i) cr.mask[i] = !cr.mask[i];
+                        }
+
+                        int q_mask = 0;
+                        for (int i = 0; i < 4; ++i) {
+                            if (quad_a[i] >= 64) {
+                                bool is_on = cr.mask[i] != invert;
+                                if (is_on) q_mask |= (1 << i);
+                            }
+                        }
+
+                        const char* glyph = QUADRANTS[q_mask & 0x0F];
+                        row_buf.emit_cell(glyph, &cr.fg, &cr.bg);
+                    }
                 }
             }
             row_buf.end_line();
@@ -670,9 +842,9 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
     // MODO D: MEDIOS BLOQUES 1x2 (▀)
     // -------------------------------------------------------------
     else if (mode == "blocks" || mode == "block" || mode == "k") {
-        int sub_w = target_w;
-        int num_rows = (int)std::round(target_w * aspect * font_ratio);
-        int sub_h = num_rows * 2;
+        int sub_w = std::max(2, target_w);
+        int num_rows = std::max(1, (int)std::round(target_w * aspect * font_ratio));
+        int sub_h = std::max(2, num_rows * 2);
 
         std::vector<uint8_t> scaled(sub_w * sub_h * 4);
         stbir_resize_uint8_linear(raw_data, orig_w, orig_h, 0, scaled.data(), sub_w, sub_h, 0, STBIR_RGBA);
@@ -698,6 +870,10 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
 
                 if (scaled[top_idx + 3] < 64 && scaled[bot_idx + 3] < 64) {
                     row_buf.emit_cell(" ");
+                } else if (scaled[top_idx + 3] < 64) {
+                    row_buf.emit_cell("▄", &bot_c, nullptr);
+                } else if (scaled[bot_idx + 3] < 64) {
+                    row_buf.emit_cell("▀", &top_c, nullptr);
                 } else {
                     row_buf.emit_cell("▀", &top_c, &bot_c);
                 }
@@ -717,8 +893,8 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
     // MODO E: ASCII DIRECCIONAL DE BORDES CON SCHARR
     // -------------------------------------------------------------
     else {
-        int sub_w = target_w;
-        int num_rows = (int)std::round(target_w * aspect * font_ratio);
+        int sub_w = std::max(2, target_w);
+        int num_rows = std::max(1, (int)std::round(target_w * aspect * font_ratio));
         int sub_h = num_rows;
 
         std::vector<uint8_t> scaled(sub_w * sub_h * 4);
@@ -765,10 +941,11 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                     float angle = std::atan2(gy, gx) * 57.29578f;
                     if ((-22.5f <= angle && angle <= 22.5f) || angle >= 157.5f || angle <= -157.5f) glyph = "|";
                     else if (67.5f <= std::abs(angle) && std::abs(angle) <= 112.5f) glyph = "-";
-                    else if ((22.5f < angle && angle < 67.5f) || (-157.5f < angle && angle < -112.5f)) glyph = "\\";
-                    else glyph = "/";
+                    else if ((22.5f < angle && angle < 67.5f) || (-157.5f < angle && angle < -112.5f)) glyph = "/";
+                    else glyph = "\\";
                 } else {
                     int r_idx = std::clamp((int)(ok.L * (ramp_len - 1)), 0, ramp_len - 1);
+                    if (invert) r_idx = (ramp_len - 1) - r_idx;
                     glyph = std::string(1, RAMP[r_idx]);
                 }
 
@@ -793,7 +970,8 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
 
 extern "C" {
     const char* render_mary_c(const char* image_path, int width, const char* mode, bool raw_colors, bool invert) {
-        std::string mode_str = mode ? mode : "braille";
+        if (!image_path) return nullptr;
+        std::string mode_str = mode ? mode : "sextants";
         std::string res = render_mary_pipeline(image_path, width > 0 ? width : 90, mode_str, raw_colors, invert, 0.5f);
         char* buf = new char[res.size() + 1];
         std::strcpy(buf, res.c_str());
@@ -801,7 +979,8 @@ extern "C" {
     }
 
     const char* render_mary_apex_c(const char* image_path, int width, const char* mode, bool raw_colors, bool invert, float font_ratio) {
-        std::string mode_str = mode ? mode : "braille";
+        if (!image_path) return nullptr;
+        std::string mode_str = mode ? mode : "sextants";
         if (font_ratio <= 0.05f || font_ratio >= 2.0f) font_ratio = 0.5f;
         std::string res = render_mary_pipeline(image_path, width > 0 ? width : 90, mode_str, raw_colors, invert, font_ratio);
         char* buf = new char[res.size() + 1];
@@ -820,13 +999,13 @@ extern "C" {
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        std::cout << "Luma Mary Apex Engine v3.0 (C++17 Native Multi-Core)\n"
+        std::cout << "Luma Mary Apex Engine v3.5 (C++17 Native Multi-Core)\n"
                   << "Usage: " << argv[0] << " <image_path> [-w width] [-m mode (sextants|braille|quadrants|blocks|ascii)] [-r font_ratio] [--raw-colors] [-i]\n";
         return 1;
     }
     std::string path = argv[1];
     int width = 80;
-    std::string mode = "braille";
+    std::string mode = "sextants";
     float font_ratio = 0.5f;
     bool raw_colors = false;
     bool invert = false;
@@ -836,7 +1015,7 @@ int main(int argc, char** argv) {
         if (arg == "-w" && i + 1 < argc) width = std::atoi(argv[++i]);
         else if (arg == "-m" && i + 1 < argc) mode = argv[++i];
         else if ((arg == "-r" || arg == "--font-ratio") && i + 1 < argc) font_ratio = std::atof(argv[++i]);
-        else if (arg == "--raw-colors") raw_colors = true;
+        else if (arg == "--raw-colors" || arg == "--raw") raw_colors = true;
         else if (arg == "-i" || arg == "--invert") invert = true;
     }
 
