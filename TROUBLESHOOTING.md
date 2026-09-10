@@ -6,6 +6,7 @@ Welcome to the definitive troubleshooting, architectural reference, and operatio
 
 ## 📑 Table of Contents
 1. [Quick Diagnostic Checklist](#1-quick-diagnostic-checklist)
+   - [1.1 Visual "Dos & Don'ts" Master Guide (Lo que se DEBE y NO se debe hacer)](#11-visual-dos--donts-master-guide-lo-que-se-debe-y-no-se-debe-hacer)
 2. [Installation & Native C++ Dependency Resolution](#2-installation--native-c-dependency-resolution)
 3. [Terminal Emulators & Font Compatibility](#3-terminal-emulators--font-compatibility)
 4. [Color Fidelity & TrueColor (24-bit ANSI)](#4-color-fidelity--truecolor-24-bit-ansi)
@@ -39,10 +40,91 @@ If an image looks distorted, pixelated, fails to render, or displays unexpected 
 | Braille or Monochrome output looks like an inverted photographic negative | Terminal background is light (white/cream) instead of dark | Luris Mono auto-detects white backgrounds and inverts automatically. For manual override: add `-i` / `--invert`. |
 | Mary or Luris running on Python fallback instead of C++ | C++ shared libraries (`libmary.so`, `libmonochrome.so`) not compiled | Install `g++` (`build-essential` / `gcc-c++`) and run `make -f Makefile.native` or `./install.sh`. |
 | `OpenCV required for Spectra engine` error | `opencv-python` is not installed | Install via your system package manager (`python3-opencv`) or `pip install opencv-python`. |
-| Web camera fails to open in Spectra mode (`-W`) | Missing camera permissions or incorrect `/dev/video*` index | Add user to video group: `sudo usermod -aG video $USER`, or specify camera index: `lumart -W 1`. |
+| Web camera fails to open in Spectra mode (`-W` or `-E spectra`) | Missing camera permissions or incorrect `/dev/video*` index | Add user to video group: `sudo usermod -aG video $USER`, or specify camera index: `lumart -W 1` or `lumart -E spectra`. |
+| Output vertically stretched or squashed | Terminal font has atypical aspect ratio (not 1:2) | Calibrate with `--font-ratio <float>` (e.g., `--font-ratio 0.45` or `0.55`). Default is `0.5`. |
+| Prefer monochrome or light terminal background | Color codes enabled by default or light background | Pass `--no-color` or `NO_COLOR=1`. For light themes, invert with `-i`. Force color back with `-c`. |
+| Want explicit engine control instead of auto-routing | Preference for deterministic engine selection | Use `-E <engine>` (e.g. `-E mary`, `-E trumble`, `-E luris`, `-E spectra`). |
+| Prefer progressive scan animation over instant output | Output renders all at once by default | Pass `--reveal` for line-by-line progressive animation. Pass `--instant` for immediate display. |
 | Transparent sticker output (`--transparent`) has black background | Transparent alpha is only supported in Luris Mono engine with `.png` | Run `lumart image.png -m --transparent -o sticker.png`. Color models export with solid terminal background. |
 | WebP export rejected with error | WebP export was permanently disabled to protect visual quality | Export to `.png` or `.jpg` instead (`-o output.png`). |
-| Language remains Spanish or English despite system locale | Locale environment variable not recognized or overridden by config | Set language explicitly: `lumart --lang <code` (e.g., `lumart --lang fr` for French). |
+| Language remains Spanish or English despite system locale | Locale environment variable not recognized or overridden by config | Set language explicitly: `lumart --lang <code>` (e.g., `lumart --lang fr` for French). |
+
+---
+
+## 1.1 Visual "Dos & Don'ts" Master Guide (Lo que se DEBE y NO se debe hacer)
+
+To guarantee the highest visual fidelity and prevent user errors, follow these architectural principles:
+
+### 1. Engine Choice & Visual Character: Photorealism vs Anime vs Manga
+
+![Lumart Flagship Engines Showdown](assets/engine_showdown.png)
+
+| Aspect | ✅ What to DO (Lo que se DEBE hacer) | ❌ What NOT to do (Lo que NO se debe hacer) |
+| :--- | :--- | :--- |
+| **Photorealistic & TrueColor** | **DO** use default **Mary Apex 3.5** (`lumart photo.jpg`) for portraits, natural skin tones, and rich real-world scenes. It uses perceptual Oklab color space ($\Delta E$) with 2x3 Sextants micro-blocks. | **DON'T** force `--blocks` or `--boost` on delicate photographs or skin tones unless you explicitly want a saturated retro-arcade look. |
+| **Retro Arcade & Cel-Shading** | **DO** use **Trumble Orelx 2.2** (`lumart art.png -E trumble`) with `--boost` for Capcom CPS-2 / Neo-Geo style vibrant posters. | **DON'T** expect Trumble to produce smooth gradients; Trumble is designed for sharp comic edges and saturated posterized bands. |
+| **Japanese Manga & Line Art** | **DO** use **Luris Mono 2.6** (`lumart manga.jpg -m`) to recreate authentic physical comic screentones (*Ami-tone*) and DoG ink contour lines. | **DON'T** use general ASCII tools that randomly scramble letters; Luris uses calibrated Bayer matrices and Atkinson error diffusion. |
+
+---
+
+### 2. Viewport Auto-Fitting (`-F`) vs Manual Width (`-w`)
+
+| Principle | ✅ What to DO (Lo que se DEBE hacer) | ❌ What NOT to do (Lo que NO se debe hacer) |
+| :--- | :--- | :--- |
+| **Interactive Terminal Viewing** | **DO** use `-F` (`--fit`) to let Lumart calculate both width and height to fit your exact terminal window without vertical scrolling or line wrapping:<br>`lumart artwork.jpg -F` | **DON'T** combine `-F` and `-w` simultaneously:<br>`lumart artwork.jpg -F -w 80` ❌<br>*Lumart will halt with code 2 explaining that `--fit` dynamic calculation conflicts with fixed `--width`.* |
+| **Fixed Pipelining or Fetch** | **DO** use `-w <columns>` when embedding into a fixed-width fetch screen, Neofetch sidebar, or CLI dashboard. Combine with `--fastfetch` to auto-crop whitespace. | **DON'T** set `-w` wider than your terminal emulator columns, which forces lines to wrap and distorts characters. |
+
+---
+
+### 3. Transparent Stickers & Alpha Transparency Policy
+
+| Mary Apex 3.5 (Solid Canvas) | Luris Mono 2.6 (Transparent Sticker) |
+| :---: | :---: |
+| ![Cinderella Mary](assets/cinderella_mary_apex.png)<br><sub>**DO**: Export color art on solid dark canvas</sub> | ![Cinderella Manga Sticker](assets/cinderella_manga_sticker.png)<br><sub>**DO**: Export manga stickers with `--transparent -o .png`</sub> |
+
+| Principle | ✅ What to DO (Lo que se DEBE hacer) | ❌ What NOT to do (Lo que NO se debe hacer) |
+| :--- | :--- | :--- |
+| **Transparent PNG Stickers** | **DO** use `--transparent` exclusively with **Luris Mono** (`-m`, `-s`, `-d`) and export to `.png`:<br>`lumart character.png -m --transparent -o sticker.png`<br>Produces authentic transparent manga cutouts (>90% alpha transparency) perfect for Telegram, Discord, and Slack stickers. | **DON'T** use `--transparent` with `-o output.jpg`. JPEG format does not support alpha channels; Lumart will reject this with `[Lumart Error]`. |
+| **Full Color TrueColor Artwork** | **DO** export color artwork on its native high-contrast dark terminal canvas (`#111116`):<br>`lumart photo.png -o photo_art.png`<br>This preserves perceptual contrast and prevents color text from looking washed out outside a terminal. | **DON'T** expect color engines (Mary/Trumble) to cut out backgrounds transparently; terminal text colors require the dark backing canvas for proper luminance contrast. |
+
+---
+
+### 4. Multi-Frame Animations & GIF Export (`--loop`)
+
+![Terminal Animated Demo](assets/animated_demo.gif)
+
+| Principle | ✅ What to DO (Lo que se DEBE hacer) | ❌ What NOT to do (Lo que NO se debe hacer) |
+| :--- | :--- | :--- |
+| **Live Terminal Playback** | **DO** run `lumart animation.gif --loop` for interactive 60 FPS playback in your terminal window. Lumart pre-renders and caches each ANSI frame for stutter-free looping. Press `Ctrl+C` to cleanly exit and restore the terminal cursor. | **DON'T** run `--loop` on single-frame static images expecting animation; Lumart will simply render the single frame. |
+| **Animated GIF Compilation** | **DO** export full rendered animations by providing `-o anim.gif` or `--save anim.gif`:<br>`lumart anim.gif --loop -o output.gif`<br>Lumart iterates through all frames, rasterizes each with subpixel accuracy, and compiles an animated GIF. | **DON'T** specify a static extension when using `--loop`:<br>`lumart anim.gif --loop -o anim.png` ❌<br>*Lumart will halt with code 2 explaining that animations cannot be saved to single-frame static images.* |
+
+---
+
+### 5. Light vs Dark Terminal Themes & Automatic Inversion
+
+| Principle | ✅ What to DO (Lo que se DEBE hacer) | ❌ What NOT to do (Lo que NO se debe hacer) |
+| :--- | :--- | :--- |
+| **Light-Themed Terminals** | **DO** pass `-i` (`--invert`) when using light terminal backgrounds (Solarized Light, PaperColor). In Luris Mono (`-m`), Lumart automatically inspects image borders and auto-inverts when white backgrounds are detected. | **DON'T** leave monochrome or Braille output un-inverted on white terminals, or the image will display inverted like an X-ray negative. |
+
+---
+
+### 6. Subpixel Glyph Selection (Mutually Exclusive Textures)
+
+| Sextants 2x3 (`-S`) | Braille 2x4 (`-B`) | Quadrants 2x2 (`-Q`) |
+| :---: | :---: | :---: |
+| ![Sextants](assets/texture_sextants.png)<br><sub>Micro-blocks (Default)</sub> | ![Braille](assets/texture_braille.png)<br><sub>Fine Dots & Curves</sub> | ![Quadrants](assets/texture_quadrants.png)<br><sub>Pixel-Art Blocks</sub> |
+
+| Principle | ✅ What to DO (Lo que se DEBE hacer) | ❌ What NOT to do (Lo que NO se debe hacer) |
+| :--- | :--- | :--- |
+| **Choosing Texture Modes** | **DO** pick the single texture glyph style that matches your aesthetic preference:<br>• `-S` (Sextants): Smooth micro-blocks, continuous gradients.<br>• `-B` (Braille): Fine dot matrix, portraits, stippling.<br>• `-Q` (Quadrants): Dense 2x2 pixel blocks.<br>• `--blocks`: Retro console half-blocks (`▀`/`▄`). | **DON'T** provide multiple texture flags in the same command:<br>`lumart photo.jpg -S -B -Q` ❌<br>*Lumart will immediately halt with code 2 explaining that texture flags are mutually exclusive.* |
+
+---
+
+### 7. Terminal Fonts & Typography Tuning
+
+| Principle | ✅ What to DO (Lo que se DEBE hacer) | ❌ What NOT to do (Lo que NO se debe hacer) |
+| :--- | :--- | :--- |
+| **Font Choice & Spacing** | **DO** use a modern Unicode monospace font (JetBrains Mono Nerd Font, Fira Code, Cascadia Code) and set your terminal emulator's line-height / row spacing to `1.0` (or `0px`). | **DON'T** use terminal line spacing greater than `1.0` (e.g. `1.2` or `1.5`), as this introduces horizontal gap cuts through Braille and Sextant characters. |
 
 ---
 
@@ -216,12 +298,12 @@ Luma features four dedicated rendering engines, each mathematically engineered f
 ```
 
 ### 5.1 Mary Apex 3.5 (Perceptual Oklab & Subpixel Micro-Blocks)
-- **Flagship Command**: `lumart image.png` (or `-B`, `-Q`, `--blocks`)
+- **Flagship Command**: `lumart image.png` (Zero-Flag default) or `lumart image.png -E mary -S` (explicit flagship)
 - **Core Technology**:
   1. **Guided Filter in Oklab Color Space**: Edge-preserving spatial smoothing that suppresses JPEG high-frequency noise while keeping crisp anime and photo silhouettes.
   2. **Weber-Fechner Adaptive Contrast**: Contrast sensitivity adjustment modeled after the human visual cortex, bringing out shadow details without blowing out specular highlights.
   3. **Multi-Subpixel Modes**:
-     - *Default*: 2x3 solid Unicode sextant blocks. Yields continuous, non-perforated solid color rendering.
+     - *Default*: 2x3 solid Unicode sextant blocks (`-S`). Yields continuous, non-perforated solid color rendering.
      - `-B` / `--braille`: 2x4 Braille matrix with dual-color foreground and background ANSI pairing.
      - `-Q` / `--quadrants`: 2x2 square subpixel blocks.
      - `--blocks`: Classic half-blocks (`▀` / `▄`).
@@ -231,14 +313,14 @@ Luma features four dedicated rendering engines, each mathematically engineered f
     - *Fix*: Use `-B` (Braille) or `-Q` (Quadrants) which are supported by all fonts, or install JetBrains Mono Nerd Font v3+.
 
 ### 5.2 Trumble Orelx 2.2 (Retro-Arcade Cel-Shading & Anime Ink)
-- **Flagship Command**: `lumart image.png --blocks`
+- **Flagship Command**: `lumart image.png -E trumble --blocks` (or `lumart image.png --blocks`)
 - **Core Technology**:
   1. **Capcom CPS-2 / Neo-Geo Color Punch**: Gamut mapping that maximizes color saturation and contrast for terminal environments without clipping hues.
   2. **Anime Ink Outlines**: Dynamic edge-detection overlay that draws fine dark ink contours around characters and foreground objects.
   3. **Lanczos Downsampling + Bayer Dither**: Smooth anti-aliased geometry reduction with optional retro matrix dithering (`-d bayer`).
 
 ### 5.3 Luris Mono 2.6 (Monochrome Manga Screentone & Stickers)
-- **Flagship Command**: `lumart image.png -m`
+- **Flagship Command**: `lumart image.png -E luris -m` (or `lumart image.png -m`, `lumart image.png --no-color`)
 - **Core Technology**:
   1. **Difference of Gaussians (DoG) Lineart**:
      $$\text{DoG}(x, y) = G_{\sigma_1}(x, y) - G_{\sigma_2}(x, y)$$
@@ -252,7 +334,7 @@ Luma features four dedicated rendering engines, each mathematically engineered f
      Creates an authentic manga cutout sticker with transparent alpha channel!
 
 ### 5.4 Spectra Weep 1.4 (Real-Time Live Webcam Streaming)
-- **Flagship Command**: `lumart --webcam` (or `lumart -W`)
+- **Flagship Command**: `lumart -E spectra` (or `lumart --webcam`, `lumart -W`)
 - **Core Technology**:
   1. **Zero-Lag OpenCV Video Pipeline**: Captures video frames, downsamples in real time, and renders high-FPS ANSI terminal streams (30–60 FPS).
   2. **5 Live Weep Filters**: Real-time edge enhancement, cyber neon, inverted infrared, and retro monochrome streaming.
@@ -273,7 +355,17 @@ If an image is downscaled without aspect ratio compensation, it will look vertic
 Luma automatically applies calibrated mathematical scaling based on character geometry:
 - **Braille Mode (`-B`)**: 2 dots wide $\times$ 4 dots tall ($2:4 = 1:2$). Each Braille cell compensates for font ratio natively!
 - **Half-Blocks (`--blocks`)**: 1 character wide $\times$ 2 pixels tall ($1:2$).
-- **Sextants (Default)**: 2 subpixels wide $\times$ 3 subpixels tall ($2:3$). Calibrated at the standard 0.5 font ratio for distortion-free geometry.
+- **Sextants (Default / `-S`)**: 2 subpixels wide $\times$ 3 subpixels tall ($2:3$). Calibrated at the standard 0.5 font ratio for distortion-free geometry.
+
+### 6.2 Font Aspect Ratio Calibration (`--font-ratio`)
+While `0.5` represents the standard 1:2 monospace width-to-height ratio, specific terminal fonts (such as Victor Mono, Terminus, or customized line heights) may vary between `0.42` and `0.58`. You can calibrate the vertical scaling dynamically:
+```bash
+# Narrow / condensed fonts:
+lumart photo.png --font-ratio 0.45
+
+# Wide / squarish fonts:
+lumart photo.png --font-ratio 0.55
+```
 
 ---
 
@@ -299,7 +391,7 @@ WebP lossy and near-lossless compression algorithms apply spatial chroma subsamp
 
 ## 8. Configuration, Persistence & Localization (i18n)
 
-Starting with version 2.3.2 ("Mirror"), Luma features a comprehensive, zero-leak internationalization engine supporting 8 languages with runtime and persistent configuration.
+Starting with version 2.3.1 ("Rosetta"), Luma features a comprehensive, zero-leak internationalization engine supporting 8 languages with runtime and persistent configuration.
 
 ### 8.1 Supported Languages Matrix
 
@@ -391,8 +483,8 @@ Example Output:
 
   [#]   Ver       Date / Time         Command
   ──────────────────────────────────────────────────────────────────────────────
-  [01]  v2.3.2    2026-09-07 15:06:25 lumart render.png -w 100
-  [02]  v2.3.2    2026-09-07 14:58:39 lumart slime.jpg -m --transparent -o sticker.png
+  [01]  v2.3.1    2026-09-07 15:06:25 lumart render.png -w 100
+  [02]  v2.3.1    2026-09-07 14:58:39 lumart slime.jpg -m --transparent -o sticker.png
   [03]  v2.3.0    2026-09-07 13:32:28 lumart photo.jpg --blocks -o retro.jpg
   ──────────────────────────────────────────────────────────────────────────────
   💡 To re-execute any command, run: lumart --replay <number> (e.g.: lumart -R 1)
@@ -475,19 +567,25 @@ lumart --lang pt                         # Switch persistent language to Portugu
 lumart --lang ko                         # Switch persistent language to Korean
 
 # ==============================================================================
-# 2. MARY APEX 3.5 (PERCEPTUAL OKLAB COLOR) — DEFAULT ZERO-FLAG
+# 2. MARY APEX 3.5 (PERCEPTUAL OKLAB COLOR) — DEFAULT ZERO-FLAG OR EXPLICIT
 # ==============================================================================
-lumart photo.png                         # Default: Mary Sextants HD + Natural TrueColor
+lumart photo.png                         # Default: Mary Sextants HD + Natural TrueColor (Zero-Flag)
+lumart photo.png -E mary -S              # Explicit flagship invocation (identical output)
 lumart photo.png -B                      # Dual-Color TrueColor Braille (2x4)
 lumart photo.png -Q                      # 2x2 Quadrant Blocks
 lumart photo.png --blocks                # Half-Blocks (▀ / ▄)
 lumart photo.png --boost                 # Arcade-style enhanced saturation + Retinex
 lumart photo.png --vibrant               # Same as --boost (alias)
+lumart photo.png -c                      # Force TrueColor output (default)
+lumart photo.png --no-color              # Disable colors and route to monochrome
+lumart photo.png --font-ratio 0.45       # Calibrate terminal font aspect ratio
+lumart photo.png --reveal                # Progressive line-by-line scan animation
+lumart photo.png --instant               # Instant output without animation (default)
 
 # ==============================================================================
-# 3. RETRO & VISUAL TUNING
+# 3. TRUMBLE ORELX 2.2 (RETRO-ARCADE CEL-SHADING)
 # ==============================================================================
-lumart anime.png --blocks                # Retro half-block cel rendering
+lumart anime.png -E trumble --blocks     # Retro half-block cel-shaded arcade rendering
 lumart anime.png --boost                 # Punchy Capcom CPS-2 / Neo-Geo saturation + Ink
 lumart anime.png -d bayer                # Retro Bayer 8x8 ordered dither
 lumart anime.png --swap purple pink      # Dynamic color swapping (3D RGB space)
@@ -495,7 +593,7 @@ lumart anime.png --swap purple pink      # Dynamic color swapping (3D RGB space)
 # ==============================================================================
 # 4. LURIS MONO 2.6 (MONOCHROME MANGA & STICKERS)
 # ==============================================================================
-lumart manga.png -m                      # Authentic Manga Screentone (DoG + Bayer)
+lumart manga.png -E luris -m             # Explicit Manga Screentone (DoG + Bayer)
 lumart sketch.png -s                     # Clean G-Pen lineart sketch (pure contours)
 lumart photo.png -d atkinson             # Bill Atkinson 1984 MacPaint Dithering
 lumart photo.png -d floyd                # Floyd-Steinberg error diffusion
@@ -505,6 +603,7 @@ lumart waifu.png -m --transparent -o sticker.png  # Transparent sticker!
 # ==============================================================================
 # 5. SPECTRA WEEP 1.4 (LIVE WEBCAM STREAMING)
 # ==============================================================================
+lumart -E spectra                        # Stream live webcam via engine selector
 lumart --webcam                          # Stream default webcam (/dev/video0)
 lumart -W 1                              # Stream alternate webcam (/dev/video1)
 

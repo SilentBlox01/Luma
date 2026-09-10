@@ -6,7 +6,7 @@
 # ==============================================================================
 set -e
 
-VERSION="2.3.2"
+VERSION="2.4.0"
 
 # Color helpers
 CYAN='\033[1;36m'
@@ -140,6 +140,7 @@ mkdir -p "$SHARE_DIR"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
 if [ -f "$SCRIPT_DIR/lumart.py" ]; then
     echo -e "${MSG_COPY_LOCAL} ${SHARE_DIR}..."
+    [ -L "$SHARE_DIR/lumart.py" ] && rm -f "$SHARE_DIR/lumart.py"
     cp "$SCRIPT_DIR/lumart.py" "$SHARE_DIR/lumart.py"
 else
     echo -e "${MSG_DOWNLOAD}"
@@ -148,6 +149,7 @@ fi
 chmod +x "$SHARE_DIR/lumart.py"
 
 if [ -f "$SCRIPT_DIR/mary.py" ]; then
+    [ -L "$SHARE_DIR/mary.py" ] && rm -f "$SHARE_DIR/mary.py"
     cp "$SCRIPT_DIR/mary.py" "$SHARE_DIR/mary.py"
 else
     curl -fsSL "https://raw.githubusercontent.com/SilentBlox01/Luma/main/mary.py" -o "$SHARE_DIR/mary.py" 2>/dev/null || true
@@ -161,9 +163,11 @@ if [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
     [ -f "$SCRIPT_DIR/stb_image_resize2.h" ] && cp "$SCRIPT_DIR/stb_image_resize2.h" "$SHARE_DIR/"
     if command -v g++ &>/dev/null; then
         echo "⚡ Compiling native C++ monochrome engine (luma-mono)..."
+        g++ -O3 -march=native -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || \
         g++ -O3 -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || \
         g++ -O3 -std=c++17 -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || true
 
+        g++ -O3 -march=native -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || \
         g++ -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || \
         g++ -O3 -std=c++17 -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || true
     fi
@@ -176,9 +180,11 @@ if [ -f "$SCRIPT_DIR/mary.cpp" ]; then
     [ -f "$SCRIPT_DIR/stb_image_resize2.h" ] && cp "$SCRIPT_DIR/stb_image_resize2.h" "$SHARE_DIR/"
     if command -v g++ &>/dev/null; then
         echo "⚡ Compiling native C++ Mary color super-engine (luma-mary)..."
+        g++ -O3 -march=native -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$INSTALL_DIR/luma-mary" 2>/dev/null || \
         g++ -O3 -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$INSTALL_DIR/luma-mary" 2>/dev/null || \
         g++ -O3 -std=c++17 -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$INSTALL_DIR/luma-mary" 2>/dev/null || true
 
+        g++ -O3 -march=native -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$SHARE_DIR/libmary.so" 2>/dev/null || \
         g++ -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$SHARE_DIR/libmary.so" 2>/dev/null || \
         g++ -O3 -std=c++17 -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$SHARE_DIR/libmary.so" 2>/dev/null || true
     fi
@@ -254,6 +260,43 @@ ln -sf "$INSTALL_DIR/lumart" "$INSTALL_DIR/luma"
 
 # Configurar integración de escritorio y menú contextual de gestores de archivos
 "$INSTALL_DIR/lumart" --install-desktop &>/dev/null || true
+
+# 5b. Shell Completions & UNIX Man Page
+if [ "$EUID" -eq 0 ]; then
+    BASH_COMP_DIR="/usr/share/bash-completion/completions"
+    ZSH_COMP_DIR="/usr/share/zsh/site-functions"
+    FISH_COMP_DIR="/usr/share/fish/vendor_completions.d"
+    MAN_DIR="/usr/local/share/man/man1"
+else
+    BASH_COMP_DIR="$HOME/.local/share/bash-completion/completions"
+    ZSH_COMP_DIR="$HOME/.local/share/zsh/site-functions"
+    FISH_COMP_DIR="$HOME/.local/share/fish/vendor_completions.d"
+    MAN_DIR="$HOME/.local/share/man/man1"
+fi
+
+if [ -f "$SCRIPT_DIR/completions/lumart.bash" ]; then
+    mkdir -p "$BASH_COMP_DIR" 2>/dev/null || true
+    cp "$SCRIPT_DIR/completions/lumart.bash" "$BASH_COMP_DIR/lumart" 2>/dev/null || true
+    ln -sf lumart "$BASH_COMP_DIR/luma" 2>/dev/null || true
+fi
+if [ -f "$SCRIPT_DIR/completions/_lumart" ]; then
+    mkdir -p "$ZSH_COMP_DIR" 2>/dev/null || true
+    cp "$SCRIPT_DIR/completions/_lumart" "$ZSH_COMP_DIR/_lumart" 2>/dev/null || true
+    ln -sf _lumart "$ZSH_COMP_DIR/_luma" 2>/dev/null || true
+fi
+if [ -f "$SCRIPT_DIR/completions/lumart.fish" ]; then
+    mkdir -p "$FISH_COMP_DIR" 2>/dev/null || true
+    cp "$SCRIPT_DIR/completions/lumart.fish" "$FISH_COMP_DIR/lumart.fish" 2>/dev/null || true
+    ln -sf lumart.fish "$FISH_COMP_DIR/luma.fish" 2>/dev/null || true
+fi
+if [ -f "$SCRIPT_DIR/man/lumart.1" ]; then
+    mkdir -p "$MAN_DIR" 2>/dev/null || true
+    cp "$SCRIPT_DIR/man/lumart.1" "$MAN_DIR/lumart.1" 2>/dev/null || true
+    ln -sf lumart.1 "$MAN_DIR/luma.1" 2>/dev/null || true
+    if command -v mandb &>/dev/null; then
+        mandb -q "$MAN_DIR/.." 2>/dev/null || true
+    fi
+fi
 
 # 6. Verify PATH
 IN_PATH=0

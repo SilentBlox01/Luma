@@ -1,0 +1,79 @@
+#compdef lumart luma
+# Zsh completion for lumart and luma
+# Generated for Lumart v2.4.0 "Apex Horizon"
+
+_lumart() {
+    local context state state_descr line
+    typeset -A opt_args
+
+    local engines=(
+        'mary:Mary Apex 3.5 (C++17 Oklab ΔE sextant flagship)'
+        'trumble:Trumble Orelx 2.2 (Capcom CPS-2 retro arcade cel-shading)'
+        'luris:Luris Mono 2.6 (Bayer 8x8 manga halftone & sticker)'
+        'spectra:Spectra Weep 1.4 (Real-time webcam & shader matrix)'
+    )
+
+    local dithers=(
+        'atkinson:Atkinson error diffusion (Macintosh classic)'
+        'floyd:Floyd-Steinberg spatial diffusion'
+        'bayer:Bayer ordered 8x8 halftone matrix'
+        'none:Direct thresholding without dither'
+    )
+
+    local langs=(
+        'en:English'
+        'es:Español'
+        'pt:Português'
+        'fr:Français'
+        'ru:Русский'
+        'ja:日本語'
+        'de:Deutsch'
+        'ko:한국어'
+    )
+
+    local shells=(
+        'bash:GNU Bourne-Again Shell'
+        'zsh:Z Shell'
+        'fish:Friendly Interactive Shell'
+    )
+
+    _arguments -s -S \
+        '(-h --help)'{-h,--help}'[Show usage and options help]' \
+        '(-v --version)'{-v,--version}'[Display hardware, OS and engine diagnostic card]' \
+        '(-u --update --check-update)'{-u,--update,--check-update}'[Check for latest version on GitHub]' \
+        '(-uu --upgrade)'{-uu,--upgrade}'[Perform interactive automatic upgrade]' \
+        '(-dg --downgrade --rollback)'{-dg,--downgrade,--rollback}'[Rollback to previous version]:version: ' \
+        '(-w --width)'{-w,--width}'[Set output width in terminal columns]:columns: ' \
+        '(-F --fit)'{-F,--fit}'[Auto-fit to terminal viewport width and height]' \
+        '(-E --engine)'{-E,--engine}'[Select rendering engine explicitly]:engine:(($engines))' \
+        '(-c --color --no-color)'{-c,--color}'[Force TrueColor output]' \
+        '(-c --color --no-color)'--no-color'[Disable color and use monochrome engine]' \
+        '(-S --sextants)'{-S,--sextants}'[Use Unicode 2x3 sextant blocks (Mary default)]' \
+        '(-B --braille)'{-B,--braille}'[Use Unicode 2x4 braille characters (8 subpixels)]' \
+        '(-Q --quadrants)'{-Q,--quadrants}'[Use Unicode 2x2 quadrant blocks (4 subpixels)]' \
+        '--blocks[Use optimized half-block characters (▀/▄)]' \
+        '(-m --manga)'{-m,--manga}'[Manga Screentone 2.0 (Bayer 8x8 + DoG lines)]' \
+        '(-s --sketch)'{-s,--sketch}'[Clean pen-and-ink line sketch mode]' \
+        '(--boost --vibrant)'{--boost,--vibrant}'[Apply vibrant arcade saturation, contrast and Retinex]' \
+        '(-i --invert)'{-i,--invert}'[Invert character lightness]' \
+        '*--swap[Dynamically swap one color for another in 3D RGB space]:color: ' \
+        '(-d --dither)'{-d,--dither}'[Select dithering algorithm]:algorithm:(($dithers))' \
+        '--font-ratio[Calibrate font aspect ratio width/height (default: 0.5)]:ratio: ' \
+        '(-o -O --output --save)'{-o,-O,--output,--save}'[Export to high-res graphic image or animated GIF]:output file:_files -g "*.(png|jpg|jpeg|gif)"' \
+        '--loop[Animation mode: smooth terminal loop or animated GIF export]' \
+        '(--fastfetch --logo)'{--fastfetch,--logo}'[Auto-crop empty/transparent margins for Fastfetch logos]' \
+        '--transparent[Luris Mono exclusive: create transparent background sticker]' \
+        '(--instant --no-reveal --reveal)'{--instant,--no-reveal}'[Display output instantly without scan animation]' \
+        '(--instant --no-reveal --reveal)'--reveal'[Enable progressive line-by-line reveal animation]' \
+        '--paste[Process and render image currently in system clipboard]' \
+        '--lang[Set interface language]:language:(($langs))' \
+        '(-W --webcam)'{-W,--webcam}'[Live webcam terminal streaming at 30-60 FPS]:camera index: ' \
+        '(-H --history)'{-H,--history}'[Show last N commands in history]:count: ' \
+        '(-R --replay --last)'{-R,--replay,--last}'[Re-run command from history]:command index: ' \
+        '--clear-history[Wipe command execution history]' \
+        '--install-desktop[Register file manager context menu integration]' \
+        '--completions[Generate shell tab-completion script]:shell:(($shells))' \
+        '*:image file:_files -g "*.(png|jpg|jpeg|bmp|gif|webp|apng|PNG|JPG|JPEG|BMP|GIF|WEBP|APNG)"'
+}
+
+_lumart "$@"

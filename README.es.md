@@ -7,11 +7,11 @@
   ██║     ██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗   ██║   
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
-   Modern Terminal Visual Suite • v2.3.0
+   Modern Terminal Visual Suite • v2.4.0 (Apex Horizon)
    [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]
 ```
 
-# Lumart (Luma) v2.3.0
+# Lumart (Luma) v2.4.0
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)
@@ -34,16 +34,18 @@ A diferencia de los conversores ASCII rudimentarios que únicamente proyectan lu
    - [Luris Mono 2.6](#3-luris-mono-26-manga-screentone--monocromático)
    - [Spectra Weep 1.4](#4-spectra-weep-14-cámara-web-en-vivo)
 2. [Tabla Comparativa de Modelos](#tabla-comparativa-de-modelos)
-3. [Exportación Gráfica y Política de Stickers](#exportación-gráfica-y-política-de-stickers)
-4. [Idiomas Soportados (8 Idiomas)](#idiomas-soportados)
-5. [Instalación Rápida y Empaquetado](#instalación)
-6. [Referencia Completa de Comandos (CLI)](#referencia-completa-de-comandos)
-7. [Cookbook y Ejemplos Prácticos](#cookbook-y-ejemplos-prácticos)
-8. [Sistema de Actualizaciones y Rollback](#sistema-de-actualizaciones-y-rollback)
-9. [Integración con el Sistema y Portapapeles](#integración-con-el-sistema)
-10. [Arquitectura e Ingeniería Interna](#arquitectura-e-ingeniería-interna)
-11. [Solución de Problemas y Compatibilidad](#solución-de-problemas)
-12. [Licencia](#licencia)
+3. [Galería Visual y Demostración de Resultados](#galería-visual-y-demostración-de-resultados)
+4. [Exportación Gráfica, Animaciones y Política de Stickers](#exportación-gráfica-animaciones-y-política-de-stickers)
+5. [Idiomas Soportados (8 Idiomas)](#idiomas-soportados)
+6. [Instalación](#instalación)
+7. [Referencia Completa de Comandos (CLI)](#referencia-completa-de-comandos)
+8. [Cookbook y Ejemplos Prácticos](#cookbook-y-ejemplos-prácticos)
+9. [Secretos de Ingeniería, Pro-Tips y Filosofía de Terminal](#secretos-de-ingeniería-pro-tips-y-filosofía-de-terminal)
+10. [Sistema de Actualizaciones y Rollback](#sistema-de-actualizaciones-y-rollback)
+11. [Integración con el Sistema y Portapapeles](#integración-con-el-sistema)
+12. [Arquitectura e Ingeniería Interna](#arquitectura-e-ingeniería-interna)
+13. [Solución de Problemas y Compatibilidad](#solución-de-problemas)
+14. [Licencia](#licencia)
 
 ---
 
@@ -118,18 +120,48 @@ Lumart no aplica una fórmula genérica. Cada tipo de imagen posee exigencias es
 
 ---
 
-## Exportación Gráfica y Política de Stickers
+## Galería Visual y Demostración de Resultados
 
-Lumart incorpora un rasterizador de texto terminal a imagen gráfica de ultra-alta definición (`-o imagen.png` o `-o imagen.jpg`) con resolución predeterminada de estudio de **160 columnas** ($320 \times 480$ subpíxeles en Sextantes y $320 \times 320$ en Cuadrantes).
+### 1. Duelo de Titanes: Mary Apex 3.5 vs Trumble Orelx 2.2
+![Lumart Flagship Engines Showdown](assets/engine_showdown.png)
 
-### 1. Eliminación Permanente de WebP
+### 2. Comparativa Cara a Cara: Color Fotorrealista vs Stickers Manga Transparentes
+
+| Mary Apex 3.5 (Color TrueColor Oklab) | Luris Mono 2.6 (Stickers Manga Transparentes) |
+| :---: | :---: |
+| ![Cinderella Mary Apex](assets/cinderella_mary_apex.png)<br><sub>`lumart cinderella.jpg` *(Mary Sextantes por defecto)*</sub> | ![Cinderella Manga Sticker](assets/cinderella_manga_sticker.png)<br><sub>`lumart cinderella.jpg -m --transparent -o sticker.png`</sub> |
+| ![Hanako Mary Boosted](assets/hanako_boosted.png)<br><sub>`lumart hanako.png --boost` *(Punch Arcade Retinex)*</sub> | ![Hanako Manga Sticker](assets/hanako_manga_sticker.png)<br><sub>`lumart hanako.png -m --transparent -o sticker.png`</sub> |
+| ![Gothic Nun Mary](assets/gothic_nun_mary.png)<br><sub>`lumart gothic_nun.png` *(Alto Rango Dinámico)*</sub> | ![Gothic Nun Manga Sticker](assets/gothic_nun_manga_sticker.png)<br><sub>`lumart gothic_nun.png -m --transparent -o sticker.png`</sub> |
+| ![Slime Mary](assets/slime_mary.png)<br><sub>`lumart slime.png` *(Tonos de Piel Naturales)*</sub> | ![Slime Manga Sticker](assets/slime_manga_sticker.png)<br><sub>`lumart slime.png -m --transparent -o sticker.png`</sub> |
+
+### 3. Densidades de Glifos Subpíxel
+
+| Sextantes 2x3 (`-S` / Mary Predeterminado) | Braille 2x4 (`-B`) | Cuadrantes 2x2 (`-Q`) |
+| :---: | :---: | :---: |
+| ![Sextantes 2x3 Micro-bloques](assets/texture_sextants.png)<br><sub>6 subpíxeles/celda (Gradientes continuos)</sub> | ![Braille 2x4 Puntos](assets/texture_braille.png)<br><sub>8 subpíxeles/celda (Puntillismo y retratos)</sub> | ![Cuadrantes 2x2 Bloques](assets/texture_quadrants.png)<br><sub>4 subpíxeles/celda (Pixel-art y arcade)</sub> |
+
+---
+
+## Exportación Gráfica, Animaciones y Política de Stickers
+
+Lumart incorpora un rasterizador de texto terminal a imagen gráfica de ultra-alta definición (`-o imagen.png`, `-o imagen.jpg` o `-o anim.gif`) con resolución predeterminada de estudio de **160 columnas** ($320 \times 480$ subpíxeles en Sextantes y $320 \times 320$ en Cuadrantes).
+
+### 1. Modo Animación y Exportación a GIF Animado (`--loop`)
+![Demostración Animada en Terminal](assets/animated_demo.gif)
+
+Lumart v2.4.0 introduce soporte nativo para archivos de animación múltiple (GIFs y APNGs):
+* **Reproducción Fluida en Terminal**: `lumart animacion.gif --loop` pre-renderiza y cachea cada frame en secuencias ANSI para una reproducción a 60 FPS sin tirones en tu ventana de terminal.
+* **Compilación a GIF Animado**: `lumart animacion.gif --loop -o resultado.gif` (o `--save resultado.gif`) rasteriza cada fotograma con geometría subpíxel exacta y compila un archivo GIF animado completo.
+
+### 2. Eliminación Permanente de WebP
 * **El formato `.webp` ha sido deshabilitado permanentemente para exportación gráfica**.
-* Si se intenta especificar una extensión `.webp`, Lumart rechaza la operación de forma limpia, requiriendo `.png` o `.jpg`.
+* Si se intenta especificar una extensión `.webp`, Lumart rechaza la operación de forma limpia, requiriendo `.png`, `.jpg` o `.gif`.
 * Formatos oficialmente soportados:
   * **`.png`**: Calidad sin pérdidas, compresión optimizada y soporte de canal alfa transparente.
   * **`.jpg` / `.jpeg`**: Máxima compatibilidad, calidad 95% y codificación Huffman optimizada.
+  * **`.gif`**: Animaciones multi-frame para web o terminal.
 
-### 2. Exclusividad de Stickers Transparentes para Luris Mono
+### 3. Exclusividad de Stickers Transparentes para Luris Mono
 * **¿Por qué los modelos a color no hacen stickers transparentes?**
   Al recortar un personaje a color con 160 columnas de texto sobre un fondo transparente, en un visor de imágenes tradicional la silueta pierde el marco estético de la terminal y puede dar la falsa impresión de ser una "imagen comprimida o de menor calidad". En cambio, exportada con su **lienzo oscuro de terminal (`#0c0c0c`)**, la pieza se aprecia en todo su esplendor como una obra de arte digital terminal de alta gama.
 * **Stickers Manga en Blanco y Negro (Luris Mono)**:
@@ -204,28 +236,38 @@ g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
 Uso: lumart [OPCIONES] <ruta_o_url_de_imagen>
 ```
 
-### 1. Modificadores de Estilo y Textura
+### 1. Motores y Modificadores de Textura
 | Parámetro | Argumento | Descripción |
 | :--- | :--- | :--- |
-| `-m`, `--manga` | — | Transforma el arte a modo Manga Screentone 2.0 (trama Bayer 8x8 + trazos DoG). |
-| `-s`, `--sketch`| — | Transforma el arte a modo Boceto limpio de líneas puras sin tramado. |
+| `-E`, `--engine` | `mary` \| `trumble` \| `luris` \| `spectra` | Selecciona el motor de renderizado explícitamente (auto-enrutado por defecto). |
+| `-S`, `--sextants`| — | Renderiza mediante bloques Sextantes Unicode 2x3 (predeterminado de Mary Apex). |
 | `-B`, `--braille` | — | Renderiza mediante caracteres Braille Unicode 2x4 (8 subpíxeles por celda). |
 | `-Q`, `--quadrants`| — | Renderiza mediante bloques Cuadrantes Unicode 2x2 (4 subpíxeles por celda). |
-| `--blocks` | — | Renderiza mediante medios-bloques optimizados (`▀`). |
+| `--blocks` | — | Renderiza mediante medios-bloques optimizados (`▀` / `▄`). |
+| `-m`, `--manga` | — | Transforma el arte a modo Manga Screentone 2.0 (trama Bayer 8x8 + trazos DoG). |
+| `-s`, `--sketch`| — | Transforma el arte a modo Boceto limpio de líneas puras sin tramado. |
 
-### 2. Dimensiones y Parámetros Visuales
+### 2. Color, Dimensiones y Parámetros Visuales
 | Parámetro | Argumento | Descripción |
 | :--- | :--- | :--- |
-| `-w`, `--width` | `<entero>` | Ancho de salida en columnas (por defecto: auto-ajuste al ancho de la terminal). |
+| `-w`, `--width` | `<entero>` | Ancho de salida en columnas (incompatible con `-F`). |
+| `-F`, `--fit` | — | **Auto-ajuste al viewport**: calcula ancho y alto óptimos para encajar exactamente en la ventana sin scroll vertical (incompatible con `-w`). |
+| `--fastfetch`, `--logo` | — | Recorta automáticamente márgenes transparentes/vacíos para logos compactos en Fastfetch o Neofetch. |
+| `-c`, `--color` | — | Fuerza salida en modo color TrueColor completo (por defecto). |
+| `--no-color` | — | Desactiva el color y enruta al motor monocromático. |
+| `--font-ratio` | `<decimal>`| Calibración de relación de aspecto de fuente ancho/alto (por defecto: `0.5`). |
 | `--boost`, `--vibrant` | — | Aplica realce de saturación, contraste y curvas Retinex para salida estilo arcade vibrante. |
 | `-i`, `--invert`| — | Invierte la luminosidad de los caracteres (para terminales claras; autodetección en `-m`). |
 | `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | Algoritmo de tramado para simulación de gradientes. |
 | `--swap` | `<color1> <color2>` | Intercambia dinámicamente un color por otro en espacio 3D RGB. |
+| `--instant` | — | Muestra la salida inmediatamente sin animación progresiva (por defecto). |
+| `--reveal` | — | Activa la animación progresiva de escaneo línea por línea. |
 
-### 3. Exportación a Imagen Gráfica y Portapapeles
+### 3. Exportación a Imagen Gráfica, Animaciones y Portapapeles
 | Parámetro | Argumento | Descripción |
 | :--- | :--- | :--- |
-| `-o`, `-O`, `--output` | `<archivo.png / .jpg>` | Rasteriza y guarda el arte en imagen gráfica de alta resolución. |
+| `-o`, `-O`, `--output`, `--save` | `<archivo.png / .jpg / .gif>` | Rasteriza y guarda el arte en imagen de alta resolución o GIF animado. |
+| `--loop` | — | **Modo animación**: reproducción fluida en terminal para GIFs/APNGs, o compilación a GIF animado (`-o salida.gif` / `--save salida.gif`). |
 | `--transparent` | — | **Exclusivo de Luris Mono**: genera stickers recortados con fondo transparente. |
 | `--paste` | — | Carga y procesa automáticamente la imagen presente en el portapapeles. |
 
@@ -251,16 +293,22 @@ Uso: lumart [OPCIONES] <ruta_o_url_de_imagen>
 
 ## Cookbook y Ejemplos Prácticos
 
-### 1. Arte en Alta Definición (Predeterminado sin Banderas)
+### 1. Arte en Alta Definición (Predeterminado Zero-Flag o Explícito)
 ```bash
-# Renderiza directamente al ancho completo de tu terminal con colores naturales
+# Renderiza directamente al ancho completo de tu terminal con colores naturales (Zero-Flag)
 lumart foto.jpg
+
+# Invocación explícita al buque insignia (mismo resultado idéntico)
+lumart foto.jpg -E mary -S
 
 # Ajustar un ancho personalizado en columnas
 lumart retrato.png -w 110
 
 # Realce cromático estilo arcade retro con saturación y Retinex
 lumart foto.jpg --boost
+
+# Renderizado retro-arcade en bloques con Trumble
+lumart anime.png -E trumble --blocks
 ```
 
 ### 2. Modos de Textura de Caracteres
@@ -313,6 +361,46 @@ curl -sL https://ejemplo.com/foto.jpg | lumart -
 # Reemplaza dinámicamente tonos morados por rosa pastel
 lumart sprite.png --blocks --swap purple pink
 ```
+
+---
+
+## Secretos de Ingeniería, Pro-Tips y Filosofía de Terminal
+
+> *"Un gran poder de renderizado conlleva una gran responsabilidad estética."*
+
+### 1. La Ley de Gravitación de la Proporción de Fuente (`--font-ratio`)
+* **La Realidad Matemática**: En una pantalla gráfica estándar, los píxeles son perfectamente cuadrados ($1:1$). En la jungla de los emuladores de terminal, cada celda de carácter es un rascacielos rectangular alargado (típicamente de proporción $1:2$ o $0.5$).
+* **El Síntoma**: Si al renderizar a tu personaje favorito parece que acaba de sobrevivir a una prensa hidráulica (aplastado) o fue estirado como chicle en una película de ciencia ficción, la culpa no es del motor de renderizado: es la geometría de tu tipografía.
+* **El Remedio Pro**:
+  * Fuentes esbeltas o compactas (como *Fira Code* o *JetBrains Mono* sin espaciado vertical forzado): prueba `--font-ratio 0.45` a `0.48`.
+  * Fuentes anchas o monospace cuadradas: prueba `--font-ratio 0.52` a `0.58`.
+  * Lumart utiliza `0.5` por defecto, lo que cubre el 90% de los terminales modernos de la galaxia.
+
+### 2. El Teorema del Fondo Oscuro y la Excomunión de WebP
+* **¿Por qué los motores de color (Mary y Trumble) se niegan rotundamente a hacer stickers transparentes?**
+  * Los colores TrueColor en consola se diseñan mediante emisión lumínica aditiva sobre el negro profundo del terminal (`#0c0c0c`).
+  * Si intentas "recortar" ese personaje eliminando el fondo y lo pegas en un chat de WhatsApp con fondo blanco o en un visor transparente, el contraste óptico se destruye por completo: los bordes se vuelven irregulares y parece confeti digital tras una explosión en una fábrica de impresoras.
+  * **Luris Mono es el Único Profeta del Sticker**: Al trabajar con tinta pura (blanco y negro), retícula de imprenta (*Ami-tone*) y líneas vectoriales DoG, Luris genera stickers con más del 92.9% de transparencia alfa real que lucen espectaculares en Telegram, Discord o Slack.
+* **La Tragedia de WebP**:
+  * Durante meses vimos visores de imágenes intentar decodificar artes de terminal guardados en `.webp` y convertirlos en masas borrosas de artefactos de compresión. En la versión 2.4.0, `.webp` fue enviado al reino de las sombras. Larga vida a la **Santísima Trinidad**: `.png` (alta fidelidad y stickers), `.jpg` (fotos compactas 95%) y `.gif` (animaciones).
+
+### 3. El Duelo Oklab: ¿Por qué Mary evalúa 31 combinaciones en 700 nanosegundos?
+* En el espacio de color RGB estándar, calcular la distancia entre dos colores con la fórmula euclidiana tradicional ($\sqrt{\Delta R^2 + \Delta G^2 + \Delta B^2}$) es una mentira biológica: el ojo humano es absurdamente sensible a variaciones de verde y casi ciego a cambios sutiles en azules oscuros.
+* Mary Apex traslada cada subpíxel al espacio **Oklab** ($L, a, b$) y evalúa matemáticamente **las 31 posibles particiones de color por cada celda** usando instrucciones SIMD y OpenMP en C++17 nativo.
+* ¿Por qué tanta matemática para un terminal? Porque los ciclos de tu CPU son baratos, pero el arte mediocre en terminal es un delito de lesa majestad estética.
+
+### 4. Trumble Orelx y la Regla de Oro del Cel-Shading de Arcade
+* El escalado tradicional (como Lanczos o Bicúbico) promedia los colores vecinos. Si tienes una línea negra fina de 1 píxel sobre fondo blanco, Lanczos la convierte en 3 píxeles de degradados grises descoloridos y cobardes.
+* Trumble Orelx invierte el orden del universo: primero reduce la imagen y **luego ejecuta la detección de bordes Canny directamente en resolución subpixel**.
+* El resultado: los contornos de los ojos, el cabello y los trajes de personajes de anime o sprites de videojuegos mantienen exactamente **1 subpíxel de grosor en negro puro**, logrando ese inconfundible impacto de cartucho de arcade Capcom CPS-2 de 1996.
+
+### 5. Los Mandamientos Sagrados del Viewport (`-F` vs `-w`)
+* **Mandamiento I**: Si quieres que tu imagen encaje como un guante en la pantalla sin que tengas que usar la rueda del ratón como si estuvieras pescando, usa `-F` (`--fit`).
+* **Mandamiento II**: Si vas a insertar la imagen en una barra lateral de *Fastfetch* o en un dashboard con un ancho fijo de 60 columnas, usa `-w 60 --fastfetch`.
+* **Mandamiento III**: Jamás ejecutes `lumart imagen.png -F -w 80`. Pedirle a Lumart que al mismo tiempo calcule el tamaño dinámico del terminal y le fuerces un ancho fijo es una herejía lógica. Lumart detendrá la ejecución con un amable `Código 2` y una pedagógica explicación.
+
+### 6. El Misterio del Comando `animate`
+* Si estás buscando el comando `animate` y te preguntas por qué usamos `--loop`: el creador del proyecto tiene reservado el nombre `animate` para un desarrollo secreto de dimensiones superiores. No hagas preguntas cuyas respuestas tu emulador de terminal aún no pueda renderizar. Usa `--loop` y sé feliz a 60 FPS.
 
 ---
 

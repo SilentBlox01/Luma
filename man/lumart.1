@@ -1,0 +1,214 @@
+.TH LUMART 1 "September 2026" "Lumart 2.4.0" "User Commands"
+.SH NAME
+lumart, luma \- High-Fidelity Terminal Visual Suite (Mary Apex, Trumble Orelx, Luris Mono, Spectra Weep)
+
+.SH SYNOPSIS
+.B lumart
+[\fIOPTIONS\fR] [\fIIMAGE_PATH_OR_URL\fR]
+.br
+.B luma
+[\fIOPTIONS\fR] [\fIIMAGE_PATH_OR_URL\fR]
+
+.SH DESCRIPTION
+\fBlumart\fR is an industrial-grade terminal image and video renderer designed for high-definition visual fidelity in modern terminal emulators. Powered by C++17 OpenMP SIMD routines and Python OpenCV acceleration, Lumart projects raster graphics, vector animations, manga screentones, and real-time webcam video feeds directly into standard ANSI/Unicode text viewports.
+
+Lumart routes inputs across four flagship rendering engines:
+.TP
+.B Mary Apex 3.5
+Photorealistic vector TrueColor engine using the \fBOklab perceptual color space\fR, discrete 31-partition combinatorial optimization per sextant cell, and SIMD-accelerated C++17.
+.TP
+.B Trumble Orelx 2.2
+Capcom CPS-2 retro-arcade cel-shading engine featuring \fB1-to-1 subpixel Canny edge detection\fR, Retinex multi-scale contrast, and vibrant comic punch.
+.TP
+.B Luris Mono 2.6
+Japanese manga screentone and line-art engine utilizing \fB8x8 Bayer halftone matrices\fR, adaptive Difference-of-Gaussians (DoG) edge filters, and transparent background PNG sticker generation.
+.TP
+.B Spectra Weep 1.4
+Hardware-accelerated real-time video and webcam streaming engine operating at 30\(en60 FPS with live terminal shader matrix filters.
+
+.SH OPTIONS
+
+.SS "Engine Selection"
+.TP
+\fB\-E\fR, \fB\-\-engine\fR \fIENGINE\fR
+Explicitly select the rendering engine. Supported values: \fBmary\fR, \fBtrumble\fR, \fBluris\fR, \fBspectra\fR. By default, Lumart automatically routes based on options and content.
+
+.SS "Subpixel Textures & Halftones"
+.TP
+\fB\-S\fR, \fB\-\-sextants\fR
+Render using Unicode 2\(mu3 Sextant characters (U+1FB00\(enU+1FB3B). Default for Mary Apex. Yields 6 subpixels per cell with independent foreground and background colors.
+.TP
+\fB\-B\fR, \fB\-\-braille\fR
+Render using Unicode 2\(mu4 Braille patterns (U+2800\(enU+28FF). Yields 8 subpixels per character cell, ideal for fine stippling and detailed sketches.
+.TP
+\fB\-Q\fR, \fB\-\-quadrants\fR
+Render using Unicode 2\(mu2 Quadrant block characters (4 subpixels per cell).
+.TP
+\fB\-\-blocks\fR
+Render using optimized half-block characters (\(ua / \(da) with independent foreground and background colors.
+.TP
+\fB\-m\fR, \fB\-\-manga\fR
+Activate Manga Screentone 2.0 mode (Bayer 8\(mu8 matrix dithering combined with adaptive DoG vector ink outlines).
+.TP
+\fB\-s\fR, \fB\-\-sketch\fR
+Activate clean line sketch mode without screentone dithering.
+
+.SS "Viewport, Geometry & Dimensions"
+.TP
+\fB\-w\fR, \fB\-\-width\fR \fICOLUMNS\fR
+Set explicit output width in terminal character columns. Incompatible with \fB\-F\fR / \fB\-\-fit\fR.
+.TP
+\fB\-F\fR, \fB\-\-fit\fR
+\fBAuto-fit to terminal viewport\fR: dynamically queries terminal rows and columns, calculating the optimal bounding box to render the image without vertical scrolling. Incompatible with \fB\-w\fR.
+.TP
+\fB\-\-font\-ratio\fR \fIRATIO\fR
+Calibrate terminal font width-to-height aspect ratio (default: \fB0.5\fR). Adjust to \fB0.45\fR\(en\fB0.48\fR for tall fonts (Fira Code) or \fB0.52\fR\(en\fB0.58\fR for wide fonts.
+.TP
+\fB\-\-fastfetch\fR, \fB\-\-logo\fR
+Auto-crop transparent and empty bounding margins for seamless inclusion in Fastfetch or Neofetch sidebars.
+
+.SS "Color, Tone & Palette"
+.TP
+\fB\-c\fR, \fB\-\-color\fR
+Force TrueColor (24-bit RGB) ANSI rendering (default).
+.TP
+\fB\-\-no\-color\fR
+Disable color escape sequences and route to monochrome pipeline.
+.TP
+\fB\-\-boost\fR, \fB\-\-vibrant\fR
+Apply Retinex multi-scale dynamic range compression, boosting saturation and contrast for arcade-style vibrancy.
+.TP
+\fB\-i\fR, \fB\-\-invert\fR
+Invert luminance values (useful for light terminal backgrounds; automatically detected in \fB\-m\fR).
+.TP
+\fB\-d\fR, \fB\-\-dither\fR [\fIALGORITHM\fR]
+Select error-diffusion algorithm: \fBatkinson\fR (default), \fBfloyd\fR, \fBbayer\fR, or \fBnone\fR.
+.TP
+\fB\-\-swap\fR \fICOLOR1\fR \fICOLOR2\fR
+Dynamically swap colors within 3D RGB Euclidean color space.
+
+.SS "Image Export & Animations"
+.TP
+\fB\-o\fR, \fB\-O\fR, \fB\-\-output\fR, \fB\-\-save\fR \fIFILE\fR
+Rasterize the terminal render to an image file (\fB.png\fR, \fB.jpg\fR) or compiled animated GIF (\fB.gif\fR). Note: WebP export is permanently deprecated.
+.TP
+\fB\-\-loop\fR
+\fBAnimation mode\fR: caches decoded frames in memory for smooth 60 FPS terminal playback, or compiles an animated input into a subpixel GIF when combined with \fB\-o output.gif\fR.
+.TP
+\fB\-\-transparent\fR
+\fBLuris Mono exclusive\fR: exports manga renders as alpha-transparent PNG stickers (over 90% true transparency).
+.TP
+\fB\-\-instant\fR, \fB\-\-no\-reveal\fR
+Display render output immediately without progressive line scanning (default).
+.TP
+\fB\-\-reveal\fR
+Enable theatrical progressive top-to-bottom scanline animation.
+.TP
+\fB\-\-paste\fR
+Grab image data directly from system clipboard and render immediately.
+
+.SS "System Utilities & Lifecycle"
+.TP
+\fB\-W\fR, \fB\-\-webcam\fR [\fICAMERA_INDEX\fR]
+Launch real-time webcam terminal stream at 30\(en60 FPS (default index: 0).
+.TP
+\fB\-\-lang\fR \fICODE\fR
+Set interface language (\fBen\fR, \fBes\fR, \fBpt\fR, \fBfr\fR, \fBru\fR, \fBja\fR, \fBde\fR, \fBko\fR).
+.TP
+\fB\-H\fR, \fB\-\-history\fR [\fIN\fR]
+Display last N executed commands from persistent command history.
+.TP
+\fB\-R\fR, \fB\-\-replay\fR [\fIN\fR]
+Re-run the N-th command from history (default: last command).
+.TP
+\fB\-\-clear\-history\fR
+Wipe all command history from \fI~/.config/luma/history\fR.
+.TP
+\fB\-\-install\-desktop\fR
+Install desktop integration and file manager context menu entry ("Open with Lumart") for Nautilus, Dolphin, Nemo, and Thunar.
+.TP
+\fB\-\-completions\fR \fISHELL\fR
+Generate shell tab-completion script for \fBbash\fR, \fBzsh\fR, or \fBfish\fR.
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+Display minimalist diagnostic card detailing hardware architecture, OS, Python version, C++ compiler, SIMD/OpenMP support, and shared library health.
+.TP
+\fB\-u\fR, \fB\-\-update\fR, \fB\-\-check\-update\fR
+Query GitHub API for available upstream updates.
+.TP
+\fB\-uu\fR, \fB\-\-upgrade\fR
+Perform automated in-place upgrade to latest upstream release.
+.TP
+\fB\-dg\fR, \fB\-\-downgrade\fR [\fIVERSION\fR]
+Interactive or direct rollback to previously installed version or specific release.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Successful completion.
+.TP
+.B 1
+General runtime error (file not found, invalid URL, unreadable image).
+.TP
+.B 2
+CLI argument validation error or mutually exclusive flag conflict (e.g. \fB\-\-fit\fR combined with \fB\-\-width\fR).
+
+.SH FILES
+.TP
+.I ~/.config/luma/history
+Command execution history log.
+.TP
+.I ~/.config/luma/backup/
+Backup archives for version rollback.
+.TP
+.I ~/.config/luma/settings.json
+User preferences (language, default flags).
+
+.SH EXAMPLES
+.PP
+Render image to full terminal width in photorealistic TrueColor (zero-flag default):
+.RS
+.B lumart photo.jpg
+.RE
+.PP
+Auto-fit image perfectly to terminal viewport without scrolling:
+.RS
+.B lumart artwork.png \-F
+.RE
+.PP
+Apply Capcom CPS-2 retro-arcade cel-shading with vibrant Retinex boost:
+.RS
+.B lumart sprite.png \-E trumble \-\-blocks \-\-boost
+.RE
+.PP
+Render Japanese manga screentone and export as transparent PNG sticker:
+.RS
+.B lumart character.png \-m \-\-transparent \-o sticker.png
+.RE
+.PP
+Play animated GIF in terminal loop at 60 FPS:
+.RS
+.B lumart animation.gif \-\-loop
+.RE
+.PP
+Compile animated input into high-resolution animated GIF:
+.RS
+.B lumart animation.gif \-\-loop \-o output.gif
+.RE
+.PP
+Generate Bash completions:
+.RS
+.B eval "$(lumart \-\-completions bash)"
+.RE
+
+.SH AUTHORS
+Developed by \fBSilentBlox_01\fR and the Luma Open Source Community.
+.br
+GitHub: \fIhttps://github.com/SilentBlox01/Luma\fR
+
+.SH COPYRIGHT
+Copyright \(co 2024\(en2026 SilentBlox_01.
+.br
+License: GNU Affero General Public License v3.0 (\fBAGPL-3.0\fR).
+.br
+This is free software: you are free to change and redistribute it under the conditions of the AGPL-3.0 license.

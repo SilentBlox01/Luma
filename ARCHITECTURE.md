@@ -2,9 +2,11 @@
 
 Luma no es un simple convertidor de ASCII. Fue diseñado para tratar el texto de la terminal como un lienzo de alta fidelidad, aplicando matemáticas de manipulación de color, interpolación sub-píxel y aceleración nativa para evadir las limitaciones de la consola clásica.
 
-A partir de la versión **v2.1.2**, Luma implementa una **Arquitectura de Motor Dual**:
-1. **Motor de Color (Python / Pillow)**: Tratamiento en espacio lineal RGB, curvas dinámicas de contraste y TrueColor ANSI de 24 bits.
-2. **Motor Monocromático Nativo (C++17 / `luma-mono` / `libmonochrome.so`)**: Algoritmos de entintado manga (*Ami-tone*), extracción de contornos por Diferencia de Gaussianas (DoG), difusión de error Atkinson (1984, MacPaint), Bloques Cuadrantes HD y aceleración sub-10ms.
+En la versión **v2.4.0 ("Apex Horizon")**, Luma implementa una **Arquitectura de Cuatro Motores Especializados**:
+1. **Mary Apex 3.5 (C++17 OpenMP + SIMD / Python)**: Fotorrealismo vectorial en espacio perceptual Oklab ($\Delta E$), micro-bloques sextantes 2x3 y renderizado natural continuo de máxima resolución.
+2. **Trumble Orelx 2.2 (Python + OpenCV Acelerado)**: Estilo retro-arcade Capcom CPS-2 / Neo-Geo, entintado de bordes Canny subpíxel y cel-shading de alto impacto.
+3. **Luris Mono 2.6 (C++17 OpenMP / `luma-mono` / `libmonochrome.so`)**: Entintado manga (*Ami-tone*), extracción de contornos por Diferencia de Gaussianas (DoG), difusión de error Atkinson y generación exclusiva de stickers transparentes PNG.
+4. **Spectra Weep 1.4 (Python + OpenCV V4L2)**: Streaming de vídeo y cámara web en tiempo real a 30-60 FPS con shaders interactivos.
 
 ---
 
@@ -53,14 +55,25 @@ Para ilustraciones, manga, anime o logotipos monocromáticos, la reducción de c
 
 ---
 
-## 3. Enrutamiento Automático de Motores (Zero-Flag UX)
+## 3. Arquitectura Híbrida: Zero-Flag UX y Selector Explícito (`-E`)
 
-Luma elimina la necesidad de flags de selección de motor, conmutando automáticamente según el contexto y las flags modificadoras de edición:
-- **Baseline Directo (`lumart archivo`)**: Ejecuta Mary Apex 3.5 con Unicode Sextants 2x3 y color perceptual Oklab con máxima fidelidad sin banderas obligatorias.
-- **Modo Manga (`-m` / `--manga`)**: Enruta automáticamente a Luris Mono 2.6 con tramas dither 8x8 y contornos DoG.
-- **Modo Boceto (`-s` / `--sketch`)**: Enruta a Luris Mono para aislar líneas puras de trazo G-Pen.
-- **Modo Dithering Monocromático (`-d`)**: Enruta a Luris Mono con algoritmos Atkinson, Floyd-Steinberg o Bayer en Braille 2x4.
-- **Webcam en Vivo (`-W` / `--webcam`)**: Enruta a Spectra Weep para streaming de vídeo en tiempo real a 30-60 FPS.
+Luma ofrece lo mejor de dos mundos: ejecución instantánea a máxima calidad sin flags para el usuario cotidiano, y control total determinista mediante flags modernas para scripting y usuarios avanzados:
+
+### 3.1 Ejecución Directa por Defecto (Zero-Flag Baseline)
+- **`lumart archivo.jpg`**: Ejecuta Mary Apex 3.5 con Unicode Sextants 2x3 (`-S`), espacio perceptual Oklab, TrueColor natural, ajuste automático al ancho del terminal y salida instantánea sin necesidad de especificar un solo parámetro.
+
+### 3.2 Selector Explícito de Motor (`-E`, `--engine`)
+Permite anular cualquier inferencia automática y seleccionar determinísticamente el motor deseado:
+- **`-E mary`** (alias `-E color`): Fuerza Mary Apex 3.5 perceptual Oklab (compatible con `-S`, `-B`, `-Q`, `--blocks`).
+- **`-E trumble`**: Fuerza Trumble Orelx 2.2 con paleta cel-shading arcade retro y medias sombras.
+- **`-E luris`** (alias `-E mono`, `-E bw`, `-E manga`, `-E sketch`): Fuerza Luris Mono 2.6 para arte monocromático, tramas y stickers.
+- **`-E spectra`**: Fuerza Spectra Weep 1.4 para captura y streaming en vivo de webcam.
+
+### 3.3 Enrutamiento Inteligente Contextual (sin `-E`)
+Cuando no se pasa `-E`, Luma enruta inteligentemente según las flags y variables de entorno:
+- Si se activa `--no-color`, `-m` (`--manga`), `-s` (`--sketch`), `-d` (`--dither`), o si existe la variable `$NO_COLOR` en el entorno $\rightarrow$ Enruta automáticamente a **Luris Mono 2.6**.
+- Si se pasa `-W` (`--webcam`) $\rightarrow$ Enruta a **Spectra Weep 1.4**.
+- En cualquier otro caso $\rightarrow$ Enruta a **Mary Apex 3.5**.
 
 ---
 
@@ -77,12 +90,15 @@ Si el píxel de la imagen cae dentro de una "esfera de tolerancia" matemática a
 
 ---
 
-## 5. Renderizado de Sub-Píxeles (Braille y Medios Bloques)
+## 5. Renderizado Sub-Píxel y Geometría de Fuentes
 
-Una terminal clásica tiene celdas cuadradas muy grandes con una relación de aspecto de celda de aproximadamente $1:2$ (el doble de alta que de ancha).
+Una terminal clásica tiene celdas rectangulares cuya relación de aspecto es aproximadamente $1:2$ (el doble de alta que de ancha). Para evitar distorsión vertical u horizontal, Luma ofrece múltiples modos geométricos:
 
-- **Modo Braille (`--braille`)**: Utiliza el bloque Unicode Braille (`\u2800` a `\u28FF`). Cada carácter Braille representa una matriz de $2 \times 4$ puntos físicos. Como $2:4 = 1:2$, la relación de aspecto de cada punto Braille individual es exactamente $1:1$ (cuadrada perfecta), cuadruplicando la resolución vertical y duplicando la horizontal.
-- **Modo Bloques (`--blocks`)**: Utiliza medios bloques Unicode (`▀` y `▄`), permitiendo dibujar 2 píxeles independientes de color ANSI por cada celda de terminal.
+- **Modo Sextants (`-S`, Estándar Mary Apex)**: Utiliza caracteres Unicode de bloque sextante 2x3 (`\u1FB00`–`\u1FB3B`). Divide cada celda en 6 subpíxeles continuos sólidos, proporcionando la mayor densidad de color sin perforaciones.
+- **Modo Braille (`-B`, `--braille`)**: Utiliza el bloque Unicode Braille (`\u2800` a `\u28FF`). Cada carácter representa una matriz de $2 \times 4$ puntos. Como $2:4 = 1:2$, la relación de aspecto de cada punto Braille individual es exactamente $1:1$ (cuadrada).
+- **Modo Cuadrantes (`-Q`, `--quadrants`)**: Utiliza caracteres Unicode 2x2 (4 subpíxeles por celda), ideal para terminales sin soporte de sextantes.
+- **Modo Bloques (`--blocks`)**: Utiliza medios bloques Unicode (`▀` y `▄`), permitiendo dibujar 2 píxeles independientes de color ANSI por cada celda.
+- **Calibración de Relación de Aspecto (`--font-ratio`)**: Permite ajustar con precisión el ratio ancho/alto de la celda de la terminal (por defecto `0.5`, calibrable entre `0.40` y `0.60`).
 
 ---
 

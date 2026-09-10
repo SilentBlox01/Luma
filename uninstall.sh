@@ -21,11 +21,15 @@ if [ -f "/usr/bin/lumart" ]; then
     echo "  • Arch Linux:    sudo pacman -Rns lumart"
 fi
 
-# 2. Remove user local binaries and shared data
+# 2. Remove user local binaries, shared data, completions and man pages
 if [ -f "$HOME/.local/bin/lumart" ] || [ -f "$HOME/.local/bin/luma" ] || [ -d "$HOME/.local/share/luma" ]; then
     rm -f "$HOME/.local/bin/lumart" "$HOME/.local/bin/luma" "$HOME/.local/bin/luma-mono" "$HOME/.local/bin/luma-mary"
     rm -rf "$HOME/.local/share/luma"
-    echo "  ✅ Removed user binaries and engines from ~/.local"
+    rm -f "$HOME/.local/share/bash-completion/completions/lumart" "$HOME/.local/share/bash-completion/completions/luma" \
+          "$HOME/.local/share/zsh/site-functions/_lumart" "$HOME/.local/share/zsh/site-functions/_luma" \
+          "$HOME/.local/share/fish/vendor_completions.d/lumart.fish" "$HOME/.local/share/fish/vendor_completions.d/luma.fish" \
+          "$HOME/.local/share/man/man1/lumart.1*" "$HOME/.local/share/man/man1/luma.1*" 2>/dev/null || true
+    echo "  ✅ Removed user binaries, completions and man pages from ~/.local"
 fi
 
 # 3. Remove desktop launcher and file manager scripts
@@ -40,6 +44,13 @@ fi
 
 rm -f "$HOME/.local/share/nautilus/scripts/Abrir con Lumart"
 rm -f "$HOME/.local/share/nemo/scripts/Abrir con Lumart"
+rm -f "$HOME/.local/share/caja/scripts/Abrir con Lumart"
 echo "  ✅ Removed file manager context scripts"
+
+# 4. Remove user configuration and cache (~/.config/luma)
+if [ -d "$HOME/.config/luma" ]; then
+    rm -rf "$HOME/.config/luma"
+    echo "  ✅ Removed configuration directory (~/.config/luma)"
+fi
 
 echo "✨ Luma has been completely uninstalled from your system."

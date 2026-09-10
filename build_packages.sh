@@ -3,7 +3,7 @@ set -e
 
 # Detect version dynamically from lumart.py
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
-LUMA_VERSION=$(grep -m1 -oP 'VERSION\s*=\s*"\K[^"]+' "$SCRIPT_DIR/lumart.py" 2>/dev/null || echo "2.1.2")
+LUMA_VERSION=$(grep -m1 -oP 'VERSION\s*=\s*"\K[^"]+' "$SCRIPT_DIR/lumart.py" 2>/dev/null || echo "2.4.0")
 
 TARGET="auto"
 for arg in "$@"; do
@@ -94,13 +94,31 @@ if [ "$TARGET" = "deb" ] || [ "$TARGET" = "all" ]; then
         mkdir -p "build/deb/lumart-$LUMA_VERSION/usr/lib"
         cp dist/libmary.so "build/deb/lumart-$LUMA_VERSION/usr/lib/"
     fi
+    # Shell completions
+    mkdir -p "build/deb/lumart-$LUMA_VERSION/usr/share/bash-completion/completions"
+    cp completions/lumart.bash "build/deb/lumart-$LUMA_VERSION/usr/share/bash-completion/completions/lumart"
+    ln -sf lumart "build/deb/lumart-$LUMA_VERSION/usr/share/bash-completion/completions/luma"
+
+    mkdir -p "build/deb/lumart-$LUMA_VERSION/usr/share/zsh/site-functions"
+    cp completions/_lumart "build/deb/lumart-$LUMA_VERSION/usr/share/zsh/site-functions/_lumart"
+    ln -sf _lumart "build/deb/lumart-$LUMA_VERSION/usr/share/zsh/site-functions/_luma"
+
+    mkdir -p "build/deb/lumart-$LUMA_VERSION/usr/share/fish/vendor_completions.d"
+    cp completions/lumart.fish "build/deb/lumart-$LUMA_VERSION/usr/share/fish/vendor_completions.d/lumart.fish"
+    ln -sf lumart.fish "build/deb/lumart-$LUMA_VERSION/usr/share/fish/vendor_completions.d/luma.fish"
+
+    # UNIX Man page
+    mkdir -p "build/deb/lumart-$LUMA_VERSION/usr/share/man/man1"
+    gzip -c9 man/lumart.1 > "build/deb/lumart-$LUMA_VERSION/usr/share/man/man1/lumart.1.gz"
+    ln -sf lumart.1.gz "build/deb/lumart-$LUMA_VERSION/usr/share/man/man1/luma.1.gz"
+
     mkdir -p "build/deb/lumart-$LUMA_VERSION/DEBIAN"
     cat << EOF > "build/deb/lumart-$LUMA_VERSION/DEBIAN/control"
 Package: lumart
 Version: $LUMA_VERSION
 Architecture: amd64
 Maintainer: SilentBlox_01
-Description: High-Fidelity Terminal Art Engine (Color Swap, Neofetch OS Style & Native C++ B&W Engine)
+Description: High-Fidelity Terminal Visual Suite (Mary Apex, Trumble Orelx, Luris Mono, Spectra Weep)
 EOF
     # Use --root-owner-group to prevent owner warning
     dpkg-deb --root-owner-group --build "build/deb/lumart-$LUMA_VERSION"
@@ -132,14 +150,19 @@ if [ "$TARGET" = "rpm" ] || [ "$TARGET" = "all" ]; then
             EXTRA_FILES="${EXTRA_FILES}\n/usr/lib/libmary.so"
         fi
 
+        cp completions/lumart.bash build/rpm/rpmbuild/SOURCES/
+        cp completions/_lumart build/rpm/rpmbuild/SOURCES/
+        cp completions/lumart.fish build/rpm/rpmbuild/SOURCES/
+        cp man/lumart.1 build/rpm/rpmbuild/SOURCES/
+
         cat << EOF > build/rpm/rpmbuild/SPECS/lumart.spec
 Name:           lumart
 Version:        $LUMA_VERSION
 Release:        1
-Summary:        High-Fidelity Terminal Art Engine
+Summary:        High-Fidelity Terminal Visual Suite
 License:        AGPL-3.0
 %description
-High-Fidelity Terminal Art Engine (Dual-Engine, Manga 2.0 & Color Swap)
+High-Fidelity Terminal Visual Suite (Mary Apex, Trumble Orelx, Luris Mono, Spectra Weep)
 %install
 mkdir -p %{buildroot}/usr/bin
 cp %{_sourcedir}/lumart %{buildroot}/usr/bin/
@@ -158,9 +181,32 @@ if [ -f "%{_sourcedir}/libmary.so" ]; then
     mkdir -p %{buildroot}/usr/lib
     cp %{_sourcedir}/libmary.so %{buildroot}/usr/lib/
 fi
+mkdir -p %{buildroot}/usr/share/bash-completion/completions
+cp %{_sourcedir}/lumart.bash %{buildroot}/usr/share/bash-completion/completions/lumart
+ln -sf lumart %{buildroot}/usr/share/bash-completion/completions/luma
+
+mkdir -p %{buildroot}/usr/share/zsh/site-functions
+cp %{_sourcedir}/_lumart %{buildroot}/usr/share/zsh/site-functions/_lumart
+ln -sf _lumart %{buildroot}/usr/share/zsh/site-functions/_luma
+
+mkdir -p %{buildroot}/usr/share/fish/vendor_completions.d
+cp %{_sourcedir}/lumart.fish %{buildroot}/usr/share/fish/vendor_completions.d/lumart.fish
+ln -sf lumart.fish %{buildroot}/usr/share/fish/vendor_completions.d/luma.fish
+
+mkdir -p %{buildroot}/usr/share/man/man1
+gzip -c9 %{_sourcedir}/lumart.1 > %{buildroot}/usr/share/man/man1/lumart.1.gz
+ln -sf lumart.1.gz %{buildroot}/usr/share/man/man1/luma.1.gz
 %files
 /usr/bin/lumart
 /usr/bin/luma
+/usr/share/bash-completion/completions/lumart
+/usr/share/bash-completion/completions/luma
+/usr/share/zsh/site-functions/_lumart
+/usr/share/zsh/site-functions/_luma
+/usr/share/fish/vendor_completions.d/lumart.fish
+/usr/share/fish/vendor_completions.d/luma.fish
+/usr/share/man/man1/lumart.1.gz
+/usr/share/man/man1/luma.1.gz
 $(echo -e "$EXTRA_FILES")
 EOF
         cp dist/lumart build/rpm/rpmbuild/SOURCES/
@@ -182,12 +228,12 @@ if [ "$TARGET" = "arch" ] || [ "$TARGET" = "all" ]; then
 pkgname=lumart-bin
 pkgver=$LUMA_VERSION
 pkgrel=1
-pkgdesc="High-Fidelity Terminal Art Engine (Dual-Engine, Manga 2.0 & Color Swap)"
+pkgdesc="High-Fidelity Terminal Visual Suite (Mary Apex, Trumble Orelx, Luris Mono, Spectra Weep)"
 arch=('x86_64')
 url="https://github.com/SilentBlox01/Luma"
 license=('AGPL-3.0')
-source=("lumart")
-sha256sums=('SKIP')
+source=("lumart" "lumart.bash" "_lumart" "lumart.fish" "lumart.1")
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
 package() {
     install -Dm755 "\$srcdir/lumart" "\$pkgdir/usr/bin/lumart"
     ln -sf lumart "\$pkgdir/usr/bin/luma"
@@ -203,6 +249,14 @@ package() {
     if [ -f "\$srcdir/libmary.so" ]; then
         install -Dm755 "\$srcdir/libmary.so" "\$pkgdir/usr/lib/libmary.so"
     fi
+    install -Dm644 "\$srcdir/lumart.bash" "\$pkgdir/usr/share/bash-completion/completions/lumart"
+    ln -sf lumart "\$pkgdir/usr/share/bash-completion/completions/luma"
+    install -Dm644 "\$srcdir/_lumart" "\$pkgdir/usr/share/zsh/site-functions/_lumart"
+    ln -sf _lumart "\$pkgdir/usr/share/zsh/site-functions/_luma"
+    install -Dm644 "\$srcdir/lumart.fish" "\$pkgdir/usr/share/fish/vendor_completions.d/lumart.fish"
+    ln -sf lumart.fish "\$pkgdir/usr/share/fish/vendor_completions.d/luma.fish"
+    install -Dm644 "\$srcdir/lumart.1" "\$pkgdir/usr/share/man/man1/lumart.1"
+    ln -sf lumart.1 "\$pkgdir/usr/share/man/man1/luma.1"
 }
 EOF
     cp dist/lumart dist/arch/
@@ -210,6 +264,10 @@ EOF
     [ -f "dist/luma-mary" ] && cp dist/luma-mary dist/arch/
     [ -f "dist/libmonochrome.so" ] && cp dist/libmonochrome.so dist/arch/
     [ -f "dist/libmary.so" ] && cp dist/libmary.so dist/arch/
+    cp completions/lumart.bash dist/arch/
+    cp completions/_lumart dist/arch/
+    cp completions/lumart.fish dist/arch/
+    cp man/lumart.1 dist/arch/
 fi
 
 # 4. Universal Linux Portable Archive (.tar.gz)
@@ -227,6 +285,10 @@ ln -sf lumart "build/$TAR_NAME/luma"
 [ -f "install.sh" ] && cp install.sh "build/$TAR_NAME/"
 [ -f "README.md" ] && cp README.md "build/$TAR_NAME/"
 [ -f "LICENSE" ] && cp LICENSE "build/$TAR_NAME/"
+mkdir -p "build/$TAR_NAME/completions"
+cp completions/* "build/$TAR_NAME/completions/"
+mkdir -p "build/$TAR_NAME/man"
+cp man/* "build/$TAR_NAME/man/"
 tar -czf "dist/$TAR_NAME.tar.gz" -C build "$TAR_NAME"
 ln -sf "$TAR_NAME.tar.gz" "dist/lumart-linux-x86_64.tar.gz"
 

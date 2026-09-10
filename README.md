@@ -7,11 +7,11 @@
   ██║     ██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗   ██║   
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
-   Modern Terminal Visual Suite • v2.3.0
+   Modern Terminal Visual Suite • v2.4.0 (Apex Horizon)
    [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]
 ```
 
-# Lumart (Luma) v2.3.0
+# Lumart (Luma) v2.4.0
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)
@@ -34,16 +34,18 @@ Unlike rudimentary ASCII converters that merely map pixel brightness to arbitrar
    - [Luris Mono 2.6](#3-luris-mono-26-manga-screentone--monochrome)
    - [Spectra Weep 1.4](#4-spectra-weep-14-live-webcam-streaming)
 2. [Engine Comparison Matrix](#engine-comparison-matrix)
-3. [Graphic Image Export & Sticker Policy](#graphic-image-export--sticker-policy)
-4. [Supported Languages (8 Locales)](#supported-languages)
-5. [Quick Installation & Packages](#installation)
-6. [Complete CLI Reference](#complete-cli-reference)
-7. [Cookbook & Practical Examples](#cookbook--practical-examples)
-8. [Interactive Updates & Rollback](#interactive-updates--rollback)
-9. [Desktop & System Integration](#desktop--system-integration)
-10. [Under the Hood: Math & Engineering](#under-the-hood-math--engineering)
-11. [Troubleshooting & Terminal Setup](#troubleshooting)
-12. [License](#license)
+3. [Visual Gallery & Output Showcase](#visual-gallery--output-showcase)
+4. [Graphic Image Export, Animations & Sticker Policy](#graphic-image-export-animations--sticker-policy)
+5. [Supported Languages (8 Locales)](#supported-languages)
+6. [Quick Installation & Packages](#installation)
+7. [Complete CLI Reference](#complete-cli-reference)
+8. [Cookbook & Practical Examples](#cookbook--practical-examples)
+9. [Engineering Secrets, Pro-Tips & Terminal Philosophy](#engineering-secrets-pro-tips--terminal-philosophy)
+10. [Interactive Updates & Rollback](#interactive-updates--rollback)
+11. [Desktop & System Integration](#desktop--system-integration)
+12. [Under the Hood: Math & Engineering](#under-the-hood-math--engineering)
+13. [Troubleshooting & Terminal Setup](#troubleshooting)
+14. [License](#license)
 
 ---
 
@@ -118,18 +120,48 @@ Lumart avoids one-size-fits-all compromises. Different image types demand distin
 
 ---
 
-## Graphic Image Export & Sticker Policy
+## Visual Showcase & Masterpiece Gallery
 
-Lumart includes a built-in terminal-to-image rasterizer (`-o output.png` or `-o output.jpg`) with an Ultra-HD studio default resolution of **160 terminal columns** ($320 \times 480$ subpixels in Sextants and $320 \times 320$ in Quadrants).
+### 1. Flagship Engine Showdown: Mary Apex 3.5 vs Trumble Orelx 2.2
+![Lumart Flagship Engines Showdown](assets/engine_showdown.png)
 
-### 1. Permanent Deprecation of WebP
+### 2. Side-by-Side: Photorealistic Color vs Transparent Manga Stickers
+
+| Mary Apex 3.5 (Photorealistic TrueColor) | Luris Mono 2.6 (Manga Screentone Transparent Sticker) |
+| :---: | :---: |
+| ![Cinderella Mary Apex](assets/cinderella_mary_apex.png)<br><sub>`lumart cinderella.jpg` *(Default Mary Sextants)*</sub> | ![Cinderella Manga Sticker](assets/cinderella_manga_sticker.png)<br><sub>`lumart cinderella.jpg -m --transparent -o sticker.png`</sub> |
+| ![Hanako Mary Boosted](assets/hanako_boosted.png)<br><sub>`lumart hanako.png --boost` *(Retinex Arcade Punch)*</sub> | ![Hanako Manga Sticker](assets/hanako_manga_sticker.png)<br><sub>`lumart hanako.png -m --transparent -o sticker.png`</sub> |
+| ![Gothic Nun Mary](assets/gothic_nun_mary.png)<br><sub>`lumart gothic_nun.png` *(High-Dynamic Range Inking)*</sub> | ![Gothic Nun Manga Sticker](assets/gothic_nun_manga_sticker.png)<br><sub>`lumart gothic_nun.png -m --transparent -o sticker.png`</sub> |
+| ![Slime Mary](assets/slime_mary.png)<br><sub>`lumart slime.png` *(Natural Skin Tones)*</sub> | ![Slime Manga Sticker](assets/slime_manga_sticker.png)<br><sub>`lumart slime.png -m --transparent -o sticker.png`</sub> |
+
+### 3. Subpixel Character Glyph Textures
+
+| Sextants 2x3 (`-S` / Mary Default) | Braille 2x4 (`-B`) | Quadrants 2x2 (`-Q`) |
+| :---: | :---: | :---: |
+| ![Sextants 2x3 Micro-blocks](assets/texture_sextants.png)<br><sub>6 subpixels/cell (Continuous gradients)</sub> | ![Braille 2x4 Points](assets/texture_braille.png)<br><sub>8 subpixels/cell (Stippling & portraits)</sub> | ![Quadrants 2x2 Blocks](assets/texture_quadrants.png)<br><sub>4 subpixels/cell (Pixel-art & arcade)</sub> |
+
+---
+
+## Graphic Image Export, Animation & Sticker Policy
+
+Lumart includes a built-in terminal-to-image rasterizer (`-o output.png`, `-o output.jpg`, or `-o output.gif`) with an Ultra-HD studio default resolution of **160 terminal columns** ($320 \times 480$ subpixels in Sextants and $320 \times 320$ in Quadrants).
+
+### 1. Animated Terminal Art & GIF Compilation (`--loop`)
+![Animated Terminal Art Demo](assets/animated_demo.gif)
+
+Lumart v2.4.0 introduces native multi-frame animation support for GIFs and APNGs:
+* **Interactive Terminal Playback**: `lumart animation.gif --loop` pre-renders and caches each frame to ANSI strings for silky-smooth 60 FPS playback in your terminal window.
+* **Animated GIF Export**: `lumart animation.gif --loop -o rendered.gif` (or `--save rendered.gif`) rasterizes each frame with subpixel geometry and compiles a high-definition animated GIF.
+
+### 2. Permanent Deprecation of WebP
 * **The `.webp` format has been permanently disabled for export**.
 * If an output path ending in `.webp` is specified, Lumart halts cleanly with an informative message advising `.png` or `.jpg`.
 * Supported image formats:
   * **`.png`**: Lossless rasterization, optimized compression, and full alpha channel transparency.
   * **`.jpg` / `.jpeg`**: Universal compatibility, 95% quality rating, and optimized Huffman tables.
+  * **`.gif`**: Multi-frame animated terminal playback export.
 
-### 2. Transparent Stickers Exclusive to Luris Mono
+### 3. Transparent Stickers Exclusive to Luris Mono
 * **Why don't color engines create transparent cutouts?**
   When exporting high-resolution 160-column color text over a transparent background, viewing it in standard image galleries removes the terminal frame context, creating the misleading impression of a downsampled or compressed graphic. When exported on a sleek **dark terminal canvas (`#0c0c0c`)**, it is immediately recognized as a stunning, high-definition terminal art masterwork.
 
@@ -200,28 +232,38 @@ g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
 Usage: lumart [OPTIONS] <image_path_or_url>
 ```
 
-### 1. Style & Character Modifiers
+### 1. Engine & Character Textures
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
-| `-m`, `--manga` | — | Transform artwork into Manga Screentone 2.0 (*Ami-tone* Bayer 8x8 + DoG lineart). |
-| `-s`, `--sketch`| — | Transform artwork into pure line art sketch mode (clean contours). |
+| `-E`, `--engine` | `mary` \| `trumble` \| `luris` \| `spectra` | Select rendering engine explicitly (auto-routed by default). |
+| `-S`, `--sextants`| — | Render using solid Unicode Sextants 2x3 (Mary Apex flagship default). |
 | `-B`, `--braille` | — | Render using Unicode Braille 2x4 (8 subpixels/cell). |
 | `-Q`, `--quadrants`| — | Render using Unicode Quadrants 2x2 (4 subpixels/cell). |
-| `--blocks` | — | Render using optimized half-blocks (`▀`). |
+| `--blocks` | — | Render using optimized half-blocks (`▀` / `▄`). |
+| `-m`, `--manga` | — | Transform artwork into Manga Screentone 2.0 (*Ami-tone* Bayer 8x8 + DoG lineart). |
+| `-s`, `--sketch`| — | Transform artwork into pure line art sketch mode (clean contours). |
 
-### 2. Dimensions & Visual Tuning
+### 2. Color, Dimensions & Visual Tuning
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
-| `-w`, `--width` | `<int>` | Output width in columns (default: auto-fit to terminal window). |
+| `-w`, `--width` | `<int>` | Output width in columns (mutually exclusive with `-F`). |
+| `-F`, `--fit` | — | **Auto-fit viewport**: calculates optimal width & height to fit terminal without scrolling (mutually exclusive with `-w`). |
+| `--fastfetch`, `--logo` | — | Auto-crop empty/transparent borders for compact logos and system fetch screens. |
+| `-c`, `--color` | — | Force output in full TrueColor mode (default). |
+| `--no-color` | — | Disable color output and route to monochrome engine. |
+| `--font-ratio` | `<float>` | Terminal font aspect ratio width/height calibration (default: `0.5`). |
 | `--boost`, `--vibrant` | — | Apply enhanced saturation, contrast, and Retinex curves for punchy arcade output. |
 | `-i`, `--invert`| — | Invert brightness mapping (essential for light-theme terminals; auto-detected in `-m`). |
 | `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | Dithering algorithm for shading. |
 | `--swap` | `<color1> <color2>` | Dynamically swap colors in 3D Euclidean RGB space. |
+| `--instant` | — | Output immediately without progressive scan animation (default). |
+| `--reveal` | — | Enable progressive scan line-by-line reveal animation. |
 
-### 3. Graphic Export & Clipboard
+### 3. Graphic Export, Animation & Clipboard
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
-| `-o`, `-O`, `--output` | `<file.png / .jpg>` | Rasterize and export terminal artwork to high-res image. |
+| `-o`, `-O`, `--output`, `--save` | `<file.png / .jpg / .gif>` | Rasterize and export terminal artwork to high-res image or animated GIF. |
+| `--loop` | — | **Animation mode**: live terminal playback for GIFs/APNGs, or compile to animated GIF (`-o anim.gif` / `--save anim.gif`). |
 | `--transparent` | — | **Luris Mono exclusive**: exports transparent-background stickers. |
 | `--paste` | — | Load and render image currently in system clipboard. |
 
@@ -247,16 +289,22 @@ Usage: lumart [OPTIONS] <image_path_or_url>
 
 ## Cookbook & Practical Examples
 
-### 1. High-Definition Terminal Art (Default Zero-Flag)
+### 1. High-Definition Terminal Art (Default Zero-Flag or Explicit)
 ```bash
-# Render directly at full terminal width with natural TrueColor fidelity
+# Render directly at full terminal width with natural TrueColor fidelity (Zero-Flag)
 lumart photo.jpg
+
+# Explicit flagship invocation (identical output)
+lumart photo.jpg -E mary -S
 
 # Specify custom width in columns
 lumart portrait.png -w 110
 
 # Arcade punch with saturation & Retinex enhancement
 lumart photo.jpg --boost
+
+# Retro-arcade cel-shading with Trumble
+lumart anime.png -E trumble --blocks
 ```
 
 ### 2. Character Texture Modes
@@ -309,6 +357,46 @@ curl -sL https://example.com/photo.jpg | lumart -
 # Replace purple tones with bubblegum pink
 lumart sprite.png --blocks --swap purple pink
 ```
+
+---
+
+## Engineering Secrets, Pro-Tips & Terminal Philosophy
+
+> *"With great rendering power comes great aesthetic responsibility."*
+
+### 1. The Gravitational Law of Character Aspect Ratio (`--font-ratio`)
+* **Mathematical Reality**: On standard graphical canvases, pixels are perfect squares ($1:1$). In the unforgiving wilderness of terminal emulators, every single character cell is an elongated rectangular monolith (typically $1:2$ or $0.5$ aspect ratio).
+* **The Symptom**: If your rendered anime character looks like they were either compressed by a 50-ton hydraulic press or stretched like chewing gum in a sci-fi wormhole, do not blame the rendering engine: blame your font geometry.
+* **The Pro Remedy**:
+  * Slim, tall fonts (like *Fira Code* or *JetBrains Mono* without custom line padding): try `--font-ratio 0.45` to `0.48`.
+  * Broad or square monospace typefaces: try `--font-ratio 0.52` to `0.58`.
+  * Lumart defaults to `0.5`, which covers 90% of modern terminal emulators in the known universe.
+
+### 2. The Dark Canvas Theorem & The Excommunication of WebP
+* **Why do TrueColor engines (Mary & Trumble) vehemently refuse to output transparent cutouts?**
+  * TrueColor terminal art relies on additive light emission against the deep `#0c0c0c` void of your terminal.
+  * If you strip away that backing canvas and paste the artwork into a stark-white WhatsApp chat or a transparent image viewer, the optical contrast collapses completely: edges look jagged, and the character looks like digital confetti after an explosion in a toner factory.
+  * **Luris Mono is the Chosen One**: Working with pure black ink, halftone screentones (*Ami-tone*), and DoG vector contours, Luris delivers authentic stickers with over 92.9% verified alpha transparency that look stunning on Telegram, Discord, and Slack.
+* **The WebP Tragedy**:
+  * For months, standard desktop image viewers have choked on terminal-rasterized `.webp` files, turning sharp ANSI art into blurry mush. In v2.4.0, `.webp` was formally exiled to the shadow realm. Long live the **Holy Trinity**: `.png` (lossless high-definition & stickers), `.jpg` (95% Huffman compact photos), and `.gif` (multi-frame animations).
+
+### 3. The Oklab Showdown: Why Mary Evaluates 31 Combinations in 700 Nanoseconds
+* In standard Euclidean RGB space, calculating distance between colors using Pythagoras ($\sqrt{\Delta R^2 + \Delta G^2 + \Delta B^2}$) is biological fiction: human retinas are hyper-sensitive to green luminance shifts and nearly oblivious to subtle dark blue differences.
+* Mary Apex maps every subpixel into perceptual **Oklab** ($L, a, b$) and rigorously tests **all 31 possible color bipartitions per cell** using C++17 OpenMP SIMD vectorization.
+* Why so much computational horsepower for a terminal? Because CPU cycles are cheap, but ugly terminal art is an aesthetic felony.
+
+### 4. Trumble Orelx & The Golden Rule of 1990s Arcade Cel-Shading
+* Traditional image downsampling algorithms (like Lanczos or Bicubic) average neighboring pixels together. A crisp 1-pixel black ink outline gets smeared into a 3-pixel cowardly grey haze.
+* Trumble Orelx reverses the order of the cosmos: it downsamples the image *first* and **then executes subpixel Canny edge detection at the exact terminal grid resolution**.
+* The result: character hair, eye contours, and clothing creases remain razor-sharp at **exactly 1 subpixel of pitch-black ink**, capturing the raw, punchy energy of a 1996 Capcom CPS-2 arcade cabinet.
+
+### 5. The Sacred Commandments of Viewport Fitting (`-F` vs `-w`)
+* **Commandment I**: If you want an image to fit your screen like a tailored suit without having to scroll like you're reeling in a marlin, use `-F` (`--fit`).
+* **Commandment II**: If you are embedding the output into a fixed 60-column *Fastfetch* sidebar or status dashboard, use `-w 60 --fastfetch`.
+* **Commandment III**: Never run `lumart image.png -F -w 80`. Asking Lumart to simultaneously compute the dynamic viewport height and obey a rigid fixed width is an offense against Aristotelian logic. Lumart will halt with a polite `Exit Code 2` and a pedagogical explanation.
+
+### 6. The Mystery of the `animate` Command
+* If you are hunting for the `animate` command and wondering why we use `--loop`: the creator has reserved `animate` for higher-dimensional developments yet to come. Ask no questions whose answers your terminal cannot yet render. Use `--loop` and enjoy buttery 60 FPS bliss.
 
 ---
 

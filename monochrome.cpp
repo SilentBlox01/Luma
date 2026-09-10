@@ -28,6 +28,10 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 // Extended 70-character ASCII density ramp (sorted dark to light)
 static const char* ASCII_70 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
 
