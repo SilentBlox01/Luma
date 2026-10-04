@@ -3979,28 +3979,71 @@ def load_image_from_source(source_path, paste=False):
     return img
 
 # ==============================================================================
+# MOTOR SPECTRA WEEP 2.0 ("NOVA VISION"): VIDEO Y CÁMARA EN TIEMPO REAL
 # ==============================================================================
-# MOTOR SPECTRA WEEP 1.4: CÁMARA WEB EN VIVO EN TIEMPO REAL CON FILTROS
-# ==============================================================================
-def run_spectra_webcam(cam_index=0, target_width=None, font_ratio=0.5):
+def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
     """
-    Motor Spectra Weep 1.4: Transmisión de cámara web en vivo y tiempo real en la terminal a 30-60 FPS
-    con 5 filtros de gradación cromática interactivos intercambiables al vuelo.
+    Motor Spectra Weep 2.0 ("Nova Vision"): Transmisión y reproducción universal en tiempo real a 30-60 FPS.
+    Soporta:
+      - Cámara web (índice 0, 1...)
+      - Archivos de video (.mp4, .mkv, .webm, .mov, .avi, .flv, .gif) y URLs de streaming
+      - 8 Shaders en caliente (1-8):
+          1. Normal TrueColor
+          2. Cyberpunk Neon (Cian / Magenta / Retinex)
+          3. Matrix Phosphor (P1 525nm verde)
+          4. Thermal FLIR (Termografía infrarroja)
+          5. Manga Ink (Tinta cómic B&W)
+          6. Edge Tron (Contornos vectoriales Canny / Sobel neón)
+          7. Retro CRT Amber (P3 605nm ámbar)
+          8. Theme Sync (Sincronizado con --theme activo)
+      - 4 Texturas dinámicas en caliente (T):
+          0. Half-Blocks (▀/▄)
+          1. Braille 2x4 (⣿)
+          2. ASCII Glyphs (@%#*+=-:. )
+          3. Matrix Katakana (ﾘﾕﾒﾓﾊ...)
+      - Controles interactivos HUD:
+          [Espacio] Pausa | [◄/►] Frame a frame | [+/-] Velocidad | [S] Snapshot HD | [C] CRT | [T] Textura | [1-8] Shaders | [R] Rebobinar | [Q] Salir
     """
     try:
         import cv2
         import numpy as np
+        from PIL import Image
     except ImportError:
-        print("\n\033[1;31m❌ [Spectra Weep] Se requiere el paquete 'opencv-python' para usar la cámara web.\033[0m")
+        print("\n\033[1;31m❌ [Spectra Weep 2.0] Se requiere el paquete 'opencv-python' para usar video y cámara web.\033[0m")
         print("   Instálalo fácilmente ejecutando:")
         print("   \033[1;32mpip install opencv-python --user\033[0m\n")
         return False
 
-    print(f"\033[1;35m[Spectra Weep 1.4]\033[0m Conectando con cámara web (índice {cam_index})...")
-    cap = cv2.VideoCapture(cam_index)
+    is_cam = False
+    source_label = str(source)
+    if isinstance(source, int):
+        is_cam = True
+        cap_arg = source
+        source_label = f"Cámara {source}"
+    elif isinstance(source, str) and source.isdigit():
+        is_cam = True
+        cap_arg = int(source)
+        source_label = f"Cámara {source}"
+    else:
+        cap_arg = source
+        source_label = os.path.basename(source) if os.path.exists(source) else str(source)
+
+    if is_cam:
+        print(f"\033[1;35m[Spectra Weep 2.0]\033[0m Conectando con cámara web ({source_label})...")
+    else:
+        print(f"\033[1;35m[Spectra Weep 2.0]\033[0m Abriendo flujo de video ({source_label})...")
+
+    cap = cv2.VideoCapture(cap_arg)
     if not cap.isOpened():
-        print(f"❌ Error: No se pudo conectar a la cámara web en el índice {cam_index}.")
+        print(f"❌ Error: No se pudo conectar a la fuente '{source}'.")
         return False
+
+    is_file = not is_cam and isinstance(source, str) and os.path.exists(source)
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) if is_file else 0
+    source_fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    if source_fps <= 0 or source_fps > 120:
+        source_fps = 30.0
+    native_frame_dur = 1.0 / source_fps
 
     term_size = shutil.get_terminal_size((80, 24))
     if target_width is None:
@@ -4011,7 +4054,7 @@ def run_spectra_webcam(cam_index=0, target_width=None, font_ratio=0.5):
     target_h_chars = max(10, min(term_size.lines - 3, target_h_chars))
     frame_h_px = target_h_chars * 2
 
-    # Configuración de entrada no bloqueante en terminal para alternar filtros
+    # Configuración de entrada no bloqueante en terminal
     old_term_settings = None
     is_interactive_tty = sys.stdin.isatty() and sys.stdout.isatty()
     if is_interactive_tty:
@@ -4028,92 +4071,265 @@ def run_spectra_webcam(cam_index=0, target_width=None, font_ratio=0.5):
 
     fps_count = 0
     fps_start = time.time()
-    cur_fps = 30.0
+    cur_fps = source_fps
     active_filter = 0
+    active_texture = 0
+    is_paused = False
+    speed_mult = 1.0
+    crt_active = bool(getattr(args, "crt", False))
+    active_theme = getattr(args, "theme", None) or "dracula"
+    status_msg = ""
+    status_timer = 0
+    last_frame_raw = None
 
     FILTER_NAMES = [
         "Normal (TrueColor)",
-        "Weep Cyberpunk",
+        "Cyberpunk Neon",
         "Matrix Phosphor",
         "Thermal FLIR",
-        "Manga Ink (B&W)"
+        "Manga Ink",
+        "Edge Tron",
+        "Amber Phosphor",
+        f"Theme Sync ({active_theme.capitalize()})"
     ]
+
+    TEXTURE_NAMES = [
+        "Half-Blocks (▀/▄)",
+        "Braille 2x4 (⣿)",
+        "ASCII Glyphs",
+        "Matrix Katakana"
+    ]
+
+    RAMP = " .:-=+*#%@"
+    KATAKANA = "ﾘﾕﾒﾓﾊﾎﾂﾉﾇﾈﾗﾘﾜｳ01"
 
     try:
         while True:
-            # Comprobar si el usuario presionó una tecla (1-5 o q)
+            # Control interactivo de teclado
+            step_dir = 0
             if is_interactive_tty:
                 try:
                     import select
-                    r, _, _ = select.select([sys.stdin], [], [], 0)
+                    r, _, _ = select.select([sys.stdin], [], [], 0.005)
                     if r:
                         ch = sys.stdin.read(1)
-                        if ch in ('q', 'Q', '\x03'): # 'q' o Ctrl+C
+                        if ch in ('q', 'Q', '\x03'):
                             break
-                        elif ch == '1': active_filter = 0
-                        elif ch == '2': active_filter = 1
-                        elif ch == '3': active_filter = 2
-                        elif ch == '4': active_filter = 3
-                        elif ch == '5': active_filter = 4
+                        elif ch == ' ':
+                            is_paused = not is_paused
+                        elif ch in ('.', 'l', 'L'):
+                            step_dir = 1
+                        elif ch in (',', 'h', 'H'):
+                            step_dir = -1
+                        elif ch in ('t', 'T'):
+                            active_texture = (active_texture + 1) % len(TEXTURE_NAMES)
+                            status_msg = f"🔲 Textura: {TEXTURE_NAMES[active_texture]}"
+                            status_timer = time.time() + 1.5
+                        elif ch in ('c', 'C'):
+                            crt_active = not crt_active
+                            status_msg = f"📺 CRT Scanlines: {'Activado' if crt_active else 'Desactivado'}"
+                            status_timer = time.time() + 1.5
+                        elif ch in ('+', '='):
+                            speed_mult = min(4.0, speed_mult * 1.25)
+                            status_msg = f"⚡ Velocidad: {speed_mult:.2f}x"
+                            status_timer = time.time() + 1.5
+                        elif ch in ('-', '_'):
+                            speed_mult = max(0.25, speed_mult * 0.8)
+                            status_msg = f"🐢 Velocidad: {speed_mult:.2f}x"
+                            status_timer = time.time() + 1.5
+                        elif ch in ('r', 'R'):
+                            if is_file:
+                                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                                status_msg = "🔄 Rebobinado al inicio"
+                                status_timer = time.time() + 1.5
+                        elif ch in ('s', 'S'):
+                            if last_frame_raw is not None:
+                                snap_name = f"snapshot_spectra_{int(time.time())}.png"
+                                cv2.imwrite(snap_name, last_frame_raw)
+                                status_msg = f"📸 Snapshot guardado: {snap_name}"
+                                status_timer = time.time() + 2.5
+                        elif ch in ('1', '2', '3', '4', '5', '6', '7', '8'):
+                            active_filter = int(ch) - 1
+                        elif ch == '\x1b': # Flechas
+                            try:
+                                r_seq, _, _ = select.select([sys.stdin], [], [], 0.02)
+                                if r_seq:
+                                    seq = sys.stdin.read(2)
+                                    if seq == '[C': # Derecha
+                                        step_dir = 1
+                                    elif seq == '[D': # Izquierda
+                                        step_dir = -1
+                            except Exception:
+                                pass
                 except Exception:
                     pass
 
+            if is_paused and step_dir == 0:
+                time.sleep(0.04)
+                continue
+
+            if step_dir == -1 and is_file:
+                cur_pos = max(0, int(cap.get(cv2.CAP_PROP_POS_FRAMES)) - 2)
+                cap.set(cv2.CAP_PROP_POS_FRAMES, cur_pos)
+
+            t_frame_start = time.time()
             ret, frame = cap.read()
             if not ret:
-                break
+                if is_file and getattr(args, "loop", True): # bucle por defecto en videos
+                    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                else:
+                    break
 
+            last_frame_raw = frame.copy()
             frame_resized = cv2.resize(frame, (target_width, frame_h_px), interpolation=cv2.INTER_AREA)
 
-            # Aplicar filtro de imagen en vivo
+            # Aplicar filtro / shader
             if active_filter == 0:
                 frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
             elif active_filter == 1:
-                # Weep Cyberpunk: Realce de cian, magenta y saturación alta
+                # Cyberpunk Neon
                 rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB).astype(np.float32)
                 rgb[:, :, 0] = np.clip(rgb[:, :, 0] * 1.35, 0, 255)
                 rgb[:, :, 1] = np.clip(rgb[:, :, 1] * 0.70, 0, 255)
                 rgb[:, :, 2] = np.clip(rgb[:, :, 2] * 1.40, 0, 255)
                 frame_rgb = rgb.astype(np.uint8)
             elif active_filter == 2:
-                # Matrix Phosphor: Monocromático verde fósforo P1
+                # Matrix Phosphor
                 gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
                 frame_rgb = np.zeros((frame_h_px, target_width, 3), dtype=np.uint8)
                 frame_rgb[:, :, 1] = gray
                 frame_rgb[:, :, 0] = (gray * 0.12).astype(np.uint8)
                 frame_rgb[:, :, 2] = (gray * 0.15).astype(np.uint8)
             elif active_filter == 3:
-                # Thermal FLIR: Espectro térmico infrarrojo
+                # Thermal FLIR
                 gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
                 thermal_bgr = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
                 frame_rgb = cv2.cvtColor(thermal_bgr, cv2.COLOR_BGR2RGB)
             elif active_filter == 4:
-                # Manga Ink: Alto contraste estilo cómic / tinta
+                # Manga Ink
                 gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
-                _, thresh = cv2.threshold(gray, 110, 255, cv2.THRESH_BINARY)
+                _, thresh = cv2.threshold(gray, 115, 255, cv2.THRESH_BINARY)
                 frame_rgb = cv2.cvtColor(thresh, cv2.COLOR_GRAY2RGB)
+            elif active_filter == 5:
+                # Edge Tron
+                gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
+                edges = cv2.Canny(gray, 50, 140)
+                frame_rgb = np.zeros((frame_h_px, target_width, 3), dtype=np.uint8)
+                frame_rgb[edges > 0] = [0, 255, 255]
+                frame_rgb[edges == 0] = (cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)[edges == 0] * 0.20).astype(np.uint8)
+            elif active_filter == 6:
+                # Amber Phosphor
+                gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
+                frame_rgb = np.zeros((frame_h_px, target_width, 3), dtype=np.uint8)
+                frame_rgb[:, :, 0] = gray
+                frame_rgb[:, :, 1] = (gray * 0.65).astype(np.uint8)
+                frame_rgb[:, :, 2] = (gray * 0.05).astype(np.uint8)
+            elif active_filter == 7:
+                # Theme Sync
+                pil_t = Image.fromarray(cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB))
+                pil_t = apply_theme_palette(pil_t, active_theme)
+                frame_rgb = np.array(pil_t)
             else:
                 frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
 
             lines = []
-            for y in range(0, frame_h_px, 2):
-                row_top = frame_rgb[y]
-                row_bot = frame_rgb[y + 1] if y + 1 < frame_h_px else row_top
-                line_parts = []
-                last_fg = None
-                last_bg = None
-                for x in range(target_width):
-                    r1, g1, b1 = int(row_top[x, 0]), int(row_top[x, 1]), int(row_top[x, 2])
-                    r2, g2, b2 = int(row_bot[x, 0]), int(row_bot[x, 1]), int(row_bot[x, 2])
-                    color_code = ""
-                    if (r1, g1, b1) != last_fg:
-                        color_code += f"\033[38;2;{r1};{g1};{b1}m"
-                        last_fg = (r1, g1, b1)
-                    if (r2, g2, b2) != last_bg:
-                        color_code += f"\033[48;2;{r2};{g2};{b2}m"
-                        last_bg = (r2, g2, b2)
-                    line_parts.append(color_code + "▀")
-                line_parts.append("\033[0m")
-                lines.append("".join(line_parts))
+            if active_texture == 0:
+                # Half-blocks (▀/▄)
+                for y in range(0, frame_h_px, 2):
+                    row_top = frame_rgb[y]
+                    row_bot = frame_rgb[y + 1] if y + 1 < frame_h_px else row_top
+                    line_parts = []
+                    last_fg = None
+                    last_bg = None
+                    for x in range(target_width):
+                        r1, g1, b1 = int(row_top[x, 0]), int(row_top[x, 1]), int(row_top[x, 2])
+                        r2, g2, b2 = int(row_bot[x, 0]), int(row_bot[x, 1]), int(row_bot[x, 2])
+                        color_code = ""
+                        if (r1, g1, b1) != last_fg:
+                            color_code += f"\033[38;2;{r1};{g1};{b1}m"
+                            last_fg = (r1, g1, b1)
+                        if (r2, g2, b2) != last_bg:
+                            color_code += f"\033[48;2;{r2};{g2};{b2}m"
+                            last_bg = (r2, g2, b2)
+                        line_parts.append(color_code + "▀")
+                    line_parts.append("\033[0m")
+                    lines.append("".join(line_parts))
+
+            elif active_texture == 1:
+                # Braille 2x4
+                gray_all = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2GRAY)
+                for y in range(0, frame_h_px - 3, 4):
+                    line_parts = []
+                    last_fg = None
+                    for x in range(0, target_width - 1, 2):
+                        sub = gray_all[y:y+4, x:x+2]
+                        thresh_val = np.mean(sub)
+                        bits = (sub > thresh_val)
+                        b_val = 0
+                        if bits[0, 0]: b_val |= 0x01
+                        if bits[1, 0]: b_val |= 0x02
+                        if bits[2, 0]: b_val |= 0x04
+                        if bits[0, 1]: b_val |= 0x08
+                        if bits[1, 1]: b_val |= 0x10
+                        if bits[2, 1]: b_val |= 0x20
+                        if bits[3, 0]: b_val |= 0x40
+                        if bits[3, 1]: b_val |= 0x80
+                        char = chr(0x2800 + b_val)
+                        avg_col = frame_rgb[y:y+4, x:x+2].mean(axis=(0, 1)).astype(int)
+                        col_tup = (int(avg_col[0]), int(avg_col[1]), int(avg_col[2]))
+                        color_code = ""
+                        if col_tup != last_fg:
+                            color_code = f"\033[38;2;{col_tup[0]};{col_tup[1]};{col_tup[2]}m"
+                            last_fg = col_tup
+                        line_parts.append(color_code + char)
+                    line_parts.append("\033[0m")
+                    lines.append("".join(line_parts))
+
+            elif active_texture == 2:
+                # ASCII Glyphs
+                ramp_len = len(RAMP)
+                for y in range(0, frame_h_px, 2):
+                    row = frame_rgb[y]
+                    line_parts = []
+                    last_fg = None
+                    for x in range(target_width):
+                        r, g, b = int(row[x, 0]), int(row[x, 1]), int(row[x, 2])
+                        lum = int(0.299 * r + 0.587 * g + 0.114 * b)
+                        char = RAMP[min(ramp_len - 1, int(lum * ramp_len / 256))]
+                        color_code = ""
+                        if (r, g, b) != last_fg:
+                            color_code = f"\033[38;2;{r};{g};{b}m"
+                            last_fg = (r, g, b)
+                        line_parts.append(color_code + char)
+                    line_parts.append("\033[0m")
+                    lines.append("".join(line_parts))
+
+            else:
+                # Matrix Katakana
+                k_len = len(KATAKANA)
+                for y in range(0, frame_h_px, 2):
+                    row = frame_rgb[y]
+                    line_parts = []
+                    last_fg = None
+                    for x in range(target_width):
+                        r, g, b = int(row[x, 0]), int(row[x, 1]), int(row[x, 2])
+                        lum = int(0.299 * r + 0.587 * g + 0.114 * b)
+                        char = KATAKANA[min(k_len - 1, int(lum * k_len / 256))] if lum > 20 else " "
+                        fg_col = (0, min(255, int(lum * 1.3)), min(255, int(lum * 0.4)))
+                        color_code = ""
+                        if fg_col != last_fg:
+                            color_code = f"\033[38;2;{fg_col[0]};{fg_col[1]};{fg_col[2]}m"
+                            last_fg = fg_col
+                        line_parts.append(color_code + char)
+                    line_parts.append("\033[0m")
+                    lines.append("".join(line_parts))
+
+            rendered_block = "\n".join(lines)
+            if crt_active:
+                rendered_block = apply_crt_filter(rendered_block, crt_mode="scanlines")
 
             fps_count += 1
             if time.time() - fps_start >= 1.0:
@@ -4121,10 +4337,40 @@ def run_spectra_webcam(cam_index=0, target_width=None, font_ratio=0.5):
                 fps_count = 0
                 fps_start = time.time()
 
+            cur_pos = int(cap.get(cv2.CAP_PROP_POS_FRAMES)) if is_file else 0
             filter_tag = FILTER_NAMES[active_filter]
-            status_bar = f"\033[1;30;45m SPECTRA WEEP 1.4 \033[0m \033[1;37mCámara: {cam_index} | {target_width}x{target_h_chars} | {cur_fps:.1f} FPS | Filtro: [{filter_tag}] (1-5) | 'q' salir\033[0m"
-            sys.stdout.write("\033[H" + "\n".join(lines) + "\n" + status_bar)
+            tex_tag = TEXTURE_NAMES[active_texture].split()[0]
+            speed_txt = f"{speed_mult:.2f}x" if speed_mult != 1.0 else "1.0x"
+
+            if is_file and total_frames > 0:
+                cur_sec = int(cur_pos / source_fps)
+                tot_sec = int(total_frames / source_fps)
+                time_str = f"{cur_sec//60:02d}:{cur_sec%60:02d}/{tot_sec//60:02d}:{tot_sec%60:02d}"
+                status_bar = (
+                    f"\033[1;30;45m SPECTRA 2.0 \033[0m \033[1;37mFrame: {cur_pos}/{total_frames} ({time_str}) | "
+                    f"{cur_fps:.1f} FPS ({speed_txt}) | [{filter_tag}] [{tex_tag}] | "
+                )
+            else:
+                status_bar = (
+                    f"\033[1;30;45m SPECTRA 2.0 \033[0m \033[1;37m{source_label} | {target_width}x{target_h_chars} | "
+                    f"{cur_fps:.1f} FPS ({speed_txt}) | [{filter_tag}] [{tex_tag}] | "
+                )
+
+            if is_paused:
+                status_bar += "\033[1;33m[PAUSADO]\033[0m "
+            status_bar += "[Espacio] Pausa | [◄/►] Frame | [+/-] Vel | [S] Foto | [T] Textura | [1-8] Shader | [Q] Salir\033[0m"
+
+            if status_msg and time.time() < status_timer:
+                status_bar += f" \033[1;32m{status_msg}\033[0m"
+
+            sys.stdout.write("\033[H" + rendered_block + "\n" + status_bar)
             sys.stdout.flush()
+
+            # Temporización del fotograma según FPS nativos y multiplicador
+            t_render = time.time() - t_frame_start
+            target_delay = max(0.005, (native_frame_dur / speed_mult) - t_render)
+            if not is_paused and target_delay > 0:
+                time.sleep(target_delay)
 
     except KeyboardInterrupt:
         pass
@@ -4138,9 +4384,13 @@ def run_spectra_webcam(cam_index=0, target_width=None, font_ratio=0.5):
                 pass
         sys.stdout.write("\033[?25h\033[0m\n")
         sys.stdout.flush()
-        print("✨ Transmisión en vivo de Spectra Weep 1.4 finalizada.")
+        print(f"✨ Transmisión de Spectra Weep 2.0 finalizada.")
 
     return True
+
+def run_spectra_webcam(cam_index=0, target_width=None, font_ratio=0.5):
+    """Wrapper de compatibilidad para código y tests existentes."""
+    return run_spectra_stream(source=cam_index, target_width=target_width, font_ratio=font_ratio)
 
 # ==============================================================================
 # GESTIÓN DE HISTORIAL INTELIGENTE Y REPLAY
@@ -4684,6 +4934,14 @@ def render_frame_to_art(frame_img, args, engine, mode, is_raw_colors, invert_mod
     ascii_art = ""
     if getattr(args, "swap", None):
         frame_img = apply_color_swap(frame_img, args.swap)
+    if getattr(args, "theme", None):
+        frame_img = apply_theme_palette(frame_img, args.theme)
+    if getattr(args, "crop", None) or (getattr(args, "zoom", 1.0) and args.zoom != 1.0):
+        frame_img = apply_crop_and_zoom(frame_img, crop_spec=args.crop, zoom=args.zoom)
+    if getattr(args, "fastfetch", False) or getattr(args, "logo", False):
+        frame_img = crop_empty_borders(frame_img)
+    if getattr(args, "remove_bg", False):
+        frame_img = remove_image_background(frame_img)
 
     # 1. MOTOR LURIS
     if engine == "luris":
@@ -4790,12 +5048,80 @@ def render_frame_to_art(frame_img, args, engine, mode, is_raw_colors, invert_mod
         else:
             ascii_art = convert_image_to_blocks(t_img)
 
+    if getattr(args, "crt", None):
+        ascii_art = apply_crt_filter(ascii_art, crt_mode=args.crt)
+
     return ascii_art
+
+
+def export_video_to_gif(video_path, out_target, args=None, font_ratio=0.5):
+    """Convierte un archivo de video en un GIF animado en terminal art."""
+    try:
+        import cv2
+        from PIL import Image
+    except ImportError:
+        print("\033[1;31m❌ [Spectra Weep] Se requiere 'opencv-python' para convertir video a GIF.\033[0m")
+        return False
+        
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        print(f"❌ Error: No se pudo abrir el video '{video_path}'.")
+        return False
+
+    source_fps = cap.get(cv2.CAP_PROP_FPS) or 24.0
+    target_fps = 12.0
+    step = max(1, int(round(source_fps / target_fps)))
+    dur_ms = int(1000.0 / target_fps)
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    print(f"\033[1;35m[Spectra Weep 2.0]\033[0m Convirtiendo video a GIF animado: {video_path} ➔ {out_target}...")
+    rendered_images = []
+    durations = []
+    idx = 0
+    saved_count = 0
+    max_frames = 120
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        if idx % step == 0:
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            pil_frame = Image.fromarray(frame_rgb)
+            art = render_frame_to_art(pil_frame, args, "mary", "blocks", True, False, font_ratio)
+            frame_img = export_ansi_to_image(art, out_path=None, transparent=getattr(args, "transparent", False))
+            rendered_images.append(frame_img)
+            durations.append(dur_ms)
+            saved_count += 1
+            print(f"  Procesando fotograma {saved_count}...", end="\r", flush=True)
+            if saved_count >= max_frames:
+                break
+        idx += 1
+    cap.release()
+    print()
+
+    if rendered_images:
+        out_dir = os.path.dirname(os.path.abspath(out_target))
+        if out_dir and not os.path.exists(out_dir):
+            os.makedirs(out_dir, exist_ok=True)
+        rendered_images[0].save(
+            out_target,
+            save_all=True,
+            append_images=rendered_images[1:],
+            duration=durations,
+            loop=0,
+            optimize=True
+        )
+        print(_("export_success", out_target))
+        return True
+    return False
 
 
 def play_or_save_animation(image_path, args, engine, mode, is_raw_colors, invert_mode, font_ratio, out_target=None):
     """
-    Maneja la reproducción en bucle (--loop) en terminal o la exportación a GIF animado (-o anim.gif / --save anim.gif).
+    Maneja la reproducción fluida interactiva de GIFs animados en terminal o la exportación a GIF animado.
+    Incorpora arranque instantáneo en 0 ms (Zero-Lag Lazy Caching) y controles interactivos en caliente:
+    [Espacio] Pausa | [◄/►] Frame a frame | [+/-] Velocidad | [S] Snapshot HD | [R] Reiniciar | [Q] Salir.
     """
     try:
         from PIL import ImageSequence
@@ -4808,8 +5134,6 @@ def play_or_save_animation(image_path, args, engine, mode, is_raw_colors, invert
     n_frames = getattr(base_img, "n_frames", 1)
     if not is_animated or n_frames <= 1:
         frame_img = base_img.convert("RGBA" if getattr(args, "transparent", False) else "RGB")
-        if getattr(args, "fastfetch", False) or getattr(args, "logo", False):
-            frame_img = crop_empty_borders(frame_img)
         art = render_frame_to_art(frame_img, args, engine, mode, is_raw_colors, invert_mode, font_ratio)
         if out_target:
             export_ansi_to_image(art, out_target, transparent=getattr(args, "transparent", False))
@@ -4831,8 +5155,6 @@ def play_or_save_animation(image_path, args, engine, mode, is_raw_colors, invert
             dur = frame.info.get("duration", 100) or 100
             durations.append(dur)
             cur = frame.copy().convert("RGBA" if getattr(args, "transparent", False) else "RGB")
-            if getattr(args, "fastfetch", False) or getattr(args, "logo", False):
-                cur = crop_empty_borders(cur)
             print(_("render_anim_export", i + 1, n_frames), end="\r", flush=True)
             art = render_frame_to_art(cur, args, engine, mode, is_raw_colors, invert_mode, font_ratio)
             frame_render_img = export_ansi_to_image(art, out_path=None, transparent=getattr(args, "transparent", False))
@@ -4854,32 +5176,142 @@ def play_or_save_animation(image_path, args, engine, mode, is_raw_colors, invert
             print(_("export_success", out_target))
         return
 
-    # Reproducción en bucle en tiempo real en la terminal
+    # Extracción de fotogramas originales para streaming dinámico
     frames_data = []
     for frame in ImageSequence.Iterator(base_img):
         dur = (frame.info.get("duration", 100) or 100) / 1000.0
         dur = max(0.02, min(dur, 2.0))
         cur = frame.copy().convert("RGBA" if getattr(args, "transparent", False) else "RGB")
-        if getattr(args, "fastfetch", False) or getattr(args, "logo", False):
-            cur = crop_empty_borders(cur)
         frames_data.append((cur, dur))
 
-    # Pre-renderizar todos los frames para fluidez a 60fps sin tirones
-    cached_arts = []
-    for cur, dur in frames_data:
-        cached_arts.append((render_frame_to_art(cur, args, engine, mode, is_raw_colors, invert_mode, font_ratio), dur))
+    total_frames = len(frames_data)
+    cached_arts = [None] * total_frames
 
-    sys.stdout.write("\033[?25l")
+    # Configuración de entrada de terminal no bloqueante (cbreak)
+    old_term_settings = None
+    is_interactive_tty = sys.stdin.isatty() and sys.stdout.isatty()
+    if is_interactive_tty:
+        try:
+            import tty
+            import termios
+            old_term_settings = termios.tcgetattr(sys.stdin)
+            tty.setcbreak(sys.stdin.fileno())
+        except Exception:
+            pass
+
+    cur_idx = 0
+    is_paused = False
+    speed_mult = 1.0
+    status_msg = ""
+    status_timer = 0
+
+    sys.stdout.write("\033[?25l\033[2J\033[H")
     sys.stdout.flush()
+
     try:
         while True:
-            for art, dur in cached_arts:
-                sys.stdout.write(f"\033[H{art}\n")
-                sys.stdout.flush()
-                time.sleep(dur)
+            # 1. Obtener o renderizar frame actual (Zero-Lag Lazy Cache)
+            if cached_arts[cur_idx] is None:
+                cur_img, dur = frames_data[cur_idx]
+                art = render_frame_to_art(cur_img, args, engine, mode, is_raw_colors, invert_mode, font_ratio)
+                cached_arts[cur_idx] = (art, dur)
+            art, base_dur = cached_arts[cur_idx]
+
+            # 2. Barra de estado / HUD interactivo
+            speed_txt = f"{speed_mult:.2f}x" if speed_mult != 1.0 else "1.0x"
+            status_tag = f"\033[1;30;46m GIF ANIMADO \033[0m \033[1;37mFrame: {cur_idx + 1}/{total_frames} | Vel: {speed_txt} | "
+            if is_paused:
+                status_tag += "\033[1;33m[PAUSADO]\033[0m "
+            status_tag += "[Espacio] Pausa | [◄/►] Frame | [+/-] Vel | [S] Capturar | [R] Reiniciar | [Q] Salir\033[0m"
+            if status_msg and time.time() < status_timer:
+                status_tag += f" \033[1;32m{status_msg}\033[0m"
+
+            sys.stdout.write(f"\033[H{art}\n{status_tag}")
+            sys.stdout.flush()
+
+            # 3. Temporización y escucha de teclado
+            effective_dur = max(0.01, min(2.0, base_dur / speed_mult))
+            sleep_step = 0.02
+            elapsed = 0.0
+            advance_step = 0
+
+            while elapsed < effective_dur or is_paused:
+                wait_time = sleep_step if not is_paused else 0.05
+                if is_interactive_tty:
+                    try:
+                        import select
+                        r, _, _ = select.select([sys.stdin], [], [], wait_time)
+                        if r:
+                            ch = sys.stdin.read(1)
+                            if ch in ('q', 'Q', '\x03'):
+                                return
+                            elif ch == ' ':
+                                is_paused = not is_paused
+                                break
+                            elif ch in ('.', 'l', 'L'):
+                                cur_idx = (cur_idx + 1) % total_frames
+                                advance_step = 1
+                                break
+                            elif ch in (',', 'h', 'H'):
+                                cur_idx = (cur_idx - 1) % total_frames
+                                advance_step = -1
+                                break
+                            elif ch in ('+', '='):
+                                speed_mult = min(4.0, speed_mult * 1.25)
+                                status_msg = f"⚡ Velocidad: {speed_mult:.2f}x"
+                                status_timer = time.time() + 1.5
+                                break
+                            elif ch in ('-', '_'):
+                                speed_mult = max(0.25, speed_mult * 0.8)
+                                status_msg = f"🐢 Velocidad: {speed_mult:.2f}x"
+                                status_timer = time.time() + 1.5
+                                break
+                            elif ch in ('r', 'R'):
+                                cur_idx = 0
+                                is_paused = False
+                                break
+                            elif ch in ('s', 'S'):
+                                snap_name = f"snapshot_frame_{cur_idx + 1}_{int(time.time())}.png"
+                                frames_data[cur_idx][0].save(snap_name)
+                                status_msg = f"📸 Snapshot guardado: {snap_name}"
+                                status_timer = time.time() + 2.0
+                                break
+                            elif ch == '\x1b':
+                                try:
+                                    r_seq, _, _ = select.select([sys.stdin], [], [], 0.02)
+                                    if r_seq:
+                                        seq = sys.stdin.read(2)
+                                        if seq == '[C':
+                                            cur_idx = (cur_idx + 1) % total_frames
+                                            advance_step = 1
+                                            break
+                                        elif seq == '[D':
+                                            cur_idx = (cur_idx - 1) % total_frames
+                                            advance_step = -1
+                                            break
+                                except Exception:
+                                    pass
+                    except Exception:
+                        pass
+                else:
+                    time.sleep(wait_time)
+
+                elapsed += wait_time
+                if not is_paused and elapsed >= effective_dur:
+                    break
+
+            if not is_paused and advance_step == 0:
+                cur_idx = (cur_idx + 1) % total_frames
+
     except KeyboardInterrupt:
         pass
     finally:
+        if old_term_settings and is_interactive_tty:
+            try:
+                import termios
+                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_term_settings)
+            except Exception:
+                pass
         sys.stdout.write("\033[?25h\033[0m\n")
         sys.stdout.flush()
 
