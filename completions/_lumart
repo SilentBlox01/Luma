@@ -1,6 +1,6 @@
 #compdef lumart luma
 # Zsh completion for lumart and luma
-# Generated for Lumart v2.4.0 "Apex Horizon"
+# Generated for Lumart v2.4.1 "Apex Horizon"
 
 _lumart() {
     local context state state_descr line

@@ -5,6 +5,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ---
 
+## [2.4.1] — "Apex Horizon" — 2026-09-10
+
+> *"The greatest feat of automation is having the wisdom to do nothing when nothing needs to be done."*
+
+Lumart v2.4.1 is a quality-of-life and safety patch introducing foolproof safeguards for update and rollback commands, ensuring that attempting to upgrade or downgrade to the currently active version is handled gracefully without redundant downloads, unnecessary backups, or file modifications.
+
+### 🛡️ Foolproof Version Safeguards & Directional Guards
+* **Zero-Action Idempotency (`already_on_version`)**:
+  * Running an upgrade (`lumart -uu [VERSION]`) or downgrade (`lumart -dg [VERSION]`) pointing to the version already currently installed immediately notifies the user:
+    ```text
+    ℹ️ You are already on version v2.4.1. No actions were taken.
+    ```
+  * Exits cleanly with status `0` without making network queries to GitHub, without downloading files, and without creating redundant backups on disk.
+* **Auto-Upgrade Clean Notification**:
+  * Running `lumart -uu` when already on the latest available release now explicitly clarifies that no actions were taken:
+    ```text
+    ✅ Luma is already on the latest version (v2.4.1). No actions were taken.
+    ```
+* **Directional Guidance**:
+  * Attempting to "upgrade" to an older version (`lumart -uu <older_version>`) warns the user and suggests using `lumart -dg`.
+  * Attempting to "downgrade" to a newer version (`lumart -dg <newer_version>`) warns the user and suggests using `lumart -uu`.
+* **Optional Version Target for `-uu`**:
+  * `--upgrade` (`-uu`) now supports an optional positional target version string (`nargs="?"`), matching `--downgrade` (`-dg`).
+* **Multilingual Localization Across 8 Locales**:
+  * New foolproof status messages and directional alerts fully translated and tested across English (`en`), Spanish (`es`), Portuguese (`pt`), Russian (`ru`), Japanese (`ja`), German (`de`), Korean (`ko`), and French (`fr`).
+
+---
+
 ## [2.4.0] — "Apex Horizon" — 2026-09-09
 
 > *"CPU cycles are cheap, memory is abundant, but ugly terminal art is an unforgivable aesthetic crime against humanity."*

@@ -84,7 +84,7 @@ except ImportError:
         mary = None
 
 
-VERSION = "2.4.0"
+VERSION = "2.4.1"
 CODENAME = "Apex Horizon"
 GITHUB_REPO = "SilentBlox01/Luma"
 GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/lumart.py"
@@ -237,7 +237,10 @@ TRANSLATIONS = {
         "help_upgrade": "Download and install the latest update with interactive selector (-uu, --upgrade).",
         "help_downgrade": "Roll back to previous or choose version from interactive menu (-dg, --downgrade [VER]).",
         "update_checking": "🔍 Checking for updates...",
-        "update_already_latest": "✅ Luma is already up to date (v{}).",
+        "update_already_latest": "✅ Luma is already on the latest version (v{}). No actions were taken.",
+        "already_on_version": "ℹ️ You are already on version v{}. No actions were taken.",
+        "upgrade_target_older": "⚠️ Version v{} is older than currently installed (v{}).\n💡 To roll back to an earlier version, use: lumart -dg {}",
+        "downgrade_target_newer": "⚠️ Version v{} is newer than currently installed (v{}).\n💡 To upgrade to a newer version, use: lumart -uu {}",
         "update_available": "💡 New version available: v{} (current: v{}).\n   To install it, run: lumart -uu (or lumart --upgrade)",
         "update_downloading": "⬇️  Downloading and installing Luma v{}...",
         "update_success": "🎉 Successfully updated Luma from v{} to v{}!",
@@ -393,7 +396,10 @@ TRANSLATIONS = {
         "help_upgrade": "Descargar e instalar la actualización con selector interactivo (-uu, --upgrade).",
         "help_downgrade": "Volver a la versión previa o elegir en menú interactivo (-dg, --downgrade [VER]).",
         "update_checking": "🔍 Buscando actualizaciones...",
-        "update_already_latest": "✅ Luma ya está en la versión más reciente (v{}).",
+        "update_already_latest": "✅ Luma ya está en la versión más reciente (v{}). No se tomaron acciones.",
+        "already_on_version": "ℹ️ Ya estás en la versión v{}. No se tomaron acciones.",
+        "upgrade_target_older": "⚠️ La versión v{} es anterior a la instalada actualmente (v{}).\n💡 Para volver a una versión anterior, utiliza: lumart -dg {}",
+        "downgrade_target_newer": "⚠️ La versión v{} es superior a la instalada actualmente (v{}).\n💡 Para actualizar a una versión más reciente, utiliza: lumart -uu {}",
         "update_available": "💡 ¡Nueva versión disponible: v{} (actual: v{})!\n   Para instalarla, ejecuta: lumart -uu (o lumart --upgrade)",
         "update_downloading": "⬇️  Descargando e instalando Luma v{}...",
         "update_success": "🎉 ¡Luma actualizado exitosamente de v{} a v{}!",
@@ -549,7 +555,10 @@ TRANSLATIONS = {
         "help_upgrade": "Baixar e instalar a versão mais recente (-uu, --upgrade).",
         "help_downgrade": "Reverter para a versão anterior ou escolher em menu (-dg, --downgrade [VER]).",
         "update_checking": "🔍 Verificando atualizações...",
-        "update_already_latest": "✅ O Luma já está na versão mais recente (v{}).",
+        "update_already_latest": "✅ O Luma já está na versão mais recente (v{}). Nenhuma ação foi realizada.",
+        "already_on_version": "ℹ️ Você já está na versão v{}. Nenhuma ação foi realizada.",
+        "upgrade_target_older": "⚠️ A versão v{} é mais antiga que a versão instalada atualmente (v{}).\n💡 Para reverter para uma versão anterior, use: lumart -dg {}",
+        "downgrade_target_newer": "⚠️ A versão v{} é mais recente que a versão instalada atualmente (v{}).\n💡 Para atualizar para uma versão mais recente, use: lumart -uu {}",
         "update_available": "💡 Nova versão disponível: v{} (atual: v{}).\n   Para instalar, execute: lumart -uu (ou lumart --upgrade)",
         "update_downloading": "⬇️  Baixando e instalando Luma v{}...",
         "update_success": "🎉 Luma atualizado com sucesso de v{} para v{}!",
@@ -705,7 +714,10 @@ TRANSLATIONS = {
         "help_upgrade": "Скачать и установить последнее обновление (-uu, --upgrade).",
         "help_downgrade": "Откатиться к предыдущей версии или выбрать в меню (-dg, --downgrade [VER]).",
         "update_checking": "🔍 Проверка обновлений...",
-        "update_already_latest": "✅ Luma уже обновлена до последней версии (v{}).",
+        "update_already_latest": "✅ Luma уже обновлена до последней версии (v{}). Никаких действий не выполнено.",
+        "already_on_version": "ℹ️ Вы уже используете версию v{}. Никаких действий не выполнено.",
+        "upgrade_target_older": "⚠️ Версия v{} старее текущей установленной версии (v{}).\n💡 Чтобы откатиться к более ранней версии, используйте: lumart -dg {}",
+        "downgrade_target_newer": "⚠️ Версия v{} новее текущей установленной версии (v{}).\n💡 Для обновления до более новой версии используйте: lumart -uu {}",
         "update_available": "💡 Доступна новая версия: v{} (текущая: v{}).\n   Чтобы установить, запустите: lumart -uu (или lumart --upgrade)",
         "update_downloading": "⬇️  Загрузка и установка Luma v{}...",
         "update_success": "🎉 Luma успешно обновлена с v{} до v{}!",
@@ -861,7 +873,10 @@ TRANSLATIONS = {
         "help_upgrade": "最新の更新をダウンロードしてインストールします (-uu, --upgrade)。",
         "help_downgrade": "前のバージョンまたは対話型メニューからロールバックします (-dg, --downgrade [VER])。",
         "update_checking": "🔍 アップデートを確認中...",
-        "update_already_latest": "✅ Lumaはすでに最新バージョンです（v{}）。",
+        "update_already_latest": "✅ Lumaはすでに最新バージョンです（v{}）。操作は実行されませんでした。",
+        "already_on_version": "ℹ️ すでにバージョン v{} を使用しています。操作は実行されませんでした。",
+        "upgrade_target_older": "⚠️ バージョン v{} は現在インストールされているバージョン（v{}）より古いバージョンです。\n💡 以前のバージョンに戻すには、次を実行してください: lumart -dg {}",
+        "downgrade_target_newer": "⚠️ バージョン v{} は現在インストールされているバージョン（v{}）より新しいバージョンです。\n💡 より新しいバージョンにアップグレードするには、次を実行してください: lumart -uu {}",
         "update_available": "💡 新しいバージョンが利用可能です: v{} (現在: v{}).\n   インストールするには実行してください: lumart -uu (または lumart --upgrade)",
         "update_downloading": "⬇️  Luma v{} をダウンロードしてインストール中...",
         "update_success": "🎉 Lumaを v{} から v{} に正常に更新しました！",
@@ -1017,7 +1032,10 @@ TRANSLATIONS = {
         "help_upgrade": "Das neueste Update herunterladen und installieren (-uu, --upgrade).",
         "help_downgrade": "Auf vorherige Version zurücksetzen oder im Menü wählen (-dg, --downgrade [VER]).",
         "update_checking": "🔍 Suche nach Updates...",
-        "update_already_latest": "✅ Luma ist bereits auf dem neuesten Stand (v{}).",
+        "update_already_latest": "✅ Luma ist bereits auf dem neuesten Stand (v{}). Es wurden keine Aktionen durchgeführt.",
+        "already_on_version": "ℹ️ Sie befinden sich bereits auf Version v{}. Es wurden keine Aktionen durchgeführt.",
+        "upgrade_target_older": "⚠️ Version v{} ist älter als die aktuell installierte Version (v{}).\n💡 Um auf eine frühere Version zurückzusetzen, verwenden Sie: lumart -dg {}",
+        "downgrade_target_newer": "⚠️ Version v{} ist neuer als die aktuell installierte Version (v{}).\n💡 Um auf eine neuere Version zu aktualisieren, verwenden Sie: lumart -uu {}",
         "update_available": "💡 Neue Version verfügbar: v{} (aktuell: v{}).\n   Zum Installieren ausführen: lumart -uu (oder lumart --upgrade)",
         "update_downloading": "⬇️  Lade Luma v{} herunter und installiere...",
         "update_success": "🎉 Luma erfolgreich von v{} auf v{} aktualisiert!",
@@ -1173,7 +1191,10 @@ TRANSLATIONS = {
         "help_upgrade": "최신 업데이트를 대화형 메뉴로 다운로드하고 설치합니다 (-uu, --upgrade).",
         "help_downgrade": "이전 버전으로 롤백하거나 대화형 메뉴에서 선택합니다 (-dg, --downgrade [VER]).",
         "update_checking": "🔍 업데이트 확인 중...",
-        "update_already_latest": "✅ Luma가 이미 최신 버전입니다 (v{}).",
+        "update_already_latest": "✅ Luma가 이미 최신 버전입니다 (v{}). 변경 작업이 수행되지 않았습니다.",
+        "already_on_version": "ℹ️ 이미 v{} 버전을 사용 중입니다. 변경 작업이 수행되지 않았습니다.",
+        "upgrade_target_older": "⚠️ v{} 버전은 현재 설치된 버전(v{})보다 이전 버전입니다.\n💡 이전 버전으로 롤백하려면 다음을 사용하세요: lumart -dg {}",
+        "downgrade_target_newer": "⚠️ v{} 버전은 현재 설치된 버전(v{})보다 최신 버전입니다.\n💡 최신 버전으로 업그레이드하려면 다음을 사용하세요: lumart -uu {}",
         "update_available": "💡 새 버전을 사용할 수 있습니다: v{} (현재: v{}).\n   설치하려면 다음을 실행하세요: lumart -uu (또는 lumart --upgrade)",
         "update_downloading": "⬇️  Luma v{} 다운로드 및 설치 중...",
         "update_success": "🎉 Luma가 v{}에서 v{}로 성공적으로 업데이트되었습니다!",
@@ -1329,7 +1350,10 @@ TRANSLATIONS = {
         "help_upgrade": "Télécharger et installer la dernière mise à jour avec sélecteur interactif (-uu, --upgrade).",
         "help_downgrade": "Revenir à la version précédente ou choisir dans le menu interactif (-dg, --downgrade [VER]).",
         "update_checking": "🔍 Recherche de mises à jour...",
-        "update_already_latest": "✅ Luma est déjà à jour (v{}).",
+        "update_already_latest": "✅ Luma est déjà à jour (v{}). Aucune action n'a été effectuée.",
+        "already_on_version": "ℹ️ Vous êtes déjà sur la version v{}. Aucune action n'a été effectuée.",
+        "upgrade_target_older": "⚠️ La version v{} est plus ancienne que la version actuellement installée (v{}).\n💡 Pour revenir à une version antérieure, utilisez : lumart -dg {}",
+        "downgrade_target_newer": "⚠️ La version v{} est plus récente que la version actuellement installée (v{}).\n💡 Pour mettre à niveau vers une version plus récente, utilisez : lumart -uu {}",
         "update_available": "💡 Nouvelle version disponible : v{} (actuelle : v{}).\n   Pour l'installer, exécutez : lumart -uu (ou lumart --upgrade)",
         "update_downloading": "⬇️  Téléchargement et installation de Luma v{}...",
         "update_success": "🎉 Luma a été mis à jour avec succès de v{} à v{} !",
@@ -2558,21 +2582,33 @@ def perform_upgrade(target_ver=None):
     import time
     import json
     
+    cur_tuple = parse_version(VERSION)
+    
+    # Foolproof guard: si el usuario especifica la versión en la que ya está o una inferior
+    if target_ver and target_ver != "latest":
+        clean_target = target_ver.lstrip("v").strip()
+        target_tuple = parse_version(clean_target)
+        if target_tuple == cur_tuple:
+            print(_("already_on_version", VERSION))
+            return True
+        if target_tuple < cur_tuple:
+            print(_("upgrade_target_older", clean_target, VERSION, clean_target))
+            return False
+
     print(_("update_checking"))
     all_releases = fetch_all_releases_with_meta()
     if not all_releases:
         print(_("update_error", "No se pudo consultar información de versiones en GitHub."))
         return False
         
-    cur_tuple = parse_version(VERSION)
     newer = [r for r in all_releases if parse_version(r["tag_name"]) > cur_tuple]
     
-    if not newer and not target_ver:
+    if not newer and (not target_ver or target_ver == "latest"):
         print(_("update_already_latest", VERSION))
         return True
         
     chosen_rel = None
-    if target_ver:
+    if target_ver and target_ver != "latest":
         target_clean = target_ver.lstrip("v").strip()
         for r in all_releases:
             if r["tag_name"].lstrip("v") == target_clean:
@@ -2616,6 +2652,10 @@ def perform_upgrade(target_ver=None):
             return False
             
     dest_ver = chosen_rel["tag_name"].lstrip("v")
+    if parse_version(dest_ver) == cur_tuple:
+        print(_("already_on_version", VERSION))
+        return True
+        
     print(f"\n⬇️  Preparando instalación de Luma v{dest_ver}...")
     if chosen_rel.get("name"):
         print(f"   Título: {chosen_rel['name']}")
@@ -2687,6 +2727,19 @@ def perform_downgrade(target_ver=None):
     import py_compile
     import json
     
+    cur_tuple = parse_version(VERSION)
+    
+    # Foolproof guard: si el usuario especifica la versión en la que ya está o una superior
+    if target_ver and target_ver != "prev":
+        clean_target = target_ver.lstrip("v").strip()
+        target_tuple = parse_version(clean_target)
+        if target_tuple == cur_tuple:
+            print(_("already_on_version", VERSION))
+            return True
+        if target_tuple > cur_tuple:
+            print(_("downgrade_target_newer", clean_target, VERSION, clean_target))
+            return False
+
     is_frozen = getattr(sys, 'frozen', False)
     target_path = sys.executable if is_frozen else os.path.realpath(__file__)
     target_dir = os.path.dirname(target_path)
@@ -2698,14 +2751,13 @@ def perform_downgrade(target_ver=None):
     backup_dir = os.path.expanduser("~/.config/luma/backup")
     os.makedirs(backup_dir, exist_ok=True)
     
-    cur_tuple = parse_version(VERSION)
     options = []
     
     if os.path.exists(backup_dir):
         for f in sorted(os.listdir(backup_dir)):
             if f.startswith("lumart-v"):
                 bver = f.replace("lumart-v", "")
-                if parse_version(bver) != cur_tuple:
+                if parse_version(bver) < cur_tuple:
                     options.append((bver, "local", os.path.join(backup_dir, f)))
                     
     all_releases = fetch_all_releases()
@@ -2770,6 +2822,10 @@ def perform_downgrade(target_ver=None):
         except ValueError:
             print("❌ Selección inválida.")
             return False
+
+    if parse_version(chosen_ver) == cur_tuple:
+        print(_("already_on_version", VERSION))
+        return True
 
     print(f"\n🔄 Restaurando Luma a la versión v{chosen_ver}...")
     
@@ -4222,7 +4278,7 @@ def main():
     parser.add_argument("-h", "--help", action="help", help=_("help_help"))
     parser.add_argument("-v", "--version", action="store_true", help=_("help_version"))
     parser.add_argument("-u", "--update", "--check-update", action="store_true", help=_("help_update"))
-    parser.add_argument("-uu", "--upgrade", action="store_true", help=_("help_upgrade"))
+    parser.add_argument("-uu", "--upgrade", nargs="?", const="latest", default=None, help=_("help_upgrade"))
     parser.add_argument("-dg", "--downgrade", "--rollback", nargs="?", const="prev", default=None, help=_("help_downgrade"))
 
     parser.add_argument("image_path", nargs="?", default=None, help=_("help_image_path"))
@@ -4316,9 +4372,10 @@ def main():
         sys.exit(0)
 
     # Descargar e instalar la actualización más reciente (-uu / --upgrade)
-    if args.upgrade:
+    if args.upgrade is not None:
         print(banner)
-        success = perform_upgrade()
+        target = None if args.upgrade == "latest" else args.upgrade
+        success = perform_upgrade(target)
         sys.exit(0 if success else 1)
 
     # Volver a la versión anterior o especificada (-dg / --downgrade / --rollback)

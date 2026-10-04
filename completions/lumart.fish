@@ -1,5 +1,5 @@
 # Fish completion for lumart and luma
-# Generated for Lumart v2.4.0 "Apex Horizon"
+# Generated for Lumart v2.4.1 "Apex Horizon"
 
 function __fish_lumart_needs_command
     set -l cmd (commandline -opc)
