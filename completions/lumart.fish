@@ -65,6 +65,7 @@ for c in lumart luma
     complete -c $c -l showcase -d "Generate 4-in-1 comparison showcase across all flagship engines"
     complete -c $c -l info -l inspect -d "Display visual image inspector, resolution, and color palette"
     complete -c $c -l fetch-preset -d "Generate Fastfetch/Neofetch ANSI logo and config.jsonc snippet"
+    complete -c $c -l shader -d "Spectra Weep 2.0 multi-spectral shader" -r -a "neon cyberpunk thermal tron matrix amber manga theme normal"
 
     # System & Utilities
     complete -c $c -l lang -d "Set interface language" -r -a "en es pt fr ru ja de ko"

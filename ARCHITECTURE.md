@@ -128,3 +128,29 @@ Para evitar el retraso tradicional de pre-renderizado (que congelaba la terminal
 2. **Caché Progresivo**: Los fotogramas subsiguientes se renderizan bajo demanda solo en la primera pasada y se indexan en un búfer circular en memoria (`cached_arts = [None] * total_frames`).
 3. **Bucle Fluido**: A partir del segundo ciclo, todos los fotogramas se leen del caché con cero uso de CPU y sincronización milimétrica al framerate original del archivo.
 4. **Interactividad Completa**: Controles en caliente mediante `cbreak` (`[Espacio]` pausa, `[◄/►]` paso a paso, `[+/-]` velocidad, `[S]` captura HD, `[Q]` salida limpia).
+
+---
+
+## 8. Herramientas Visuales Integradas (Showcase, Inspector, Fastfetch)
+
+### 8.1 Lienzo Comparativo Quad-Engine 4-en-1 (`--showcase`)
+El motor de showcase genera una matriz ortogonal de 4 cuadrantes balanceados geométricamente:
+- Calcula dimensiones proporcionales garantizando márgenes uniformes con caracteres de caja Unicode (`┌`, `─`, `┐`, `│`, `└`, `┼`).
+- Ejecuta en paralelo los 4 motores de renderizado insignia:
+  - **Cuadrante 1**: Mary Apex 3.5 (Oklab HD).
+  - **Cuadrante 2**: Trumble Orelx 2.2 (Cel-shading arcade con entintado subpíxel).
+  - **Cuadrante 3**: Luris Mono 2.6 (Tramado Ami-tone manga con DoG).
+  - **Cuadrante 4**: Spectra Weep 2.0 (Lluvia de código Matrix o Cyberpunk Synthwave).
+- Permite exportación directa a PNG de alta resolución (`-o showcase.png`) o copia al portapapeles (`-C`).
+
+### 8.2 Inspector Visual y Profiler de Paleta (`--info`, `--inspect`)
+Analiza la estructura matemática de la imagen:
+- Extrae relación de aspecto nativa, luminancia media ponderada y saturación relativa.
+- Emite recomendación heurística del motor óptimo según la densidad y estilo de la imagen.
+- Cuantización k-means / Octree para aislar los 6 clústeres cromáticos dominantes, representados en la terminal con muestras TrueColor ANSI y sus valores hexadecimales correspondientes.
+
+### 8.3 Generador de Presets para Fastfetch / Neofetch (`--fetch-preset`)
+- Aplica autodetección y recorte de márgenes perimetrales transparentes o blancos.
+- Escala a 40 columnas de alta densidad ANSI.
+- Guarda el archivo en `~/.config/fastfetch/<nombre>_logo.ans` y genera el fragmento de configuración JSON listo para copiar a `~/.config/fastfetch/config.jsonc`.
+

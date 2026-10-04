@@ -11,6 +11,7 @@ _lumart_completions() {
     local shells="bash zsh fish"
     local themes="catppuccin dracula nord gruvbox synthwave vaporwave gameboy solarized"
     local crts="green amber color scanlines"
+    local shaders="neon cyberpunk thermal tron matrix amber manga theme normal"
     local opts="
         -h --help
         -v --version
@@ -56,6 +57,7 @@ _lumart_completions() {
         --showcase
         --info --inspect
         --fetch-preset
+        --shader
         -W --webcam
         -H --history
         -R --replay --last
@@ -85,6 +87,10 @@ _lumart_completions() {
             COMPREPLY=( $(compgen -W "$crts" -- "$cur") )
             return 0
             ;;
+        --shader)
+            COMPREPLY=( $(compgen -W "$shaders" -- "$cur") )
+            return 0
+            ;;
         --completions)
             COMPREPLY=( $(compgen -W "$shells" -- "$cur") )
             return 0
@@ -107,8 +113,8 @@ _lumart_completions() {
         return 0
     fi
 
-    # Subcommand 'diff'
-    if [[ "${words[1]}" == "diff" ]]; then
+    # Subcommands
+    if [[ "${words[1]}" =~ ^(diff|showcase|compare|info|inspect|fetch)$ ]]; then
         _filedir '@(png|jpg|jpeg|bmp|gif|webp|apng|PNG|JPG|JPEG|BMP|GIF|WEBP|APNG)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") )
         return 0
     fi

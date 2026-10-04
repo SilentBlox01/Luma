@@ -400,6 +400,22 @@ lumart info photo.png
 lumart fetch distro_logo.png -w 40
 ```
 
+### 11. Multi-Spectral Shaders & Spectra Weep Engine
+```bash
+# Apply cyberpunk neon synthwave shader to any image or wallpaper
+lumart character.png --shader neon -w 80
+
+# Infrared FLIR heat map or electric tron outlines
+lumart character.png --shader thermal -w 80
+lumart character.png --shader tron -w 80
+
+# Stream live webcam with CRT scanlines at 60 FPS
+lumart -W --crt scanlines
+
+# Convert video file directly to animated GIF with custom theme
+lumart gameplay.mp4 -o clip.gif --theme synthwave
+```
+
 ---
 
 ## Engineering Secrets, Pro-Tips & Terminal Philosophy

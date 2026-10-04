@@ -54,6 +54,17 @@ _lumart() {
         'ko:한국어'
     )
 
+    local shaders=(
+        'neon:Cyberpunk synthwave magenta and cyan boost'
+        'thermal:Infrared FLIR false-color heat map'
+        'tron:Electric cyan vector edge outlines'
+        'matrix:Analog green phosphor P1 CRT code'
+        'amber:Warm analog P3 amber phosphor'
+        'manga:High-contrast monochrome comic ink'
+        'theme:Synchronize with active terminal theme'
+        'normal:Adaptive high-fidelity TrueColor'
+    )
+
     local shells=(
         'bash:GNU Bourne-Again Shell'
         'zsh:Z Shell'
@@ -108,6 +119,7 @@ _lumart() {
         '--showcase[Generate 4-in-1 comparison showcase across all flagship engines]' \
         '(--info --inspect)'{--info,--inspect}'[Display visual image inspector and color palette]' \
         '--fetch-preset[Generate Fastfetch/Neofetch ANSI logo and config.jsonc]' \
+        '--shader[Apply Spectra Weep 2.0 multi-spectral shader]:shader:(($shaders))' \
         '--lang[Set language]:language:(($langs))' \
         '(-W --webcam)'{-W,--webcam}'[Webcam streaming]:camera index: ' \
         '(-H --history)'{-H,--history}'[Show execution history]:count: ' \

@@ -109,6 +109,9 @@ Lumart v2.5.0 "Apex Nova" introduces 11 major features, expanding Lumart from a 
 16. **Fastfetch & Neofetch Logo Preset Generator (`lumart fetch <logo>`, `--fetch-preset`)**:
     * Automatically auto-crops transparent/blank borders, formats image into high-contrast 40-column TrueColor ANSI art, writes directly to `~/.config/fastfetch/<name>_logo.ans`, and outputs a ready-to-use JSON block for `~/.config/fastfetch/config.jsonc`.
 
+17. **Multi-Spectral Shaders on Static Images (`--shader <name>`, `-E spectra`)**:
+    * Brings Spectra Weep's real-time GLSL-inspired shader library to static images: `neon` (synthwave glow), `thermal` (infrared FLIR false color), `tron` (electric vector edge outlines), `matrix` (analog phosphor green code), `amber` (vintage P3 phosphor), and `manga` (high-contrast comic ink).
+
 ---
 
 ## [2.4.1] — "Apex Horizon" — 2026-09-10

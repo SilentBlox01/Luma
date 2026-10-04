@@ -280,9 +280,10 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Render copied to system clipboard (ANSI truecolor)!",
         "clipboard_copied_plain": "Render copied to system clipboard (plain ASCII)!",
         "diff_delta": "Average pixel color delta: {:.1f}%",
-        "help_showcase": "Generate a 4-in-1 comparison showcase across all 4 flagship engines (Mary, Trumble, Luris, Matrix).",
+        "help_showcase": "Generate a 4-in-1 comparison showcase across all 4 flagship engines (Mary, Trumble, Luris, Spectra).",
         "help_info": "Display visual image inspector: resolution, aspect ratio, dominant colors, and engine recommendation.",
         "help_fetch_preset": "Generate optimized Fastfetch/Neofetch ANSI art and config.jsonc snippet.",
+        "help_shader": "Apply Spectra Weep 2.0 multi-spectral shader: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
     },
     "es": {
         "diag_title_system": "📋 Información del Sistema y Runtime:",
@@ -459,9 +460,10 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "¡Arte copiado al portapapeles del sistema (ANSI truecolor)!",
         "clipboard_copied_plain": "¡Arte copiado al portapapeles del sistema (ASCII plano)!",
         "diff_delta": "Variación cromática media (Delta): {:.1f}%",
-        "help_showcase": "Genera una comparativa 4-en-1 mostrando los 4 motores insignia (Mary, Trumble, Luris, Matrix).",
+        "help_showcase": "Genera una comparativa 4-en-1 mostrando los 4 motores insignia (Mary, Trumble, Luris, Spectra).",
         "help_info": "Muestra el inspector visual: resolución, proporción, paleta dominante HEX/ANSI y recomendación de motor.",
         "help_fetch_preset": "Genera el arte ANSI optimizado y el bloque config.jsonc para Fastfetch/Neofetch.",
+        "help_shader": "Aplicar shader multi-espectral de Spectra Weep 2.0: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
     },
     "pt": {
         "diag_title_system": "📋 Informações do Sistema e Runtime:",
@@ -638,9 +640,10 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Arte copiada para a área de transferência (ANSI truecolor)!",
         "clipboard_copied_plain": "Arte copiada para a área de transferência (ASCII simples)!",
         "diff_delta": "Variação cromática média (Delta): {:.1f}%",
-        "help_showcase": "Gera uma vitrine comparativa 4-em-1 com os 4 motores principais (Mary, Trumble, Luris, Matrix).",
+        "help_showcase": "Gera uma vitrine comparativa 4-em-1 com os 4 motores principais (Mary, Trumble, Luris, Spectra).",
         "help_info": "Exibe o inspetor visual: resolução, proporção, cores dominantes HEX/ANSI e recomendação de motor.",
         "help_fetch_preset": "Gera arte ANSI otimizada e snippet config.jsonc para Fastfetch/Neofetch.",
+        "help_shader": "Aplicar sombreador multi-espectral do Spectra Weep 2.0: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
     },
     "ru": {
         "diag_title_system": "📋 Информация о системе и среде выполнения:",
@@ -817,9 +820,10 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Арт скопирован в буфер обмена (ANSI truecolor)!",
         "clipboard_copied_plain": "Арт скопирован в буфер обмена (чистый ASCII)!",
         "diff_delta": "Средняя цветовая разница (Delta): {:.1f}%",
-        "help_showcase": "Сгенерировать сравнительную витрину 4-в-1 по 4 флагманским движкам (Mary, Trumble, Luris, Matrix).",
+        "help_showcase": "Сгенерировать сравнительную витрину 4-в-1 по 4 флагманским движкам (Mary, Trumble, Luris, Spectra).",
         "help_info": "Показать инспектор изображения: разрешение, пропорции, доминирующие цвета и рекомендацию движка.",
         "help_fetch_preset": "Сгенерировать ANSI-арт и фрагмент config.jsonc для Fastfetch/Neofetch.",
+        "help_shader": "Применить мультиспектральный шейдер Spectra Weep 2.0: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
     },
     "ja": {
         "diag_title_system": "📋 システムおよびランタイム診断:",
@@ -996,9 +1000,10 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "レンダリング結果をクリップボードにコピーしました（ANSI truecolor）！",
         "clipboard_copied_plain": "レンダリング結果をクリップボードにコピーしました（プレーンASCII）！",
         "diff_delta": "平均ピクセル色差（Delta）: {:.1f}%",
-        "help_showcase": "4大フラッグシップエンジン（Mary、Trumble、Luris、Matrix）による4-in-1比較ショーケースを生成します。",
+        "help_showcase": "4大フラッグシップエンジン（Mary、Trumble、Luris、Spectra）による4-in-1比較ショーケースを生成します。",
         "help_info": "画像の解像度、アスペクト比、主要パレット、推奨エンジンを表示するビジュアルインスペクター。",
         "help_fetch_preset": "Fastfetch/Neofetch向けの最適化ANSIアートとconfig.jsonc設定を生成します。",
+        "help_shader": "Spectra Weep 2.0 マルチスペクトルシェーダーを適用: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'。",
     },
     "de": {
         "diag_title_system": "📋 System- und Laufzeitdiagnose:",
@@ -1175,9 +1180,10 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Grafik in Zwischenablage kopiert (ANSI truecolor)!",
         "clipboard_copied_plain": "Grafik in Zwischenablage kopiert (reiner ASCII-Text)!",
         "diff_delta": "Durchschnittliche Pixelfarbabweichung (Delta): {:.1f}%",
-        "help_showcase": "Erzeugt eine 4-in-1-Vergleichsansicht über alle 4 Flaggschiff-Engines (Mary, Trumble, Luris, Matrix).",
+        "help_showcase": "Erzeugt eine 4-in-1-Vergleichsansicht über alle 4 Flaggschiff-Engines (Mary, Trumble, Luris, Spectra).",
         "help_info": "Visueller Bild-Inspektor: Auflösung, Seitenverhältnis, dominante Farben und Engine-Empfehlung.",
         "help_fetch_preset": "Erzeugt optimiertes Fastfetch/Neofetch-ANSI-Art und config.jsonc-Konfiguration.",
+        "help_shader": "Spectra Weep 2.0 Multi-Spektral-Shader anwenden: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
     },
     "ko": {
         "diag_title_system": "📋 시스템 및 런타임 진단:",
@@ -1354,9 +1360,10 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "렌더링 결과가 클립보드에 복사되었습니다 (ANSI 트루컬러)!",
         "clipboard_copied_plain": "렌더링 결과가 클립보드에 복사되었습니다 (순수 ASCII)!",
         "diff_delta": "평균 픽셀 색상 차이 (Delta): {:.1f}%",
-        "help_showcase": "4대 플래그십 엔진(Mary, Trumble, Luris, Matrix)을 통한 4-in-1 비교 쇼케이스를 생성합니다.",
+        "help_showcase": "4대 플래그십 엔진(Mary, Trumble, Luris, Spectra)을 통한 4-in-1 비교 쇼케이스를 생성합니다.",
         "help_info": "해상도, 화면비, 주요 색상 팔레트 및 권장 엔진을 보여주는 이미지 인스펙터 대시보드.",
         "help_fetch_preset": "Fastfetch/Neofetch용 최적화 ANSI 아트 및 config.jsonc 설정을 생성합니다.",
+        "help_shader": "Spectra Weep 2.0 다중 스펙트럼 셰이더 적용: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
     },
     "fr": {
         "diag_title_system": "📋 Diagnostics système et environnement d'exécution :",
@@ -1533,9 +1540,10 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Rendu copié dans le presse-papiers système (ANSI truecolor) !",
         "clipboard_copied_plain": "Rendu copié dans le presse-papiers système (ASCII brut) !",
         "diff_delta": "Variation chromatique moyenne (Delta) : {:.1f}%",
-        "help_showcase": "Génère une présentation comparative 4-en-1 sur les 4 moteurs phares (Mary, Trumble, Luris, Matrix).",
+        "help_showcase": "Génère une présentation comparative 4-en-1 sur les 4 moteurs phares (Mary, Trumble, Luris, Spectra).",
         "help_info": "Affiche l'inspecteur visuel : résolution, ratio, couleurs dominantes HEX/ANSI et recommandation de moteur.",
         "help_fetch_preset": "Génère un art ANSI optimisé et l'extrait config.jsonc pour Fastfetch/Neofetch.",
+        "help_shader": "Appliquer le shader multi-spectral Spectra Weep 2.0 : 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
     }
 }
 
@@ -2070,21 +2078,174 @@ def render_image_diff(path_a, path_b, width=None):
     return True
 
 
+def safe_open_image(source):
+    """
+    Abre una imagen manejando de forma segura advertencias de Pillow (como paletas P con transparencia en bytes)
+    y retornando un objeto PIL Image limpio en modo RGB o RGBA.
+    """
+    if isinstance(source, Image.Image):
+        im = source
+    else:
+        im = Image.open(source)
+    if getattr(im, "mode", None) == "P" and "transparency" in getattr(im, "info", {}):
+        try:
+            im = im.convert("RGBA")
+        except Exception:
+            pass
+    return im
+
+
+def apply_spectra_shader(image, shader="neon", theme_name=None):
+    """
+    Motor Spectra Weep 2.0 ("Nova Vision"): Aplica shaders multi-espectrales a una imagen PIL.
+    Soporta:
+      - 'neon' / 'cyberpunk': Grado Synthwave (magenta/cyan vibrante con resplandor)
+      - 'thermal' / 'flir': Mapa térmico infrarrojo en falso color (azul a blanco incandescente)
+      - 'tron' / 'edge': Contornos vectoriales Canny en azul cian eléctrico (#00FFFF)
+      - 'matrix': Fósforo verde P1 analógico de terminal CRT (525nm)
+      - 'amber': Fósforo ámbar P3 retro de terminal analógica (605nm)
+      - 'manga': Entintado gráfico B&W de alto contraste
+      - 'theme': Sincronización con la paleta de tema activa (--theme)
+      - 'normal': TrueColor adaptativo de alta fidelidad
+    """
+    if not isinstance(image, Image.Image):
+        return image
+        
+    sh = str(shader).lower().strip() if shader else "neon"
+    
+    if sh in ("theme", "theme_sync"):
+        if theme_name:
+            return apply_theme_palette(image, theme_name)
+        return image
+        
+    try:
+        import numpy as np
+        img_rgb = image.convert("RGB")
+        arr = np.array(img_rgb)
+        h, w = arr.shape[:2]
+        
+        # 1. Cyberpunk Neon (Synthwave)
+        if sh in ("neon", "cyberpunk", "synthwave"):
+            rgb = arr.astype(np.float32)
+            rgb[:, :, 0] = np.clip(rgb[:, :, 0] * 1.35, 0, 255) # Realce magenta/rojo
+            rgb[:, :, 1] = np.clip(rgb[:, :, 1] * 0.70, 0, 255) # Atenuación verde
+            rgb[:, :, 2] = np.clip(rgb[:, :, 2] * 1.40, 0, 255) # Realce azul/cyan
+            return Image.fromarray(rgb.astype(np.uint8))
+            
+        # 2. Matrix Phosphor P1 (525nm)
+        elif sh in ("matrix", "phosphor"):
+            gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]).astype(np.uint8)
+            out = np.zeros((h, w, 3), dtype=np.uint8)
+            out[:, :, 1] = gray
+            out[:, :, 0] = (gray * 0.12).astype(np.uint8)
+            out[:, :, 2] = (gray * 0.15).astype(np.uint8)
+            return Image.fromarray(out)
+            
+        # 3. Thermal FLIR (Termografía infrarroja)
+        elif sh in ("thermal", "flir", "infrared"):
+            try:
+                import cv2
+                gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
+                thermal_bgr = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
+                return Image.fromarray(cv2.cvtColor(thermal_bgr, cv2.COLOR_BGR2RGB))
+            except Exception:
+                gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]) / 255.0
+                r = np.clip(1.5 - np.abs(gray * 4.0 - 3.0), 0, 1)
+                g = np.clip(1.5 - np.abs(gray * 4.0 - 2.0), 0, 1)
+                b = np.clip(1.5 - np.abs(gray * 4.0 - 1.0), 0, 1)
+                rgb = (np.dstack([r, g, b]) * 255.0).astype(np.uint8)
+                return Image.fromarray(rgb)
+                
+        # 4. Edge Tron (Contornos vectoriales neón cian eléctrico)
+        elif sh in ("tron", "edge", "outline"):
+            try:
+                import cv2
+                gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
+                edges = cv2.Canny(gray, 50, 140)
+                out = np.zeros_like(arr)
+                out[edges > 0] = [0, 255, 255] # Cyan eléctrico
+                out[edges == 0] = (arr[edges == 0] * 0.20).astype(np.uint8) # Ambiente atenuado
+                return Image.fromarray(out)
+            except Exception:
+                gray_im = img_rgb.convert("L")
+                edges_im = gray_im.filter(ImageFilter.FIND_EDGES)
+                edges_arr = np.array(edges_im)
+                mask = edges_arr > 40
+                out = (arr * 0.20).astype(np.uint8)
+                out[mask] = [0, 255, 255]
+                return Image.fromarray(out)
+                
+        # 5. Retro CRT Amber P3 (605nm)
+        elif sh in ("amber", "vintage", "orange"):
+            gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]).astype(np.uint8)
+            out = np.zeros((h, w, 3), dtype=np.uint8)
+            out[:, :, 0] = gray
+            out[:, :, 1] = (gray * 0.65).astype(np.uint8)
+            out[:, :, 2] = (gray * 0.05).astype(np.uint8)
+            return Image.fromarray(out)
+            
+        # 6. Manga Ink (Alto contraste B&W)
+        elif sh in ("manga", "ink"):
+            gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]).astype(np.uint8)
+            thresh = (gray > 115).astype(np.uint8) * 255
+            return Image.fromarray(np.dstack([thresh, thresh, thresh]))
+            
+        else:
+            return image
+    except Exception:
+        return image
+
+
+def render_spectra_static(image, width=80, shader="neon", texture="blocks", font_ratio=0.5, crt_mode=None, theme_name=None):
+    """
+    Renderiza una imagen fija o frame utilizando el motor Spectra Weep 2.0 y sus shaders multi-espectrales.
+    """
+    sh = str(shader).lower().strip() if shader else "neon"
+    
+    # Si la textura o shader es Matrix Katakana estricto:
+    if sh == "matrix" and (texture in ("matrix", "katakana")):
+        art = render_matrix_art(image, width=width, font_ratio=font_ratio, animated=False)
+        if crt_mode:
+            art = apply_crt_filter(art, crt_mode)
+        return art
+        
+    shaded = apply_spectra_shader(image, shader=sh, theme_name=theme_name)
+    
+    is_blocks = (texture not in ("braille", "ascii"))
+    is_braille = (texture == "braille")
+    
+    resized = resize_image(shaded, width, is_blocks=is_blocks, is_braille=is_braille)
+    
+    if is_braille:
+        art = convert_image_to_braille(resized, color=True, invert=False)
+    elif texture == "ascii":
+        art = convert_image_to_ascii(resized)
+    elif texture == "matrix":
+        art = render_matrix_art(shaded, width=width, font_ratio=font_ratio, animated=False)
+    else:
+        art = convert_image_to_blocks(resized)
+        
+    if crt_mode:
+        art = apply_crt_filter(art, crt_mode)
+        
+    return art
+
+
 def render_quad_showcase(image_path_or_img, width=None, font_ratio=0.5, out_target=None, copy_to_clip=False):
     """
     Genera un lienzo comparativo 4-en-1 mostrando la imagen simultáneamente en los 4 motores insignia:
     [1] Mary Apex 3.5 (Fotorrealismo Oklab)       | [2] Trumble Orelx 2.2 (Cel-Shading Arcade)
-    [3] Luris Mono 2.6 (Manga Screentone Ami-tone) | [4] Spectra Weep 2.0 (Matrix Katakana Code)
+    [3] Luris Mono 2.6 (Manga Screentone Ami-tone) | [4] Spectra Weep 2.0 (Cyberpunk Neon Multi-Spectral)
     """
     import shutil
     import re
     
     if isinstance(image_path_or_img, Image.Image):
-        img = image_path_or_img.convert("RGB")
+        img = safe_open_image(image_path_or_img).convert("RGB")
         display_name = "image"
     else:
         try:
-            img = Image.open(image_path_or_img).convert("RGB")
+            img = safe_open_image(image_path_or_img).convert("RGB")
             display_name = os.path.basename(image_path_or_img)
         except Exception as e:
             print(f"❌ Error al abrir imagen para showcase: {e}")
@@ -2105,8 +2266,8 @@ def render_quad_showcase(image_path_or_img, width=None, font_ratio=0.5, out_targ
     # 3. Luris Mono 2.6
     art_luris = render_python_bw_quadrants(img.copy(), col_w, dither="atkinson", invert=False)
     
-    # 4. Spectra Weep 2.0 / Matrix Code
-    art_matrix = render_matrix_art(img.copy(), width=col_w, font_ratio=font_ratio, animated=False)
+    # 4. Spectra Weep 2.0 (Cyberpunk Neon Multi-Spectral)
+    art_spectra = render_spectra_static(img.copy(), width=col_w, shader="neon", texture="blocks", font_ratio=font_ratio)
     
     ANSI_REGEX = re.compile(r'\x1b\[[0-9;]*[a-zA-Z]')
     def visible_len(s):
@@ -2121,17 +2282,17 @@ def render_quad_showcase(image_path_or_img, width=None, font_ratio=0.5, out_targ
     lines_mary = art_mary.strip().split("\n")
     lines_trumble = art_trumble.strip().split("\n")
     lines_luris = art_luris.strip().split("\n")
-    lines_matrix = art_matrix.strip().split("\n")
+    lines_spectra = art_spectra.strip().split("\n")
     
     header_1 = pad_line(f"\033[1;36m┌─ [1] MARY APEX (Oklab HD) " + "─" * max(0, col_w - 28) + "┐\033[0m", col_w)
     header_2 = pad_line(f"\033[1;33m┌─ [2] TRUMBLE (Cel-Shading) " + "─" * max(0, col_w - 29) + "┐\033[0m", col_w)
     header_3 = pad_line(f"\033[1;37m┌─ [3] LURIS (Manga Ink) " + "─" * max(0, col_w - 25) + "┐\033[0m", col_w)
-    header_4 = pad_line(f"\033[1;32m┌─ [4] SPECTRA (Matrix Code) " + "─" * max(0, col_w - 29) + "┐\033[0m", col_w)
+    header_4 = pad_line(f"\033[1;35m┌─ [4] SPECTRA WEEP (Cyberpunk Neon) " + "─" * max(0, col_w - 38) + "┐\033[0m", col_w)
     
     footer_1 = pad_line(f"\033[1;36m└─ Fotorrealismo Vectorial " + "─" * max(0, col_w - 27) + "┘\033[0m", col_w)
     footer_2 = pad_line(f"\033[1;33m└─ Capcom CPS-2 Neo-Geo " + "─" * max(0, col_w - 24) + "┘\033[0m", col_w)
     footer_3 = pad_line(f"\033[1;37m└─ Ami-tone Screentone ───" + "─" * max(0, col_w - 26) + "┘\033[0m", col_w)
-    footer_4 = pad_line(f"\033[1;32m└─ Digital Katakana Rain ─" + "─" * max(0, col_w - 26) + "┘\033[0m", col_w)
+    footer_4 = pad_line(f"\033[1;35m└─ Multi-Spectral Synthwave ───" + "─" * max(0, col_w - 32) + "┘\033[0m", col_w)
     
     sep = "  \033[1;30m│\033[0m  "
     mid_sep = "\033[1;30m" + "─" * col_w + "──┼──" + "─" * col_w + "\033[0m"
@@ -2150,10 +2311,10 @@ def render_quad_showcase(image_path_or_img, width=None, font_ratio=0.5, out_targ
     output_lines.append(mid_sep)
     output_lines.append(f"{header_3}{sep}{header_4}")
     
-    max_h2 = max(len(lines_luris), len(lines_matrix))
+    max_h2 = max(len(lines_luris), len(lines_spectra))
     for r in range(max_h2):
         ll = pad_line(lines_luris[r] if r < len(lines_luris) else " " * col_w, col_w)
-        lx = pad_line(lines_matrix[r] if r < len(lines_matrix) else " " * col_w, col_w)
+        lx = pad_line(lines_spectra[r] if r < len(lines_spectra) else " " * col_w, col_w)
         output_lines.append(f"{ll}{sep}{lx}")
         
     output_lines.append(f"{footer_3}{sep}{footer_4}")
@@ -2177,7 +2338,8 @@ def render_image_inspector(image_path):
     """Muestra un dashboard visual de inspección de la imagen: metadatos, paleta dominante HEX/ANSI y recomendación de motor."""
     import shutil
     try:
-        img = Image.open(image_path).convert("RGB")
+        raw_img = safe_open_image(image_path)
+        img = raw_img.convert("RGB")
         w, h = img.size
     except Exception as e:
         print(f"❌ Error al inspeccionar '{image_path}': {e}")
@@ -2217,7 +2379,9 @@ def render_image_inspector(image_path):
     
     if sat < 0.12:
         rec_engine = "Luris Mono 2.6 (-m / -s) ➔ Ilustración en escala de grises / Manga"
-    elif sat > 0.38:
+    elif sat > 0.48:
+        rec_engine = "Spectra Weep 2.0 (-E spectra) ➔ Grado multi-espectral Cyberpunk Neon"
+    elif sat > 0.30:
         rec_engine = "Trumble Orelx 2.2 (-E trumble) ➔ Alta saturación / Anime / Cel-Shading"
     else:
         rec_engine = "Mary Apex 3.5 (-E mary) ➔ Fotorrealismo vectorial Oklab HD"
@@ -2247,7 +2411,7 @@ def render_image_inspector(image_path):
 def export_fastfetch_preset(image_path, width=40, font_ratio=0.5, out_dir=None):
     """Genera arte ANSI optimizado para Fastfetch/Neofetch y muestra el bloque config.jsonc listo para usar."""
     try:
-        raw_img = Image.open(image_path)
+        raw_img = safe_open_image(image_path)
     except Exception as e:
         print(f"❌ Error al abrir imagen para Fastfetch: {e}")
         return False
@@ -2557,9 +2721,13 @@ def apply_trumble_cel_shading(image, target_width=None, is_blocks=True, is_brail
         smooth = cv2.bilateralFilter(gray, d=5, sigmaColor=40, sigmaSpace=40)
         canny_edges = cv2.Canny(smooth, 50, 130)
 
-        # Contorno perimetral exterior desde canal alpha
-        alpha_edges = cv2.Canny(alpha, 100, 200)
-        combined = cv2.bitwise_or(canny_edges, alpha_edges)
+        # Contorno perimetral exterior desde canal alpha (solo para píxeles opacos)
+        if np.any(alpha < 250):
+            alpha_edges = cv2.Canny(alpha, 100, 200)
+            alpha_edges = cv2.bitwise_and(alpha_edges, alpha_edges, mask=(alpha >= 128).astype(np.uint8))
+            combined = cv2.bitwise_or(canny_edges, alpha_edges)
+        else:
+            combined = canny_edges
 
         # Entintado subpíxel nítido
         inv_edge = 1.0 - (combined.astype(np.float32) / 255.0 * edge_strength)
@@ -2567,7 +2735,16 @@ def apply_trumble_cel_shading(image, target_width=None, is_blocks=True, is_brail
         res_pil = Image.fromarray(np.dstack([darkened_rgb, alpha]))
         return res_pil, was_resized
     except Exception:
-        return scaled, was_resized
+        # Fallback en Python/NumPy/PIL sin OpenCV
+        try:
+            gray_pil = scaled.convert("L")
+            edges_pil = gray_pil.filter(ImageFilter.FIND_EDGES)
+            rgba_arr = np.array(scaled.convert("RGBA"))
+            edge_arr = (np.array(edges_pil, dtype=np.float32) / 255.0 * edge_strength)
+            darkened = (rgba_arr[:, :, :3].astype(np.float32) * (1.0 - edge_arr[:, :, None])).clip(0, 255).astype(np.uint8)
+            return Image.fromarray(np.dstack([darkened, rgba_arr[:, :, 3]])), was_resized
+        except Exception:
+            return scaled, was_resized
 
 def _get_pixel_sequence(im):
     return list(im.get_flattened_data()) if hasattr(im, "get_flattened_data") else list(im.getdata())
@@ -2630,6 +2807,17 @@ def render_python_manga(image, width, invert=False):
     img_scaled = image.convert("RGBA").resize((scaled_w, scaled_h), resample=resample_filter)
     
     gray = img_scaled.convert("L")
+    # Calibración adaptativa de rango dinámico para evitar colapso en imágenes oscuras
+    try:
+        from PIL import ImageStat, ImageEnhance
+        stat = ImageStat.Stat(gray)
+        mean_lum = stat.mean[0]
+        if mean_lum < 85: # Imagen oscura (ej: gothic_anime.png)
+            boost_factor = min(1.45, 85.0 / max(25.0, mean_lum))
+            gray = ImageEnhance.Brightness(gray).enhance(boost_factor)
+            gray = ImageEnhance.Contrast(gray).enhance(1.15)
+    except Exception:
+        pass
     g1 = gray.filter(ImageFilter.GaussianBlur(0.7))
     g2 = gray.filter(ImageFilter.GaussianBlur(1.8))
     
@@ -4221,7 +4409,7 @@ def load_image_from_source(source_path, paste=False):
     else:
         if not source_path:
             raise ValueError("No se especificó ninguna ruta de imagen ni fuente de entrada.")
-        img = Image.open(source_path)
+        img = safe_open_image(source_path)
 
     # Auto-orientación según metadatos EXIF (solo para imágenes estáticas, ya que exif_transpose colapsa GIFs animados a 1 solo frame)
     if img is not None and not getattr(img, "is_animated", False):
@@ -4925,7 +5113,7 @@ def generate_shell_completions(shell_name: str) -> str:
         "-o -O --output --save --loop --fastfetch --logo -r --remove-bg --transparent "
         "--instant --no-reveal --reveal --paste --lang --theme --palette --crt --scanlines "
         "--matrix --matrix-rain -C --copy --copy-plain --crop --zoom --slideshow --delay "
-        "-I --interactive --tui --diff --showcase --info --inspect --fetch-preset "
+        "-I --interactive --tui --diff --showcase --info --inspect --fetch-preset --shader "
         "-W --webcam -H --history -R --replay --last "
         "--clear-history --install-desktop --completions"
     )
@@ -4941,6 +5129,7 @@ _lumart_completions() {{
     local shells="bash zsh fish"
     local themes="catppuccin dracula nord gruvbox synthwave vaporwave gameboy solarized"
     local crts="green amber color scanlines"
+    local shaders="neon cyberpunk thermal tron matrix amber manga theme normal"
     local opts="{opts_list}"
     case "$prev" in
         -E|--engine) COMPREPLY=( $(compgen -W "$engines" -- "$cur") ); return 0 ;;
@@ -4948,6 +5137,7 @@ _lumart_completions() {{
         --lang) COMPREPLY=( $(compgen -W "$langs" -- "$cur") ); return 0 ;;
         --theme|--palette) COMPREPLY=( $(compgen -W "$themes" -- "$cur") ); return 0 ;;
         --crt|--scanlines) COMPREPLY=( $(compgen -W "$crts" -- "$cur") ); return 0 ;;
+        --shader) COMPREPLY=( $(compgen -W "$shaders" -- "$cur") ); return 0 ;;
         --completions) COMPREPLY=( $(compgen -W "$shells" -- "$cur") ); return 0 ;;
         -o|-O|--output|--save) _filedir '@(png|jpg|jpeg|gif|ans|asc|txt)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") ); return 0 ;;
         --diff) _filedir '@(png|jpg|jpeg|bmp|gif|webp|apng)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") ); return 0 ;;
@@ -4956,7 +5146,7 @@ _lumart_completions() {{
         COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
         return 0
     fi
-    if [[ "${{words[1]}}" == "diff" ]]; then
+    if [[ "${{words[1]}}" =~ ^(diff|showcase|compare|info|inspect|fetch)$ ]]; then
         _filedir '@(png|jpg|jpeg|bmp|gif|webp|apng)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") )
         return 0
     fi
@@ -5008,6 +5198,10 @@ for c in lumart luma
     complete -c $c -l slideshow -d "Interactive terminal slideshow gallery"
     complete -c $c -l delay -d "Slideshow delay between images in seconds" -r
     complete -c $c -l diff -d "Side-by-side terminal image comparison" -r
+    complete -c $c -l showcase -d "Generate 4-in-1 comparison showcase across all flagship engines"
+    complete -c $c -l info -l inspect -d "Display visual image inspector, resolution, and color palette"
+    complete -c $c -l fetch-preset -d "Generate Fastfetch/Neofetch ANSI logo and config.jsonc snippet"
+    complete -c $c -l shader -d "Spectra Weep 2.0 multi-spectral shader" -r -a "neon cyberpunk thermal tron matrix amber manga theme normal"
     complete -c $c -l lang -d "Set interface language" -r -a "en es pt fr ru ja de ko"
     complete -c $c -s W -l webcam -d "Webcam streaming 30-60 FPS" -r
     complete -c $c -s H -l history -d "Show execution history" -r
@@ -5068,6 +5262,10 @@ _lumart() {{
         '--slideshow[Interactive terminal slideshow gallery]' \\
         '--delay[Slideshow delay between images in seconds]:delay: ' \\
         '--diff[Side-by-side terminal image comparison]:comparison image:_files' \\
+        '--showcase[Generate 4-in-1 comparison showcase across all flagship engines]' \\
+        '(--info --inspect)'{{--info,--inspect}}'[Display visual image inspector and color palette]' \\
+        '--fetch-preset[Generate Fastfetch/Neofetch ANSI logo and config.jsonc]' \\
+        '--shader[Apply Spectra Weep 2.0 multi-spectral shader]:shader:(neon cyberpunk thermal tron matrix amber manga theme normal)' \\
         '--lang[Set language]:language:(en es pt fr ru ja de ko)' \\
         '(-W --webcam)'{{-W,--webcam}}'[Webcam streaming]:camera index: ' \\
         '(-H --history)'{{-H,--history}}'[Show execution history]:count: ' \\
@@ -5758,6 +5956,7 @@ def main():
     parser.add_argument("--showcase", action="store_true", help=_("help_showcase"))
     parser.add_argument("--info", "--inspect", dest="info", action="store_true", help=_("help_info"))
     parser.add_argument("--fetch-preset", action="store_true", help=_("help_fetch_preset"))
+    parser.add_argument("--shader", choices=["neon", "cyberpunk", "thermal", "tron", "matrix", "amber", "manga", "theme", "normal"], default=None, help=_("help_shader"))
     parser.add_argument("extra_images", nargs="*", default=[], help=argparse.SUPPRESS)
 
     # Utilidades del sistema
@@ -6021,6 +6220,37 @@ def main():
     if engine == "spectra" or is_video_file:
         record_command_to_history()
         src = args.image_path if args.image_path else (args.webcam if args.webcam is not None else 0)
+        # Si es una imagen fija local o URL (no video y no webcam):
+        if not is_video_file and args.webcam is None and not (isinstance(src, int) or src == 0):
+            try:
+                raw_img = load_image_from_source(src, paste=args.paste)
+            except Exception as e:
+                print(_("error_open", e))
+                sys.exit(1)
+            if getattr(args, "crop", None) or (getattr(args, "zoom", 1.0) and args.zoom != 1.0):
+                raw_img = apply_crop_and_zoom(raw_img, crop_spec=args.crop, zoom=args.zoom)
+            
+            term_cols = shutil.get_terminal_size((80, 24)).columns
+            target_w = args.width if args.width else term_cols
+            sh = getattr(args, "shader", None) or "neon"
+            tex = "braille" if getattr(args, "braille", False) else ("ascii" if getattr(args, "sextants", False) else "blocks")
+            art = render_spectra_static(raw_img, width=target_w, shader=sh, texture=tex, font_ratio=font_ratio, crt_mode=getattr(args, "crt", None), theme_name=getattr(args, "theme", None))
+            
+            if args.output:
+                if args.output.lower().endswith(".ans"):
+                    with open(args.output, "w", encoding="utf-8") as f:
+                        f.write(art)
+                else:
+                    export_ansi_to_image(art, args.output)
+                print(_("export_success", args.output))
+            else:
+                instant_mode = not getattr(args, "reveal", False) or getattr(args, "instant", False)
+                print_with_reveal(art, instant=instant_mode)
+            if getattr(args, "copy", False) or getattr(args, "copy_plain", False):
+                copy_to_clipboard(art, plain=getattr(args, "copy_plain", False))
+                print("\n📋 ¡Arte copiado al portapapeles!")
+            sys.exit(0)
+
         # Conversión de Video a GIF animado si se especificó -o out.gif
         if args.output and args.output.lower().endswith(".gif"):
             success = export_video_to_gif(src, args.output, args=args, font_ratio=font_ratio)
@@ -6035,10 +6265,13 @@ def main():
         print(_("error_open", e))
         sys.exit(1)
 
+    # Si se especificó un shader multi-espectral (--shader):
+    if getattr(args, "shader", None):
+        image = apply_spectra_shader(image, shader=args.shader, theme_name=getattr(args, "theme", None))
+
     # Autodetección del ancho de la terminal: si se especificó -F/--fit o si no se especificó -w
     if getattr(args, "fit", False):
         try:
-            import shutil
             term = shutil.get_terminal_size((120, 24))
             max_cols = max(20, term.columns)
             max_lines = max(10, term.lines - 2)
@@ -6054,7 +6287,6 @@ def main():
             args.width = 160
         else:
             try:
-                import shutil
                 term_cols = shutil.get_terminal_size((120, 24)).columns
                 # Usar el ancho real de la terminal sin límite artificial.
                 # Mínimo de seguridad: 20 columnas para evitar renders rotos.
