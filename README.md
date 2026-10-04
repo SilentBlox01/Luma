@@ -379,6 +379,27 @@ curl -sL https://example.com/photo.jpg | lumart -
 lumart sprite.png --blocks --swap purple pink
 ```
 
+### 8. Quad-Engine 4-in-1 Showcase Canvas
+```bash
+# Render Mary Apex, Trumble Orelx, Luris Mono, and Spectra Weep side-by-side
+lumart showcase character.png -w 90
+
+# Export the 4-way comparison canvas directly to PNG
+lumart showcase character.png -w 100 -o quad_showcase.png
+```
+
+### 9. Visual Image Inspector & Color Profiler
+```bash
+# Extract resolution, luminance, optimal engine recommendation, and dominant palette
+lumart info photo.png
+```
+
+### 10. Fastfetch Logo Preset Generator
+```bash
+# Generate high-contrast 40-col ANSI logo for Fastfetch with copy-pasteable JSON
+lumart fetch distro_logo.png -w 40
+```
+
 ---
 
 ## Engineering Secrets, Pro-Tips & Terminal Philosophy

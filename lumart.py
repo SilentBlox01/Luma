@@ -280,6 +280,9 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Render copied to system clipboard (ANSI truecolor)!",
         "clipboard_copied_plain": "Render copied to system clipboard (plain ASCII)!",
         "diff_delta": "Average pixel color delta: {:.1f}%",
+        "help_showcase": "Generate a 4-in-1 comparison showcase across all 4 flagship engines (Mary, Trumble, Luris, Matrix).",
+        "help_info": "Display visual image inspector: resolution, aspect ratio, dominant colors, and engine recommendation.",
+        "help_fetch_preset": "Generate optimized Fastfetch/Neofetch ANSI art and config.jsonc snippet.",
     },
     "es": {
         "diag_title_system": "📋 Información del Sistema y Runtime:",
@@ -456,6 +459,9 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "¡Arte copiado al portapapeles del sistema (ANSI truecolor)!",
         "clipboard_copied_plain": "¡Arte copiado al portapapeles del sistema (ASCII plano)!",
         "diff_delta": "Variación cromática media (Delta): {:.1f}%",
+        "help_showcase": "Genera una comparativa 4-en-1 mostrando los 4 motores insignia (Mary, Trumble, Luris, Matrix).",
+        "help_info": "Muestra el inspector visual: resolución, proporción, paleta dominante HEX/ANSI y recomendación de motor.",
+        "help_fetch_preset": "Genera el arte ANSI optimizado y el bloque config.jsonc para Fastfetch/Neofetch.",
     },
     "pt": {
         "diag_title_system": "📋 Informações do Sistema e Runtime:",
@@ -632,6 +638,9 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Arte copiada para a área de transferência (ANSI truecolor)!",
         "clipboard_copied_plain": "Arte copiada para a área de transferência (ASCII simples)!",
         "diff_delta": "Variação cromática média (Delta): {:.1f}%",
+        "help_showcase": "Gera uma vitrine comparativa 4-em-1 com os 4 motores principais (Mary, Trumble, Luris, Matrix).",
+        "help_info": "Exibe o inspetor visual: resolução, proporção, cores dominantes HEX/ANSI e recomendação de motor.",
+        "help_fetch_preset": "Gera arte ANSI otimizada e snippet config.jsonc para Fastfetch/Neofetch.",
     },
     "ru": {
         "diag_title_system": "📋 Информация о системе и среде выполнения:",
@@ -808,6 +817,9 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Арт скопирован в буфер обмена (ANSI truecolor)!",
         "clipboard_copied_plain": "Арт скопирован в буфер обмена (чистый ASCII)!",
         "diff_delta": "Средняя цветовая разница (Delta): {:.1f}%",
+        "help_showcase": "Сгенерировать сравнительную витрину 4-в-1 по 4 флагманским движкам (Mary, Trumble, Luris, Matrix).",
+        "help_info": "Показать инспектор изображения: разрешение, пропорции, доминирующие цвета и рекомендацию движка.",
+        "help_fetch_preset": "Сгенерировать ANSI-арт и фрагмент config.jsonc для Fastfetch/Neofetch.",
     },
     "ja": {
         "diag_title_system": "📋 システムおよびランタイム診断:",
@@ -984,6 +996,9 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "レンダリング結果をクリップボードにコピーしました（ANSI truecolor）！",
         "clipboard_copied_plain": "レンダリング結果をクリップボードにコピーしました（プレーンASCII）！",
         "diff_delta": "平均ピクセル色差（Delta）: {:.1f}%",
+        "help_showcase": "4大フラッグシップエンジン（Mary、Trumble、Luris、Matrix）による4-in-1比較ショーケースを生成します。",
+        "help_info": "画像の解像度、アスペクト比、主要パレット、推奨エンジンを表示するビジュアルインスペクター。",
+        "help_fetch_preset": "Fastfetch/Neofetch向けの最適化ANSIアートとconfig.jsonc設定を生成します。",
     },
     "de": {
         "diag_title_system": "📋 System- und Laufzeitdiagnose:",
@@ -1160,6 +1175,9 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Grafik in Zwischenablage kopiert (ANSI truecolor)!",
         "clipboard_copied_plain": "Grafik in Zwischenablage kopiert (reiner ASCII-Text)!",
         "diff_delta": "Durchschnittliche Pixelfarbabweichung (Delta): {:.1f}%",
+        "help_showcase": "Erzeugt eine 4-in-1-Vergleichsansicht über alle 4 Flaggschiff-Engines (Mary, Trumble, Luris, Matrix).",
+        "help_info": "Visueller Bild-Inspektor: Auflösung, Seitenverhältnis, dominante Farben und Engine-Empfehlung.",
+        "help_fetch_preset": "Erzeugt optimiertes Fastfetch/Neofetch-ANSI-Art und config.jsonc-Konfiguration.",
     },
     "ko": {
         "diag_title_system": "📋 시스템 및 런타임 진단:",
@@ -1336,6 +1354,9 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "렌더링 결과가 클립보드에 복사되었습니다 (ANSI 트루컬러)!",
         "clipboard_copied_plain": "렌더링 결과가 클립보드에 복사되었습니다 (순수 ASCII)!",
         "diff_delta": "평균 픽셀 색상 차이 (Delta): {:.1f}%",
+        "help_showcase": "4대 플래그십 엔진(Mary, Trumble, Luris, Matrix)을 통한 4-in-1 비교 쇼케이스를 생성합니다.",
+        "help_info": "해상도, 화면비, 주요 색상 팔레트 및 권장 엔진을 보여주는 이미지 인스펙터 대시보드.",
+        "help_fetch_preset": "Fastfetch/Neofetch용 최적화 ANSI 아트 및 config.jsonc 설정을 생성합니다.",
     },
     "fr": {
         "diag_title_system": "📋 Diagnostics système et environnement d'exécution :",
@@ -1512,6 +1533,9 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Rendu copié dans le presse-papiers système (ANSI truecolor) !",
         "clipboard_copied_plain": "Rendu copié dans le presse-papiers système (ASCII brut) !",
         "diff_delta": "Variation chromatique moyenne (Delta) : {:.1f}%",
+        "help_showcase": "Génère une présentation comparative 4-en-1 sur les 4 moteurs phares (Mary, Trumble, Luris, Matrix).",
+        "help_info": "Affiche l'inspecteur visuel : résolution, ratio, couleurs dominantes HEX/ANSI et recommandation de moteur.",
+        "help_fetch_preset": "Génère un art ANSI optimisé et l'extrait config.jsonc pour Fastfetch/Neofetch.",
     }
 }
 
@@ -2045,6 +2069,229 @@ def render_image_diff(path_a, path_b, width=None):
         
     return True
 
+
+def render_quad_showcase(image_path_or_img, width=None, font_ratio=0.5, out_target=None, copy_to_clip=False):
+    """
+    Genera un lienzo comparativo 4-en-1 mostrando la imagen simultáneamente en los 4 motores insignia:
+    [1] Mary Apex 3.5 (Fotorrealismo Oklab)       | [2] Trumble Orelx 2.2 (Cel-Shading Arcade)
+    [3] Luris Mono 2.6 (Manga Screentone Ami-tone) | [4] Spectra Weep 2.0 (Matrix Katakana Code)
+    """
+    import shutil
+    import re
+    
+    if isinstance(image_path_or_img, Image.Image):
+        img = image_path_or_img.convert("RGB")
+        display_name = "image"
+    else:
+        try:
+            img = Image.open(image_path_or_img).convert("RGB")
+            display_name = os.path.basename(image_path_or_img)
+        except Exception as e:
+            print(f"❌ Error al abrir imagen para showcase: {e}")
+            return None
+            
+    term_cols = shutil.get_terminal_size((120, 24)).columns
+    total_w = width if width else max(40, min(140, term_cols))
+    col_w = max(15, (total_w - 6) // 2)
+    
+    # 1. Mary Apex 3.5
+    img_mary = resize_image(img.copy(), col_w, is_blocks=True, is_braille=False)
+    art_mary = convert_image_to_blocks(img_mary)
+    
+    # 2. Trumble Orelx 2.2
+    img_trumble, _alpha_ignored = apply_trumble_cel_shading(img.copy(), target_width=col_w, is_blocks=True, is_braille=False, edge_strength=0.75)
+    art_trumble = convert_image_to_blocks(img_trumble)
+    
+    # 3. Luris Mono 2.6
+    art_luris = render_python_bw_quadrants(img.copy(), col_w, dither="atkinson", invert=False)
+    
+    # 4. Spectra Weep 2.0 / Matrix Code
+    art_matrix = render_matrix_art(img.copy(), width=col_w, font_ratio=font_ratio, animated=False)
+    
+    ANSI_REGEX = re.compile(r'\x1b\[[0-9;]*[a-zA-Z]')
+    def visible_len(s):
+        return len(ANSI_REGEX.sub('', s))
+        
+    def pad_line(s, target_w):
+        vis = visible_len(s)
+        if vis < target_w:
+            return s + " " * (target_w - vis)
+        return s
+
+    lines_mary = art_mary.strip().split("\n")
+    lines_trumble = art_trumble.strip().split("\n")
+    lines_luris = art_luris.strip().split("\n")
+    lines_matrix = art_matrix.strip().split("\n")
+    
+    header_1 = pad_line(f"\033[1;36m┌─ [1] MARY APEX (Oklab HD) " + "─" * max(0, col_w - 28) + "┐\033[0m", col_w)
+    header_2 = pad_line(f"\033[1;33m┌─ [2] TRUMBLE (Cel-Shading) " + "─" * max(0, col_w - 29) + "┐\033[0m", col_w)
+    header_3 = pad_line(f"\033[1;37m┌─ [3] LURIS (Manga Ink) " + "─" * max(0, col_w - 25) + "┐\033[0m", col_w)
+    header_4 = pad_line(f"\033[1;32m┌─ [4] SPECTRA (Matrix Code) " + "─" * max(0, col_w - 29) + "┐\033[0m", col_w)
+    
+    footer_1 = pad_line(f"\033[1;36m└─ Fotorrealismo Vectorial " + "─" * max(0, col_w - 27) + "┘\033[0m", col_w)
+    footer_2 = pad_line(f"\033[1;33m└─ Capcom CPS-2 Neo-Geo " + "─" * max(0, col_w - 24) + "┘\033[0m", col_w)
+    footer_3 = pad_line(f"\033[1;37m└─ Ami-tone Screentone ───" + "─" * max(0, col_w - 26) + "┘\033[0m", col_w)
+    footer_4 = pad_line(f"\033[1;32m└─ Digital Katakana Rain ─" + "─" * max(0, col_w - 26) + "┘\033[0m", col_w)
+    
+    sep = "  \033[1;30m│\033[0m  "
+    mid_sep = "\033[1;30m" + "─" * col_w + "──┼──" + "─" * col_w + "\033[0m"
+    
+    output_lines = []
+    output_lines.append(f"\033[1;35m◆ LUMART QUAD-ENGINE SHOWCASE 4-en-1 • {display_name} ({img.width}x{img.height})\033[0m")
+    output_lines.append(f"{header_1}{sep}{header_2}")
+    
+    max_h1 = max(len(lines_mary), len(lines_trumble))
+    for r in range(max_h1):
+        lm = pad_line(lines_mary[r] if r < len(lines_mary) else " " * col_w, col_w)
+        lt = pad_line(lines_trumble[r] if r < len(lines_trumble) else " " * col_w, col_w)
+        output_lines.append(f"{lm}{sep}{lt}")
+        
+    output_lines.append(f"{footer_1}{sep}{footer_2}")
+    output_lines.append(mid_sep)
+    output_lines.append(f"{header_3}{sep}{header_4}")
+    
+    max_h2 = max(len(lines_luris), len(lines_matrix))
+    for r in range(max_h2):
+        ll = pad_line(lines_luris[r] if r < len(lines_luris) else " " * col_w, col_w)
+        lx = pad_line(lines_matrix[r] if r < len(lines_matrix) else " " * col_w, col_w)
+        output_lines.append(f"{ll}{sep}{lx}")
+        
+    output_lines.append(f"{footer_3}{sep}{footer_4}")
+    
+    showcase_art = "\n".join(output_lines)
+    
+    if out_target:
+        export_ansi_to_image(showcase_art, out_target)
+        print(_("export_success", out_target))
+    else:
+        print(showcase_art)
+        
+    if copy_to_clip:
+        copy_to_clipboard(showcase_art, plain=False)
+        print("\n📋 ¡Showcase copiado al portapapeles!")
+        
+    return showcase_art
+
+
+def render_image_inspector(image_path):
+    """Muestra un dashboard visual de inspección de la imagen: metadatos, paleta dominante HEX/ANSI y recomendación de motor."""
+    import shutil
+    try:
+        img = Image.open(image_path).convert("RGB")
+        w, h = img.size
+    except Exception as e:
+        print(f"❌ Error al inspeccionar '{image_path}': {e}")
+        return False
+        
+    aspect = w / max(1, h)
+    if abs(aspect - 16/9) < 0.05:
+        aspect_name = "16:9 Panorámica (Widescreen)"
+    elif abs(aspect - 4/3) < 0.05:
+        aspect_name = "4:3 Estándar"
+    elif abs(aspect - 1.0) < 0.05:
+        aspect_name = "1:1 Cuadrada (Avatar/Icono)"
+    elif abs(aspect - 9/16) < 0.05:
+        aspect_name = "9:16 Vertical (Retrato móvil)"
+    elif aspect > 1.2:
+        aspect_name = f"Horizontal ({aspect:.2f}:1)"
+    else:
+        aspect_name = f"Vertical (1:{1/aspect:.2f})"
+        
+    term_cols = shutil.get_terminal_size((120, 24)).columns
+    opt_width = min(term_cols, max(40, min(100, w // 2)))
+    
+    # Extracción de los 6 colores dominantes mediante median cut
+    small = img.resize((60, 60))
+    res = small.quantize(colors=6, method=Image.Quantize.MEDIANCUT)
+    pal = res.getpalette()[:18]
+    colors = [pal[i*3 : (i+1)*3] for i in range(6)]
+    
+    # Análisis de saturación y brillo para recomendación de motor
+    import numpy as np
+    arr = np.array(small).astype(np.float32)
+    mean_r, mean_g, mean_b = np.mean(arr[:, :, 0]), np.mean(arr[:, :, 1]), np.mean(arr[:, :, 2])
+    lum = 0.299 * mean_r + 0.587 * mean_g + 0.114 * mean_b
+    max_c = np.maximum(np.maximum(arr[:, :, 0], arr[:, :, 1]), arr[:, :, 2])
+    min_c = np.minimum(np.minimum(arr[:, :, 0], arr[:, :, 1]), arr[:, :, 2])
+    sat = np.mean(np.where(max_c > 0, (max_c - min_c) / np.maximum(1.0, max_c), 0.0))
+    
+    if sat < 0.12:
+        rec_engine = "Luris Mono 2.6 (-m / -s) ➔ Ilustración en escala de grises / Manga"
+    elif sat > 0.38:
+        rec_engine = "Trumble Orelx 2.2 (-E trumble) ➔ Alta saturación / Anime / Cel-Shading"
+    else:
+        rec_engine = "Mary Apex 3.5 (-E mary) ➔ Fotorrealismo vectorial Oklab HD"
+
+    print(f"\n\033[1;36m┌───────────────────────── Lumart Visual Image Inspector ─────────────────────────┐\033[0m")
+    print(f"\033[1;36m│\033[0m \033[1;37mArchivo:\033[0m         {os.path.basename(image_path)}")
+    print(f"\033[1;36m│\033[0m \033[1;37mResolución:\033[0m      {w} × {h} píxeles")
+    print(f"\033[1;36m│\033[0m \033[1;37mFormato:\033[0m         {img.format or 'RGB'} ({aspect_name})")
+    print(f"\033[1;36m│\033[0m \033[1;37mLuminancia/Sat:\033[0m  Luz: {lum:.1f}/255 • Saturación: {sat*100:.1f}%")
+    print(f"\033[1;36m│\033[0m \033[1;37mAncho Óptimo:\033[0m    -w {opt_width} (para terminal de {term_cols} columnas)")
+    print(f"\033[1;36m│\033[0m \033[1;33mRecomendación:\033[0m   {rec_engine}")
+    print(f"\033[1;36m├─────────────────────────────────────────────────────────────────────────────────┤\033[0m")
+    print(f"\033[1;36m│\033[0m \033[1;37mPaleta Dominante Extraída (Top 6 Clusters RGB):\033[0m")
+    
+    swatch_line = "\033[1;36m│\033[0m "
+    hex_line = "\033[1;36m│\033[0m "
+    for c in colors:
+        hex_c = f"#{c[0]:02x}{c[1]:02x}{c[2]:02x}"
+        swatch_line += f"\033[48;2;{c[0]};{c[1]};{c[2]}m        \033[0m  "
+        hex_line += f" {hex_c}   "
+    print(swatch_line)
+    print(hex_line)
+    print(f"\033[1;36m└─────────────────────────────────────────────────────────────────────────────────┘\033[0m\n")
+    return True
+
+
+def export_fastfetch_preset(image_path, width=40, font_ratio=0.5, out_dir=None):
+    """Genera arte ANSI optimizado para Fastfetch/Neofetch y muestra el bloque config.jsonc listo para usar."""
+    try:
+        raw_img = Image.open(image_path)
+    except Exception as e:
+        print(f"❌ Error al abrir imagen para Fastfetch: {e}")
+        return False
+        
+    img = crop_empty_borders(raw_img)
+    resized = resize_image(img, width, is_blocks=True, is_braille=False)
+    art = convert_image_to_blocks(resized)
+    
+    ff_dir = out_dir if out_dir else os.path.expanduser("~/.config/fastfetch")
+    base_name = os.path.splitext(os.path.basename(image_path))[0]
+    out_file = os.path.join(ff_dir, f"{base_name}_logo.ans")
+    
+    saved_successfully = False
+    try:
+        os.makedirs(ff_dir, exist_ok=True)
+        with open(out_file, "w", encoding="utf-8") as f:
+            f.write(art)
+        saved_successfully = True
+    except Exception:
+        out_file = os.path.abspath(f"{base_name}_logo.ans")
+        with open(out_file, "w", encoding="utf-8") as f:
+            f.write(art)
+        saved_successfully = True
+        
+    print(f"\n\033[1;35m🚀 [Lumart Fastfetch Preset Generator]\033[0m")
+    print(f"✨ Arte ANSI guardado en: \033[1;32m{out_file}\033[0m ({width} columnas)")
+    print(f"\n\033[1;37mVista Previa en Terminal:\033[0m\n")
+    print(art)
+    print(f"\n\033[1;36m┌────────────────── Snippet para ~/.config/fastfetch/config.jsonc ──────────────────┐\033[0m")
+    print(f"""\033[1;33m{{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {{
+        "source": "{out_file}",
+        "type": "file",
+        "padding": {{
+            "top": 1,
+            "right": 2
+        }}
+    }}
+}}\033[0m""")
+    print(f"\033[1;36m└───────────────────────────────────────────────────────────────────────────────────┘\033[0m\n")
+    return True
+
+
 def run_slideshow(file_list, delay=3.0, width=None, engine=None, theme=None, crt=None):
     """Reproductor de galería interactiva con controles de teclado para la terminal."""
     import glob
@@ -2322,6 +2569,9 @@ def apply_trumble_cel_shading(image, target_width=None, is_blocks=True, is_brail
     except Exception:
         return scaled, was_resized
 
+def _get_pixel_sequence(im):
+    return list(im.get_flattened_data()) if hasattr(im, "get_flattened_data") else list(im.getdata())
+
 def render_python_sketch(image, width, invert=False):
     """Fallback en Python para modo Sketch (Diferencia de Gaussianas pura, contornos sin tramado)."""
     aspect = image.height / image.width
@@ -2336,9 +2586,9 @@ def render_python_sketch(image, width, invert=False):
     g1 = gray.filter(ImageFilter.GaussianBlur(0.7))
     g2 = gray.filter(ImageFilter.GaussianBlur(1.8))
     
-    g1_p = list(g1.getdata())
-    g2_p = list(g2.getdata())
-    alpha_p = list(img_scaled.split()[3].getdata())
+    g1_p = _get_pixel_sequence(g1)
+    g2_p = _get_pixel_sequence(g2)
+    alpha_p = _get_pixel_sequence(img_scaled.split()[3])
     
     dot_map = [
         [0x01, 0x08],
@@ -2383,9 +2633,9 @@ def render_python_manga(image, width, invert=False):
     g1 = gray.filter(ImageFilter.GaussianBlur(0.7))
     g2 = gray.filter(ImageFilter.GaussianBlur(1.8))
     
-    g1_p = list(g1.getdata())
-    g2_p = list(g2.getdata())
-    alpha_p = list(img_scaled.split()[3].getdata())
+    g1_p = _get_pixel_sequence(g1)
+    g2_p = _get_pixel_sequence(g2)
+    alpha_p = _get_pixel_sequence(img_scaled.split()[3])
     
     bayer_8x8 = [
         [  0, 32,  8, 40,  2, 34, 10, 42 ],
@@ -2455,8 +2705,8 @@ def render_python_bw_quadrants(image, width, dither="atkinson", invert=False):
     gray = img_scaled.convert("L")
     alpha = img_scaled.split()[3]
     
-    gray_data = list(gray.getdata())
-    alpha_data = list(alpha.getdata())
+    gray_data = _get_pixel_sequence(gray)
+    alpha_data = _get_pixel_sequence(alpha)
     
     buf = [float(255 - p) for p in gray_data]
     binary = [0] * len(buf)
@@ -4675,7 +4925,8 @@ def generate_shell_completions(shell_name: str) -> str:
         "-o -O --output --save --loop --fastfetch --logo -r --remove-bg --transparent "
         "--instant --no-reveal --reveal --paste --lang --theme --palette --crt --scanlines "
         "--matrix --matrix-rain -C --copy --copy-plain --crop --zoom --slideshow --delay "
-        "-I --interactive --tui --diff -W --webcam -H --history -R --replay --last "
+        "-I --interactive --tui --diff --showcase --info --inspect --fetch-preset "
+        "-W --webcam -H --history -R --replay --last "
         "--clear-history --install-desktop --completions"
     )
     if shell == "bash":
@@ -5416,6 +5667,37 @@ def main():
         record_command_to_history()
         sys.exit(0 if success else 1)
 
+    # Intercepción inmediata de subcomando 'showcase' / 'compare' (ej: lumart showcase img.png [-w 100])
+    if len(sys.argv) >= 2 and sys.argv[1] in ("showcase", "compare"):
+        sc_parser = argparse.ArgumentParser(prog="lumart showcase", description=_("help_showcase"))
+        sc_parser.add_argument("image", help="Image to showcase across 4 engines")
+        sc_parser.add_argument("-w", "--width", type=int, default=None, help=_("help_width"))
+        sc_parser.add_argument("-o", "--output", help=_("help_output"))
+        sc_parser.add_argument("-C", "--copy", action="store_true", help=_("help_copy"))
+        sc_args = sc_parser.parse_args(sys.argv[2:])
+        success = render_quad_showcase(sc_args.image, width=sc_args.width, out_target=sc_args.output, copy_to_clip=sc_args.copy)
+        record_command_to_history()
+        sys.exit(0 if success else 1)
+
+    # Intercepción inmediata de subcomando 'info' / 'inspect' (ej: lumart info img.png)
+    if len(sys.argv) >= 2 and sys.argv[1] in ("info", "inspect"):
+        info_parser = argparse.ArgumentParser(prog="lumart info", description=_("help_info"))
+        info_parser.add_argument("image", help="Image to inspect")
+        info_args = info_parser.parse_args(sys.argv[2:])
+        success = render_image_inspector(info_args.image)
+        record_command_to_history()
+        sys.exit(0 if success else 1)
+
+    # Intercepción inmediata de subcomando 'fetch' (ej: lumart fetch logo.png [-w 40])
+    if len(sys.argv) >= 2 and sys.argv[1] == "fetch":
+        fetch_parser = argparse.ArgumentParser(prog="lumart fetch", description=_("help_fetch_preset"))
+        fetch_parser.add_argument("image", help="Logo to prepare for Fastfetch")
+        fetch_parser.add_argument("-w", "--width", type=int, default=40, help=_("help_width"))
+        fetch_args = fetch_parser.parse_args(sys.argv[2:])
+        success = export_fastfetch_preset(fetch_args.image, width=fetch_args.width)
+        record_command_to_history()
+        sys.exit(0 if success else 1)
+
     # Sin argumentos: mostrar banner informativo y ayuda básica de uso
     if len(sys.argv) == 1 and sys.stdin.isatty():
         print(banner)
@@ -5473,6 +5755,9 @@ def main():
     parser.add_argument("--delay", type=float, default=3.0, help=_("help_delay"))
     parser.add_argument("-I", "--interactive", "--tui", action="store_true", help=_("help_interactive"))
     parser.add_argument("--diff", default=None, help=_("help_diff"))
+    parser.add_argument("--showcase", action="store_true", help=_("help_showcase"))
+    parser.add_argument("--info", "--inspect", dest="info", action="store_true", help=_("help_info"))
+    parser.add_argument("--fetch-preset", action="store_true", help=_("help_fetch_preset"))
     parser.add_argument("extra_images", nargs="*", default=[], help=argparse.SUPPRESS)
 
     # Utilidades del sistema
@@ -5559,6 +5844,35 @@ def main():
             print(f"\033[1;31m[Lumart Error]\033[0m Debes proporcionar dos imágenes para comparar.", file=sys.stderr)
             sys.exit(1)
         success = render_image_diff(args.image_path, args.diff, width=args.width)
+        record_command_to_history()
+        sys.exit(0 if success else 1)
+
+    # Generador de comparativa 4-en-1 (--showcase)
+    if getattr(args, "showcase", False):
+        if not args.image_path:
+            print(f"\033[1;31m[Lumart Error]\033[0m Debes proporcionar una imagen para el showcase.", file=sys.stderr)
+            sys.exit(1)
+        font_ratio = getattr(args, "font_ratio", 0.5) or 0.5
+        success = render_quad_showcase(args.image_path, width=args.width, font_ratio=font_ratio, out_target=args.output, copy_to_clip=getattr(args, "copy", False))
+        record_command_to_history()
+        sys.exit(0 if success else 1)
+
+    # Inspector visual de imagen y paleta dominante (--info / --inspect)
+    if getattr(args, "info", False):
+        if not args.image_path:
+            print(f"\033[1;31m[Lumart Error]\033[0m Debes proporcionar una imagen para inspeccionar.", file=sys.stderr)
+            sys.exit(1)
+        success = render_image_inspector(args.image_path)
+        record_command_to_history()
+        sys.exit(0 if success else 1)
+
+    # Generador de preset Fastfetch / Neofetch (--fetch-preset)
+    if getattr(args, "fetch_preset", False):
+        if not args.image_path:
+            print(f"\033[1;31m[Lumart Error]\033[0m Debes proporcionar una imagen o logotipo para Fastfetch.", file=sys.stderr)
+            sys.exit(1)
+        font_ratio = getattr(args, "font_ratio", 0.5) or 0.5
+        success = export_fastfetch_preset(args.image_path, width=args.width or 40, font_ratio=font_ratio)
         record_command_to_history()
         sys.exit(0 if success else 1)
 

@@ -95,7 +95,19 @@ Lumart v2.5.0 "Apex Nova" introduces 11 major features, expanding Lumart from a 
 13. **Animated GIF Engine Overhaul & Zero-Lag Playback**:
     * **Instantaneous 0 ms Startup (Zero-Lag Lazy Caching)**: Eliminates pre-rendering pauses. The first frame displays in 0 ms, subsequent frames render lazily on the fly and are stored in memory for smooth looping.
     * **Full Aesthetic Pipeline Support**: Animated GIFs now honor `--theme` (Dracula, Synthwave, Catppuccin, etc.), `--crt` scanlines, `--crop`, and `--remove-bg` seamlessly across terminal playback and GIF exports (`-o anim.gif`).
-    * **Interactive Hotkeys**: `[Space]` pause, `[◄/►]` step, `[+/-]` speed, `[S]` snapshot, `[R]` restart, `[Q]` quit.
+14. **Showcase 4-in-1 Quad-Engine Canvas (`lumart showcase <image>`, `--showcase`)**:
+    * Render all 4 core visual engines simultaneously in a beautiful side-by-side 2x2 comparison grid:
+      * **Top-Left**: Mary Apex 3.5 (Oklab HD photorealism & vector sextants)
+      * **Top-Right**: Trumble Orelx 2.2 (Capcom CPS-2 Neo-Geo Cel-Shading)
+      * **Bottom-Left**: Luris Mono 2.6 (Manga ink & Ami-tone screentone)
+      * **Bottom-Right**: Spectra Weep 2.0 (Matrix Katakana digital rain)
+    * Fully exportable to high-res images (`-o showcase.png`) or direct clipboard copy (`-C`).
+
+15. **Visual Image Inspector & Dominant Palette Profiler (`lumart info <image>`, `--info`, `--inspect`)**:
+    * Comprehensive diagnostic tool providing image resolution, aspect ratio, mean luminance, saturation levels, recommended rendering engine, and dominant 6-color palette extraction with live TrueColor ANSI swatches and HEX values.
+
+16. **Fastfetch & Neofetch Logo Preset Generator (`lumart fetch <logo>`, `--fetch-preset`)**:
+    * Automatically auto-crops transparent/blank borders, formats image into high-contrast 40-column TrueColor ANSI art, writes directly to `~/.config/fastfetch/<name>_logo.ans`, and outputs a ready-to-use JSON block for `~/.config/fastfetch/config.jsonc`.
 
 ---
 

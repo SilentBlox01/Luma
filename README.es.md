@@ -362,6 +362,27 @@ curl -sL https://ejemplo.com/foto.jpg | lumart -
 lumart sprite.png --blocks --swap purple pink
 ```
 
+### 7. Lienzo Comparativo Showcase 4-en-1
+```bash
+# Renderiza Mary Apex, Trumble Orelx, Luris Mono y Spectra Weep lado a lado
+lumart showcase personaje.png -w 90
+
+# Exporta el lienzo comparativo de 4 cuadrantes directamente a PNG
+lumart showcase personaje.png -w 100 -o showcase_4en1.png
+```
+
+### 8. Inspector Visual de Imágenes y Perfilador de Paleta
+```bash
+# Extrae resolución, luminancia, motor óptimo recomendado y paleta de 6 colores dominantes
+lumart info foto.png
+```
+
+### 9. Generador de Presets para Fastfetch / Neofetch
+```bash
+# Genera arte ANSI recortado de 40 columnas con bloque JSON listo para tu config
+lumart fetch logo_distro.png -w 40
+```
+
 ---
 
 ## Secretos de Ingeniería, Pro-Tips y Filosofía de Terminal

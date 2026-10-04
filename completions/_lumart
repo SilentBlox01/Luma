@@ -10,7 +10,7 @@ _lumart() {
         'mary:Mary Apex 3.5 (C++17 Oklab ΔE sextant flagship)'
         'trumble:Trumble Orelx 2.2 (Capcom CPS-2 retro arcade cel-shading)'
         'luris:Luris Mono 2.6 (Bayer 8x8 manga halftone & sticker)'
-        'spectra:Spectra Weep 1.4 (Real-time webcam & shader matrix)'
+        'spectra:Spectra Weep 2.0 (Real-time video, webcam & shader matrix)'
         'color:TrueColor high-resolution rendering'
         'mono:Monochrome ASCII engine'
         'bw:Pure Black & White line art'
@@ -105,6 +105,9 @@ _lumart() {
         '--slideshow[Interactive terminal slideshow gallery]' \
         '--delay[Slideshow delay between images in seconds]:delay: ' \
         '--diff[Side-by-side terminal image comparison]:comparison image:_files' \
+        '--showcase[Generate 4-in-1 comparison showcase across all flagship engines]' \
+        '(--info --inspect)'{--info,--inspect}'[Display visual image inspector and color palette]' \
+        '--fetch-preset[Generate Fastfetch/Neofetch ANSI logo and config.jsonc]' \
         '--lang[Set language]:language:(($langs))' \
         '(-W --webcam)'{-W,--webcam}'[Webcam streaming]:camera index: ' \
         '(-H --history)'{-H,--history}'[Show execution history]:count: ' \

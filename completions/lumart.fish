@@ -62,6 +62,9 @@ for c in lumart luma
     complete -c $c -l slideshow -d "Interactive terminal slideshow gallery"
     complete -c $c -l delay -d "Slideshow delay between images in seconds" -r
     complete -c $c -l diff -d "Side-by-side terminal image comparison" -r
+    complete -c $c -l showcase -d "Generate 4-in-1 comparison showcase across all flagship engines"
+    complete -c $c -l info -l inspect -d "Display visual image inspector, resolution, and color palette"
+    complete -c $c -l fetch-preset -d "Generate Fastfetch/Neofetch ANSI logo and config.jsonc snippet"
 
     # System & Utilities
     complete -c $c -l lang -d "Set interface language" -r -a "en es pt fr ru ja de ko"

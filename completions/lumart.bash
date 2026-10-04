@@ -53,6 +53,9 @@ _lumart_completions() {
         --delay
         -I --interactive --tui
         --diff
+        --showcase
+        --info --inspect
+        --fetch-preset
         -W --webcam
         -H --history
         -R --replay --last
