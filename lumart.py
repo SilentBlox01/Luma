@@ -202,7 +202,7 @@ TRANSLATIONS = {
         "help_completions": "Generate shell tab-completion script (bash, zsh, fish).",
         "help_image_path": "Path to the input image file (works best with transparent backgrounds).",
         "help_width": "Width of the output ASCII art (in characters). Default: auto-fit to terminal window.",
-        "help_engine": "Select rendering engine: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), or 'spectra' (Spectra Weep 1.4 live webcam).",
+        "help_engine": "Select rendering engine: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), or 'spectra' (Spectra Weep 2.0 live video & webcam).",
         "help_webcam": "Stream live webcam feed to terminal (exclusive 'Spectra' engine).",
         "help_instant": "Disable progressive reveal effect and output immediately (default).",
         "help_reveal": "Enable progressive scan line-by-line reveal animation.",
@@ -378,7 +378,7 @@ TRANSLATIONS = {
         "help_completions": "Generar script de autocompletado para el shell (bash, zsh, fish).",
         "help_image_path": "Ruta al archivo de imagen de entrada (funciona mejor con fondos transparentes).",
         "help_width": "Ancho del arte ASCII de salida (en caracteres). Por defecto: ancho real de la terminal.",
-        "help_engine": "Seleccionar motor: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) o 'spectra' (Spectra Weep 1.4 en vivo).",
+        "help_engine": "Seleccionar motor: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) o 'spectra' (Spectra Weep 2.0 video y cámara en vivo).",
         "help_webcam": "Transmitir vídeo de cámara web en vivo a la terminal (motor exclusivo 'Spectra').",
         "help_instant": "Desactivar efecto de escaneo reveal y mostrar de inmediato (por defecto).",
         "help_reveal": "Activar animación progresiva de escaneo línea por línea.",
@@ -554,7 +554,7 @@ TRANSLATIONS = {
         "help_completions": "Gerar script de autocompletamento para o terminal (bash, zsh, fish).",
         "help_image_path": "Caminho para o arquivo de imagem de entrada (funciona melhor com fundos transparentes).",
         "help_width": "Largura da arte ASCII de saída (em caracteres). Padrão: largura real do terminal.",
-        "help_engine": "Selecionar motor: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) ou 'spectra' (Spectra Weep 1.4 ao vivo).",
+        "help_engine": "Selecionar motor: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) ou 'spectra' (Spectra Weep 2.0 vídeo e webcam ao vivo).",
         "help_webcam": "Transmitir vídeo de webcam ao vivo para o terminal (motor exclusivo 'Spectra').",
         "help_instant": "Desativar efeito de revelação progressiva e exibir imediatamente (padrão).",
         "help_reveal": "Ativar animação de varredura progressiva linha por linha.",
@@ -730,7 +730,7 @@ TRANSLATIONS = {
         "help_completions": "Сгенерировать скрипт автодополнения для командной строки (bash, zsh, fish).",
         "help_image_path": "Путь к исходному файлу изображения (лучше всего работает с прозрачным фоном).",
         "help_width": "Ширина выходного ASCII-арта (в символах). По умолчанию: ширина окна терминала.",
-        "help_engine": "Выбор движка рендеринга: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) или 'spectra' (Spectra Weep 1.4 веб-камера).",
+        "help_engine": "Выбор движка рендеринга: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) или 'spectra' (Spectra Weep 2.0 видео и веб-камера).",
         "help_webcam": "Трансляция видео с веб-камеры в терминал (эксклюзивный движок 'Spectra').",
         "help_instant": "Отключить эффект прогрессивного сканирования и выводить мгновенно (по умолчанию).",
         "help_reveal": "Включить построчную анимацию прогрессивного сканирования.",
@@ -906,7 +906,7 @@ TRANSLATIONS = {
         "help_completions": "シェルのタブ補完スクリプトを生成します (bash, zsh, fish)。",
         "help_image_path": "入力画像ファイルへのパス（透明な背景が最適です）。",
         "help_width": "出力するASCIIアートの幅（文字数）。デフォルト: ターミナル画面幅に自動適合。",
-        "help_engine": "レンダリングエンジンを選択: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), 'spectra' (Spectra Weep 1.4 Webカメラ)。",
+        "help_engine": "レンダリングエンジンを選択: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), 'spectra' (Spectra Weep 2.0 ビデオ・Webカメラ)。",
         "help_webcam": "ライブWebカメラ映像をターミナルにストリーミング（専用エンジン 'Spectra'）。",
         "help_instant": "プログレッシブ走査エフェクトを無効化し即時描画（デフォルト）。",
         "help_reveal": "プログレッシブ走査ラインアニメーションを有効化。",
@@ -1082,7 +1082,7 @@ TRANSLATIONS = {
         "help_completions": "Shell-Autovervollständigungsskript generieren (bash, zsh, fish).",
         "help_image_path": "Pfad zur Eingabebilddatei (funktioniert am besten mit transparentem Hintergrund).",
         "help_width": "Breite der ASCII-Kunst (in Zeichen). Standard: automatische Anpassung an Terminalgröße.",
-        "help_engine": "Rendering-Engine auswählen: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) oder 'spectra' (Spectra Weep 1.4 Live-Webcam).",
+        "help_engine": "Rendering-Engine auswählen: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) oder 'spectra' (Spectra Weep 2.0 Live-Video & Webcam).",
         "help_webcam": "Live-Webcam-Stream im Terminal anzeigen (exklusive 'Spectra'-Engine).",
         "help_instant": "Progressiven Reveal-Effekt deaktivieren und sofort ausgeben (Standard).",
         "help_reveal": "Progressiven zeilenweisen Scan-Effekt aktivieren.",
@@ -1258,7 +1258,7 @@ TRANSLATIONS = {
         "help_completions": "셸 자동 완성 스크립트를 생성합니다 (bash, zsh, fish).",
         "help_image_path": "입력 이미지 파일의 경로입니다 (투명한 배경이 가장 좋습니다).",
         "help_width": "출력 ASCII 아트의 너비(문자 수). 기본값: 터미널 창 너비에 자동 맞춤.",
-        "help_engine": "렌더링 엔진 선택: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) 또는 'spectra' (Spectra Weep 1.4 실시간 웹캠).",
+        "help_engine": "렌더링 엔진 선택: 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6) 또는 'spectra' (Spectra Weep 2.0 실시간 비디오 및 웹캠).",
         "help_webcam": "터미널에 라이브 웹캠 영상 스트리밍 (전용 'Spectra' 엔진).",
         "help_instant": "프로그레시브 스캔 효과를 비활성화하고 즉시 출력합니다 (기본값).",
         "help_reveal": "한 줄씩 출력되는 프로그레시브 스캔 애니메이션을 활성화합니다.",
@@ -1434,7 +1434,7 @@ TRANSLATIONS = {
         "help_completions": "Générer le script d'auto-complétion pour le shell (bash, zsh, fish).",
         "help_image_path": "Chemin du fichier image d'entrée (fonctionne mieux avec des arrière-plans transparents).",
         "help_width": "Largeur de l'art ASCII en sortie (en caractères). Par défaut : ajustement automatique au terminal.",
-        "help_engine": "Sélectionner le moteur de rendu : 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), ou 'spectra' (Spectra Weep 1.4 webcam en direct).",
+        "help_engine": "Sélectionner le moteur de rendu : 'mary' (Mary Apex 3.5), 'trumble' (Trumble Orelx 2.2), 'luris' (Luris Mono 2.6), ou 'spectra' (Spectra Weep 2.0 vidéo et webcam en direct).",
         "help_webcam": "Diffuser le flux de la webcam en direct dans le terminal (moteur exclusif 'Spectra').",
         "help_instant": "Désactiver l'effet de révélation progressive et afficher immédiatement (par défaut).",
         "help_reveal": "Activer l'animation de balayage progressif ligne par ligne.",
@@ -1556,7 +1556,7 @@ def auto_detect_language():
                     set_language(code)
                     return code
         # 2. Revisar configuración regional del sistema
-        lang, _ = locale.getdefaultlocale()
+        lang, _enc = locale.getdefaultlocale()
         if lang:
             code = lang[:2].lower()
             if code in TRANSLATIONS:
@@ -2105,8 +2105,8 @@ def run_slideshow(file_list, delay=3.0, width=None, engine=None, theme=None, crt
             last_switch = time.time()
             
             while True:
-                r, _, _ = select.select([sys.stdin], [], [], 0.05)
-                if r:
+                r_in, _w, _x = select.select([sys.stdin], [], [], 0.05)
+                if r_in:
                     ch = sys.stdin.read(1)
                     if ch.lower() == "q" or ch == "\x03":
                         return True
@@ -3056,7 +3056,7 @@ def get_lumart_banner():
   {c1}███████╗{c2}╚██████╔╝{c3}██║ ╚═╝ ██║{c4}██║  ██║{c5}██║  ██║{c6}   ██║   
   {c1}╚══════╝{c2} ╚═════╝ {c3}╚═╝     ╚═╝{c4}╚═╝  ╚═╝{c5}╚═╝  ╚═╝{c6}   ╚═╝   {rst}
    \033[1;37mModern Terminal Visual Suite\033[0m \033[38;2;100;149;237m•\033[0m \033[38;2;0;255;200mv{VERSION}\033[0m \033[2m({CODENAME})\033[0m
-   \033[2m[ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]\033[0m
+   \033[2m[ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]\033[0m
 """
 
 def show_version_info():
@@ -3094,7 +3094,7 @@ def show_version_info():
         has_cv2 = True
     except ImportError:
         pass
-    spectra_badge = f"{c_ok}Active (30-60 FPS){rst}" if has_cv2 else f"{c_dim}OpenCV required{rst}"
+    spectra_badge = f"{c_ok}Active (Video & Stream){rst}" if has_cv2 else f"{c_dim}OpenCV required{rst}"
 
     py_ver = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
     os_info = f"{platform.system()} {platform.machine()}"
@@ -3103,7 +3103,7 @@ def show_version_info():
 {c_brand}◆ lumart{rst} {c_ver}v{VERSION}{rst} {c_dim}({CODENAME}){rst} {c_dim}•{rst} Modern Terminal Visual Suite
 {c_dim}─────────────────────────────────────────────────────────────────{rst}
   {c_dim}Engines:{rst}   Mary Apex 3.5 [{mary_badge}]  •  Trumble Orelx 2.2 [{c_ok}Active{rst}]
-             Luris Mono 2.6 [{luris_badge}] •  Spectra Weep 1.4 [{spectra_badge}]
+             Luris Mono 2.6 [{luris_badge}] •  Spectra Weep 2.0 [{spectra_badge}]
   {c_dim}Terminal:{rst}  {cols}x{rows} cols/lines  •  {tc_badge}
   {c_dim}Runtime:{rst}   Python v{py_ver} ({os_info})
   {c_dim}Source:{rst}    https://github.com/{GITHUB_REPO}
@@ -3944,7 +3944,9 @@ def load_image_from_source(source_path, paste=False):
         try:
             stdin_data = sys.stdin.buffer.read()
             if len(stdin_data) > 0:
-                img = Image.open(io.BytesIO(stdin_data)).convert("RGBA")
+                img = Image.open(io.BytesIO(stdin_data))
+                if not getattr(img, "is_animated", False):
+                    img = img.convert("RGBA")
             else:
                 raise ValueError("Buffer de entrada STDIN vacío.")
         except Exception as e:
@@ -3959,7 +3961,9 @@ def load_image_from_source(source_path, paste=False):
             )
             with urllib.request.urlopen(req, timeout=12) as response:
                 data = response.read()
-                img = Image.open(io.BytesIO(data)).convert("RGBA")
+                img = Image.open(io.BytesIO(data))
+                if not getattr(img, "is_animated", False):
+                    img = img.convert("RGBA")
         except Exception as e:
             raise ValueError(f"No se pudo descargar la imagen desde la URL: {e}")
 
@@ -3969,8 +3973,8 @@ def load_image_from_source(source_path, paste=False):
             raise ValueError("No se especificó ninguna ruta de imagen ni fuente de entrada.")
         img = Image.open(source_path)
 
-    # Auto-orientación según metadatos EXIF
-    if img is not None:
+    # Auto-orientación según metadatos EXIF (solo para imágenes estáticas, ya que exif_transpose colapsa GIFs animados a 1 solo frame)
+    if img is not None and not getattr(img, "is_animated", False):
         try:
             img = ImageOps.exif_transpose(img)
         except Exception:
@@ -4110,8 +4114,8 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
             if is_interactive_tty:
                 try:
                     import select
-                    r, _, _ = select.select([sys.stdin], [], [], 0.005)
-                    if r:
+                    r_in, _w, _x = select.select([sys.stdin], [], [], 0.005)
+                    if r_in:
                         ch = sys.stdin.read(1)
                         if ch in ('q', 'Q', '\x03'):
                             break
@@ -4152,7 +4156,7 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
                             active_filter = int(ch) - 1
                         elif ch == '\x1b': # Flechas
                             try:
-                                r_seq, _, _ = select.select([sys.stdin], [], [], 0.02)
+                                r_seq, _w, _x = select.select([sys.stdin], [], [], 0.02)
                                 if r_seq:
                                     seq = sys.stdin.read(2)
                                     if seq == '[C': # Derecha
@@ -5117,7 +5121,7 @@ def export_video_to_gif(video_path, out_target, args=None, font_ratio=0.5):
     return False
 
 
-def play_or_save_animation(image_path, args, engine, mode, is_raw_colors, invert_mode, font_ratio, out_target=None):
+def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, invert_mode, font_ratio, out_target=None):
     """
     Maneja la reproducción fluida interactiva de GIFs animados en terminal o la exportación a GIF animado.
     Incorpora arranque instantáneo en 0 ms (Zero-Lag Lazy Caching) y controles interactivos en caliente:
@@ -5125,7 +5129,16 @@ def play_or_save_animation(image_path, args, engine, mode, is_raw_colors, invert
     """
     try:
         from PIL import ImageSequence
-        base_img = Image.open(image_path)
+        if isinstance(image_source, Image.Image):
+            base_img = image_source
+            try:
+                base_img.seek(0)
+            except Exception:
+                pass
+        elif isinstance(image_source, str) and os.path.isfile(image_source):
+            base_img = Image.open(image_source)
+        else:
+            base_img = Image.open(image_source)
     except Exception as e:
         print(_("error_open", e))
         sys.exit(1)
@@ -5240,8 +5253,8 @@ def play_or_save_animation(image_path, args, engine, mode, is_raw_colors, invert
                 if is_interactive_tty:
                     try:
                         import select
-                        r, _, _ = select.select([sys.stdin], [], [], wait_time)
-                        if r:
+                        r_in, _w, _x = select.select([sys.stdin], [], [], wait_time)
+                        if r_in:
                             ch = sys.stdin.read(1)
                             if ch in ('q', 'Q', '\x03'):
                                 return
@@ -5278,7 +5291,7 @@ def play_or_save_animation(image_path, args, engine, mode, is_raw_colors, invert
                                 break
                             elif ch == '\x1b':
                                 try:
-                                    r_seq, _, _ = select.select([sys.stdin], [], [], 0.02)
+                                    r_seq, _w, _x = select.select([sys.stdin], [], [], 0.02)
                                     if r_seq:
                                         seq = sys.stdin.read(2)
                                         if seq == '[C':
@@ -5514,10 +5527,10 @@ def main():
         install_desktop_integration()
         sys.exit(0)
 
-    # Motor Spectra exclusivo para webcam
+    # Motor Spectra para webcam
     if args.webcam is not None:
         record_command_to_history()
-        success = run_spectra_webcam(cam_index=args.webcam, target_width=args.width, font_ratio=getattr(args, "font_ratio", 0.5) or 0.5)
+        success = run_spectra_stream(source=args.webcam, target_width=args.width, font_ratio=getattr(args, "font_ratio", 0.5) or 0.5, args=args)
         sys.exit(0 if success else 1)
 
     # Comprobar actualizaciones sin instalar (-u / --update / --check-update)
@@ -5687,11 +5700,18 @@ def main():
     # Calibración de proporción de caracteres terminal
     font_ratio = getattr(args, "font_ratio", 0.5) or 0.5
 
-    # Si se seleccionó motor spectra explícitamente vía -E spectra:
-    if engine == "spectra":
+    VIDEO_EXTENSIONS = (".mp4", ".mkv", ".webm", ".mov", ".avi", ".flv", ".m4v", ".wmv", ".ts")
+    is_video_file = bool(args.image_path and any(args.image_path.lower().endswith(ext) for ext in VIDEO_EXTENSIONS))
+
+    # Si se seleccionó motor spectra explícitamente vía -E spectra o archivo de video:
+    if engine == "spectra" or is_video_file:
         record_command_to_history()
-        cam_idx = args.webcam if args.webcam is not None else 0
-        success = run_spectra_webcam(cam_index=cam_idx, target_width=args.width, font_ratio=font_ratio)
+        src = args.image_path if args.image_path else (args.webcam if args.webcam is not None else 0)
+        # Conversión de Video a GIF animado si se especificó -o out.gif
+        if args.output and args.output.lower().endswith(".gif"):
+            success = export_video_to_gif(src, args.output, args=args, font_ratio=font_ratio)
+            sys.exit(0 if success else 1)
+        success = run_spectra_stream(source=src, target_width=args.width, font_ratio=font_ratio, args=args)
         sys.exit(0 if success else 1)
 
     try:
@@ -5700,19 +5720,6 @@ def main():
         # Error al abrir la imagen en la ruta especificada
         print(_("error_open", e))
         sys.exit(1)
-
-    # Aplicar recorte y zoom digital
-    if getattr(args, "crop", None) or (getattr(args, "zoom", 1.0) and args.zoom != 1.0):
-        image = apply_crop_and_zoom(image, crop_spec=args.crop, zoom=args.zoom)
-
-    # Recorte automático de bordes vacíos/transparentes para fastfetch o logos compactos
-    if getattr(args, "fastfetch", False) or getattr(args, "logo", False):
-        image = crop_empty_borders(image)
-
-    # Aplicar paleta de color temática si fue solicitada
-    if getattr(args, "theme", None):
-        image = apply_theme_palette(image, args.theme)
-
 
     # Autodetección del ancho de la terminal: si se especificó -F/--fit o si no se especificó -w
     if getattr(args, "fit", False):
@@ -5743,8 +5750,57 @@ def main():
     elif args.width < 5:
         args.width = 5
 
-    # 3. Autodetección de terminal clara (Light mode) para inversión automática de caracteres
+    # Autodetección de terminal clara (Light mode) para inversión automática de caracteres
     invert_mode = args.invert or is_light_terminal()
+
+    # Determinar modo de representación (sextants, braille, quadrants, blocks)
+    if getattr(args, "braille", False):
+        mode = "braille"
+    elif getattr(args, "quadrants", False):
+        mode = "quadrants"
+    elif getattr(args, "blocks", False):
+        mode = "blocks"
+    elif getattr(args, "sextants", False):
+        mode = "sextants"
+    else:
+        mode = "sextants"
+
+    is_raw_colors = not getattr(args, "boost", False)
+
+    # Detección temprana y despacho de animación interactiva o exportación de GIF animado:
+    is_anim_gif = bool(getattr(image, "is_animated", False) and getattr(image, "n_frames", 1) > 1)
+    is_static_export = bool(args.output and not args.output.lower().endswith(".gif"))
+    should_play_anim = getattr(args, "loop", False) or (is_anim_gif and not getattr(args, "instant", False) and not is_static_export)
+
+    if should_play_anim:
+        anim_source = args.image_path if (args.image_path and os.path.isfile(args.image_path)) else image
+        play_or_save_animation(
+            anim_source,
+            args,
+            engine,
+            mode,
+            is_raw_colors,
+            invert_mode,
+            font_ratio,
+            out_target=args.output
+        )
+        record_command_to_history()
+        sys.exit(0)
+
+    # =============================================================
+    # PROCESAMIENTO DE IMAGEN ESTÁTICA
+    # =============================================================
+    # Aplicar recorte y zoom digital
+    if getattr(args, "crop", None) or (getattr(args, "zoom", 1.0) and args.zoom != 1.0):
+        image = apply_crop_and_zoom(image, crop_spec=args.crop, zoom=args.zoom)
+
+    # Recorte automático de bordes vacíos/transparentes para fastfetch o logos compactos
+    if getattr(args, "fastfetch", False) or getattr(args, "logo", False):
+        image = crop_empty_borders(image)
+
+    # Aplicar paleta de color temática si fue solicitada
+    if getattr(args, "theme", None):
+        image = apply_theme_palette(image, args.theme)
 
     if args.swap:
         if len(args.swap) % 2 != 0:
@@ -5780,35 +5836,6 @@ def main():
                     invert_mode = True
         except Exception:
             pass
-
-    # Determinar modo de representación (sextants, braille, quadrants, blocks)
-    if getattr(args, "braille", False):
-        mode = "braille"
-    elif getattr(args, "quadrants", False):
-        mode = "quadrants"
-    elif getattr(args, "blocks", False):
-        mode = "blocks"
-    elif getattr(args, "sextants", False):
-        mode = "sextants"
-    else:
-        mode = "sextants"
-
-    is_raw_colors = not getattr(args, "boost", False)
-
-    # Manejo de animación interactiva o exportación de GIF animado con --loop
-    if getattr(args, "loop", False):
-        play_or_save_animation(
-            args.image_path,
-            args,
-            engine,
-            mode,
-            is_raw_colors,
-            invert_mode,
-            font_ratio,
-            out_target=args.output
-        )
-        record_command_to_history()
-        sys.exit(0)
 
     ascii_art = ""
 
@@ -5989,7 +6016,7 @@ def main():
         if ext == ".webp":
             print(_("export_webp_disabled"))
             return
-        if ext in (".png", ".jpg", ".jpeg"):
+        if ext in (".png", ".jpg", ".jpeg", ".gif"):
             # Los stickers con fondo transparente son exclusivos del motor a blanco y negro (Luris Mono)
             is_luris = (engine == "luris" or not args.color or args.manga or args.sketch)
             effective_transparent = args.transparent and is_luris

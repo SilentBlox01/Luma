@@ -8,7 +8,7 @@
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
    Modern Terminal Visual Suite • v2.5.0 (Apex Nova)
-   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]
+   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]
 ```
 
 # Lumart (Luma) v2.5.0
@@ -32,7 +32,7 @@ Unlike rudimentary ASCII converters that merely map pixel brightness to arbitrar
    - [Mary Apex 3.5](#1-mary-apex-35-photorealistic-vectorial-flagship)
    - [Trumble Orelx 2.2](#2-trumble-orelx-22-retro-arcade--anime-cel-shading)
    - [Luris Mono 2.6](#3-luris-mono-26-manga-screentone--monochrome)
-   - [Spectra Weep 1.4](#4-spectra-weep-14-live-webcam-streaming)
+   - [Spectra Weep 2.0](#4-spectra-weep-20-real-time-video--webcam-streaming)
 2. [Engine Comparison Matrix](#engine-comparison-matrix)
 3. [Visual Gallery & Output Showcase](#visual-gallery--output-showcase)
 4. [Graphic Image Export, Animations & Sticker Policy](#graphic-image-export-animations--sticker-policy)
@@ -93,30 +93,36 @@ Lumart avoids one-size-fits-all compromises. Different image types demand distin
 * **Bill Atkinson Error Diffusion (1984 MacPaint)**: The legendary error-diffusion algorithm that retains 25% residual energy, generating clean, organic tones without chaotic Floyd-Steinberg worm artifacts.
 * **Exclusive Transparent Sticker Export (`--transparent`)**: Luris Mono is the **sole engine authorized to generate transparent-background PNG stickers**, ensuring crisp silhouette edges that pop over light and dark backgrounds in messaging apps.
 
-### 4. Spectra Weep 1.4 (Live Webcam Streaming)
-* **Design Goal**: Real-time live video streaming at 30-60 FPS directly in the terminal window (`lumart --webcam` or `lumart -W`).
-* **Zero Latency**: Direct V4L2/OpenCV capture optimized with circular ring buffers and terminal refresh rate synchronization.
-* **5 Interactive Live Shaders**:
+### 4. Spectra Weep 2.0 (Real-Time Video & Webcam Streaming)
+* **Design Goal**: Universal real-time video playback and live camera streaming directly in your terminal at 30-60 FPS (`lumart video.mp4`, `lumart -W`, or `lumart -E spectra`).
+* **Zero Latency**: Direct hardware capture and OpenCV ring-buffering synchronized with terminal refresh rates.
+* **8 Interactive Live Shaders**:
   1. *Normal*: TrueColor adaptive photorealism.
-  2. *Weep Cyberpunk*: Synthwave neon magenta and electric cyan color grading.
-  3. *Matrix*: Monochrome digital phosphor rain.
+  2. *Cyberpunk Neon*: Synthwave neon magenta and electric cyan color grading.
+  3. *Matrix Phosphor*: Falling digital Katakana phosphor rain stream.
   4. *Thermal FLIR*: Infrared heat-map false color (cold blue to white-hot).
-  5. *Manga Ink*: High-contrast comic ink drawing in motion.
+  5. *Manga Ink*: High-contrast comic ink drawing in dynamic motion.
+  6. *Edge Tron*: Real-time Canny edge detection with electric cyan glow.
+  7. *Amber Phosphor*: Vintage P3 monochrome amber cathode tube aesthetic.
+  8. *Theme Sync*: Synchronizes live video dynamically to active CLI `--theme`.
+* **4 Dynamic Texture Modes (`[T]`)**: Half-blocks (`▀/▄`), Braille 2x4 (`⣿`), ASCII Glyphs (` .:-=+*#%@`), and Matrix Katakana (`ﾘﾕﾒﾓﾊ...`).
+* **Hot-Stream Keyboard Controls**: `[Space]` pause, `[◄/►]` step, `[+/-]` speed, `[S]` snapshot HD PNG, `[C]` CRT scanlines, `[R]` rewind, `[Q]` quit.
+* **Direct Video-to-GIF Conversion**: `lumart clip.mp4 -o out.gif` renders videos directly into animated GIFs.
 
 ---
 
 ## Engine Comparison Matrix
 
-| Feature | Mary Apex 3.5 | Trumble Orelx 2.2 | Luris Mono 2.6 | Spectra Weep 1.4 |
+| Feature | Mary Apex 3.5 | Trumble Orelx 2.2 | Luris Mono 2.6 | Spectra Weep 2.0 |
 | :--- | :--- | :--- | :--- | :--- |
-| **Aesthetic Focus** | Photorealistic Vectorial | Retro-Arcade / Cel-Shading | Japanese Manga / Ink | Live Video / Webcam |
+| **Aesthetic Focus** | Photorealistic Vectorial | Retro-Arcade / Cel-Shading | Japanese Manga / Ink | Video / Camera Streaming |
 | **Base Language** | C++17 OpenMP + SIMD | Python + Accelerated OpenCV | C++17 Native | Python + OpenCV V4L2 |
-| **Color Space** | Perceptual Oklab ($\Delta E$) | 32-bit Capcom CPS-2 Punch | Monochrome / Ami-tone | TrueColor / RGB Shaders |
+| **Color Space** | Perceptual Oklab ($\Delta E$) | 32-bit Capcom CPS-2 Punch | Monochrome / Ami-tone | TrueColor / 8 Shaders |
 | **Default Mode** | **Sextants 2x3 (`-S`)** | **Quadrants 2x2 (`--blocks`)**| **Manga 2.0 (`-m`)** | **30-60 FPS Stream** |
 | **Subpixel Density**| Up to 6 subpixels/cell | Up to 4 subpixels/cell | Up to 4 subpixels/cell | Dynamic based on cols |
-| **Edge Inking** | Smooth Anti-aliasing | **Canny 1-to-1 Subpixel** | **Adaptive DoG Lineart** | Optional (Manga Shader) |
-| **Export Canvas** | Terminal Canvas (`.png`, `.jpg`)| Terminal Canvas (`.png`, `.jpg`)| **PNG Stickers (`--transparent`)**| Snapshot on the fly |
-| **CLI Flag** | `lumart img.jpg` *(Default)* | `lumart img.jpg -E trumble` | `lumart img.jpg -m` | `-W` or `--webcam` |
+| **Edge Inking** | Smooth Anti-aliasing | **Canny 1-to-1 Subpixel** | **Adaptive DoG Lineart** | Canny Edge Tron / Manga |
+| **Export Canvas** | Terminal Canvas (`.png`, `.jpg`)| Terminal Canvas (`.png`, `.jpg`)| **PNG Stickers (`--transparent`)**| Direct GIF (`-o out.gif`) / HD PNG |
+| **CLI Flag** | `lumart img.jpg` *(Default)* | `lumart img.jpg -E trumble` | `lumart img.jpg -m` | `lumart clip.mp4` / `-W` |
 
 ---
 
@@ -331,16 +337,31 @@ lumart building.jpg -s -w 120
 lumart poster.jpg -m -d bayer -w 100
 ```
 
-### 4. Live Webcam Streaming in Terminal (Spectra Weep 1.4)
+### 4. Video & Live Camera Streaming (Spectra Weep 2.0)
 ```bash
+# Play any video file (.mp4, .mkv, .webm, .mov) directly in the terminal
+lumart anime_opening.mp4 -w 90
+
 # Stream default webcam with real-time shader filters
 lumart -W
 
 # Stream secondary external webcam device
 lumart -W 1
+
+# Convert video clip directly to an animated GIF
+lumart clip.mp4 -w 50 -o animation.gif
 ```
 
-### 5. Web URLs, Clipboard, and Unix Pipelines
+### 5. Animated GIFs & Zero-Lag Playback
+```bash
+# Play animated GIF in terminal with instant 0 ms startup and interactive controls
+lumart animation.gif -w 60
+
+# Apply color themes (Synthwave, Dracula, Catppuccin) to animated GIFs
+lumart animation.gif --theme synthwave -o stylized.gif
+```
+
+### 6. Web URLs, Clipboard, and Unix Pipelines
 ```bash
 # Fetch and render directly from HTTPS URL
 lumart https://example.com/art.png -w 80
@@ -352,7 +373,7 @@ lumart --paste
 curl -sL https://example.com/photo.jpg | lumart -
 ```
 
-### 6. Dynamic Color Swapping
+### 7. Dynamic Color Swapping
 ```bash
 # Replace purple tones with bubblegum pink
 lumart sprite.png --blocks --swap purple pink

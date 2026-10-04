@@ -77,6 +77,26 @@ Lumart v2.5.0 "Apex Nova" introduces 11 major features, expanding Lumart from a 
       * `[Enter]`: Freeze and print render to standard output.
       * `[Q]`: Exit TUI.
 
+12. **Spectra Weep 2.0 ("Nova Vision") Real-Time Video & Stream Engine**:
+    * **Universal Video & Camera Player**: Plays local video files (`.mp4`, `.webm`, `.mkv`, `.mov`, `.avi`, `.flv`, etc.) and webcam streams (`-W`) at smooth 30-60 FPS directly in the terminal.
+    * **8 Interactive Real-Time Shaders**:
+      * `[1] Normal`: Adaptive TrueColor photorealism.
+      * `[2] Cyberpunk Neon`: Vibrant magenta/cyan synthwave color grade.
+      * `[3] Matrix Phosphor`: Falling digital code stream in classic P1 green.
+      * `[4] Thermal FLIR`: Infrared false-color heat map (cold blue to white-hot).
+      * `[5] Manga Ink`: High-contrast dynamic graphic novel ink in motion.
+      * `[6] Edge Tron`: Real-time Canny edge detection with electric cyan glow.
+      * `[7] Amber Phosphor`: Warm vintage P3 monochrome terminal aesthetic.
+      * `[8] Theme Sync`: Maps live video dynamically to the active CLI `--theme`.
+    * **4 Dynamic Texture Modes (`[T]`)**: Half-blocks (`▀/▄`), Braille 2x4 (`⣿`), ASCII Glyphs (` .:-=+*#%@`), and Matrix Katakana (`ﾘﾕﾒﾓﾊ...`).
+    * **Hotkeys in Hot-Stream**: `[Space]` pause, `[◄/►]` frame-by-frame step, `[+/-]` playback speed, `[S]` instant snapshot saved to high-res PNG, `[C]` toggle CRT scanlines, `[R]` rewind, `[Q]` quit.
+    * **Direct Video-to-GIF Conversion**: Running `lumart video.mp4 -o out.gif` renders and exports the clip straight into an optimized animated GIF with all active styling applied.
+
+13. **Animated GIF Engine Overhaul & Zero-Lag Playback**:
+    * **Instantaneous 0 ms Startup (Zero-Lag Lazy Caching)**: Eliminates pre-rendering pauses. The first frame displays in 0 ms, subsequent frames render lazily on the fly and are stored in memory for smooth looping.
+    * **Full Aesthetic Pipeline Support**: Animated GIFs now honor `--theme` (Dracula, Synthwave, Catppuccin, etc.), `--crt` scanlines, `--crop`, and `--remove-bg` seamlessly across terminal playback and GIF exports (`-o anim.gif`).
+    * **Interactive Hotkeys**: `[Space]` pause, `[◄/►]` step, `[+/-]` speed, `[S]` snapshot, `[R]` restart, `[Q]` quit.
+
 ---
 
 ## [2.4.1] — "Apex Horizon" — 2026-09-10

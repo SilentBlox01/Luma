@@ -6,7 +6,7 @@ En la versión **v2.5.0 ("Apex Nova")**, Luma implementa una **Arquitectura de C
 1. **Mary Apex 3.5 (C++17 OpenMP + SIMD / Python)**: Fotorrealismo vectorial en espacio perceptual Oklab ($\Delta E$), micro-bloques sextantes 2x3 y renderizado natural continuo de máxima resolución.
 2. **Trumble Orelx 2.2 (Python + OpenCV Acelerado)**: Estilo retro-arcade Capcom CPS-2 / Neo-Geo, entintado de bordes Canny subpíxel y cel-shading de alto impacto.
 3. **Luris Mono 2.6 (C++17 OpenMP / `luma-mono` / `libmonochrome.so`)**: Entintado manga (*Ami-tone*), extracción de contornos por Diferencia de Gaussianas (DoG), difusión de error Atkinson y generación exclusiva de stickers transparentes PNG.
-4. **Spectra Weep 1.4 (Python + OpenCV V4L2)**: Streaming de vídeo y cámara web en tiempo real a 30-60 FPS con shaders interactivos.
+4. **Spectra Weep 2.0 ("Nova Vision") (Python + OpenCV V4L2)**: Streaming universal de vídeo local (`.mp4`, `.webm`, `.mkv`), webcams y feeds en tiempo real a 30-60 FPS con 8 shaders interactivos, 4 texturas dinámicas y exportación directa a GIF.
 
 ---
 
@@ -67,12 +67,12 @@ Permite anular cualquier inferencia automática y seleccionar determinísticamen
 - **`-E mary`** (alias `-E color`): Fuerza Mary Apex 3.5 perceptual Oklab (compatible con `-S`, `-B`, `-Q`, `--blocks`).
 - **`-E trumble`**: Fuerza Trumble Orelx 2.2 con paleta cel-shading arcade retro y medias sombras.
 - **`-E luris`** (alias `-E mono`, `-E bw`, `-E manga`, `-E sketch`): Fuerza Luris Mono 2.6 para arte monocromático, tramas y stickers.
-- **`-E spectra`**: Fuerza Spectra Weep 1.4 para captura y streaming en vivo de webcam.
+- **`-E spectra`**: Fuerza Spectra Weep 2.0 para captura y streaming en vivo de webcam o vídeo.
 
 ### 3.3 Enrutamiento Inteligente Contextual (sin `-E`)
 Cuando no se pasa `-E`, Luma enruta inteligentemente según las flags y variables de entorno:
+- Si se pasa un archivo de vídeo (`.mp4`, `.mkv`, `.webm`, etc.) o `-W` (`--webcam`) $\rightarrow$ Enruta a **Spectra Weep 2.0**.
 - Si se activa `--no-color`, `-m` (`--manga`), `-s` (`--sketch`), `-d` (`--dither`), o si existe la variable `$NO_COLOR` en el entorno $\rightarrow$ Enruta automáticamente a **Luris Mono 2.6**.
-- Si se pasa `-W` (`--webcam`) $\rightarrow$ Enruta a **Spectra Weep 1.4**.
 - En cualquier otro caso $\rightarrow$ Enruta a **Mary Apex 3.5**.
 
 ---
@@ -110,3 +110,21 @@ Una terminal clásica tiene celdas rectangulares cuya relación de aspecto es ap
    - `.deb` (Debian, Ubuntu, Linux Mint): Instala binarios en `/usr/bin/` y librerías en `/usr/lib/`.
    - `.rpm` (Fedora, RHEL, openSUSE): Empaquetado nativo mediante `rpmbuild`.
    - `PKGBUILD` (Arch Linux): Instalación estandarizada para Pacman.
+
+---
+
+## 7. Pipeline de Video en Tiempo Real y GIFs Animados (Zero-Lag Lazy Caching)
+
+### 7.1 Spectra Weep 2.0: Desacoplamiento de E/S y Shaders en Caliente
+Spectra Weep 2.0 opera sobre un bucle de refresco no bloqueante con sondeo asíncrono (`select.select`) a baja latencia:
+- **Pipeline de Captura**: Conexión directa a hardware V4L2 o decodificadores FFmpeg/OpenCV con paso de fotogramas adaptativo según FPS objetivo.
+- **8 Shaders Matemáticos**: Mapeo matricial vectorial de color (RGB $\rightarrow$ Espacio temático / Canny edge gradient / Pseudo-color térmico FLIR).
+- **4 Texturas Dinámicas**: Alternancia instantánea en caliente sin reiniciar la captura (`[T]`) entre Half-blocks (`▀/▄`), Braille 2x4 (`⣿`), Glifos ASCII y Matrix Katakana.
+- **Exportación Directa a GIF**: `lumart clip.mp4 -o out.gif` desacopla la reproducción en pantalla y serializa los fotogramas directamente al codificador GIF optimizado.
+
+### 7.2 GIFs Animados: Arranque Instantáneo en 0 ms
+Para evitar el retraso tradicional de pre-renderizado (que congelaba la terminal durante varios segundos antes de reproducir el primer fotograma en GIFs largos), Luma implementa **Zero-Lag Lazy Caching**:
+1. **Fotograma 1 en 0 ms**: El primer fotograma se procesa y proyecta de inmediato en pantalla.
+2. **Caché Progresivo**: Los fotogramas subsiguientes se renderizan bajo demanda solo en la primera pasada y se indexan en un búfer circular en memoria (`cached_arts = [None] * total_frames`).
+3. **Bucle Fluido**: A partir del segundo ciclo, todos los fotogramas se leen del caché con cero uso de CPU y sincronización milimétrica al framerate original del archivo.
+4. **Interactividad Completa**: Controles en caliente mediante `cbreak` (`[Espacio]` pausa, `[◄/►]` paso a paso, `[+/-]` velocidad, `[S]` captura HD, `[Q]` salida limpia).
