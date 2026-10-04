@@ -2,7 +2,7 @@
 
 Luma no es un simple convertidor de ASCII. Fue diseñado para tratar el texto de la terminal como un lienzo de alta fidelidad, aplicando matemáticas de manipulación de color, interpolación sub-píxel y aceleración nativa para evadir las limitaciones de la consola clásica.
 
-En la versión **v2.4.0 ("Apex Horizon")**, Luma implementa una **Arquitectura de Cuatro Motores Especializados**:
+En la versión **v2.5.0 ("Apex Nova")**, Luma implementa una **Arquitectura de Cuatro Motores Especializados**:
 1. **Mary Apex 3.5 (C++17 OpenMP + SIMD / Python)**: Fotorrealismo vectorial en espacio perceptual Oklab ($\Delta E$), micro-bloques sextantes 2x3 y renderizado natural continuo de máxima resolución.
 2. **Trumble Orelx 2.2 (Python + OpenCV Acelerado)**: Estilo retro-arcade Capcom CPS-2 / Neo-Geo, entintado de bordes Canny subpíxel y cel-shading de alto impacto.
 3. **Luris Mono 2.6 (C++17 OpenMP / `luma-mono` / `libmonochrome.so`)**: Entintado manga (*Ami-tone*), extracción de contornos por Diferencia de Gaussianas (DoG), difusión de error Atkinson y generación exclusiva de stickers transparentes PNG.

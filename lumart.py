@@ -84,8 +84,8 @@ except ImportError:
         mary = None
 
 
-VERSION = "2.4.1"
-CODENAME = "Apex Horizon"
+VERSION = "2.5.0"
+CODENAME = "Apex Nova"
 GITHUB_REPO = "SilentBlox01/Luma"
 GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/lumart.py"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
@@ -263,6 +263,23 @@ TRANSLATIONS = {
         "err_conflict_inputs": "Incompatible input sources: cannot specify a local image file alongside --paste or -W/--webcam.",
         "err_conflict_loop_static": "Incompatible format: --loop is an animated mode and cannot be exported to a static image format (.png/.jpg). To save the animation, explicitly specify an animated format (.gif), e.g.: -o output.gif or --save output.gif.",
         "err_conflict_transparent_jpg": "Incompatible format: --transparent requires export to .png (JPEG does not support alpha channel transparency).",
+        "help_remove_bg": "Remove background from image without losing quality (-r, --remove-bg). If used without engine flags, saves HD transparent PNG.",
+        "help_theme": "Synchronize colors with terminal theme (catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized).",
+        "help_crt": "Simulate retro CRT scanlines and phosphor monitor (--crt [green|amber|color]).",
+        "help_matrix": "Render image in digital Katakana and binary green Matrix code (--matrix).",
+        "help_matrix_rain": "Play falling Katakana Matrix rain animation resolving into image (--matrix-rain).",
+        "help_slideshow": "Play interactive terminal slideshow gallery for multiple images.",
+        "help_delay": "Slideshow delay between images in seconds (default: 3.0).",
+        "help_crop": "Crop image: 'center', 'square' (1:1), or 'x,y,w,h'.",
+        "help_zoom": "Digital zoom factor centered on subject (e.g. --zoom 1.5).",
+        "help_interactive": "Interactive live terminal adjustment TUI (-I, --interactive, --tui).",
+        "help_copy": "Copy rendered ANSI art to system clipboard (-C, --copy).",
+        "help_copy_plain": "Copy plain ASCII text (no ANSI color codes) to clipboard for Discord/Markdown.",
+        "help_diff": "Visual side-by-side terminal image comparison (lumart diff <img1> <img2>).",
+        "remove_bg_success": "✅ Background removed cleanly with zero quality loss: {} ({}x{})",
+        "clipboard_copied_ansi": "Render copied to system clipboard (ANSI truecolor)!",
+        "clipboard_copied_plain": "Render copied to system clipboard (plain ASCII)!",
+        "diff_delta": "Average pixel color delta: {:.1f}%",
     },
     "es": {
         "diag_title_system": "📋 Información del Sistema y Runtime:",
@@ -422,6 +439,23 @@ TRANSLATIONS = {
         "err_conflict_inputs": "Fuentes de entrada en conflicto: no puedes especificar una imagen en disco junto a --paste o -W/--webcam.",
         "err_conflict_loop_static": "Incompatibilidad de formato: --loop es un modo animado y no puede exportarse a una imagen estática (.png/.jpg). Para guardar la animación completa, especifica explícitamente un archivo .gif (ej: -o salida.gif o --save salida.gif).",
         "err_conflict_transparent_jpg": "Incompatibilidad de formato: --transparent requiere exportación en formato .png (el formato JPEG no admite canal alfa transparente).",
+        "help_remove_bg": "Quitar el fondo sin perder calidad (-r, --remove-bg). Si se usa solo, guarda PNG transparente HD sin aplicar modelos ASCII.",
+        "help_theme": "Sincronizar colores con tema de terminal (catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized).",
+        "help_crt": "Simular monitor CRT retro con líneas de barrido y fósforo (--crt [green|amber|color]).",
+        "help_matrix": "Renderizar imagen en glifos Katakana y código binario Matrix verde (--matrix).",
+        "help_matrix_rain": "Animación de lluvia de código Matrix que se ensambla en la imagen (--matrix-rain).",
+        "help_slideshow": "Pase interactivo de diapositivas en terminal para múltiples imágenes.",
+        "help_delay": "Tiempo de espera en segundos entre imágenes del slideshow (defecto: 3.0).",
+        "help_crop": "Recortar imagen: 'center', 'square' (1:1) o 'x,y,w,h'.",
+        "help_zoom": "Factor de zoom digital centrado en el sujeto (ej. --zoom 1.5).",
+        "help_interactive": "Modo TUI interactivo en vivo en terminal (-I, --interactive, --tui).",
+        "help_copy": "Copiar arte ANSI generado al portapapeles del sistema (-C, --copy).",
+        "help_copy_plain": "Copiar texto ASCII plano (sin códigos de color) al portapapeles para Discord/Markdown.",
+        "help_diff": "Comparación visual de imágenes lado a lado en la terminal (lumart diff <img1> <img2>).",
+        "remove_bg_success": "✅ Fondo removido exitosamente sin pérdida de calidad: {} ({}x{})",
+        "clipboard_copied_ansi": "¡Arte copiado al portapapeles del sistema (ANSI truecolor)!",
+        "clipboard_copied_plain": "¡Arte copiado al portapapeles del sistema (ASCII plano)!",
+        "diff_delta": "Variación cromática media (Delta): {:.1f}%",
     },
     "pt": {
         "diag_title_system": "📋 Informações do Sistema e Runtime:",
@@ -581,6 +615,23 @@ TRANSLATIONS = {
         "err_conflict_inputs": "Fontes em conflito: não especifique arquivo de imagem junto a --paste ou -W/--webcam.",
         "err_conflict_loop_static": "Formato incompatível: --loop não pode ser exportado para formato estático (.png/.jpg). Especifique .gif (ex: -o saida.gif).",
         "err_conflict_transparent_jpg": "Formato incompatível: --transparent requer exportação em .png (JPEG não suporta canal alfa).",
+        "help_remove_bg": "Remover fundo da imagem sem perder qualidade (-r, --remove-bg). Se usado sozinho, salva PNG transparente HD.",
+        "help_theme": "Sincronizar cores com tema do terminal (catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized).",
+        "help_crt": "Simular monitor CRT retrô com linhas de varredura (--crt [green|amber|color]).",
+        "help_matrix": "Renderizar imagem em glifos Katakana e código Matrix verde (--matrix).",
+        "help_matrix_rain": "Animação de chuva de código Matrix que se transforma na imagem (--matrix-rain).",
+        "help_slideshow": "Apresentação interativa de slides no terminal para várias imagens.",
+        "help_delay": "Tempo de espera em segundos entre as imagens da apresentação (padrão: 3.0).",
+        "help_crop": "Recortar imagem: 'center', 'square' (1:1) ou 'x,y,w,h'.",
+        "help_zoom": "Fator de zoom digital centralizado (ex.: --zoom 1.5).",
+        "help_interactive": "Modo TUI interativo em tempo real no terminal (-I, --interactive, --tui).",
+        "help_copy": "Copiar arte ANSI gerada para a área de transferência (-C, --copy).",
+        "help_copy_plain": "Copiar texto ASCII simples para a área de transferência para Discord/Markdown.",
+        "help_diff": "Comparação visual de imagens lado a lado no terminal (lumart diff <img1> <img2>).",
+        "remove_bg_success": "✅ Fundo removido com sucesso sem perda de qualidade: {} ({}x{})",
+        "clipboard_copied_ansi": "Arte copiada para a área de transferência (ANSI truecolor)!",
+        "clipboard_copied_plain": "Arte copiada para a área de transferência (ASCII simples)!",
+        "diff_delta": "Variação cromática média (Delta): {:.1f}%",
     },
     "ru": {
         "diag_title_system": "📋 Информация о системе и среде выполнения:",
@@ -740,6 +791,23 @@ TRANSLATIONS = {
         "err_conflict_inputs": "Конфликт источников: нельзя указывать файл вместе с --paste или -W/--webcam.",
         "err_conflict_loop_static": "Несовместимый формат: --loop нельзя экспортировать в статичный формат (.png/.jpg). Укажите .gif (напр. -o out.gif).",
         "err_conflict_transparent_jpg": "Несовместимый формат: --transparent требует формат .png (JPEG не поддерживает альфа-канал).",
+        "help_remove_bg": "Удалить фон изображения без потери качества (-r, --remove-bg). Без флагов моделей сохраняет прозрачный PNG.",
+        "help_theme": "Синхронизировать цвета с темой терминала (catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized).",
+        "help_crt": "Эмулировать ретро-ЭЛТ монитор со сканлайнами (--crt [green|amber|color]).",
+        "help_matrix": "Отобразить изображение в виде зеленого матричного кода Katakana (--matrix).",
+        "help_matrix_rain": "Анимация падающего дождя Matrix, переходящая в изображение (--matrix-rain).",
+        "help_slideshow": "Интерактивное слайд-шоу в терминале для нескольких изображений.",
+        "help_delay": "Задержка между изображениями слайд-шоу в секундах (по умолчанию: 3.0).",
+        "help_crop": "Обрезать изображение: 'center', 'square' (1:1) или 'x,y,w,h'.",
+        "help_zoom": "Коэффициент цифрового зума по центру (напр., --zoom 1.5).",
+        "help_interactive": "Интерактивный TUI-режим настройки в реальном времени (-I, --interactive, --tui).",
+        "help_copy": "Скопировать ANSI-арт в буфер обмена системы (-C, --copy).",
+        "help_copy_plain": "Скопировать чистый ASCII-текст без цветов в буфер обмена для Discord/Markdown.",
+        "help_diff": "Визуальное сравнение изображений бок о бок в терминале (lumart diff <img1> <img2>).",
+        "remove_bg_success": "✅ Фон успешно удален без потери качества: {} ({}x{})",
+        "clipboard_copied_ansi": "Арт скопирован в буфер обмена (ANSI truecolor)!",
+        "clipboard_copied_plain": "Арт скопирован в буфер обмена (чистый ASCII)!",
+        "diff_delta": "Средняя цветовая разница (Delta): {:.1f}%",
     },
     "ja": {
         "diag_title_system": "📋 システムおよびランタイム診断:",
@@ -899,6 +967,23 @@ TRANSLATIONS = {
         "err_conflict_inputs": "入力ソースの競合: 画像ファイルと --paste または -W/--webcam は同時に指定できません。",
         "err_conflict_loop_static": "無効な形式: --loop は静止画 (.png/.jpg) に出力できません。アニメーション保存には .gif を指定してください（例: -o out.gif）。",
         "err_conflict_transparent_jpg": "無効な形式: --transparent は .png 出力が必要です（JPEGは透過非対応です）。",
+        "help_remove_bg": "画質を落とさずに画像の背景を削除します (-r, --remove-bg)。単独で使用するとHD透過PNGを保存します。",
+        "help_theme": "ターミナルテーマと色を同期します（catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized）。",
+        "help_crt": "レトロCRT走査線と蛍光体モニターをシミュレートします (--crt [green|amber|color])。",
+        "help_matrix": "カタカナと2進数コードによる緑のMatrixスタイルで描画します (--matrix)。",
+        "help_matrix_rain": "画像へと収束するMatrixデジタルの雨のアニメーションを再生 (--matrix-rain)。",
+        "help_slideshow": "複数画像の対話型ターミナルスライドショーを再生します。",
+        "help_delay": "スライドショーの画像切り替え秒数（デフォルト: 3.0）。",
+        "help_crop": "画像を切り抜く: 'center', 'square' (1:1), または 'x,y,w,h'。",
+        "help_zoom": "中央を基準としたデジタルズーム倍率（例: --zoom 1.5）。",
+        "help_interactive": "リアルタイム対話型ターミナルTUI調整モード (-I, --interactive, --tui)。",
+        "help_copy": "レンダリングされたANSIアートをクリップボードにコピー (-C, --copy)。",
+        "help_copy_plain": "カラーコード無しのプレーンASCIIをDiscord/Markdown用にコピー。",
+        "help_diff": "ターミナル内での画像の並列視覚比較 (lumart diff <img1> <img2>)。",
+        "remove_bg_success": "✅ 画質を損なうことなく背景を正常に削除しました: {} ({}x{})",
+        "clipboard_copied_ansi": "レンダリング結果をクリップボードにコピーしました（ANSI truecolor）！",
+        "clipboard_copied_plain": "レンダリング結果をクリップボードにコピーしました（プレーンASCII）！",
+        "diff_delta": "平均ピクセル色差（Delta）: {:.1f}%",
     },
     "de": {
         "diag_title_system": "📋 System- und Laufzeitdiagnose:",
@@ -1058,6 +1143,23 @@ TRANSLATIONS = {
         "err_conflict_inputs": "Eingabekonflikt: Bilddatei kann nicht zusammen mit --paste oder -W/--webcam angegeben werden.",
         "err_conflict_loop_static": "Inkompatibles Format: --loop kann nicht in statisches Bild (.png/.jpg) exportiert werden. Bitte .gif angeben (z.B. -o out.gif).",
         "err_conflict_transparent_jpg": "Inkompatibles Format: --transparent erfordert .png-Format (JPEG unterstützt kein Alpha).",
+        "help_remove_bg": "Hintergrund ohne Qualitätsverlust entfernen (-r, --remove-bg). Speichert transparentes HD-PNG bei alleiniger Nutzung.",
+        "help_theme": "Farben mit Terminal-Design synchronisieren (catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized).",
+        "help_crt": "Retro-Röhrenmonitor mit Scanlines simulieren (--crt [green|amber|color]).",
+        "help_matrix": "Bild im digitalen grünen Katakana-Matrix-Code rendern (--matrix).",
+        "help_matrix_rain": "Fallende Katakana-Matrix-Regenanimation abspielen (--matrix-rain).",
+        "help_slideshow": "Interaktive Terminal-Diashow für mehrere Bilder abspielen.",
+        "help_delay": "Verzögerung zwischen Bildern der Diashow in Sekunden (Standard: 3.0).",
+        "help_crop": "Bild zuschneiden: 'center', 'square' (1:1) oder 'x,y,w,h'.",
+        "help_zoom": "Digitaler Zoomfaktor zentriert auf das Motiv (z.B. --zoom 1.5).",
+        "help_interactive": "Interaktiver Live-Terminal-TUI-Anpassungsmodus (-I, --interactive, --tui).",
+        "help_copy": "Generierte ANSI-Grafik in die Zwischenablage kopieren (-C, --copy).",
+        "help_copy_plain": "Reinen ASCII-Text ohne Farbcodes in die Zwischenablage kopieren.",
+        "help_diff": "Visueller Bildvergleich nebeneinander im Terminal (lumart diff <img1> <img2>).",
+        "remove_bg_success": "✅ Hintergrund erfolgreich ohne Qualitätsverlust entfernt: {} ({}x{})",
+        "clipboard_copied_ansi": "Grafik in Zwischenablage kopiert (ANSI truecolor)!",
+        "clipboard_copied_plain": "Grafik in Zwischenablage kopiert (reiner ASCII-Text)!",
+        "diff_delta": "Durchschnittliche Pixelfarbabweichung (Delta): {:.1f}%",
     },
     "ko": {
         "diag_title_system": "📋 시스템 및 런타임 진단:",
@@ -1217,6 +1319,23 @@ TRANSLATIONS = {
         "err_conflict_inputs": "입력 충돌: 이미지 파일과 --paste 또는 -W/--webcam 을 동시에 지정할 수 없습니다.",
         "err_conflict_loop_static": "형식 불일치: --loop 모드는 정적 이미지 (.png/.jpg) 로 내보낼 수 없습니다. .gif 를 지정하세요 (예: -o out.gif).",
         "err_conflict_transparent_jpg": "형식 불일치: --transparent 는 .png 형식이 필요합니다 (JPEG는 투명도를 지원하지 않습니다).",
+        "help_remove_bg": "품질 저하 없이 이미지 배경을 제거합니다 (-r, --remove-bg). 단독 사용 시 HD 투명 PNG를 저장합니다.",
+        "help_theme": "터미널 테마와 색상을 동기화합니다 (catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized).",
+        "help_crt": "레트로 CRT 스캔라인 및 인광체 모니터를 시뮬레이션합니다 (--crt [green|amber|color]).",
+        "help_matrix": "디지털 가타카나 및 바이너리 녹색 매트릭스 코드로 렌더링합니다 (--matrix).",
+        "help_matrix_rain": "이미지로 완성되는 매트릭스 디지털 레인 애니메이션 재생 (--matrix-rain).",
+        "help_slideshow": "여러 이미지에 대한 대화형 터미널 슬라이드쇼를 재생합니다.",
+        "help_delay": "슬라이드쇼 이미지 간 지연 시간(초, 기본값: 3.0).",
+        "help_crop": "이미지 자르기: 'center', 'square' (1:1) 또는 'x,y,w,h'.",
+        "help_zoom": "중앙 기준 디지털 줌 배율 (예: --zoom 1.5).",
+        "help_interactive": "실시간 대화형 터미널 TUI 조정 모드 (-I, --interactive, --tui).",
+        "help_copy": "렌더링된 ANSI 아트를 시스템 클립보드에 복사 (-C, --copy).",
+        "help_copy_plain": "Discord/Markdown용 순수 ASCII 텍스트를 클립보드에 복사.",
+        "help_diff": "터미널에서 나란히 이미지 시각적 비교 (lumart diff <img1> <img2>).",
+        "remove_bg_success": "✅ 품질 손실 없이 배경이 성공적으로 제거되었습니다: {} ({}x{})",
+        "clipboard_copied_ansi": "렌더링 결과가 클립보드에 복사되었습니다 (ANSI 트루컬러)!",
+        "clipboard_copied_plain": "렌더링 결과가 클립보드에 복사되었습니다 (순수 ASCII)!",
+        "diff_delta": "평균 픽셀 색상 차이 (Delta): {:.1f}%",
     },
     "fr": {
         "diag_title_system": "📋 Diagnostics système et environnement d'exécution :",
@@ -1376,6 +1495,23 @@ TRANSLATIONS = {
         "err_conflict_inputs": "Sources en conflit : impossible de spécifier un fichier avec --paste ou -W/--webcam.",
         "err_conflict_loop_static": "Format incompatible : --loop ne peut pas être exporté vers une image statique (.png/.jpg). Spécifiez .gif (ex. -o sortie.gif).",
         "err_conflict_transparent_jpg": "Format incompatible : --transparent nécessite le format .png (JPEG ne gère pas la transparence).",
+        "help_remove_bg": "Supprimer l'arrière-plan sans perte de qualité (-r, --remove-bg). Enregistre un PNG transparent HD si utilisé seul.",
+        "help_theme": "Synchroniser les couleurs avec le thème du terminal (catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized).",
+        "help_crt": "Simuler un écran cathodique CRT rétro avec lignes de balayage (--crt [green|amber|color]).",
+        "help_matrix": "Rendre l'image en code Matrix vert numérique avec Katakana (--matrix).",
+        "help_matrix_rain": "Animation de pluie de code Matrix tombant sur l'image (--matrix-rain).",
+        "help_slideshow": "Diaporama interactif dans le terminal pour plusieurs images.",
+        "help_delay": "Délai en secondes entre les images du diaporama (par défaut : 3.0).",
+        "help_crop": "Recadrer l'image : 'center', 'square' (1:1) ou 'x,y,w,h'.",
+        "help_zoom": "Facteur de zoom numérique centré sur le sujet (ex : --zoom 1.5).",
+        "help_interactive": "Mode TUI interactif en direct dans le terminal (-I, --interactive, --tui).",
+        "help_copy": "Copier l'art ANSI rendu dans le presse-papiers système (-C, --copy).",
+        "help_copy_plain": "Copier le texte ASCII brut (sans couleurs) pour Discord/Markdown.",
+        "help_diff": "Comparaison visuelle d'images côte à côte dans le terminal (lumart diff <img1> <img2>).",
+        "remove_bg_success": "✅ Arrière-plan supprimé avec succès sans perte de qualité : {} ({}x{})",
+        "clipboard_copied_ansi": "Rendu copié dans le presse-papiers système (ANSI truecolor) !",
+        "clipboard_copied_plain": "Rendu copié dans le presse-papiers système (ASCII brut) !",
+        "diff_delta": "Variation chromatique moyenne (Delta) : {:.1f}%",
     }
 }
 
@@ -1504,6 +1640,13 @@ def remove_image_background(pil_img, tolerance=32):
 
     img_rgba = pil_img.convert("RGBA")
     
+    # Soporte para motor neuronal rembg si está instalado
+    try:
+        import rembg
+        return rembg.remove(pil_img)
+    except Exception:
+        pass
+        
     # 1. Si la imagen ya tiene canal alfa con suficiente transparencia real (>4%), conservarlo intacto
     try:
         import numpy as np
@@ -1604,6 +1747,499 @@ def remove_image_background(pil_img, tolerance=32):
         return img_rgba
     except Exception:
         return img_rgba
+
+# -------------------------------------------------------------
+# PALETAS DE TEMAS DE TERMINAL (Theme Sync)
+# -------------------------------------------------------------
+THEME_PALETTES = {
+    "catppuccin": [
+        (30, 30, 46), (24, 24, 37), (49, 50, 68), (69, 71, 90), (88, 91, 112),
+        (205, 214, 244), (245, 224, 220), (242, 205, 205), (203, 166, 247),
+        (243, 139, 168), (250, 179, 135), (249, 226, 175), (166, 227, 161),
+        (148, 226, 213), (137, 220, 235), (116, 199, 236), (137, 180, 250), (180, 190, 254)
+    ],
+    "dracula": [
+        (40, 42, 54), (68, 71, 90), (248, 248, 242), (98, 114, 164),
+        (139, 233, 253), (80, 250, 123), (255, 184, 108), (255, 121, 198),
+        (189, 147, 249), (255, 85, 85), (241, 250, 140)
+    ],
+    "nord": [
+        (46, 52, 64), (59, 66, 82), (67, 76, 94), (76, 86, 106),
+        (216, 222, 233), (229, 233, 240), (236, 239, 244), (143, 188, 187),
+        (136, 192, 208), (129, 161, 193), (94, 129, 172), (191, 97, 106),
+        (208, 135, 112), (235, 203, 139), (163, 190, 140), (180, 142, 173)
+    ],
+    "gruvbox": [
+        (40, 40, 40), (146, 131, 116), (251, 73, 52), (184, 187, 38),
+        (250, 189, 47), (131, 165, 152), (211, 134, 155), (142, 192, 124),
+        (235, 219, 178), (204, 36, 29), (152, 151, 26), (215, 153, 33),
+        (69, 133, 136), (177, 98, 134), (104, 157, 106), (168, 153, 132)
+    ],
+    "synthwave": [
+        (38, 20, 71), (46, 33, 87), (253, 58, 105), (254, 205, 81),
+        (255, 113, 206), (1, 205, 254), (5, 255, 161), (185, 103, 255), (255, 251, 150)
+    ],
+    "vaporwave": [
+        (38, 20, 71), (46, 33, 87), (253, 58, 105), (254, 205, 81),
+        (255, 113, 206), (1, 205, 254), (5, 255, 161), (185, 103, 255), (255, 251, 150)
+    ],
+    "gameboy": [
+        (15, 56, 15), (48, 98, 48), (139, 172, 15), (155, 188, 15)
+    ],
+    "solarized": [
+        (0, 43, 54), (7, 54, 66), (88, 110, 117), (101, 123, 131),
+        (131, 148, 150), (147, 161, 161), (238, 232, 213), (253, 246, 227),
+        (181, 137, 0), (203, 75, 22), (220, 50, 47), (211, 54, 130),
+        (108, 113, 196), (38, 139, 210), (42, 161, 152), (133, 153, 0)
+    ]
+}
+
+def apply_theme_palette(image, theme_name):
+    """Mapea los colores de la imagen a los colores de la paleta del tema seleccionado."""
+    if not theme_name:
+        return image
+    name_clean = theme_name.lower().strip()
+    if name_clean not in THEME_PALETTES:
+        return image
+    try:
+        import numpy as np
+        img_rgba = image.convert("RGBA")
+        arr = np.array(img_rgba)
+        rgb = arr[:, :, :3]
+        pal = np.array(THEME_PALETTES[name_clean], dtype=np.int32)
+        
+        flat_rgb = rgb.reshape(-1, 3).astype(np.int32)
+        diff = flat_rgb[:, np.newaxis, :] - pal[np.newaxis, :, :]
+        dist_sq = np.sum(diff ** 2, axis=2)
+        nearest = np.argmin(dist_sq, axis=1)
+        quantized = pal[nearest].astype(np.uint8).reshape(rgb.shape)
+        arr[:, :, :3] = quantized
+        return Image.fromarray(arr)
+    except Exception:
+        return image
+
+def apply_crop_and_zoom(image, crop_spec=None, zoom=1.0):
+    """Aplica recorte centrado o por coordenadas y zoom digital centrado de alta fidelidad."""
+    img = image
+    if crop_spec:
+        spec = str(crop_spec).lower().strip()
+        w, h = img.size
+        if spec in ("center", "square", "1:1"):
+            min_dim = min(w, h)
+            left = (w - min_dim) // 2
+            top = (h - min_dim) // 2
+            img = img.crop((left, top, left + min_dim, top + min_dim))
+        elif "," in spec:
+            try:
+                coords = [int(v.strip()) for v in spec.split(",")]
+                if len(coords) == 4:
+                    cx, cy, cw, ch = coords
+                    img = img.crop((cx, cy, min(w, cx + cw), min(h, cy + ch)))
+            except Exception:
+                pass
+                
+    if zoom and zoom > 1.0:
+        w, h = img.size
+        new_w = max(4, int(w / zoom))
+        new_h = max(4, int(h / zoom))
+        left = (w - new_w) // 2
+        top = (h - new_h) // 2
+        img = img.crop((left, top, left + new_w, top + new_h)).resize((w, h), Image.Resampling.LANCZOS)
+        
+    return img
+
+def apply_crt_filter(ansi_str, crt_mode="color"):
+    """
+    Simula un monitor de tubo fósforo CRT con líneas de barrido horizontales alternas (scanlines).
+    Modos: 'color' (mantiene RGB con atenuación de líneas), 'green' (fósforo verde P1), 'amber' (fósforo ámbar P3).
+    """
+    import re
+    if not ansi_str or not crt_mode:
+        return ansi_str
+        
+    mode_clean = str(crt_mode).lower().strip() if crt_mode is not True else "color"
+    lines = ansi_str.split("\n")
+    out_lines = []
+    
+    fg_pattern = re.compile(r'\x1b\[(38|48);2;(\d+);(\d+);(\d+)m')
+    
+    for row_idx, line in enumerate(lines):
+        is_scanline = (row_idx % 2 == 1)
+        factor = 0.60 if is_scanline else 1.0
+        
+        def repl(match):
+            plane = match.group(1)
+            r, g, b = int(match.group(2)), int(match.group(3)), int(match.group(4))
+            
+            if mode_clean in ("green", "p1", "matrix"):
+                lum = 0.299 * r + 0.587 * g + 0.114 * b
+                nr = 0
+                ng = int(min(255, lum * 1.15 * factor))
+                nb = int(min(255, lum * 0.15 * factor))
+            elif mode_clean in ("amber", "p3", "orange"):
+                lum = 0.299 * r + 0.587 * g + 0.114 * b
+                nr = int(min(255, lum * factor))
+                ng = int(min(255, lum * 0.72 * factor))
+                nb = int(min(255, lum * 0.05 * factor))
+            else:
+                nr = int(r * factor)
+                ng = int(g * factor)
+                nb = int(b * factor)
+                
+            return f"\x1b[{plane};2;{nr};{ng};{nb}m"
+            
+        out_lines.append(fg_pattern.sub(repl, line))
+        
+    return "\n".join(out_lines)
+
+# Glifos Katakana y código binario para el modo Matrix
+MATRIX_RAMP = " ｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜ10:;."
+
+def render_matrix_art(image, width=80, font_ratio=0.5, animated=False):
+    """Renderiza la imagen en glifos Katakana y código binario en verde fósforo Matrix."""
+    import time
+    aspect = image.height / max(1, image.width)
+    target_height = max(5, int(width * aspect * font_ratio))
+    
+    resized = image.convert("L").resize((width, target_height), Image.Resampling.BILINEAR)
+    pixels = resized.load()
+    
+    ramp_len = len(MATRIX_RAMP)
+    lines = []
+    
+    for y in range(target_height):
+        row_str = ""
+        for x in range(width):
+            lum = pixels[x, y]
+            if lum < 15:
+                row_str += " "
+                continue
+            char_idx = int((lum / 255.0) * (ramp_len - 1))
+            ch = MATRIX_RAMP[char_idx]
+            
+            # Verde fósforo con brillo según luminosidad
+            if lum > 210:
+                fg = "\x1b[38;2;190;255;190m" # resplandor blanco-verde
+            elif lum > 140:
+                fg = "\x1b[38;2;0;255;65m"   # verde terminal brillante
+            elif lum > 70:
+                fg = "\x1b[38;2;0;160;30m"   # verde medio
+            else:
+                fg = "\x1b[38;2;0;70;15m"    # verde oscuro sombra
+                
+            row_str += f"{fg}{ch}\x1b[0m"
+        lines.append(row_str)
+        
+    full_art = "\n".join(lines)
+    
+    if animated:
+        try:
+            import random
+            cols = width
+            rows = target_height
+            drops = [random.randint(-rows, 0) for _ in range(cols)]
+            for step in range(25):
+                frame_lines = []
+                for r in range(rows):
+                    frow = ""
+                    for c in range(cols):
+                        d = drops[c]
+                        if d == r:
+                            ch = random.choice(MATRIX_RAMP[1:])
+                            frow += f"\x1b[1;37m{ch}\x1b[0m"
+                        elif d - 6 < r < d:
+                            ch = random.choice(MATRIX_RAMP[1:])
+                            frow += f"\x1b[38;2;0;255;65m{ch}\x1b[0m"
+                        elif r < d - 6:
+                            frow += lines[r][c * 19 : (c + 1) * 19] if c * 19 < len(lines[r]) else " "
+                        else:
+                            frow += " "
+                    frame_lines.append(frow)
+                drops = [d + 1 if d < rows + 8 else random.randint(-5, 0) for d in drops]
+                sys.stdout.write("\033[H" + "\n".join(frame_lines))
+                sys.stdout.flush()
+                time.sleep(0.04)
+        except Exception:
+            pass
+            
+    return full_art
+
+def copy_to_clipboard(text, plain=False):
+    """Copia la salida ANSI o texto plano al portapapeles del sistema (Wayland/X11/macOS/WSL)."""
+    import subprocess
+    import shutil
+    import re
+    
+    payload = re.sub(r'\x1b\[[0-9;]*m', '', text) if plain else text
+    
+    commands = [
+        ["wl-copy"],
+        ["xclip", "-selection", "clipboard"],
+        ["xsel", "--clipboard", "--input"],
+        ["pbcopy"],
+        ["clip.exe"]
+    ]
+    
+    for cmd in commands:
+        if shutil.which(cmd[0]):
+            try:
+                proc = subprocess.Popen(
+                    cmd,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True
+                )
+                proc.communicate(payload.encode("utf-8"), timeout=2)
+                if proc.returncode == 0:
+                    mode_str = " (texto plano)" if plain else " (ANSI truecolor)"
+                    print(f"\n📋 {_('clipboard_copied_plain') if plain else _('clipboard_copied_ansi')}")
+                    return True
+            except Exception:
+                continue
+                
+    print(f"\n⚠️ No se detectó ninguna herramienta de portapapeles compatible (wl-copy, xclip, xsel, pbcopy).")
+    return False
+
+def render_image_diff(path_a, path_b, width=None):
+    """Compara visualmente dos imágenes lado a lado en la terminal con telemetría de diferencias."""
+    import math
+    import shutil
+    try:
+        img_a = Image.open(path_a).convert("RGB")
+        img_b = Image.open(path_b).convert("RGB")
+    except Exception as e:
+        print(f"❌ Error al abrir imágenes para diff: {e}")
+        return False
+        
+    term_cols = shutil.get_terminal_size((120, 24)).columns
+    total_w = width if width else max(30, min(140, term_cols))
+    col_w = max(10, (total_w - 4) // 2)
+    
+    try:
+        import numpy as np
+        arr_a = np.array(img_a.resize((100, 100))).astype(np.float32)
+        arr_b = np.array(img_b.resize((100, 100))).astype(np.float32)
+        rmse = np.sqrt(np.mean((arr_a - arr_b) ** 2))
+        delta_pct = min(100.0, (rmse / 255.0) * 100.0)
+    except Exception:
+        delta_pct = 0.0
+        
+    print(f"\n\033[1;36m┌─────────────────────────── Lumart Visual Image Diff ───────────────────────────┐\033[0m")
+    print(f"\033[1;36m│\033[0m [A] {os.path.basename(path_a)} ({img_a.width}x{img_a.height})")
+    print(f"\033[1;36m│\033[0m [B] {os.path.basename(path_b)} ({img_b.width}x{img_b.height})")
+    print(f"\033[1;36m│\033[0m {_('diff_delta', delta_pct)}")
+    print(f"\033[1;36m└────────────────────────────────────────────────────────────────────────────────┘\033[0m\n")
+    
+    img_a_res = resize_image(img_a, col_w, is_blocks=True, is_braille=False)
+    img_b_res = resize_image(img_b, col_w, is_blocks=True, is_braille=False)
+    
+    lines_a = convert_image_to_blocks(img_a_res).split("\n")
+    lines_b = convert_image_to_blocks(img_b_res).split("\n")
+    
+    max_h = max(len(lines_a), len(lines_b))
+    for r in range(max_h):
+        la = lines_a[r] if r < len(lines_a) else " " * col_w
+        lb = lines_b[r] if r < len(lines_b) else " " * col_w
+        print(f"{la}  \033[1;30m│\033[0m  {lb}")
+        
+    return True
+
+def run_slideshow(file_list, delay=3.0, width=None, engine=None, theme=None, crt=None):
+    """Reproductor de galería interactiva con controles de teclado para la terminal."""
+    import glob
+    import select
+    import termios
+    import tty
+    import time
+    
+    expanded = []
+    for item in file_list:
+        if any(char in item for char in ("*", "?", "[")):
+            expanded.extend(sorted(glob.glob(item)))
+        elif os.path.isdir(item):
+            for ext in ("*.png", "*.jpg", "*.jpeg", "*.gif"):
+                expanded.extend(sorted(glob.glob(os.path.join(item, ext))))
+        elif os.path.exists(item):
+            expanded.append(item)
+            
+    if not expanded:
+        print("❌ No se encontraron imágenes válidas para el pase de diapositivas.")
+        return False
+        
+    print(f"🎬 Iniciando Slideshow ({len(expanded)} imágenes)... Presiona [Espacio] siguiente, [Q] salir.")
+    time.sleep(0.8)
+    
+    idx = 0
+    paused = False
+    
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    sys.stdout.write("\033[?25l") # ocultar cursor
+    sys.stdout.flush()
+    
+    try:
+        tty.setcbreak(fd)
+        last_switch = time.time()
+        
+        while True:
+            cur_path = expanded[idx]
+            sys.stdout.write("\033[H\033[2J")
+            sys.stdout.write(f"\033[1;30m[{idx+1}/{len(expanded)}] {os.path.basename(cur_path)} (Espacio: sig, Flechas: nav, P: pausa, Q: salir)\033[0m\n\n")
+            sys.stdout.flush()
+            
+            try:
+                img = Image.open(cur_path).convert("RGBA")
+                if theme:
+                    img = apply_theme_palette(img, theme)
+                w = width or 80
+                art = convert_image_to_blocks(resize_image(img, w, is_blocks=True, is_braille=False))
+                if crt:
+                    art = apply_crt_filter(art, crt)
+                sys.stdout.write(art + "\n")
+                sys.stdout.flush()
+            except Exception as e:
+                sys.stdout.write(f"Error al cargar {cur_path}: {e}\n")
+                sys.stdout.flush()
+                
+            last_switch = time.time()
+            
+            while True:
+                r, _, _ = select.select([sys.stdin], [], [], 0.05)
+                if r:
+                    ch = sys.stdin.read(1)
+                    if ch.lower() == "q" or ch == "\x03":
+                        return True
+                    elif ch in (" ", "\n") or ch == "n":
+                        idx = (idx + 1) % len(expanded)
+                        break
+                    elif ch.lower() == "p":
+                        paused = not paused
+                    elif ch.lower() == "r":
+                        import random
+                        idx = random.randint(0, len(expanded) - 1)
+                        break
+                    elif ch == "\x1b":
+                        seq = sys.stdin.read(2)
+                        if seq == "[C":
+                            idx = (idx + 1) % len(expanded)
+                            break
+                        elif seq == "[D":
+                            idx = (idx - 1 + len(expanded)) % len(expanded)
+                            break
+                if not paused and (time.time() - last_switch >= delay):
+                    idx = (idx + 1) % len(expanded)
+                    break
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        sys.stdout.write("\033[?25h\n")
+        sys.stdout.flush()
+        
+    return True
+
+def run_interactive_tui(image_path, initial_width=80):
+    """Modo interactivo en vivo en terminal para ajustar parámetros estéticos en tiempo real."""
+    import termios
+    import tty
+    import select
+    import time
+    
+    try:
+        base_img = Image.open(image_path).convert("RGBA")
+    except Exception as e:
+        print(f"❌ Error al abrir imagen: {e}")
+        return False
+        
+    cur_width = initial_width or 70
+    engines = ["mary", "trumble", "luris"]
+    engine_idx = 0
+    dithers = ["none", "atkinson", "bayer", "floyd"]
+    dither_idx = 0
+    themes = [None, "catppuccin", "dracula", "nord", "gruvbox", "synthwave", "gameboy", "solarized"]
+    theme_idx = 0
+    crts = [None, "color", "green", "amber"]
+    crt_idx = 0
+    boost = False
+    
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    sys.stdout.write("\033[?25l")
+    sys.stdout.flush()
+    
+    final_art = ""
+    
+    try:
+        tty.setcbreak(fd)
+        while True:
+            eng = engines[engine_idx]
+            dith = dithers[dither_idx]
+            thm = themes[theme_idx]
+            crt_val = crts[crt_idx]
+            
+            work_img = base_img.copy()
+            if thm:
+                work_img = apply_theme_palette(work_img, thm)
+                
+            if eng == "luris":
+                work_img = resize_image(work_img, cur_width, is_blocks=True, is_braille=False)
+                if dith in ("atkinson", "bayer", "floyd"):
+                    work_img = apply_bayer_dither(work_img)
+                art = convert_image_to_blocks(work_img)
+            elif eng == "trumble":
+                work_img = resize_image(work_img, cur_width, is_blocks=True, is_braille=False)
+                art = convert_image_to_blocks(work_img)
+            else:
+                if mary is not None:
+                    art = mary.render_mary(work_img, cur_width, mode="sextants", raw_colors=not boost)
+                else:
+                    art = convert_image_to_blocks(resize_image(work_img, cur_width, is_blocks=True, is_braille=False))
+                    
+            if crt_val:
+                art = apply_crt_filter(art, crt_val)
+                
+            final_art = art
+            
+            sys.stdout.write("\033[H\033[2J")
+            sys.stdout.write(f"\033[1;36m=== Lumart Interactive Live TUI Mode ===\033[0m\n")
+            sys.stdout.write(art + "\n")
+            sys.stdout.write(f"\033[1;30m─────────────────────────────────────────────────────────────────────────────\033[0m\n")
+            sys.stdout.write(f"\033[1;33m[+/- Ancho: {cur_width}]  [M] Motor: {eng}  [T] Tema: {thm or 'ninguno'}  [C] CRT: {crt_val or 'off'}\033[0m\n")
+            sys.stdout.write(f"\033[1;33m[D] Dither: {dith}  [B] Boost: {'on' if boost else 'off'}  [S] Guardar  [Enter] Imprimir  [Q] Salir\033[0m\n")
+            sys.stdout.flush()
+            
+            ch = sys.stdin.read(1)
+            if ch.lower() == "q" or ch == "\x03":
+                return False
+            elif ch in ("\r", "\n"):
+                sys.stdout.write("\033[H\033[2J")
+                sys.stdout.write(art + "\n")
+                sys.stdout.flush()
+                return True
+            elif ch in ("+", "="):
+                cur_width = min(200, cur_width + 5)
+            elif ch in ("-", "_"):
+                cur_width = max(15, cur_width - 5)
+            elif ch.lower() == "m":
+                engine_idx = (engine_idx + 1) % len(engines)
+            elif ch.lower() == "t":
+                theme_idx = (theme_idx + 1) % len(themes)
+            elif ch.lower() == "c":
+                crt_idx = (crt_idx + 1) % len(crts)
+            elif ch.lower() == "d":
+                dither_idx = (dither_idx + 1) % len(dithers)
+            elif ch.lower() == "b":
+                boost = not boost
+            elif ch.lower() == "s":
+                out_name = "lumart_tui_export.ans"
+                with open(out_name, "w", encoding="utf-8") as f:
+                    f.write(art)
+                sys.stdout.write(f"\n💾 Guardado exitosamente en: {out_name}\n")
+                sys.stdout.flush()
+                time.sleep(1.0)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        sys.stdout.write("\033[?25h\n")
+        sys.stdout.flush()
 
 # Matriz de Bayer 4x4: algoritmo clásico de difuminado ordenado (dithering) estilo retro
 BAYER_MATRIX = [
@@ -3759,9 +4395,13 @@ def generate_shell_completions(shell_name: str) -> str:
     script_dir = os.path.dirname(os.path.abspath(__file__))
     search_dirs.append(os.path.join(script_dir, "completions"))
     search_dirs.append(os.path.join(os.path.expanduser("~/.local/share/luma"), "completions"))
+    search_dirs.append(os.path.expanduser("~/.local/share/zsh/site-functions"))
+    search_dirs.append(os.path.expanduser("~/.local/share/bash-completion/completions"))
+    search_dirs.append(os.path.expanduser("~/.local/share/fish/vendor_completions.d"))
     search_dirs.append("/usr/local/share/luma/completions")
     search_dirs.append("/usr/share/luma/completions")
     search_dirs.append("/usr/share/bash-completion/completions" if shell == "bash" else "/usr/share/zsh/site-functions")
+    search_dirs.append("/usr/share/fish/vendor_completions.d")
 
     for d in search_dirs:
         p = os.path.join(d, target_file)
@@ -3778,25 +4418,41 @@ def generate_shell_completions(shell_name: str) -> str:
         "-dg --downgrade --rollback -w --width -F --fit -E --engine -c --color "
         "--no-color -S --sextants -B --braille -Q --quadrants --blocks -m --manga "
         "-s --sketch --boost --vibrant -i --invert --swap -d --dither --font-ratio "
-        "-o -O --output --save --loop --fastfetch --logo --transparent --instant "
-        "--no-reveal --reveal --paste --lang -W --webcam -H --history -R --replay "
-        "--last --clear-history --install-desktop --completions"
+        "-o -O --output --save --loop --fastfetch --logo -r --remove-bg --transparent "
+        "--instant --no-reveal --reveal --paste --lang --theme --palette --crt --scanlines "
+        "--matrix --matrix-rain -C --copy --copy-plain --crop --zoom --slideshow --delay "
+        "-I --interactive --tui --diff -W --webcam -H --history -R --replay --last "
+        "--clear-history --install-desktop --completions"
     )
     if shell == "bash":
         return f"""# Bash completion for lumart and luma
+# Generated for Lumart v2.5.0 "Apex Nova"
 _lumart_completions() {{
-    local cur prev
+    local cur prev words cword
     _init_completion || return
+    local engines="mary trumble luris spectra color mono bw manga sketch"
+    local dithers="atkinson floyd bayer none"
+    local langs="en es pt fr ru ja de ko"
+    local shells="bash zsh fish"
+    local themes="catppuccin dracula nord gruvbox synthwave vaporwave gameboy solarized"
+    local crts="green amber color scanlines"
     local opts="{opts_list}"
     case "$prev" in
-        -E|--engine) COMPREPLY=( $(compgen -W "mary trumble luris spectra" -- "$cur") ); return 0 ;;
-        -d|--dither) COMPREPLY=( $(compgen -W "atkinson floyd bayer none" -- "$cur") ); return 0 ;;
-        --lang) COMPREPLY=( $(compgen -W "en es pt fr ru ja de ko" -- "$cur") ); return 0 ;;
-        --completions) COMPREPLY=( $(compgen -W "bash zsh fish" -- "$cur") ); return 0 ;;
-        -o|-O|--output|--save) _filedir '@(png|jpg|jpeg|gif)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") ); return 0 ;;
+        -E|--engine) COMPREPLY=( $(compgen -W "$engines" -- "$cur") ); return 0 ;;
+        -d|--dither) COMPREPLY=( $(compgen -W "$dithers" -- "$cur") ); return 0 ;;
+        --lang) COMPREPLY=( $(compgen -W "$langs" -- "$cur") ); return 0 ;;
+        --theme|--palette) COMPREPLY=( $(compgen -W "$themes" -- "$cur") ); return 0 ;;
+        --crt|--scanlines) COMPREPLY=( $(compgen -W "$crts" -- "$cur") ); return 0 ;;
+        --completions) COMPREPLY=( $(compgen -W "$shells" -- "$cur") ); return 0 ;;
+        -o|-O|--output|--save) _filedir '@(png|jpg|jpeg|gif|ans|asc|txt)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") ); return 0 ;;
+        --diff) _filedir '@(png|jpg|jpeg|bmp|gif|webp|apng)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") ); return 0 ;;
     esac
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+        return 0
+    fi
+    if [[ "${{words[1]}}" == "diff" ]]; then
+        _filedir '@(png|jpg|jpeg|bmp|gif|webp|apng)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") )
         return 0
     fi
     _filedir '@(png|jpg|jpeg|bmp|gif|webp|apng)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") )
@@ -3806,6 +4462,7 @@ complete -F _lumart_completions luma
 """
     elif shell == "fish":
         return f"""# Fish completion for lumart and luma
+# Generated for Lumart v2.5.0 "Apex Nova"
 for c in lumart luma
     complete -c $c -s h -l help -d "Show usage and options help"
     complete -c $c -s v -l version -d "Display hardware and engine status"
@@ -3814,7 +4471,9 @@ for c in lumart luma
     complete -c $c -l dg -l downgrade -d "Rollback to previous version" -r
     complete -c $c -s w -l width -d "Output width in columns" -r
     complete -c $c -s F -l fit -d "Auto-fit to terminal viewport"
-    complete -c $c -s E -l engine -d "Select rendering engine" -r -a "mary trumble luris spectra"
+    complete -c $c -l crop -d "Crop image: center, square, or x,y,w,h" -r
+    complete -c $c -l zoom -d "Digital zoom factor centered on subject" -r
+    complete -c $c -s E -l engine -d "Select rendering engine" -r -a "mary trumble luris spectra color mono bw manga sketch"
     complete -c $c -s c -l color -d "Force TrueColor output"
     complete -c $c -l no-color -d "Disable color output"
     complete -c $c -s S -l sextants -d "Unicode 2x3 sextant blocks (Mary Apex default)"
@@ -3823,16 +4482,27 @@ for c in lumart luma
     complete -c $c -l blocks -d "Optimized terminal half-blocks"
     complete -c $c -s m -l manga -d "Manga Screentone 2.0 mode"
     complete -c $c -s s -l sketch -d "Clean line sketch mode"
+    complete -c $c -l matrix -d "Render image in digital Katakana and binary green Matrix code"
+    complete -c $c -l matrix-rain -d "Falling Katakana digital rain animation"
     complete -c $c -l boost -l vibrant -d "Vibrant arcade Retinex boost"
     complete -c $c -s i -l invert -d "Invert character lightness"
     complete -c $c -s d -l dither -d "Dithering algorithm" -r -a "atkinson floyd bayer none"
     complete -c $c -l font-ratio -d "Calibrate font aspect ratio" -r
-    complete -c $c -s o -s O -l output -l save -d "Export image or GIF" -r
+    complete -c $c -l theme -l palette -d "Terminal color palette" -r -a "catppuccin dracula nord gruvbox synthwave vaporwave gameboy solarized"
+    complete -c $c -l crt -l scanlines -d "Simulate retro CRT scanlines and phosphor monitor" -r -a "green amber color scanlines"
+    complete -c $c -s o -s O -l output -l save -d "Export image, GIF, ANS, or TXT" -r
     complete -c $c -l loop -d "Animation mode: smooth terminal loop or animated GIF export"
+    complete -c $c -s r -l remove-bg -d "Remove background without quality loss (standalone saves HD PNG)"
     complete -c $c -l transparent -d "Luris Mono transparent sticker"
+    complete -c $c -s C -l copy -d "Copy rendered ANSI art to system clipboard"
+    complete -c $c -l copy-plain -d "Copy plain ASCII text without escape codes to clipboard"
     complete -c $c -l instant -d "Display output immediately"
     complete -c $c -l reveal -d "Progressive reveal scan animation"
     complete -c $c -l paste -d "Render image from clipboard"
+    complete -c $c -s I -l interactive -l tui -d "Interactive live parameter tuning terminal UI"
+    complete -c $c -l slideshow -d "Interactive terminal slideshow gallery"
+    complete -c $c -l delay -d "Slideshow delay between images in seconds" -r
+    complete -c $c -l diff -d "Side-by-side terminal image comparison" -r
     complete -c $c -l lang -d "Set interface language" -r -a "en es pt fr ru ja de ko"
     complete -c $c -s W -l webcam -d "Webcam streaming 30-60 FPS" -r
     complete -c $c -s H -l history -d "Show execution history" -r
@@ -3844,36 +4514,55 @@ end
 """
     elif shell == "zsh":
         return f"""#compdef lumart luma
+# Generated for Lumart v2.5.0 "Apex Nova"
 _lumart() {{
     local context state state_descr line
     typeset -A opt_args
     _arguments -s -S \\
         '(-h --help)'{{-h,--help}}'[Show usage and options help]' \\
-        '(-v --version)'{{-v,--version}}'[Display hardware and engine status]' \\
-        '(-u --update --check-update)'{{-u,--update,--check-update}}'[Check for latest release]' \\
-        '(-uu --upgrade)'{{-uu,--upgrade}}'[Perform automatic upgrade]' \\
+        '(-v --version)'{{-v,--version}}'[Display hardware, OS and engine diagnostic card]' \\
+        '(-u --update --check-update)'{{-u,--update,--check-update}}'[Check for latest version on GitHub]' \\
+        '(-uu --upgrade)'{{-uu,--upgrade}}'[Perform interactive automatic upgrade]' \\
         '(-dg --downgrade --rollback)'{{-dg,--downgrade,--rollback}}'[Rollback to previous version]:version: ' \\
-        '(-w --width)'{{-w,--width}}'[Set output width in columns]:columns: ' \\
-        '(-F --fit)'{{-F,--fit}}'[Auto-fit to terminal viewport]' \\
-        '(-E --engine)'{{-E,--engine}}'[Select engine]:engine:(mary trumble luris spectra)' \\
+        '(-w --width)'{{-w,--width}}'[Set output width in terminal columns]:columns: ' \\
+        '(-F --fit)'{{-F,--fit}}'[Auto-fit to terminal viewport width and height]' \\
+        '--fastfetch[Auto-crop empty margins for fastfetch logos]' \\
+        '--logo[Alias for --fastfetch]' \\
+        '--crop[Crop image: center, square, or x,y,w,h]:crop specification: ' \\
+        '--zoom[Digital zoom factor centered on subject]:zoom factor: ' \\
+        '(-E --engine)'{{-E,--engine}}'[Select rendering engine explicitly]:engine:(mary trumble luris spectra color mono bw manga sketch)' \\
         '(-c --color --no-color)'{{-c,--color}}'[Force TrueColor output]' \\
-        '(-c --color --no-color)'--no-color'[Disable color]' \\
-        '(-S --sextants)'{{-S,--sextants}}'[Unicode 2x3 sextants (Mary default)]' \\
-        '(-B --braille)'{{-B,--braille}}'[Unicode 2x4 braille (8 subpixels)]' \\
-        '(-Q --quadrants)'{{-Q,--quadrants}}'[Unicode 2x2 quadrants (4 subpixels)]' \\
-        '--blocks[Optimized half-blocks]' \\
-        '(-m --manga)'{{-m,--manga}}'[Manga Screentone 2.0]' \\
-        '(-s --sketch)'{{-s,--sketch}}'[Clean line sketch mode]' \\
-        '(--boost --vibrant)'{{--boost,--vibrant}}'[Arcade Retinex boost]' \\
+        '(-c --color --no-color)'--no-color'[Disable color and use monochrome engine]' \\
+        '(-S --sextants)'{{-S,--sextants}}'[Use Unicode 2x3 sextant blocks (Mary default)]' \\
+        '(-B --braille)'{{-B,--braille}}'[Use Unicode 2x4 braille characters (8 subpixels)]' \\
+        '(-Q --quadrants)'{{-Q,--quadrants}}'[Use Unicode 2x2 quadrant blocks (4 subpixels)]' \\
+        '--blocks[Use optimized half-block characters (▀/▄)]' \\
+        '(-m --manga)'{{-m,--manga}}'[Manga Screentone 2.0 (Bayer 8x8 + DoG lines)]' \\
+        '(-s --sketch)'{{-s,--sketch}}'[Clean pen-and-ink line sketch mode]' \\
+        '--matrix[Render in Katakana and binary green Matrix code]' \\
+        '--matrix-rain[Falling Katakana digital rain animation]' \\
+        '--theme[Synchronize colors with terminal palette]:palette:(catppuccin dracula nord gruvbox synthwave vaporwave gameboy solarized)' \\
+        '--palette[Alias for --theme]:palette:(catppuccin dracula nord gruvbox synthwave vaporwave gameboy solarized)' \\
+        '--crt[Simulate retro CRT scanlines and phosphor monitor]:mode:(color green amber scanlines)' \\
+        '--scanlines[Alias for --crt]:mode:(color green amber scanlines)' \\
+        '(--boost --vibrant)'{{--boost,--vibrant}}'[Apply vibrant arcade saturation, contrast and Retinex]' \\
         '(-i --invert)'{{-i,--invert}}'[Invert character lightness]' \\
-        '(-d --dither)'{{-d,--dither}}'[Select dithering]:algorithm:(atkinson floyd bayer none)' \\
+        '*--swap[Dynamically swap one color for another in 3D RGB space]:color: ' \\
+        '(-d --dither)'{{-d,--dither}}'[Select dithering algorithm]:algorithm:(atkinson floyd bayer none)' \\
         '--font-ratio[Font aspect ratio calibration]:ratio: ' \\
-        '(-o -O --output --save)'{{-o,-O,--output,--save}}'[Export graphic image or GIF]:output file:_files' \\
+        '(-o -O --output --save)'{{-o,-O,--output,--save}}'[Export graphic image, ANS, or TXT]:output file:_files' \\
         '--loop[Animation mode: smooth terminal loop or animated GIF export]' \\
+        '(-r --remove-bg)'{{-r,--remove-bg}}'[Remove background without quality loss (standalone saves HD PNG)]' \\
         '--transparent[Luris Mono transparent sticker]' \\
-        '(--instant --reveal)'{{--instant}}'[Display immediately]' \\
+        '(-C --copy)'{{-C,--copy}}'[Copy rendered ANSI art to system clipboard]' \\
+        '--copy-plain[Copy plain ASCII text without color codes to clipboard]' \\
+        '(--instant --reveal)'{{--instant,--no-reveal}}'[Display output immediately]' \\
         '(--instant --reveal)'--reveal'[Progressive scan animation]' \\
         '--paste[Render clipboard image]' \\
+        '(-I --interactive --tui)'{{-I,--interactive,--tui}}'[Interactive live parameter tuning terminal UI]' \\
+        '--slideshow[Interactive terminal slideshow gallery]' \\
+        '--delay[Slideshow delay between images in seconds]:delay: ' \\
+        '--diff[Side-by-side terminal image comparison]:comparison image:_files' \\
         '--lang[Set language]:language:(en es pt fr ru ja de ko)' \\
         '(-W --webcam)'{{-W,--webcam}}'[Webcam streaming]:camera index: ' \\
         '(-H --history)'{{-H,--history}}'[Show execution history]:count: ' \\
@@ -3925,16 +4614,17 @@ def validate_cli_arguments(args, parser):
         sys.exit(2)
 
     # 5. Múltiples fuentes de entrada (image_path vs --paste vs -W)
-    sources = 0
-    if args.image_path:
-        sources += 1
-    if getattr(args, "paste", False):
-        sources += 1
-    if getattr(args, "webcam", None) is not None:
-        sources += 1
-    if sources > 1:
-        print(f"\033[1;31m[Lumart Error]\033[0m {_('err_conflict_inputs')}", file=sys.stderr)
-        sys.exit(2)
+    if not getattr(args, "diff", None) and not getattr(args, "slideshow", False):
+        sources = 0
+        if args.image_path and args.image_path != "-":
+            sources += 1
+        if getattr(args, "paste", False):
+            sources += 1
+        if getattr(args, "webcam", None) is not None:
+            sources += 1
+        if sources > 1:
+            print(f"\033[1;31m[Lumart Error]\033[0m {_('err_conflict_inputs')}", file=sys.stderr)
+            sys.exit(2)
 
     # 6. --loop vs exportación a imagen estática (-o .png / .jpg / etc.)
     if getattr(args, "loop", False) and getattr(args, "output", None):
@@ -3943,12 +4633,18 @@ def validate_cli_arguments(args, parser):
             print(f"\033[1;31m[Lumart Error]\033[0m {_('err_conflict_loop_static')}", file=sys.stderr)
             sys.exit(2)
 
-    # 7. --transparent vs exportación a JPEG (-o .jpg / .jpeg)
-    if getattr(args, "transparent", False) and getattr(args, "output", None):
+    # 7. --transparent o -r vs exportación a JPEG (-o .jpg / .jpeg)
+    if (getattr(args, "transparent", False) or getattr(args, "remove_bg", False)) and getattr(args, "output", None):
         ext = os.path.splitext(args.output)[1].lower()
         if ext in (".jpg", ".jpeg"):
             print(f"\033[1;31m[Lumart Error]\033[0m {_('err_conflict_transparent_jpg')}", file=sys.stderr)
             sys.exit(2)
+
+    # 8. --zoom <= 0
+    if getattr(args, "zoom", 1.0) is not None and getattr(args, "zoom", 1.0) <= 0:
+        print(f"\033[1;31m[Lumart Error]\033[0m El factor de zoom debe ser mayor a 0.", file=sys.stderr)
+        sys.exit(2)
+
 
 
 # ==============================================================================
@@ -4264,6 +4960,17 @@ def main():
             print(out, end="" if out.endswith("\n") else "\n")
             sys.exit(0)
 
+    # Intercepción inmediata de subcomando 'diff' (ej: lumart diff img1.png img2.png [-w 100])
+    if len(sys.argv) >= 2 and sys.argv[1] == "diff":
+        diff_parser = argparse.ArgumentParser(prog="lumart diff", description=_("help_diff"))
+        diff_parser.add_argument("image_a", help="First image to compare")
+        diff_parser.add_argument("image_b", help="Second image to compare")
+        diff_parser.add_argument("-w", "--width", type=int, default=None, help=_("help_width"))
+        diff_args = diff_parser.parse_args(sys.argv[2:])
+        success = render_image_diff(diff_args.image_a, diff_args.image_b, width=diff_args.width)
+        record_command_to_history()
+        sys.exit(0 if success else 1)
+
     # Sin argumentos: mostrar banner informativo y ayuda básica de uso
     if len(sys.argv) == 1 and sys.stdin.isatty():
         print(banner)
@@ -4301,11 +5008,27 @@ def main():
     parser.add_argument("-o", "-O", "--output", "--save", dest="output", help=_("help_output"))
     parser.add_argument("--loop", action="store_true", help=_("help_loop"))
     parser.add_argument("--fastfetch", "--logo", action="store_true", help=_("help_fastfetch"))
+    parser.add_argument("-r", "--remove-bg", action="store_true", help=_("help_remove_bg"))
     parser.add_argument("--transparent", action="store_true", help=_("help_transparent"))
     parser.add_argument("--instant", "--no-reveal", action="store_true", help=_("help_instant"))
     parser.add_argument("--reveal", action="store_true", help=_("help_reveal"))
     parser.add_argument("--paste", action="store_true", help=_("help_paste"))
     parser.add_argument("--lang", help=_("help_lang"))
+
+    # Nuevas funcionalidades avanzadas v2.5.0
+    parser.add_argument("--theme", "--palette", choices=list(THEME_PALETTES.keys()), default=None, help=_("help_theme"))
+    parser.add_argument("--crt", "--scanlines", choices=["green", "amber", "color", "scanlines"], nargs="?", const="color", default=None, help=_("help_crt"))
+    parser.add_argument("--matrix", action="store_true", help=_("help_matrix"))
+    parser.add_argument("--matrix-rain", action="store_true", help=_("help_matrix_rain"))
+    parser.add_argument("-C", "--copy", action="store_true", help=_("help_copy"))
+    parser.add_argument("--copy-plain", action="store_true", help=_("help_copy_plain"))
+    parser.add_argument("--crop", default=None, help=_("help_crop"))
+    parser.add_argument("--zoom", type=float, default=1.0, help=_("help_zoom"))
+    parser.add_argument("--slideshow", action="store_true", help=_("help_slideshow"))
+    parser.add_argument("--delay", type=float, default=3.0, help=_("help_delay"))
+    parser.add_argument("-I", "--interactive", "--tui", action="store_true", help=_("help_interactive"))
+    parser.add_argument("--diff", default=None, help=_("help_diff"))
+    parser.add_argument("extra_images", nargs="*", default=[], help=argparse.SUPPRESS)
 
     # Utilidades del sistema
     parser.add_argument("-W", "--webcam", nargs="?", const=0, default=None, type=int, help=_("help_webcam"))
@@ -4385,6 +5108,45 @@ def main():
         success = perform_downgrade(target)
         sys.exit(0 if success else 1)
 
+    # Comparación visual lado a lado con telemetría de diferencias (--diff)
+    if getattr(args, "diff", None):
+        if not args.image_path:
+            print(f"\033[1;31m[Lumart Error]\033[0m Debes proporcionar dos imágenes para comparar.", file=sys.stderr)
+            sys.exit(1)
+        success = render_image_diff(args.image_path, args.diff, width=args.width)
+        record_command_to_history()
+        sys.exit(0 if success else 1)
+
+    # Galería interactiva en terminal (--slideshow)
+    if getattr(args, "slideshow", False):
+        file_candidates = []
+        if args.image_path:
+            file_candidates.append(args.image_path)
+        if getattr(args, "extra_images", None):
+            file_candidates.extend(args.extra_images)
+        if not file_candidates:
+            file_candidates = ["."]
+        success = run_slideshow(
+            file_candidates,
+            delay=getattr(args, "delay", 3.0) or 3.0,
+            width=args.width,
+            engine=getattr(args, "engine", None),
+            theme=getattr(args, "theme", None),
+            crt=getattr(args, "crt", None)
+        )
+        record_command_to_history()
+        sys.exit(0 if success else 1)
+
+    # Modo interactivo en vivo (-I / --interactive / --tui)
+    if getattr(args, "interactive", False):
+        if not args.image_path:
+            print(banner)
+            print(_("usage"))
+            sys.exit(1)
+        success = run_interactive_tui(args.image_path, initial_width=args.width or 80)
+        record_command_to_history()
+        sys.exit(0 if success else 1)
+
     if not args.image_path and not args.paste and sys.stdin.isatty():
         print(banner)
         print(_("usage"))
@@ -4394,6 +5156,59 @@ def main():
     has_update, update_ver = check_cached_update()
     if has_update:
         print(f"\033[1;33m{_('update_notice', update_ver)}\033[0m\n", file=sys.stderr)
+
+    # Comprobar si se especificó algún flag de modelo / motor de renderizado
+    has_model_flag = any([
+        args.engine is not None,
+        getattr(args, "manga", False),
+        getattr(args, "sketch", False),
+        getattr(args, "sextants", False),
+        getattr(args, "braille", False),
+        getattr(args, "quadrants", False),
+        getattr(args, "blocks", False),
+        getattr(args, "matrix", False),
+        getattr(args, "matrix_rain", False),
+        getattr(args, "theme", None) is not None,
+        getattr(args, "crt", None) is not None,
+        getattr(args, "loop", False),
+        getattr(args, "dither", None) is not None,
+        getattr(args, "swap", None) is not None,
+    ])
+
+    # Manejo de -r / --remove-bg
+    if getattr(args, "remove_bg", False):
+        if not has_model_flag:
+            # Modo Autónomo: Quita fondo al 100% de calidad original y exporta PNG transparente sin aplicar modelos
+            try:
+                raw_img = load_image_from_source(args.image_path, paste=args.paste)
+            except Exception as e:
+                print(_("error_open", e))
+                sys.exit(1)
+
+            if getattr(args, "crop", None) or (getattr(args, "zoom", 1.0) and args.zoom != 1.0):
+                raw_img = apply_crop_and_zoom(raw_img, crop_spec=args.crop, zoom=args.zoom)
+
+            nobg_img = remove_image_background(raw_img)
+
+            if args.output:
+                out_target = args.output
+            elif args.image_path and args.image_path != "-":
+                base_name, _ext = os.path.splitext(args.image_path)
+                out_target = f"{base_name}_nobg.png"
+            else:
+                out_target = "output_nobg.png"
+
+            try:
+                nobg_img.save(out_target, format="PNG")
+                print(f"\033[1;32m{_('remove_bg_success', out_target, nobg_img.width, nobg_img.height)}\033[0m")
+                record_command_to_history()
+                sys.exit(0)
+            except Exception as e:
+                print(f"\033[1;31mError al guardar imagen sin fondo: {e}\033[0m", file=sys.stderr)
+                sys.exit(1)
+        else:
+            # Con flag de modelo: activar transparencia y continuar con el motor elegido
+            args.transparent = True
 
     # Selección y resolución de motor:
     req_engine = getattr(args, "engine", None)
@@ -4454,9 +5269,18 @@ def main():
         print(_("error_open", e))
         sys.exit(1)
 
+    # Aplicar recorte y zoom digital
+    if getattr(args, "crop", None) or (getattr(args, "zoom", 1.0) and args.zoom != 1.0):
+        image = apply_crop_and_zoom(image, crop_spec=args.crop, zoom=args.zoom)
+
     # Recorte automático de bordes vacíos/transparentes para fastfetch o logos compactos
     if getattr(args, "fastfetch", False) or getattr(args, "logo", False):
         image = crop_empty_borders(image)
+
+    # Aplicar paleta de color temática si fue solicitada
+    if getattr(args, "theme", None):
+        image = apply_theme_palette(image, args.theme)
+
 
     # Autodetección del ancho de la terminal: si se especificó -F/--fit o si no se especificó -w
     if getattr(args, "fit", False):
@@ -4557,9 +5381,22 @@ def main():
     ascii_art = ""
 
     # -------------------------------------------------------------
+    # 0. MODO MATRIX / DIGITAL RAIN
+    # -------------------------------------------------------------
+    if getattr(args, "matrix", False) or getattr(args, "matrix_rain", False):
+        if getattr(args, "transparent", False):
+            image = remove_image_background(image)
+        if getattr(args, "matrix_rain", False):
+            render_matrix_art(image, width=args.width, font_ratio=font_ratio, animated=True)
+            record_command_to_history()
+            sys.exit(0)
+        else:
+            ascii_art = render_matrix_art(image, width=args.width, font_ratio=font_ratio, animated=False)
+
+    # -------------------------------------------------------------
     # 1. MOTOR LURIS: Blanco y Negro (Nativo C++ con fallback Python)
     # -------------------------------------------------------------
-    if engine == "luris":
+    elif engine == "luris":
         # MOTOR EN BLANCO Y NEGRO: Remover fondo ANTES DE EMPEZARLO
         temp_luris_path = None
         luris_input_path = args.image_path
@@ -4682,7 +5519,7 @@ def main():
     # -------------------------------------------------------------
     # 3. MOTOR TRUMBLE ORELX 2.2: Retro-Arcade & Anime Cel-Shading
     # -------------------------------------------------------------
-    if engine == "trumble":
+    if not ascii_art and engine == "trumble":
         # MOTOR A COLOR: Remover fondo ANTES DE FINALIZAR EL PROCESO
         if getattr(args, "transparent", False):
             image = remove_image_background(image)
@@ -4705,6 +5542,15 @@ def main():
             ascii_art = convert_image_to_braille(image, args.color, invert_mode)
         else:
             ascii_art = convert_image_to_blocks(image)
+
+    # 4. Filtro retro CRT / Scanlines
+    if getattr(args, "crt", None):
+        ascii_art = apply_crt_filter(ascii_art, crt_mode=args.crt)
+
+    # 5. Copiado inteligente al portapapeles (-C / --copy y --copy-plain)
+    if getattr(args, "copy", False) or getattr(args, "copy_plain", False):
+        plain = getattr(args, "copy_plain", False)
+        copy_to_clipboard(ascii_art, plain=plain)
     
     if args.output:
         ext = os.path.splitext(args.output)[1].lower()
@@ -4722,6 +5568,21 @@ def main():
                 print(_("export_success", args.output))
             except Exception as e:
                 print(_("export_error", e))
+        elif ext in (".ans", ".asc"):
+            try:
+                with open(args.output, "w", encoding="utf-8") as f:
+                    f.write(ascii_art)
+                print(_("saved_to", args.output))
+            except Exception as e:
+                print(_("error_save", e))
+        elif ext == ".txt":
+            try:
+                plain_txt = re.sub(r'\x1b\[[0-9;]*[a-zA-Z]', '', ascii_art)
+                with open(args.output, "w", encoding="utf-8") as f:
+                    f.write(plain_txt)
+                print(_("saved_to", args.output))
+            except Exception as e:
+                print(_("error_save", e))
         else:
             try:
                 with open(args.output, "w", encoding="utf-8") as f:

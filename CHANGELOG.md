@@ -5,6 +5,80 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ---
 
+## [2.5.0] — "Apex Nova" — 2026-10-03
+
+> *"To bring graphics into the terminal is not to compromise; it is to elevate text into an art form."*
+
+Lumart v2.5.0 "Apex Nova" introduces 11 major features, expanding Lumart from a terminal image renderer into a comprehensive, industrial-grade terminal visual suite with real-time interactivity, intelligent background removal, retro monitor simulation, visual diffing, and native shell ecosystem integration.
+
+### 🚀 11 Major New Features
+
+1. **Intelligent Background Removal (`-r`, `--remove-bg`)**:
+   * **Standalone Zero-Loss Mode**: Running `lumart -r <image>` isolates the primary subject and exports a full-resolution transparent PNG with 100% of original fidelity preserved.
+   * **Model-Integrated Mode**: Combining `-r` with engine flags (e.g. `lumart -r -E mary <image>`) automatically removes the background first and renders the isolated subject into terminal ANSI/ASCII.
+   * Seamless multi-backend architecture with GrabCut contour isolation and automated `rembg` integration.
+
+2. **Terminal Theme Palette Synchronization (`--theme`, `--palette`)**:
+   * Harmonize visual outputs with your favorite terminal color schemes in 3D Euclidean RGB space:
+     * `catppuccin` (warm pastel aesthetic)
+     * `dracula` (high-contrast dark purple aesthetic)
+     * `nord` (arctic icy blue aesthetic)
+     * `gruvbox` (retro groove earthy aesthetic)
+     * `synthwave` / `vaporwave` (neon magenta & cyan 80s aesthetic)
+     * `gameboy` (classic 1989 Nintendo 4-shade green LCD aesthetic)
+     * `solarized` (precision low-contrast solarized palette)
+
+3. **Retro CRT Scanlines & Phosphor Monitor Simulation (`--crt`, `--scanlines`)**:
+   * Simulates classic analog cathode ray tube monitors:
+     * `green`: Monochrome P1 green phosphor monitor.
+     * `amber`: Warm P3 amber monochrome display.
+     * `color`: Aperture grille CRT with alternating scanline luminescence.
+     * `scanlines`: Subtle dark horizontal beam scanlines.
+
+4. **Interactive Terminal Slideshow Gallery (`--slideshow`, `--delay`)**:
+   * Transform your terminal into a responsive interactive art gallery for folders or file lists:
+     * Keyboard controls: `[Space]` next slide, `[Left/Right Arrows]` navigate, `[P]` pause/resume, `[R]` random shuffle, `[Q]` quit.
+     * Fully compatible with `--theme`, `--crt`, and custom width constraints.
+
+5. **Matrix Code Ramp & Digital Rain Engine (`--matrix`, `--matrix-rain`)**:
+   * Dedicated Katakana (`ﾘ`, `ﾕ`, `ﾒ`, `ﾓ`, `ﾊ`, etc.) and binary code ramp mapped to luminosity.
+   * `--matrix`: Static high-density Matrix render in phosphor green.
+   * `--matrix-rain`: Dynamic falling digital Katakana rain animation resolving smoothly into the target image.
+
+6. **Direct UNIX STDIN Piping (`cat img.png | lumart -`)**:
+   * Load and render image streams directly from standard input without creating temporary files on disk:
+     * `cat logo.png | lumart - -w 80`
+     * `curl -sL https://example.com/art.png | lumart - -F`
+
+7. **Raw ANSI & Plain Text Fast-Export (`-o banner.ans`, `-o banner.txt`)**:
+   * Export raw TrueColor ANSI escape sequences to `.ans` / `.asc` for instant (0.0001 ms) MOTD and `.bashrc` load times with zero processing latency.
+   * Export `.txt` with all ANSI codes stripped for clean plain text documentation and Markdown code blocks.
+
+8. **Smart System Clipboard Integration (`-C`, `--copy`, `--copy-plain`)**:
+   * `-C` / `--copy`: Automatically pipes ANSI TrueColor art to the native clipboard via `wl-copy` (Wayland), `xclip` / `xsel` (X11), `pbcopy` (macOS), or `clip.exe` (WSL).
+   * `--copy-plain`: Copies clean plain ASCII text without escape sequences.
+
+9. **Visual Side-by-Side Image Diff (`lumart diff <img1> <img2>`, `--diff`)**:
+   * Dual-pane terminal comparison layout displaying both images side by side with real-time RMSE pixel color delta telemetry.
+
+10. **Framing Crop & Digital Zoom Resampling (`--crop`, `--zoom`)**:
+    * `--crop`: Frame images with presets (`center`, `square` 1:1) or custom bounds `x,y,w,h` in pixels or percentages.
+    * `--zoom`: Centered digital zoom with high-fidelity Lanczos resampling.
+
+11. **Interactive Live Parameter Tuning TUI (`-I`, `--interactive`, `--tui`)**:
+    * Real-time keyboard-driven terminal dashboard to experiment with aesthetics on the fly:
+      * `[+/-]`: Dynamic width adjustment.
+      * `[M]`: Cycle engines (Mary Apex, Trumble Orelx, Luris Mono).
+      * `[T]`: Cycle themes and color palettes.
+      * `[C]`: Cycle CRT phosphor monitor filters.
+      * `[D]`: Cycle dithering algorithms (Atkinson, Floyd-Steinberg, Bayer).
+      * `[B]`: Toggle Retinex arcade boost.
+      * `[S]`: Export current render directly to file.
+      * `[Enter]`: Freeze and print render to standard output.
+      * `[Q]`: Exit TUI.
+
+---
+
 ## [2.4.1] — "Apex Horizon" — 2026-09-10
 
 > *"The greatest feat of automation is having the wisdom to do nothing when nothing needs to be done."*

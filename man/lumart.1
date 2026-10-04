@@ -1,10 +1,14 @@
-.TH LUMART 1 "September 2026" "Lumart 2.4.1" "User Commands"
+.TH LUMART 1 "October 2026" "Lumart 2.5.0" "User Commands"
 .SH NAME
 lumart, luma \- High-Fidelity Terminal Visual Suite (Mary Apex, Trumble Orelx, Luris Mono, Spectra Weep)
 
 .SH SYNOPSIS
 .B lumart
 [\fIOPTIONS\fR] [\fIIMAGE_PATH_OR_URL\fR]
+.br
+.B lumart
+.B diff
+[\fIOPTIONS\fR] \fIIMAGE_A\fR \fIIMAGE_B\fR
 .br
 .B luma
 [\fIOPTIONS\fR] [\fIIMAGE_PATH_OR_URL\fR]
@@ -31,7 +35,7 @@ Hardware-accelerated real-time video and webcam streaming engine operating at 30
 .SS "Engine Selection"
 .TP
 \fB\-E\fR, \fB\-\-engine\fR \fIENGINE\fR
-Explicitly select the rendering engine. Supported values: \fBmary\fR, \fBtrumble\fR, \fBluris\fR, \fBspectra\fR. By default, Lumart automatically routes based on options and content.
+Explicitly select the rendering engine. Supported values: \fBmary\fR, \fBtrumble\fR, \fBluris\fR, \fBspectra\fR, \fBcolor\fR, \fBmono\fR, \fBbw\fR, \fBmanga\fR, \fBsketch\fR. By default, Lumart automatically routes based on options and content.
 
 .SS "Subpixel Textures & Halftones"
 .TP
@@ -53,21 +57,27 @@ Activate Manga Screentone 2.0 mode (Bayer 8\(mu8 matrix dithering combined with 
 \fB\-s\fR, \fB\-\-sketch\fR
 Activate clean line sketch mode without screentone dithering.
 
-.SS "Viewport, Geometry & Dimensions"
+.SS "Viewport, Framing & Zoom"
 .TP
 \fB\-w\fR, \fB\-\-width\fR \fICOLUMNS\fR
 Set explicit output width in terminal character columns. Incompatible with \fB\-F\fR / \fB\-\-fit\fR.
 .TP
 \fB\-F\fR, \fB\-\-fit\fR
-\fBAuto-fit to terminal viewport\fR: dynamically queries terminal rows and columns, calculating the optimal bounding box to render the image without vertical scrolling. Incompatible with \fB\-w\fR.
+\fBAuto-fit to terminal viewport\fR: dynamically queries terminal rows and columns, calculating optimal bounding box without vertical scrolling. Incompatible with \fB\-w\fR.
+.TP
+\fB\-\-crop\fR \fISPEC\fR
+Frame and crop image: \fBcenter\fR, \fBsquare\fR (1:1), or specific coordinates \fBx,y,w,h\fR (e.g. \fI10%,10%,80%,80%\fR).
+.TP
+\fB\-\-zoom\fR \fIFACTOR\fR
+Digital zoom centered on subject using high-quality Lanczos resampling (e.g. \fB\-\-zoom 1.5\fR).
 .TP
 \fB\-\-font\-ratio\fR \fIRATIO\fR
-Calibrate terminal font width-to-height aspect ratio (default: \fB0.5\fR). Adjust to \fB0.45\fR\(en\fB0.48\fR for tall fonts (Fira Code) or \fB0.52\fR\(en\fB0.58\fR for wide fonts.
+Calibrate terminal font width-to-height aspect ratio (default: \fB0.5\fR).
 .TP
 \fB\-\-fastfetch\fR, \fB\-\-logo\fR
-Auto-crop transparent and empty bounding margins for seamless inclusion in Fastfetch or Neofetch sidebars.
+Auto-crop transparent and empty bounding margins for Fastfetch or Neofetch sidebars.
 
-.SS "Color, Tone & Palette"
+.SS "Color, Tone & Themes"
 .TP
 \fB\-c\fR, \fB\-\-color\fR
 Force TrueColor (24-bit RGB) ANSI rendering (default).
@@ -75,11 +85,23 @@ Force TrueColor (24-bit RGB) ANSI rendering (default).
 \fB\-\-no\-color\fR
 Disable color escape sequences and route to monochrome pipeline.
 .TP
+\fB\-\-theme\fR, \fB\-\-palette\fR \fITHEME\fR
+Synchronize palette with popular terminal themes: \fBcatppuccin\fR, \fBdracula\fR, \fBnord\fR, \fBgruvbox\fR, \fBsynthwave\fR, \fBvaporwave\fR, \fBgameboy\fR, \fBsolarized\fR.
+.TP
+\fB\-\-crt\fR, \fB\-\-scanlines\fR [\fIMODE\fR]
+Simulate retro cathode ray tube monitors and phosphor displays (\fBcolor\fR, \fBgreen\fR P1 phosphor, \fBamber\fR P3 phosphor, \fBscanlines\fR).
+.TP
+\fB\-\-matrix\fR
+Render image using Katakana code ramp and phosphor green Matrix palette.
+.TP
+\fB\-\-matrix\-rain\fR
+Animate falling digital Katakana Matrix rain resolving smoothly into the image.
+.TP
 \fB\-\-boost\fR, \fB\-\-vibrant\fR
-Apply Retinex multi-scale dynamic range compression, boosting saturation and contrast for arcade-style vibrancy.
+Apply Retinex multi-scale contrast and saturation boost for arcade vibrancy.
 .TP
 \fB\-i\fR, \fB\-\-invert\fR
-Invert luminance values (useful for light terminal backgrounds; automatically detected in \fB\-m\fR).
+Invert luminance values (useful for light terminal backgrounds).
 .TP
 \fB\-d\fR, \fB\-\-dither\fR [\fIALGORITHM\fR]
 Select error-diffusion algorithm: \fBatkinson\fR (default), \fBfloyd\fR, \fBbayer\fR, or \fBnone\fR.
@@ -87,25 +109,53 @@ Select error-diffusion algorithm: \fBatkinson\fR (default), \fBfloyd\fR, \fBbaye
 \fB\-\-swap\fR \fICOLOR1\fR \fICOLOR2\fR
 Dynamically swap colors within 3D RGB Euclidean color space.
 
-.SS "Image Export & Animations"
+.SS "Background Removal & Stickers"
 .TP
-\fB\-o\fR, \fB\-O\fR, \fB\-\-output\fR, \fB\-\-save\fR \fIFILE\fR
-Rasterize the terminal render to an image file (\fB.png\fR, \fB.jpg\fR) or compiled animated GIF (\fB.gif\fR). Note: WebP export is permanently deprecated.
-.TP
-\fB\-\-loop\fR
-\fBAnimation mode\fR: caches decoded frames in memory for smooth 60 FPS terminal playback, or compiles an animated input into a subpixel GIF when combined with \fB\-o output.gif\fR.
+\fB\-r\fR, \fB\-\-remove\-bg\fR
+Intelligent AI background removal without quality loss. If invoked standalone (\fBlumart \-r img.png\fR), exports a full-resolution transparent PNG with zero quality degradation. If combined with engine flags (\fBlumart \-r \-E mary img.png\fR), removes the background first and renders the isolated subject in terminal ASCII.
 .TP
 \fB\-\-transparent\fR
-\fBLuris Mono exclusive\fR: exports manga renders as alpha-transparent PNG stickers (over 90% true transparency).
+Export manga renders as alpha-transparent PNG stickers (Luris Mono exclusive).
+
+.SS "Interactive TUI, Gallery & Diff"
+.TP
+\fB\-I\fR, \fB\-\-interactive\fR, \fB\-\-tui\fR
+Launch interactive live parameter tuning TUI directly inside the terminal. Real-time keys: \fB[+/-]\fR adjust width, \fB[M]\fR switch engine, \fB[T]\fR switch theme palette, \fB[C]\fR toggle CRT filter, \fB[D]\fR cycle dither, \fB[B]\fR toggle boost, \fB[S]\fR save, \fB[Enter]\fR print, \fB[Q]\fR quit.
+.TP
+\fB\-\-slideshow\fR [\fIPATHS...\fR]
+Interactive terminal image gallery slideshow with controls (\fB[Space]\fR next, \fB[Arrows]\fR navigate, \fB[P]\fR pause, \fB[R]\fR random, \fB[Q]\fR quit).
+.TP
+\fB\-\-delay\fR \fISECONDS\fR
+Slideshow interval duration (default: \fB3.0\fR).
+.TP
+\fBlumart diff\fR \fIIMG1\fR \fIIMG2\fR, \fB\-\-diff\fR \fIIMG2\fR
+Visual side-by-side terminal image comparison with dual-pane layout and RMSE pixel color delta telemetry.
+
+.SS "Export, Clipboard & UNIX Pipes"
+.TP
+\fB\-o\fR, \fB\-O\fR, \fB\-\-output\fR, \fB\-\-save\fR \fIFILE\fR
+Export render to graphical image (\fB.png\fR, \fB.jpg\fR), animated GIF (\fB.gif\fR), raw ANSI truecolor buffer (\fB.ans\fR, \fB.asc\fR for zero-delay MOTD), or plain text (\fB.txt\fR).
+.TP
+\fB\-C\fR, \fB\-\-copy\fR
+Copy rendered ANSI truecolor art directly to system clipboard via Wayland (\fIwl-copy\fR), X11 (\fIxclip\fR, \fIxsel\fR), or macOS (\fIpbcopy\fR).
+.TP
+\fB\-\-copy\-plain\fR
+Copy plain ASCII text stripped of ANSI escape codes to clipboard for Markdown or Discord codeblocks.
+.TP
+\fB\-\fR (STDIN)
+Pipe binary image stream directly from UNIX standard input (\fIcat image.png | lumart \-\fR or \fIcurl \-s URL | lumart \-\fR).
+.TP
+\fB\-\-paste\fR
+Grab image data directly from system clipboard.
+.TP
+\fB\-\-loop\fR
+Animation mode: caches frames in memory for smooth 60 FPS terminal playback, or compiles animated GIF when paired with \fB\-o file.gif\fR.
 .TP
 \fB\-\-instant\fR, \fB\-\-no\-reveal\fR
 Display render output immediately without progressive line scanning (default).
 .TP
 \fB\-\-reveal\fR
-Enable theatrical progressive top-to-bottom scanline animation.
-.TP
-\fB\-\-paste\fR
-Grab image data directly from system clipboard and render immediately.
+Enable progressive top-to-bottom scanline reveal animation.
 
 .SS "System Utilities & Lifecycle"
 .TP
@@ -125,13 +175,13 @@ Re-run the N-th command from history (default: last command).
 Wipe all command history from \fI~/.config/luma/history\fR.
 .TP
 \fB\-\-install\-desktop\fR
-Install desktop integration and file manager context menu entry ("Open with Lumart") for Nautilus, Dolphin, Nemo, and Thunar.
+Install desktop integration and file manager context menu entry ("Open with Lumart").
 .TP
 \fB\-\-completions\fR \fISHELL\fR
 Generate shell tab-completion script for \fBbash\fR, \fBzsh\fR, or \fBfish\fR.
 .TP
 \fB\-v\fR, \fB\-\-version\fR
-Display minimalist diagnostic card detailing hardware architecture, OS, Python version, C++ compiler, SIMD/OpenMP support, and shared library health.
+Display diagnostic card detailing hardware architecture, OS, Python version, C++ compiler, SIMD/OpenMP support, and engine health.
 .TP
 \fB\-u\fR, \fB\-\-update\fR, \fB\-\-check\-update\fR
 Query GitHub API for available upstream updates.
@@ -140,7 +190,7 @@ Query GitHub API for available upstream updates.
 Perform automated in-place upgrade to latest upstream release.
 .TP
 \fB\-dg\fR, \fB\-\-downgrade\fR [\fIVERSION\fR]
-Interactive or direct rollback to previously installed version or specific release.
+Rollback to previously installed version or specific release.
 
 .SH EXIT STATUS
 .TP
@@ -161,54 +211,62 @@ Command execution history log.
 .I ~/.config/luma/backup/
 Backup archives for version rollback.
 .TP
-.I ~/.config/luma/settings.json
+.I ~/.config/luma/config.json
 User preferences (language, default flags).
 
 .SH EXAMPLES
 .PP
-Render image to full terminal width in photorealistic TrueColor (zero-flag default):
+Remove background cleanly with zero quality loss:
 .RS
-.B lumart photo.jpg
+.B lumart \-r photo.jpg
 .RE
 .PP
-Auto-fit image perfectly to terminal viewport without scrolling:
+Remove background and render isolated subject in Mary Apex TrueColor:
 .RS
-.B lumart artwork.png \-F
+.B lumart \-r \-E mary photo.jpg \-w 80
 .RE
 .PP
-Apply Capcom CPS-2 retro-arcade cel-shading with vibrant Retinex boost:
+Side-by-side terminal image diff comparison:
 .RS
-.B lumart sprite.png \-E trumble \-\-blocks \-\-boost
+.B lumart diff before.png after.png \-w 100
 .RE
 .PP
-Render Japanese manga screentone and export as transparent PNG sticker:
+Synchronize render with Dracula terminal palette:
 .RS
-.B lumart character.png \-m \-\-transparent \-o sticker.png
+.B lumart avatar.png \-\-theme dracula
 .RE
 .PP
-Play animated GIF in terminal loop at 60 FPS:
+Retro green phosphor CRT monitor simulation:
 .RS
-.B lumart animation.gif \-\-loop
+.B lumart logo.png \-\-crt green
 .RE
 .PP
-Compile animated input into high-resolution animated GIF:
+Katakana Matrix code ramp:
 .RS
-.B lumart animation.gif \-\-loop \-o output.gif
+.B lumart cyber.jpg \-\-matrix
 .RE
 .PP
-Generate Bash completions:
+Interactive Live TUI adjustment mode:
 .RS
-.B eval "$(lumart \-\-completions bash)"
+.B lumart \-I image.png
+.RE
+.PP
+Interactive terminal slideshow of a directory:
+.RS
+.B lumart \-\-slideshow wallpapers/ \-\-delay 4.0
+.RE
+.PP
+Pipe image from STDIN and copy ANSI truecolor render to clipboard:
+.RS
+.B cat banner.png | lumart \- \-w 60 \-C
+.RE
+.PP
+Export raw ANSI banner for instant zero-delay MOTD in .bashrc:
+.RS
+.B lumart logo.png \-o ~/.config/motd.ans
 .RE
 
 .SH AUTHORS
-Developed by \fBSilentBlox_01\fR and the Luma Open Source Community.
+Developed by SilentBlox01 and contributors.
 .br
-GitHub: \fIhttps://github.com/SilentBlox01/Luma\fR
-
-.SH COPYRIGHT
-Copyright \(co 2024\(en2026 SilentBlox_01.
-.br
-License: GNU Affero General Public License v3.0 (\fBAGPL-3.0\fR).
-.br
-This is free software: you are free to change and redistribute it under the conditions of the AGPL-3.0 license.
+Website: \fBhttps://github.com/SilentBlox01/Luma\fR

@@ -7,11 +7,11 @@
   ██║     ██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗   ██║   
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
-   Modern Terminal Visual Suite • v2.4.1 (Apex Horizon)
+   Modern Terminal Visual Suite • v2.5.0 (Apex Nova)
    [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]
 ```
 
-# Lumart (Luma) v2.4.1
+# Lumart (Luma) v2.5.0
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)

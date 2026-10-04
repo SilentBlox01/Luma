@@ -6,7 +6,7 @@
 # ==============================================================================
 set -e
 
-VERSION="2.4.1"
+VERSION="2.5.0"
 
 # Color helpers
 CYAN='\033[1;36m'
@@ -156,6 +156,11 @@ else
 fi
 chmod +x "$SHARE_DIR/mary.py" 2>/dev/null || true
 
+if [ -d "$SCRIPT_DIR/completions" ]; then
+    mkdir -p "$SHARE_DIR/completions" 2>/dev/null || true
+    cp -r "$SCRIPT_DIR/completions/"* "$SHARE_DIR/completions/" 2>/dev/null || true
+fi
+
 # 3b. C++ Monochrome Engine (standalone binary and shared library)
 if [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
     cp "$SCRIPT_DIR/monochrome.cpp" "$SHARE_DIR/"
@@ -283,6 +288,11 @@ if [ -f "$SCRIPT_DIR/completions/_lumart" ]; then
     mkdir -p "$ZSH_COMP_DIR" 2>/dev/null || true
     cp "$SCRIPT_DIR/completions/_lumart" "$ZSH_COMP_DIR/_lumart" 2>/dev/null || true
     ln -sf _lumart "$ZSH_COMP_DIR/_luma" 2>/dev/null || true
+    if [ "$EUID" -ne 0 ]; then
+        mkdir -p "$HOME/.zsh/completion" 2>/dev/null || true
+        cp "$SCRIPT_DIR/completions/_lumart" "$HOME/.zsh/completion/_lumart" 2>/dev/null || true
+        ln -sf _lumart "$HOME/.zsh/completion/_luma" 2>/dev/null || true
+    fi
 fi
 if [ -f "$SCRIPT_DIR/completions/lumart.fish" ]; then
     mkdir -p "$FISH_COMP_DIR" 2>/dev/null || true
