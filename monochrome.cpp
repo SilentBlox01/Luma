@@ -298,29 +298,31 @@ struct RenderConfig {
     bool invert = false;
     bool high_contrast = true;
     float gamma = 1.0f;
+    float font_ratio = 0.5f;
     std::string output_file = "";
 };
 
 std::string render_monochrome_from_raw(uint8_t* raw_data, int orig_w, int orig_h, const RenderConfig& cfg) {
     int target_w = cfg.target_width >= 5 ? cfg.target_width : 90;
     float aspect = static_cast<float>(orig_h) / static_cast<float>(orig_w);
+    float fr = (cfg.font_ratio > 0.05f && cfg.font_ratio < 3.0f) ? cfg.font_ratio : 0.5f;
 
     // Resolution dimensions based on selected mode
     int scaled_w = 0, scaled_h = 0;
-    if (cfg.mode == "braille" || cfg.mode == "manga" || cfg.mode == "sketch") {
+    if (cfg.mode == "braille" || cfg.mode == "manga" || cfg.mode == "sketch" || cfg.mode == "crosshatch") {
         // Braille has 2x4 dots per character cell
         scaled_w = target_w * 2;
-        scaled_h = static_cast<int>(scaled_w * aspect);
+        scaled_h = static_cast<int>(std::round(target_w * aspect * fr * 4.0f));
         scaled_h = scaled_h + (4 - scaled_h % 4) % 4; // multiple of 4
     } else if (cfg.mode == "blocks") {
         // Quadrant HD Blocks (2x2 subpixels per character cell)
         scaled_w = target_w * 2;
-        scaled_h = static_cast<int>(target_w * 2 * aspect * 0.5f);
+        scaled_h = static_cast<int>(std::round(target_w * aspect * fr * 2.0f));
         scaled_h = scaled_h + (2 - scaled_h % 2) % 2; // multiple of 2
     } else {
         // ASCII or single-character shades mode (1 char cell = 1 sample)
         scaled_w = target_w;
-        scaled_h = static_cast<int>(target_w * aspect * 0.5f);
+        scaled_h = static_cast<int>(std::round(target_w * aspect * fr));
     }
 
     if (scaled_w < 2) scaled_w = 2;
@@ -374,80 +376,84 @@ std::string render_monochrome_from_raw(uint8_t* raw_data, int orig_w, int orig_h
     // -------------------------------------------------------------
     // MODES: Braille, Manga 2.0, Sketch, Quadrants HD
     // -------------------------------------------------------------
-    if (cfg.mode == "braille" || cfg.mode == "manga" || cfg.mode == "sketch") {
+    if (cfg.mode == "braille" || cfg.mode == "manga" || cfg.mode == "sketch" || cfg.mode == "crosshatch") {
         std::vector<uint8_t> binary_grid(total_pixels, 0);
 
         float dog_scale = std::max(1.0f, (float)scaled_w / 160.0f);
 
         if (cfg.mode == "sketch") {
-            // Pure Sketch / Lineart: DoG edge contours without screentones
+            // Pure Sketch / Lineart: DoG edge contours without solid shadow blocks
             std::vector<float> dog = compute_dog_edges(luminance, scaled_w, scaled_h, 0.7f * dog_scale, 1.8f * dog_scale);
-            for (int i = 0; i < total_pixels; ++i) {
-                if (alpha[i] >= 128 && (dog[i] > 6.0f || luminance[i] < 35.0f)) {
-                    binary_grid[i] = 255;
+            for (int k = 0; k < total_pixels; ++k) {
+                if (alpha[k] >= 128 && dog[k] > 5.5f) {
+                    binary_grid[k] = 255;
                 }
             }
         } else if (cfg.mode == "manga") {
             // Smart Manga Screentone 2.6:
-            // 1. Clean paper & skin: pure white (zero dot noise)
+            // 1. Clean paper & specular highlights: pure white
             // 2. Line art: crisp solid ink via DoG filter
-            // 3. Clothing / hair shadows: 8x8 Bayer screentone (Ami-tone)
+            // 3. Clothing / hair / skin shadows: 8x8 Bayer screentone (Ami-tone)
             // 4. Deep shadows: solid black
             std::vector<float> dog = compute_dog_edges(luminance, scaled_w, scaled_h, 0.7f * dog_scale, 1.8f * dog_scale);
 
             for (int y = 0; y < scaled_h; ++y) {
                 for (int x = 0; x < scaled_w; ++x) {
-                    int i = y * scaled_w + x;
-                    if (alpha[i] < 128) {
-                        binary_grid[i] = 0;
+                    int idx_m = y * scaled_w + x;
+                    if (alpha[idx_m] < 128) {
+                        binary_grid[idx_m] = 0;
                         continue;
                     }
-                    float ink = ink_density[i];
-                    bool is_line = (dog[i] > 6.0f);
+                    float ink = ink_density[idx_m];
+                    bool is_line = (dog[idx_m] > 5.5f);
 
                     if (is_line) {
-                        binary_grid[i] = 255; // Line art contour
+                        binary_grid[idx_m] = 255; // Line art contour
                     } else if (ink > 215.0f) {
-                        binary_grid[i] = 255; // Solid deep shadow
-                    } else if (ink > 110.0f) {
-                        // Midtones / clothing: Bayer screentone
-                        float threshold = (BAYER_8X8[y % 8][x % 8] + 0.5f) * (255.0f / 64.0f);
-                        if ((ink - 50.0f) >= threshold) {
-                            binary_grid[i] = 255;
+                        binary_grid[idx_m] = 255; // Solid deep shadow
+                    } else if (ink > 28.0f) {
+                        // Midtones / clothing / soft skin shading: smooth Bayer screentone
+                        float bayer_val = (BAYER_8X8[y % 8][x % 8] + 0.5f) / 64.0f;
+                        float ink_norm = (ink - 28.0f) / 187.0f;
+                        if (std::pow(ink_norm, 1.35f) >= bayer_val) {
+                            binary_grid[idx_m] = 255;
                         }
                     }
                 }
             }
         } else if (cfg.dither == "crosshatch" || cfg.mode == "crosshatch") {
-            // Authentic Manga Crosshatch dither: 45-degree pen hatching lines
+            // Authentic Manga Crosshatch dither: true perpendicular pen hatching lines
             std::vector<float> dog = compute_dog_edges(luminance, scaled_w, scaled_h, 0.7f * dog_scale, 1.8f * dog_scale);
             for (int y = 0; y < scaled_h; ++y) {
                 for (int x = 0; x < scaled_w; ++x) {
-                    int i = y * scaled_w + x;
-                    if (alpha[i] < 128) {
-                        binary_grid[i] = 0;
+                    int idx_c = y * scaled_w + x;
+                    if (alpha[idx_c] < 128) {
+                        binary_grid[idx_c] = 0;
                         continue;
                     }
-                    float ink = ink_density[i];
-                    bool is_line = (dog[i] > 6.0f);
+                    float ink = ink_density[idx_c];
+                    bool is_line = (dog[idx_c] > 5.5f);
                     if (is_line || ink > 215.0f) {
-                        binary_grid[i] = 255;
-                    } else if (ink > 160.0f) {
-                        // Dense crosshatch: both diagonals
-                        binary_grid[i] = (((x + y) % 2 == 0) || ((x - y) % 2 == 0)) ? 255 : 0;
-                    } else if (ink > 115.0f) {
-                        // Medium crosshatch
-                        binary_grid[i] = (((x + y) % 3 == 0) || ((x - y) % 3 == 0)) ? 255 : 0;
-                    } else if (ink > 70.0f) {
+                        binary_grid[idx_c] = 255;
+                    } else if (ink > 175.0f) {
+                        // Very dense crosshatch
+                        binary_grid[idx_c] = (((x + y) % 2 == 0) || ((x - y) % 3 == 0)) ? 255 : 0;
+                    } else if (ink > 135.0f) {
+                        // Dense perpendicular crosshatch
+                        binary_grid[idx_c] = (((x + y) % 3 == 0) || ((x - y) % 3 == 0)) ? 255 : 0;
+                    } else if (ink > 95.0f) {
+                        // Fine crosshatch
+                        binary_grid[idx_c] = (((x + y) % 4 == 0) || ((x - y) % 4 == 0)) ? 255 : 0;
+                    } else if (ink > 55.0f) {
                         // Single diagonal hatch
-                        binary_grid[i] = ((x + y) % 3 == 0) ? 255 : 0;
-                    } else if (ink > 35.0f) {
+                        binary_grid[idx_c] = ((x + y) % 3 == 0) ? 255 : 0;
+                    } else if (ink > 25.0f) {
                         // Light sparse hatch
-                        binary_grid[i] = ((x + y) % 4 == 0) ? 255 : 0;
+                        binary_grid[idx_c] = ((x + y) % 5 == 0) ? 255 : 0;
                     }
                 }
             }
-        } else if (cfg.dither == "atkinson" || cfg.dither == "1" || cfg.dither == "true" || cfg.dither == "default") {
+                } else if (cfg.dither == "atkinson" || cfg.dither == "1" || cfg.dither == "true" || cfg.dither == "default") {
             // Atkinson error diffusion: clean paper highlights
             std::vector<float> cleaned_ink = ink_density;
             for (float& val : cleaned_ink) {
@@ -646,7 +652,7 @@ extern "C" {
         return buffer;
     }
 
-    const char* render_monochrome_v2_c(const char* image_path, int width, const char* mode, const char* dither, bool invert, const char* charset, float gamma) {
+    const char* render_monochrome_v2_c(const char* image_path, int width, const char* mode, const char* dither, bool invert, const char* charset, float gamma, float font_ratio = 0.5f) {
         if (!image_path) return nullptr;
         RenderConfig cfg;
         cfg.target_width = width > 0 ? width : 90;
@@ -655,6 +661,7 @@ extern "C" {
         cfg.invert = invert;
         if (charset) cfg.charset = charset;
         if (gamma > 0.01f) cfg.gamma = gamma;
+        if (font_ratio > 0.05f && font_ratio < 3.0f) cfg.font_ratio = font_ratio;
 
         std::string result = render_monochrome_image(image_path, cfg);
         char* buffer = new char[result.size() + 1];
@@ -662,7 +669,7 @@ extern "C" {
         return buffer;
     }
 
-    const char* render_monochrome_memory_c(const unsigned char* buffer, int len, int width, const char* mode, const char* dither, bool invert, const char* charset, float gamma) {
+    const char* render_monochrome_memory_c(const unsigned char* buffer, int len, int width, const char* mode, const char* dither, bool invert, const char* charset, float gamma, float font_ratio = 0.5f) {
         if (!buffer || len <= 0) return nullptr;
         RenderConfig cfg;
         cfg.target_width = width > 0 ? width : 90;
@@ -671,6 +678,7 @@ extern "C" {
         cfg.invert = invert;
         if (charset) cfg.charset = charset;
         if (gamma > 0.01f) cfg.gamma = gamma;
+        if (font_ratio > 0.05f && font_ratio < 3.0f) cfg.font_ratio = font_ratio;
 
         std::string result = render_monochrome_image_memory(buffer, len, cfg);
         char* out_buf = new char[result.size() + 1];
@@ -697,6 +705,7 @@ static void print_usage(const char* prog) {
               << "  -m, --mode <type>      Rendering mode: braille (default), manga, sketch, blocks, ascii, shades, crosshatch\n"
               << "  -d, --dither <algo>    Dithering algorithm: atkinson (default), floyd, bayer, crosshatch, none\n"
               << "  -cs, --charset <name>  Character font ramp: dense, standard, blocks, math, runes, katakana, crosshatch, minimal, binary, or custom\n"
+              << "  -r, --font-ratio <val> Aspect ratio correction (default: 0.5)\n"
               << "  -ch, --crosshatch      Enable authentic Manga 45-degree crosshatching shading\n"
               << "  -i, --invert           Invert lightness (useful for dark vs light terminals)\n"
               << "  -g, --gamma <val>      Adjust gamma curve (e.g. 1.5 for punchier contrast)\n"
@@ -746,6 +755,8 @@ int main(int argc, char** argv) {
             cfg.invert = true;
         } else if (arg == "-g" || arg == "--gamma") {
             if (i + 1 < argc) cfg.gamma = std::atof(argv[++i]);
+        } else if ((arg == "-r" || arg == "--font-ratio") && i + 1 < argc) {
+            cfg.font_ratio = std::atof(argv[++i]);
         } else if (arg == "-o" || arg == "--output") {
             if (i + 1 < argc) cfg.output_file = argv[++i];
         } else if (arg[0] != '-') {

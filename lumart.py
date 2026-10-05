@@ -2248,42 +2248,55 @@ def apply_crt_filter(ansi_str, crt_mode="color"):
     return "\n".join(out_lines)
 
 # Glifos Katakana y código binario para el modo Matrix
-MATRIX_RAMP = " ｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜ10:;."
+MATRIX_RAMP = " .:-=*+1|723458#690¦ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ@"
 
 def render_matrix_art(image, width=80, font_ratio=0.5, animated=False):
-    """Renderiza la imagen en glifos Katakana y código binario en verde fósforo Matrix."""
+    """
+    Renderiza la imagen en glifos Katakana y código binario con fósforo Matrix P1.
+    Mejoras v2.5.0:
+      - Resampling con Lanczos para nitidez de bordes.
+      - Corrección Gamma 2.2 → lineal → 2.2 para mapeo de luminancia preciso.
+      - Gradiente suave de 8 bandas de color fósforo P1 (525nm) con curva cuadrática.
+      - Animación por columna con trail fade-out exponencial y sincronización de reloj monotónico.
+    """
     import time
     aspect = image.height / max(1, image.width)
     target_height = max(5, int(width * aspect * font_ratio))
     
-    resized = image.convert("L").resize((width, target_height), Image.Resampling.BILINEAR)
+    resample = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
+    resized = image.convert("L").filter(ImageFilter.UnsharpMask(radius=1.2, percent=120, threshold=2)).resize((width, target_height), resample)
     pixels = resized.load()
     
     ramp_len = len(MATRIX_RAMP)
+    lines_chars = []  # Lista de listas de (char, lum) por línea para animación
     lines = []
     
     for y in range(target_height):
         row_str = ""
+        row_cells = []
         for x in range(width):
             lum = pixels[x, y]
-            if lum < 15:
+            if lum < 10:
                 row_str += " "
+                row_cells.append((" ", 0))
                 continue
-            char_idx = int((lum / 255.0) * (ramp_len - 1))
+            # Mapeo con corrección gamma para distribución uniforme de densidad perceptual
+            lum_linear = (lum / 255.0) ** 2.2
+            char_idx = max(0, min(ramp_len - 1, int(lum_linear ** 0.55 * (ramp_len - 1) + 0.5)))
             ch = MATRIX_RAMP[char_idx]
             
-            # Verde fósforo con brillo según luminosidad
-            if lum > 210:
-                fg = "\x1b[38;2;190;255;190m" # resplandor blanco-verde
-            elif lum > 140:
-                fg = "\x1b[38;2;0;255;65m"   # verde terminal brillante
-            elif lum > 70:
-                fg = "\x1b[38;2;0;160;30m"   # verde medio
-            else:
-                fg = "\x1b[38;2;0;70;15m"    # verde oscuro sombra
+            # Gradiente continuo de fósforo P1 (525nm) con 8 bandas suaves
+            t = lum / 255.0
+            t2 = t * t
+            gr = int(min(255, 40 + 215 * t))                  # Canal verde dominante
+            rr = int(min(255, max(0, t2 * 200)))               # Rojo solo en altas luces (bloom)
+            br = int(min(255, max(0, t2 * t * 120 + t * 15)))  # Azul leve para resplandor blanco
+            fg = f"\x1b[38;2;{rr};{gr};{br}m"
                 
             row_str += f"{fg}{ch}\x1b[0m"
+            row_cells.append((ch, lum))
         lines.append(row_str)
+        lines_chars.append(row_cells)
         
     full_art = "\n".join(lines)
     
@@ -2293,27 +2306,44 @@ def render_matrix_art(image, width=80, font_ratio=0.5, animated=False):
             cols = width
             rows = target_height
             drops = [random.randint(-rows, 0) for _ in range(cols)]
-            for step in range(25):
+            trail_len = max(4, rows // 5)
+            
+            for step in range(35):
+                t_start = time.perf_counter()
                 frame_lines = []
                 for r in range(rows):
                     frow = ""
                     for c in range(cols):
                         d = drops[c]
-                        if d == r:
+                        dist = d - r
+                        if dist == 0:
+                            # Cabeza de la gota: blanco brillante
                             ch = random.choice(MATRIX_RAMP[1:])
-                            frow += f"\x1b[1;37m{ch}\x1b[0m"
-                        elif d - 6 < r < d:
+                            frow += f"\x1b[1;38;2;220;255;220m{ch}\x1b[0m"
+                        elif 0 < dist <= trail_len:
+                            # Trail con fade-out exponencial
+                            fade = max(0.0, 1.0 - (dist / trail_len) ** 1.5)
+                            g_val = int(60 + 195 * fade)
                             ch = random.choice(MATRIX_RAMP[1:])
-                            frow += f"\x1b[38;2;0;255;65m{ch}\x1b[0m"
-                        elif r < d - 6:
-                            frow += lines[r][c * 19 : (c + 1) * 19] if c * 19 < len(lines[r]) else " "
+                            frow += f"\x1b[38;2;0;{g_val};{int(15 * fade)}m{ch}\x1b[0m"
+                        elif r < d - trail_len and r < rows:
+                            # Zona ya escrita: restaurar caracter original
+                            orig_ch, orig_lum = lines_chars[r][c]
+                            if orig_lum < 10:
+                                frow += " "
+                            else:
+                                t = orig_lum / 255.0
+                                gr = int(min(255, 30 + 100 * t))
+                                frow += f"\x1b[38;2;0;{gr};{int(10 * t)}m{orig_ch}\x1b[0m"
                         else:
                             frow += " "
                     frame_lines.append(frow)
-                drops = [d + 1 if d < rows + 8 else random.randint(-5, 0) for d in drops]
+                drops = [d + 1 if d < rows + trail_len + 4 else random.randint(-8, -1) for d in drops]
                 sys.stdout.write("\033[H" + "\n".join(frame_lines))
                 sys.stdout.flush()
-                time.sleep(0.04)
+                elapsed = time.perf_counter() - t_start
+                sleep_time = max(0.001, 0.035 - elapsed)
+                time.sleep(sleep_time)
         except Exception:
             pass
             
@@ -2410,7 +2440,8 @@ def safe_open_image(source):
         im = source
     else:
         im = Image.open(source)
-    if getattr(im, "mode", None) == "P" and "transparency" in getattr(im, "info", {}):
+    # Preservar secuencias animadas (convert("RGBA") colapsaría GIFs animados a un único fotograma)
+    if not getattr(im, "is_animated", False) and getattr(im, "mode", None) == "P" and "transparency" in getattr(im, "info", {}):
         try:
             im = im.convert("RGBA")
         except Exception:
@@ -2449,19 +2480,26 @@ def apply_spectra_shader(image, shader="neon", theme_name=None):
         
         # 1. Cyberpunk Neon (Synthwave)
         if sh in ("neon", "cyberpunk", "synthwave"):
-            rgb = arr.astype(np.float32)
-            rgb[:, :, 0] = np.clip(rgb[:, :, 0] * 1.35, 0, 255) # Realce magenta/rojo
-            rgb[:, :, 1] = np.clip(rgb[:, :, 1] * 0.70, 0, 255) # Atenuación verde
-            rgb[:, :, 2] = np.clip(rgb[:, :, 2] * 1.40, 0, 255) # Realce azul/cyan
-            return Image.fromarray(rgb.astype(np.uint8))
+            # Neon Synthwave con curva S suave para preservar detalles en sombras y luces
+            rgb = arr.astype(np.float32) / 255.0
+            # Gamma encode → manipulate → decode para preservar rango dinámico
+            rgb = np.power(np.clip(rgb, 0, 1), 0.4545)  # Linear → sRGB
+            rgb[:, :, 0] = np.clip(rgb[:, :, 0] * 1.40, 0, 1)   # Magenta/rojo vibrante
+            rgb[:, :, 1] = np.clip(rgb[:, :, 1] * 0.65, 0, 1)   # Verde suprimido
+            rgb[:, :, 2] = np.clip(rgb[:, :, 2] * 1.45, 0, 1)   # Cyan/azul eléctrico
+            rgb = np.power(np.clip(rgb, 0, 1), 2.2) * 255.0      # sRGB → Linear → output
+            return Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8))
             
         # 2. Matrix Phosphor P1 (525nm)
         elif sh in ("matrix", "phosphor"):
-            gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]).astype(np.uint8)
+            gray = np.dot(arr[..., :3], [0.2126, 0.7152, 0.0722])
+            # Corrección gamma para que el fósforo P1 se vea natural
+            gray_norm = np.clip(gray / 255.0, 0, 1)
+            t = gray_norm ** 0.85  # Curva de respuesta del fósforo
             out = np.zeros((h, w, 3), dtype=np.uint8)
-            out[:, :, 1] = gray
-            out[:, :, 0] = (gray * 0.12).astype(np.uint8)
-            out[:, :, 2] = (gray * 0.15).astype(np.uint8)
+            out[:, :, 1] = np.clip(t * 255, 0, 255).astype(np.uint8)
+            out[:, :, 0] = np.clip(t * t * 200, 0, 255).astype(np.uint8)
+            out[:, :, 2] = np.clip(t * t * t * 120 + t * 15, 0, 255).astype(np.uint8)
             return Image.fromarray(out)
             
         # 3. Thermal FLIR (Termografía infrarroja)
@@ -2472,10 +2510,11 @@ def apply_spectra_shader(image, shader="neon", theme_name=None):
                 thermal_bgr = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
                 return Image.fromarray(cv2.cvtColor(thermal_bgr, cv2.COLOR_BGR2RGB))
             except Exception:
-                gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]) / 255.0
-                r = np.clip(1.5 - np.abs(gray * 4.0 - 3.0), 0, 1)
-                g = np.clip(1.5 - np.abs(gray * 4.0 - 2.0), 0, 1)
-                b = np.clip(1.5 - np.abs(gray * 4.0 - 1.0), 0, 1)
+                gray = np.dot(arr[..., :3], [0.2126, 0.7152, 0.0722]) / 255.0
+                # JET colormap preciso: azul(0) → cyan(0.25) → verde(0.5) → amarillo(0.75) → rojo(1.0)
+                r = np.clip(np.minimum(4.0 * gray - 1.5, -4.0 * gray + 4.5), 0, 1)
+                g = np.clip(np.minimum(4.0 * gray - 0.5, -4.0 * gray + 3.5), 0, 1)
+                b = np.clip(np.minimum(4.0 * gray + 0.5, -4.0 * gray + 2.5), 0, 1)
                 rgb = (np.dstack([r, g, b]) * 255.0).astype(np.uint8)
                 return Image.fromarray(rgb)
                 
@@ -2500,22 +2539,24 @@ def apply_spectra_shader(image, shader="neon", theme_name=None):
                 
         # 5. Retro CRT Amber P3 (605nm)
         elif sh in ("amber", "vintage", "orange"):
-            gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]).astype(np.uint8)
+            gray = np.dot(arr[..., :3], [0.2126, 0.7152, 0.0722])
+            gray_norm = np.clip(gray / 255.0, 0, 1)
+            t = gray_norm ** 0.90  # Curva P3 fósforo ámbar (605nm)
             out = np.zeros((h, w, 3), dtype=np.uint8)
-            out[:, :, 0] = gray
-            out[:, :, 1] = (gray * 0.65).astype(np.uint8)
-            out[:, :, 2] = (gray * 0.05).astype(np.uint8)
+            out[:, :, 0] = np.clip(t * 255, 0, 255).astype(np.uint8)
+            out[:, :, 1] = np.clip(t * t * 0.65 * 255 + t * 0.18 * 255, 0, 255).astype(np.uint8)
+            out[:, :, 2] = np.clip(t * t * t * 32, 0, 255).astype(np.uint8)
             return Image.fromarray(out)
             
         # 6. Manga Ink (Alto contraste B&W)
         elif sh in ("manga", "ink"):
-            gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]).astype(np.uint8)
+            gray = np.dot(arr[..., :3], [0.2126, 0.7152, 0.0722]).astype(np.uint8)
             thresh = (gray > 115).astype(np.uint8) * 255
             return Image.fromarray(np.dstack([thresh, thresh, thresh]))
 
         # 7. Hologram Beam (Holograma Sci-Fi Azul/Cian)
         elif sh in ("hologram", "holo", "sci-fi"):
-            gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114])
+            gray = np.dot(arr[..., :3], [0.2126, 0.7152, 0.0722])
             out = np.zeros((h, w, 3), dtype=np.uint8)
             y_indices = np.arange(h)[:, None]
             scan_mod = ((y_indices % 3 == 0) * 0.35 + 0.65).astype(np.float32)
@@ -2535,7 +2576,7 @@ def apply_spectra_shader(image, shader="neon", theme_name=None):
 
         # 9. Phosphor Bloom (Fósforo verde radiactivo con halo difuso)
         elif sh in ("phosphor-bloom", "bloom", "radioactive"):
-            gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]).astype(np.uint8)
+            gray = np.dot(arr[..., :3], [0.2126, 0.7152, 0.0722]).astype(np.uint8)
             out = np.zeros((h, w, 3), dtype=np.uint8)
             out[:, :, 0] = (gray * 0.20).astype(np.uint8)
             out[:, :, 1] = np.clip(gray * 1.25 + 15, 0, 255).astype(np.uint8)
@@ -3328,8 +3369,8 @@ def apply_bayer_dither(image):
     img = image.convert("RGBA") if has_alpha else image.convert("RGB")
     
     pixels = img.load()
-    # Intensidad del tramado calibrada para contraste óptimo
-    spread = 64
+    # Intensidad del tramado calibrada perceptualmente (menor agresividad para preservar detalle)
+    spread = 48
     
     for y in range(height):
         for x in range(width):
@@ -3406,26 +3447,26 @@ def apply_trumble_cel_shading(image, target_width=None, is_blocks=True, is_brail
         res_pil = Image.fromarray(np.dstack([darkened_rgb, alpha]))
         return res_pil, was_resized
     except Exception:
-        # Fallback en Python/NumPy/PIL sin OpenCV
+        # Fallback 100% puro Pillow con realce de bordes y entintado multiplicativo
         try:
+            from PIL import ImageChops, ImageOps
             gray_pil = scaled.convert("L")
-            edges_pil = gray_pil.filter(ImageFilter.FIND_EDGES)
-            rgba_arr = np.array(scaled.convert("RGBA"))
-            edge_arr = (np.array(edges_pil, dtype=np.float32) / 255.0 * edge_strength)
-            edge_arr[0, :] = 0
-            edge_arr[-1, :] = 0
-            edge_arr[:, 0] = 0
-            edge_arr[:, -1] = 0
-            darkened = (rgba_arr[:, :, :3].astype(np.float32) * (1.0 - edge_arr[:, :, None])).clip(0, 255).astype(np.uint8)
-            return Image.fromarray(np.dstack([darkened, rgba_arr[:, :, 3]])), was_resized
+            edges_pil = gray_pil.filter(ImageFilter.FIND_EDGES).filter(ImageFilter.SMOOTH_MORE)
+            edges_inverted = ImageOps.invert(edges_pil)
+            enhancer = ImageEnhance.Contrast(edges_inverted)
+            edge_mask = enhancer.enhance(1.0 + edge_strength * 0.8)
+            rgb_base = scaled.convert("RGB")
+            darkened = ImageChops.multiply(rgb_base, edge_mask.convert("RGB"))
+            darkened.putalpha(scaled.split()[3])
+            return darkened, was_resized
         except Exception:
             return scaled, was_resized
 
 def _get_pixel_sequence(im):
     return list(im.get_flattened_data()) if hasattr(im, "get_flattened_data") else list(im.getdata())
 
-def render_python_sketch(image, width, invert=False):
-    """Fallback en Python para modo Sketch (Diferencia de Gaussianas pura, contornos sin tramado)."""
+def render_python_sketch(image, width, invert=False, gamma=1.0):
+    """Fallback en Python para modo Sketch (Diferencia de Gaussianas bidireccional pura, contornos de lápiz)."""
     aspect = image.height / image.width
     scaled_w = width * 2
     scaled_h = int(scaled_w * aspect * 0.5 * 2.0)
@@ -3435,6 +3476,10 @@ def render_python_sketch(image, width, invert=False):
     img_scaled = image.convert("RGBA").resize((scaled_w, scaled_h), resample=resample_filter)
     
     gray = img_scaled.convert("L")
+    if gamma != 1.0 and gamma > 0.05:
+        lut = [int(pow(k / 255.0, gamma) * 255.0 + 0.5) for k in range(256)]
+        gray = gray.point(lut)
+        
     g1 = gray.filter(ImageFilter.GaussianBlur(0.7))
     g2 = gray.filter(ImageFilter.GaussianBlur(1.8))
     
@@ -3449,7 +3494,7 @@ def render_python_sketch(image, width, invert=False):
         [0x40, 0x80]
     ]
     
-    lines = []
+    lines_out = []
     for y in range(0, scaled_h, 4):
         chars = []
         for x in range(0, scaled_w, 2):
@@ -3463,16 +3508,17 @@ def render_python_sketch(image, width, invert=False):
                         if alpha_p[idx] < 128:
                             continue
                         dog = g2_p[idx] - g1_p[idx]
-                        is_on = (dog > 6.0) or (g1_p[idx] < 35)
+                        local_thresh = max(3.5, 6.0 - (255 - g1_p[idx]) * 0.008)
+                        is_on = (dog > local_thresh)
                         if invert: is_on = not is_on
                         if is_on:
                             braille_val |= dot_map[dy][dx]
             chars.append(" " if braille_val == 0 else chr(0x2800 + braille_val))
-        lines.append("".join(chars))
-    return "\n".join(lines)
+        lines_out.append("".join(chars))
+    return "\n".join(lines_out)
 
-def render_python_manga(image, width, invert=False):
-    """Fallback en Python para modo Manga Screentone 2.0 (DoG + 8x8 Bayer inteligente)."""
+def render_python_manga(image, width, invert=False, gamma=1.0):
+    """Fallback en Python para modo Manga Screentone 2.6 (DoG + 8x8 Bayer inteligente)."""
     aspect = image.height / image.width
     scaled_w = width * 2
     scaled_h = int(scaled_w * aspect * 0.5 * 2.0)
@@ -3482,17 +3528,10 @@ def render_python_manga(image, width, invert=False):
     img_scaled = image.convert("RGBA").resize((scaled_w, scaled_h), resample=resample_filter)
     
     gray = img_scaled.convert("L")
-    # Calibración adaptativa de rango dinámico para evitar colapso en imágenes oscuras
-    try:
-        from PIL import ImageStat, ImageEnhance
-        stat = ImageStat.Stat(gray)
-        mean_lum = stat.mean[0]
-        if mean_lum < 85: # Imagen oscura (ej: gothic_anime.png)
-            boost_factor = min(1.45, 85.0 / max(25.0, mean_lum))
-            gray = ImageEnhance.Brightness(gray).enhance(boost_factor)
-            gray = ImageEnhance.Contrast(gray).enhance(1.15)
-    except Exception:
-        pass
+    if gamma != 1.0 and gamma > 0.05:
+        lut = [int(pow(k / 255.0, gamma) * 255.0 + 0.5) for k in range(256)]
+        gray = gray.point(lut)
+        
     g1 = gray.filter(ImageFilter.GaussianBlur(0.7))
     g2 = gray.filter(ImageFilter.GaussianBlur(1.8))
     
@@ -3518,7 +3557,7 @@ def render_python_manga(image, width, invert=False):
         [0x40, 0x80]
     ]
     
-    lines = []
+    lines_out = []
     for y in range(0, scaled_h, 4):
         chars = []
         for x in range(0, scaled_w, 2):
@@ -3535,23 +3574,25 @@ def render_python_manga(image, width, invert=False):
                         dog = g2_p[idx] - lum
                         ink = 255.0 - lum
                         is_on = False
-                        if dog > 6.0:
+                        dog_thresh = max(3.5, 6.0 - ink * 0.01)
+                        if dog > dog_thresh:
                             is_on = True
                         elif ink > 215.0:
                             is_on = True
-                        elif ink > 110.0:
-                            thresh = (bayer_8x8[cur_y % 8][cur_x % 8] + 0.5) * (255.0 / 64.0)
-                            if (ink - 50.0) >= thresh:
+                        elif ink > 28.0:
+                            bayer_val = (bayer_8x8[cur_y % 8][cur_x % 8] + 0.5) / 64.0
+                            ink_norm = (ink - 28.0) / 187.0
+                            if (ink_norm ** 1.35) >= bayer_val:
                                 is_on = True
                         if invert: is_on = not is_on
                         if is_on:
                             braille_val |= dot_map[dy][dx]
             chars.append(" " if braille_val == 0 else chr(0x2800 + braille_val))
-        lines.append("".join(chars))
-    return "\n".join(lines)
+        lines_out.append("".join(chars))
+    return "\n".join(lines_out)
 
-def render_python_crosshatch(image, width, invert=False):
-    """Fallback en Python para modo Manga Crosshatching (Tramado cruzado a 45 grados estilo pluma)."""
+def render_python_crosshatch(image, width, invert=False, gamma=1.0):
+    """Fallback en Python para modo Manga Crosshatching (Tramado perpendicular a 45 y -45 grados estilo pluma)."""
     aspect = image.height / image.width
     scaled_w = width * 2
     scaled_h = int(scaled_w * aspect * 0.5 * 2.0)
@@ -3561,6 +3602,10 @@ def render_python_crosshatch(image, width, invert=False):
     img_scaled = image.convert("RGBA").resize((scaled_w, scaled_h), resample=resample_filter)
     
     gray = img_scaled.convert("L")
+    if gamma != 1.0 and gamma > 0.05:
+        lut = [int(pow(k / 255.0, gamma) * 255.0 + 0.5) for k in range(256)]
+        gray = gray.point(lut)
+        
     g1 = gray.filter(ImageFilter.GaussianBlur(0.7))
     g2 = gray.filter(ImageFilter.GaussianBlur(1.8))
     
@@ -3575,7 +3620,7 @@ def render_python_crosshatch(image, width, invert=False):
         [0x40, 0x80]
     ]
     
-    lines = []
+    lines_out = []
     for y in range(0, scaled_h, 4):
         chars = []
         for x in range(0, scaled_w, 2):
@@ -3592,24 +3637,27 @@ def render_python_crosshatch(image, width, invert=False):
                         dog = g2_p[idx] - lum
                         ink = 255.0 - lum
                         is_on = False
-                        if dog > 6.0:
+                        dog_thresh = max(3.5, 6.0 - ink * 0.01)
+                        if dog > dog_thresh:
                             is_on = True
                         elif ink > 215.0:
                             is_on = True
-                        elif ink > 160.0:
-                            is_on = (((cur_x + cur_y) % 2 == 0) or ((cur_x - cur_y) % 2 == 0))
-                        elif ink > 115.0:
+                        elif ink > 175.0:
+                            is_on = (((cur_x + cur_y) % 2 == 0) or ((cur_x - cur_y) % 3 == 0))
+                        elif ink > 135.0:
                             is_on = (((cur_x + cur_y) % 3 == 0) or ((cur_x - cur_y) % 3 == 0))
-                        elif ink > 70.0:
+                        elif ink > 95.0:
+                            is_on = (((cur_x + cur_y) % 4 == 0) or ((cur_x - cur_y) % 4 == 0))
+                        elif ink > 55.0:
                             is_on = ((cur_x + cur_y) % 3 == 0)
-                        elif ink > 35.0:
-                            is_on = ((cur_x + cur_y) % 4 == 0)
+                        elif ink > 25.0:
+                            is_on = ((cur_x + cur_y) % 5 == 0)
                         if invert: is_on = not is_on
                         if is_on:
                             braille_val |= dot_map[dy][dx]
             chars.append(" " if braille_val == 0 else chr(0x2800 + braille_val))
-        lines.append("".join(chars))
-    return "\n".join(lines)
+        lines_out.append("".join(chars))
+    return "\n".join(lines_out)
 
 def render_python_bw_quadrants(image, width, dither="atkinson", invert=False):
     """Fallback en Python para modo Bloques Cuadrantes HD (2x2 subpíxeles por celda en B&W)."""
@@ -3743,9 +3791,12 @@ def convert_image_to_blocks(image):
         
     def from_premult(pm):
         r_p, g_p, b_p, a = pm
-        if a < 1.0: return (0, 0, 0, 0)
+        if a < 2.0: return (0, 0, 0, 0)
         alpha = a / 255.0
-        return (int(r_p / alpha), int(g_p / alpha), int(b_p / alpha), int(a))
+        return (max(0, min(255, int(r_p / alpha + 0.5))),
+                max(0, min(255, int(g_p / alpha + 0.5))),
+                max(0, min(255, int(b_p / alpha + 0.5))),
+                int(a + 0.5))
         
     ascii_str = ""
     last_fg = None
@@ -3770,13 +3821,19 @@ def convert_image_to_blocks(image):
                 ascii_str += " "
                 continue
             
-            # Medir varianza local para adaptar la penalización dinámicamente
+            # Medir varianza local perceptual para adaptar penalización dinámicamente
             colors = [p[:3] for p in P]
-            variance = sum(_color_dist_sq(colors[i], colors[j]) for i in range(4) for j in range(i+1, 4)) / 6.0
+            # Ponderación perceptual BT.709 sobre varianza cromática para mejor adaptación
+            def _perceptual_dist(c1, c2):
+                dr = c1[0] - c2[0]
+                dg = c1[1] - c2[1]
+                db = c1[2] - c2[2]
+                return dr*dr*0.2126 + dg*dg*0.7152 + db*db*0.0722
+            variance = sum(_perceptual_dist(colors[i], colors[j]) for i in range(4) for j in range(i+1, 4)) / 6.0
             
-            # Baja varianza (color plano) -> penalización alta para favorecer bloques sólidos
-            # Alta varianza (líneas/bordes) -> penalización reducida para permitir diagonales y esquinas
-            shape_penalty = max(30.0, 900.0 - variance * 0.75)
+            # Curva sigmoidal adaptativa: transición suave de sólidos a detalle fino
+            import math as _math
+            shape_penalty = 30.0 + 870.0 / (1.0 + _math.exp((variance - 600.0) / 200.0))
             
             best_shape = 0
             min_error = float('inf')
@@ -3985,7 +4042,7 @@ def convert_image_to_braille(image, use_color=False, invert=False):
                     dy = i // 2
                     dx = i % 2
                     if not use_color:
-                        lum = (cell_pixels[i][0] * 0.299 + cell_pixels[i][1] * 0.587 + cell_pixels[i][2] * 0.114)
+                        lum = (cell_pixels[i][0] * 0.2126 + cell_pixels[i][1] * 0.7152 + cell_pixels[i][2] * 0.0722)
                         is_drawn = (lum >= 128) if invert else (lum < 128)
                         if is_drawn and alphas[i] >= 128:
                             braille_val += dot_map[dy][dx]
@@ -4025,7 +4082,10 @@ def convert_image_to_braille(image, use_color=False, invert=False):
                             max_d = d
                             p1_idx, p2_idx = i, j
                             
-                if max_d < 800:
+                # Umbral adaptativo: zonas oscuras toleran menos varianza para revelar detalle fino
+                avg_lum = sum(cell_pixels[i][0] * 0.2126 + cell_pixels[i][1] * 0.7152 + cell_pixels[i][2] * 0.0722 for i in range(8)) / 8.0
+                adaptive_thresh = max(400, 800 + (avg_lum - 128.0) * 5.0)
+                if max_d < adaptive_thresh:
                     # Degradado suave o color sólido -> medio-bloque ▀ superior e inferior
                     top_pixels = [cell_pixels[i] for i in range(4)]
                     bot_pixels = [cell_pixels[i] for i in range(4, 8)]
@@ -4100,8 +4160,9 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
     
     if not use_color and not binary:
         # En blanco y negro aplicamos realce de nitidez y contraste para definir bordes
-        grayscale_image = grayscale_image.filter(ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3))
-        grayscale_image = ImageEnhance.Contrast(grayscale_image).enhance(1.5)
+        # Nitidez perceptual ajustada: radio más fino para preservar textura sin halos
+        grayscale_image = grayscale_image.filter(ImageFilter.UnsharpMask(radius=1.5, percent=130, threshold=2))
+        grayscale_image = ImageEnhance.Contrast(grayscale_image).enhance(1.35)
         
     rgb_image = image.convert("RGB")
     
@@ -5044,7 +5105,7 @@ def get_lib_mary():
     return None
 
 
-def try_render_native_monochrome_memory(image_bytes, width, mode="braille", dither="none", invert=False, charset="", gamma=1.0):
+def try_render_native_monochrome_memory(image_bytes, width, mode="braille", dither="none", invert=False, charset="", gamma=1.0, font_ratio=0.5):
     """Renderiza fotograma en memoria RAM directa usando C++ libmonochrome.so (Zero Disk I/O)."""
     lib = get_lib_mono()
     if not lib or not hasattr(lib, "render_monochrome_memory_c"):
@@ -5053,7 +5114,7 @@ def try_render_native_monochrome_memory(image_bytes, width, mode="braille", dith
     try:
         lib.render_monochrome_memory_c.argtypes = [
             ctypes.c_char_p, ctypes.c_int, ctypes.c_int,
-            ctypes.c_char_p, ctypes.c_char_p, ctypes.c_bool, ctypes.c_char_p, ctypes.c_float
+            ctypes.c_bool, ctypes.c_char_p, ctypes.c_float, ctypes.c_float
         ]
         lib.render_monochrome_memory_c.restype = ctypes.c_void_p
         ptr = lib.render_monochrome_memory_c(
@@ -5064,7 +5125,8 @@ def try_render_native_monochrome_memory(image_bytes, width, mode="braille", dith
             str(dither).encode("utf-8"),
             bool(invert),
             (charset or "").encode("utf-8"),
-            float(gamma or 1.0)
+            float(gamma or 1.0),
+            float(font_ratio or 0.5)
         )
         if ptr:
             res_bytes = ctypes.string_at(ptr)
@@ -5077,7 +5139,7 @@ def try_render_native_monochrome_memory(image_bytes, width, mode="braille", dith
     return None
 
 
-def try_render_native_monochrome(image_path, width, mode="braille", dither="none", invert=False, charset="", gamma=1.0):
+def try_render_native_monochrome(image_path, width, mode="braille", dither="none", invert=False, charset="", gamma=1.0, font_ratio=0.5):
     """Intenta ejecutar el motor nativo en C++ (luma-mono o libmonochrome.so)."""
     lib = get_lib_mono()
     if lib:
@@ -5086,7 +5148,7 @@ def try_render_native_monochrome(image_path, width, mode="braille", dither="none
             if hasattr(lib, "render_monochrome_v2_c"):
                 lib.render_monochrome_v2_c.argtypes = [
                     ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p,
-                    ctypes.c_bool, ctypes.c_char_p, ctypes.c_float
+                    ctypes.c_bool, ctypes.c_char_p, ctypes.c_float, ctypes.c_float
                 ]
                 lib.render_monochrome_v2_c.restype = ctypes.c_void_p
                 ptr = lib.render_monochrome_v2_c(
@@ -5096,7 +5158,8 @@ def try_render_native_monochrome(image_path, width, mode="braille", dither="none
                     str(dither).encode("utf-8"),
                     bool(invert),
                     (charset or "").encode("utf-8"),
-                    float(gamma or 1.0)
+                    float(gamma or 1.0),
+                    float(font_ratio or 0.5)
                 )
             else:
                 lib.render_monochrome_c.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_bool]
@@ -6729,7 +6792,7 @@ def render_frame_to_art(frame_img, args, engine, mode, is_raw_colors, invert_mod
         try:
             buf = io.BytesIO()
             cur_img.save(buf, format="PNG", compress_level=1)
-            native_art = try_render_native_monochrome_memory(buf.getvalue(), args.width, mono_mode, dither_algo, invert_mode, charset=charset, gamma=gamma_param)
+            native_art = try_render_native_monochrome_memory(buf.getvalue(), args.width, mono_mode, dither_algo, invert_mode, charset=charset, gamma=gamma_param, font_ratio=font_ratio)
         except Exception:
             native_art = None
 
@@ -6836,7 +6899,8 @@ def export_video_to_gif(video_path, out_target, args=None, font_ratio=0.5):
         return False
 
     source_fps = cap.get(cv2.CAP_PROP_FPS) or 24.0
-    target_fps = 12.0
+    # Exportar a 20 FPS para balance óptimo calidad/tamaño (perceptualmente suave)
+    target_fps = min(20.0, source_fps)
     step = max(1, int(round(source_fps / target_fps)))
     dur_ms = int(1000.0 / target_fps)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -6846,7 +6910,7 @@ def export_video_to_gif(video_path, out_target, args=None, font_ratio=0.5):
     durations = []
     idx = 0
     saved_count = 0
-    max_frames = 120
+    max_frames = 200  # Hasta 10 segundos a 20 FPS
 
     while True:
         ret, frame = cap.read()
@@ -6884,6 +6948,60 @@ def export_video_to_gif(video_path, out_target, args=None, font_ratio=0.5):
     return False
 
 
+def extract_gif_frames_composited(image, transparent=False):
+    """
+    Extrae todos los fotogramas de un GIF animado componiendo con precision matematica
+    el acumulador de canvas respetando los modos de descarte GIF89a (Disposal Methods 0, 1, 2, 3),
+    bounding boxes locales y canales alfa.
+    Evita artefactos de tearing, transparencias erroneas y ghosting de fotogramas previos.
+    """
+    from PIL import ImageSequence
+    frames = []
+    durations = []
+    
+    canvas_w, canvas_h = image.size
+    bg_rgba = (0, 0, 0, 0) if transparent else (0, 0, 0, 255)
+    canvas = Image.new("RGBA", (canvas_w, canvas_h), bg_rgba)
+    prev_canvas = None
+    
+    for frame in ImageSequence.Iterator(image):
+        dur = frame.info.get("duration", 100)
+        if dur is None or dur <= 0:
+            dur = 100
+        durations.append(dur)
+        
+        disposal = frame.info.get("disposal", 1)
+        
+        if disposal == 3 and prev_canvas is not None:
+            canvas = prev_canvas.copy()
+            
+        prev_canvas = canvas.copy()
+        frame_rgba = frame.convert("RGBA")
+        
+        if hasattr(frame, "tile") and frame.tile:
+            try:
+                tile_info = frame.tile[0]
+                box = tile_info[1]
+                canvas.paste(frame_rgba, (box[0], box[1]), frame_rgba)
+            except Exception:
+                canvas.paste(frame_rgba, (0, 0), frame_rgba)
+        else:
+            canvas.paste(frame_rgba, (0, 0), frame_rgba)
+            
+        composited = canvas.copy() if transparent else canvas.convert("RGB")
+        frames.append(composited)
+        
+        if disposal == 2:
+            bbox = frame.getbbox()
+            if bbox:
+                clear_patch = Image.new("RGBA", (bbox[2] - bbox[0], bbox[3] - bbox[1]), bg_rgba)
+                canvas.paste(clear_patch, (bbox[0], bbox[1]))
+            else:
+                canvas = Image.new("RGBA", (canvas_w, canvas_h), bg_rgba)
+                
+    return frames, durations
+
+
 def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, invert_mode, font_ratio, out_target=None):
     """
     Maneja la reproducción ultra-fluida interactiva de GIFs animados en terminal o la exportación a GIF animado.
@@ -6916,11 +7034,42 @@ def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, inve
     if not is_animated or n_frames <= 1:
         frame_img = base_img.convert("RGBA" if getattr(args, "transparent", False) else "RGB")
         art = render_frame_to_art(frame_img, args, engine, mode, is_raw_colors, invert_mode, font_ratio)
-        if out_target:
-            export_ansi_to_image(art, out_target, transparent=getattr(args, "transparent", False))
-            print(_("export_success", out_target))
+    if out_target:
+        ext = os.path.splitext(out_target)[1].lower()
+        if ext != ".gif":
+            print(f"\033[1;31m[Lumart Error]\033[0m {_('err_conflict_loop_static')}", file=sys.stderr)
+            sys.exit(2)
+
+        composited_frames, raw_durations = extract_gif_frames_composited(base_img, transparent=getattr(args, "transparent", False))
+        n_frames = len(composited_frames)
+        cli_fps = getattr(args, "fps", None)
+        if cli_fps and float(cli_fps) > 0:
+            target_fps = float(cli_fps)
+            durations = [max(16, int(round(1000.0 / target_fps)))] * n_frames
         else:
-            print(art)
+            durations = [max(16, d) for d in raw_durations]
+
+        rendered_images = []
+        for i, cur in enumerate(composited_frames):
+            print(_("render_anim_export", i + 1, n_frames), end="\r", flush=True)
+            art = render_frame_to_art(cur, args, engine, mode, is_raw_colors, invert_mode, font_ratio)
+            frame_render_img = export_ansi_to_image(art, out_path=None, transparent=getattr(args, "transparent", False))
+            rendered_images.append(frame_render_img)
+
+        print()
+        if rendered_images:
+            out_dir = os.path.dirname(os.path.abspath(out_target))
+            if out_dir and not os.path.exists(out_dir):
+                os.makedirs(out_dir, exist_ok=True)
+            rendered_images[0].save(
+                out_target,
+                save_all=True,
+                append_images=rendered_images[1:],
+                duration=durations,
+                loop=0,
+                optimize=True
+            )
+            print(_("export_success", out_target))
         return
 
     # Si se especificó destino de guardado (-o anim.gif o --save anim.gif)
@@ -6963,11 +7112,10 @@ def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, inve
     req_s = getattr(args, "saturation", 1.0) or 1.0
     has_adjust = (req_b != 1.0 or req_c != 1.0 or req_s != 1.0)
 
+    composited_frames, raw_durations = extract_gif_frames_composited(base_img, transparent=getattr(args, "transparent", False))
     frames_data = []
-    for frame in ImageSequence.Iterator(base_img):
-        dur = (frame.info.get("duration", 100) or 100) / 1000.0
-        dur = max(0.016, min(dur, 2.0))
-        cur = frame.copy().convert("RGBA" if getattr(args, "transparent", False) else "RGB")
+    for cur, dur_ms in zip(composited_frames, raw_durations):
+        dur = max(0.016, min(dur_ms / 1000.0, 2.0))
         if has_adjust:
             cur = apply_image_adjustments(cur, brightness=req_b, contrast=req_c, saturation=req_s)
         frames_data.append((cur, dur))
@@ -7915,7 +8063,7 @@ def main():
             charset = getattr(args, "charset", None) or ("crosshatch" if mono_mode == "crosshatch" else "braille")
             gamma = getattr(args, "gamma", 1.0) or 1.0
 
-            native_art = try_render_native_monochrome(luris_input_path, args.width, mono_mode, dither_algo, invert_mode, charset=charset, gamma=gamma)
+            native_art = try_render_native_monochrome(luris_input_path, args.width, mono_mode, dither_algo, invert_mode, charset=charset, gamma=gamma, font_ratio=font_ratio)
             if native_art is not None:
                 ascii_art = native_art
             else:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
- Luma - Mary Apex 3.6 Engine
+ Luma - Mary Apex 3.7 Engine
  Motor a Color de Nueva Generación basado en Percepción Visual Computacional.
 ==============================================================================
  "Cero redes neuronales, cero modelos de 4 GB, cero humo de Silicon Valley:
@@ -125,7 +125,10 @@ def apply_msrcr_retinex(img):
         vmin = final.min()
         vmax = final.max()
         norm = ((final - vmin) / (vmax - vmin + 1e-6)) * 255.0
-        blend = np.clip(0.7 * norm + 0.3 * (arr - 1.0), 0, 255).astype(np.uint8)
+        # Blending adaptativo: más Retinex en sombras, más original en luces
+        # para evitar blanquear zonas ya correctamente expuestas
+        shadow_mask = np.clip(1.0 - (arr - 1.0) / 255.0, 0.2, 0.85)
+        blend = np.clip(shadow_mask * norm + (1.0 - shadow_mask) * (arr - 1.0), 0, 255).astype(np.uint8)
         
         try:
             import cv2
@@ -175,17 +178,25 @@ def adapt_perceptual_tone_and_color(image, raw_colors=False):
                 break
                 
         mean_lum = sum(i * count for i, count in enumerate(hist)) / total_pixels
+        dyn_range = max(1, p90 - p10)
         
         if mean_lum < 95.0:
-            gamma_factor = 1.18 if mean_lum < 60.0 else 1.10
+            # Imagen oscura: iluminar sombras con protección de luces
+            gamma_factor = min(1.25, 1.10 + (95.0 - mean_lum) * 0.002)
             img = ImageEnhance.Brightness(img).enhance(gamma_factor)
-            img = ImageEnhance.Contrast(img).enhance(1.15)
+            contrast_boost = min(1.25, 1.10 + (200.0 - dyn_range) * 0.001)
+            img = ImageEnhance.Contrast(img).enhance(contrast_boost)
         elif mean_lum > 180.0:
-            img = ImageEnhance.Contrast(img).enhance(1.20)
+            # Imagen sobreexpuesta: recuperar contraste sin oscurecer
+            img = ImageEnhance.Contrast(img).enhance(1.22)
+        elif dyn_range < 120:
+            # Bajo rango dinámico: expandir contraste
+            img = ImageEnhance.Contrast(img).enhance(1.18)
         else:
-            img = ImageEnhance.Contrast(img).enhance(1.12)
+            img = ImageEnhance.Contrast(img).enhance(1.10)
             
-        img = ImageEnhance.Color(img).enhance(1.22)
+        # Saturación adaptativa: menos boost para imágenes ya saturadas
+        img = ImageEnhance.Color(img).enhance(1.18)
     
     return img
 
@@ -240,8 +251,9 @@ def cluster_cell_two_colors(pixels_rgb):
         avg_rgb = oklab_to_rgb(mean_L, mean_a, mean_b)
         return (avg_rgb, avg_rgb, [True] * n, max_d2, mean_L)
 
-    # 2 iteraciones de refinamiento K-Means rápido
-    for _ in range(2):
+    # 3 iteraciones de refinamiento K-Means para convergencia óptima
+    # (3 es el punto dulce: coste O(n) con n≤8 pero mejora significativa en celdas de alto gradiente)
+    for _ in range(3):
         g1 = []
         g2 = []
         for pt in ok_points:
@@ -317,7 +329,7 @@ class AnsiStreamBuilder:
         return "\n".join(self.lines)
 
 # ==============================================================================
-# 5. RENDERIZADORES DE ALTA DEFINICIÓN DE MARY 3.0 APEX
+# 5. RENDERIZADORES DE ALTA DEFINICIÓN DE MARY 3.7 APEX
 # ==============================================================================
 
 # Matriz estándar de mapeo de bits Unicode Braille (2x4 micropuntos)
@@ -415,8 +427,11 @@ def render_mary_sextants(image, width, font_ratio=0.5, invert=False, dither=None
                 
             fg_col, bg_col, mask, max_delta_e, mean_L = cluster_cell_two_colors(cell_pixels)
             
-            # Ley perceptual de Weber-Fechner: umbral adaptativo dependiente de la luminosidad
-            tau = 0.0075 * (((mean_L + 0.08) / 0.58) ** 0.80)
+            # Ley perceptual de Weber-Fechner mejorada con curva de contraste simultáneo
+            # El ojo humano es más sensible al contraste en luminosidades medias (0.4-0.6)
+            # y tolera más ruido en extremos oscuros y brillantes
+            mid_sensitivity = 1.0 - 4.0 * (mean_L - 0.5) ** 2  # Campana centrada en L=0.5
+            tau = 0.006 * (((mean_L + 0.08) / 0.58) ** 0.75) * (0.85 + 0.30 * mid_sensitivity)
             
             if has_trans:
                 cnt_true = sum(1 for m in mask if m)
@@ -522,7 +537,8 @@ def render_mary_braille(image, width, font_ratio=0.5, invert=False, dither=None)
             fg_col, bg_col, mask, max_delta_e, mean_L = cluster_cell_two_colors(cell_pixels)
             
             # Umbral adaptativo Weber-Fechner dependiente de luminosidad
-            tau = 0.0075 * (((mean_L + 0.08) / 0.58) ** 0.80)
+            mid_sensitivity = 1.0 - 4.0 * (mean_L - 0.5) ** 2
+            tau = 0.006 * (((mean_L + 0.08) / 0.58) ** 0.75) * (0.85 + 0.30 * mid_sensitivity)
             
             if has_trans:
                 cnt_true = sum(1 for m in mask if m)
@@ -632,7 +648,8 @@ def render_mary_quadrants(image, width, font_ratio=0.5, invert=False):
 
             fg_col, bg_col, mask, max_delta_e, mean_L = cluster_cell_two_colors(cell_pixels)
             
-            tau = 0.0075 * (((mean_L + 0.08) / 0.58) ** 0.80)
+            mid_sensitivity = 1.0 - 4.0 * (mean_L - 0.5) ** 2
+            tau = 0.006 * (((mean_L + 0.08) / 0.58) ** 0.75) * (0.85 + 0.30 * mid_sensitivity)
             
             if has_trans:
                 cnt_true = sum(1 for m in mask if m)
@@ -780,7 +797,7 @@ def render_mary_ascii(image, width, font_ratio=0.5, invert=False):
             grad_mag = math.sqrt(gx * gx + gy * gy)
             
             # Si el gradiente es fuerte, asignar glifo direccional
-            if grad_mag > 130.0:
+            if grad_mag > 110.0:
                 angle = math.degrees(math.atan2(gy, gx))
                 if -22.5 <= angle <= 22.5 or angle >= 157.5 or angle <= -157.5:
                     glyph = "|"  # Borde vertical
@@ -809,7 +826,7 @@ def render_mary_ascii(image, width, font_ratio=0.5, invert=False):
 
 def render_mary(image, width, mode="sextants", raw_colors=False, invert=False, font_ratio=0.5, dither=None):
     """
-    Punto de entrada maestro para el motor Mary 3.6 Apex:
+    Punto de entrada maestro para el motor Mary 3.7 Apex:
     - Preprocesamiento perceptual adaptativo (Auto-HDR).
     - Tramado ordenado perceptual opcional (dither).
     - Despacho al modo solicitado (sextants, braille, blocks, quadrants, ascii).

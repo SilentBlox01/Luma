@@ -523,7 +523,8 @@ std::string render_mary_from_data(unsigned char* raw_data, int orig_w, int orig_
                     }
                 } else {
                     ClusterResult cr = cluster_cell_oklab(cell_p);
-                    float tau = 0.0075f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.80f);
+                    float mid_sensitivity = 1.0f - 4.0f * (cr.mean_L - 0.5f) * (cr.mean_L - 0.5f);
+                    float tau = 0.006f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.75f) * (0.85f + 0.30f * mid_sensitivity);
 
                     if (cr.max_delta_e < tau) {
                         // Superficie lisa o fondo uniforme: emisión sólida sin líneas parásitas
@@ -621,7 +622,8 @@ std::string render_mary_from_data(unsigned char* raw_data, int orig_w, int orig_
                 ClusterResult cr = cluster_cell_oklab(cell_p);
 
                 // Umbral adaptativo Weber-Fechner
-                float tau = 0.0075f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.80f);
+                float mid_sensitivity = 1.0f - 4.0f * (cr.mean_L - 0.5f) * (cr.mean_L - 0.5f);
+                    float tau = 0.006f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.75f) * (0.85f + 0.30f * mid_sensitivity);
 
                 if (has_trans) {
                     int cnt_true = 0;
@@ -786,7 +788,8 @@ std::string render_mary_from_data(unsigned char* raw_data, int orig_w, int orig_
                     }
                 } else {
                     ClusterResult cr = cluster_cell_oklab(quad_p);
-                    float tau = 0.0075f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.80f);
+                    float mid_sensitivity = 1.0f - 4.0f * (cr.mean_L - 0.5f) * (cr.mean_L - 0.5f);
+                    float tau = 0.006f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.75f) * (0.85f + 0.30f * mid_sensitivity);
 
                     if (cr.max_delta_e < tau) {
                         row_buf.emit_cell("█", &cr.bg, &cr.bg);
