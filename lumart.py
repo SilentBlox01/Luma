@@ -2725,14 +2725,25 @@ def render_image_inspector(image_path):
     pal = res.getpalette()[:18]
     colors = [pal[i*3 : (i+1)*3] for i in range(6)]
     
-    # Análisis de saturación y brillo para recomendación de motor
-    import numpy as np
-    arr = np.array(small).astype(np.float32)
-    mean_r, mean_g, mean_b = np.mean(arr[:, :, 0]), np.mean(arr[:, :, 1]), np.mean(arr[:, :, 2])
+    # Análisis de saturación y brillo para recomendación de motor (puro Pillow, sin dependencias)
+    rgb_small = small.convert("RGB")
+    pixels = list(rgb_small.get_flattened_data() if hasattr(rgb_small, "get_flattened_data") else rgb_small.getdata())
+    tot_pixels = max(1, len(pixels))
+    sum_r = sum(p[0] for p in pixels)
+    sum_g = sum(p[1] for p in pixels)
+    sum_b = sum(p[2] for p in pixels)
+    mean_r = sum_r / tot_pixels
+    mean_g = sum_g / tot_pixels
+    mean_b = sum_b / tot_pixels
     lum = 0.299 * mean_r + 0.587 * mean_g + 0.114 * mean_b
-    max_c = np.maximum(np.maximum(arr[:, :, 0], arr[:, :, 1]), arr[:, :, 2])
-    min_c = np.minimum(np.minimum(arr[:, :, 0], arr[:, :, 1]), arr[:, :, 2])
-    sat = np.mean(np.where(max_c > 0, (max_c - min_c) / np.maximum(1.0, max_c), 0.0))
+
+    sat_sum = 0.0
+    for r, g, b in pixels:
+        max_c = max(r, g, b)
+        min_c = min(r, g, b)
+        if max_c > 0:
+            sat_sum += (max_c - min_c) / max_c
+    sat = sat_sum / tot_pixels
     
     if sat < 0.12:
         rec_engine = "Luris Mono 2.6 (-m / -s) ➔ Ilustración en escala de grises / Manga"

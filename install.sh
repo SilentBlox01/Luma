@@ -185,7 +185,7 @@ if [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
         echo -e "${YELLOW}ℹ️  g++ no detectado. Para soporte C++ de máxima aceleración:${NC}"
         echo "  • Fedora/RHEL:   sudo dnf install gcc-c++ libgomp"
         echo "  • Debian/Ubuntu: sudo apt install g++"
-        echo "  • Arch Linux:    sudo pacman -S gcc"
+        echo "  • Arch Linux:    yay -S gcc (o: sudo pacman -S gcc)"
     fi
 fi
 
@@ -234,8 +234,16 @@ if ! python3 -c "from PIL import Image" &>/dev/null; then
         fi
     else
         # Opción B: Modo usuario regular (sin sudo invasivo que bloquee)
-        echo "${MSG_PIP}"
-        python3 -m pip install Pillow --user --break-system-packages -q &>/dev/null && INSTALLED=1 || true
+        # Si yay (Arch Linux / AUR helper) está disponible, instalar limpiamente
+        if command -v yay &>/dev/null; then
+            echo "📦 Detectado yay (Arch Linux / AUR). Instalando dependencias de Pillow..."
+            yay -S --noconfirm --needed python-pillow && INSTALLED=1 || true
+        fi
+
+        if [ "$INSTALLED" -eq 0 ]; then
+            echo "${MSG_PIP}"
+            python3 -m pip install Pillow --user --break-system-packages -q &>/dev/null && INSTALLED=1 || true
+        fi
 
         # Opción C: Entorno virtual aislado en ~/.local/share/luma/venv
         if [ "$INSTALLED" -eq 0 ]; then
@@ -257,6 +265,9 @@ if ! python3 -c "from PIL import Image" &>/dev/null; then
             elif command -v apt-get &>/dev/null; then
                 echo "${MSG_DEBIAN}"
                 (sudo apt-get update -qq && (sudo apt-get install -y -qq python3-pil || sudo apt-get install -y -qq python3-pillow)) && INSTALLED=1 || true
+            elif command -v yay &>/dev/null; then
+                echo "📦 Detectado yay (Arch Linux / AUR)..."
+                yay -S --noconfirm --needed python-pillow && INSTALLED=1 || true
             elif command -v pacman &>/dev/null; then
                 echo "${MSG_ARCH}"
                 sudo pacman -S --noconfirm python-pillow && INSTALLED=1 || true
@@ -272,7 +283,7 @@ if ! python3 -c "from PIL import Image" &>/dev/null; then
         echo "${MSG_FAIL_HINT}"
         echo "  • Fedora/RHEL:   sudo dnf install python3-pillow"
         echo "  • Debian/Ubuntu: sudo apt install python3-pil"
-        echo "  • Arch Linux:    sudo pacman -S python-pillow"
+        echo "  • Arch Linux:    yay -S python-pillow (o: sudo pacman -S python-pillow)"
         echo "  • openSUSE:      sudo zypper install python3-Pillow"
     fi
 fi

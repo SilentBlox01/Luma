@@ -1,0 +1,36 @@
+# Maintainer: SilentBlox_01
+pkgname=lumart-bin
+pkgver=2.5.0
+pkgrel=1
+pkgdesc="High-Fidelity Terminal Visual Suite (Mary Apex, Trumble Orelx, Luris Mono, Spectra Weep)"
+arch=('x86_64')
+url="https://github.com/SilentBlox01/Luma"
+license=('AGPL-3.0-or-later')
+depends=('python' 'python-pillow')
+optdepends=('opencv: for Spectra Weep video/webcam streaming' 'gcc: for C++17 OpenMP acceleration' 'wl-clipboard: clipboard support on Wayland' 'xclip: clipboard support on X11')
+source=("lumart" "lumart.bash" "_lumart" "lumart.fish" "lumart.1")
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
+package() {
+    install -Dm755 "$srcdir/lumart" "$pkgdir/usr/bin/lumart"
+    ln -sf lumart "$pkgdir/usr/bin/luma"
+    if [ -f "$srcdir/luma-mono" ]; then
+        install -Dm755 "$srcdir/luma-mono" "$pkgdir/usr/bin/luma-mono"
+    fi
+    if [ -f "$srcdir/luma-mary" ]; then
+        install -Dm755 "$srcdir/luma-mary" "$pkgdir/usr/bin/luma-mary"
+    fi
+    if [ -f "$srcdir/libmonochrome.so" ]; then
+        install -Dm755 "$srcdir/libmonochrome.so" "$pkgdir/usr/lib/libmonochrome.so"
+    fi
+    if [ -f "$srcdir/libmary.so" ]; then
+        install -Dm755 "$srcdir/libmary.so" "$pkgdir/usr/lib/libmary.so"
+    fi
+    install -Dm644 "$srcdir/lumart.bash" "$pkgdir/usr/share/bash-completion/completions/lumart"
+    ln -sf lumart "$pkgdir/usr/share/bash-completion/completions/luma"
+    install -Dm644 "$srcdir/_lumart" "$pkgdir/usr/share/zsh/site-functions/_lumart"
+    ln -sf _lumart "$pkgdir/usr/share/zsh/site-functions/_luma"
+    install -Dm644 "$srcdir/lumart.fish" "$pkgdir/usr/share/fish/vendor_completions.d/lumart.fish"
+    ln -sf lumart.fish "$pkgdir/usr/share/fish/vendor_completions.d/luma.fish"
+    install -Dm644 "$srcdir/lumart.1" "$pkgdir/usr/share/man/man1/lumart.1"
+    ln -sf lumart.1 "$pkgdir/usr/share/man/man1/luma.1"
+}
