@@ -35,7 +35,7 @@ Hardware-accelerated real-time video and webcam streaming engine operating at 30
 .SS "Engine Selection"
 .TP
 \fB\-E\fR, \fB\-\-engine\fR \fIENGINE\fR
-Explicitly select the rendering engine. Supported values: \fBmary\fR, \fBtrumble\fR, \fBluris\fR, \fBspectra\fR, \fBcolor\fR, \fBmono\fR, \fBbw\fR, \fBmanga\fR, \fBsketch\fR. By default, Lumart automatically routes based on options and content.
+Explicitly select the rendering engine. Supported values: \fBmary\fR, \fBtrumble\fR, \fBluris\fR, \fBspectra\fR, \fBcolor\fR, \fBmono\fR, \fBbw\fR, \fBmanga\fR, \fBsketch\fR, \fBcrosshatch\fR. By default, Lumart automatically routes based on options and content.
 
 .SS "Subpixel Textures & Halftones"
 .TP
@@ -56,6 +56,12 @@ Activate Manga Screentone 2.0 mode (Bayer 8\(mu8 matrix dithering combined with 
 .TP
 \fB\-s\fR, \fB\-\-sketch\fR
 Activate clean line sketch mode without screentone dithering.
+.TP
+\fB\-ch\fR, \fB\-\-crosshatch\fR
+Activate authentic Manga 45-degree pen crosshatching dither mode using density ramps.
+.TP
+\fB\-cs\fR, \fB\-\-charset\fR \fISET\fR
+Select typography charset ramp for ASCII rendering: \fBdense\fR, \fBstandard\fR, \fBsimple\fR, \fBblocks\fR, \fBshades\fR, \fBmath\fR, \fBrunes\fR, \fBkatakana\fR, \fBcrosshatch\fR, \fBminimal\fR, \fBbinary\fR, \fBhex\fR, \fBbraille\fR.
 
 .SS "Viewport, Framing & Zoom"
 .TP
@@ -64,6 +70,12 @@ Set explicit output width in terminal character columns. Incompatible with \fB\-
 .TP
 \fB\-F\fR, \fB\-\-fit\fR
 \fBAuto-fit to terminal viewport\fR: dynamically queries terminal rows and columns, calculating optimal bounding box without vertical scrolling. Incompatible with \fB\-w\fR.
+.TP
+\fB\-\-rotate\fR \fIDEG\fR
+Rotate image clockwise: \fB90\fR, \fB180\fR, or \fB270\fR degrees.
+.TP
+\fB\-\-flip\fR, \fB\-\-mirror\fR \fIDIR\fR
+Mirror image horizontally (\fBh\fR) or vertically (\fBv\fR).
 .TP
 \fB\-\-crop\fR \fISPEC\fR
 Frame and crop image: \fBcenter\fR, \fBsquare\fR (1:1), or specific coordinates \fBx,y,w,h\fR (e.g. \fI10%,10%,80%,80%\fR).
@@ -84,6 +96,21 @@ Force TrueColor (24-bit RGB) ANSI rendering (default).
 .TP
 \fB\-\-no\-color\fR
 Disable color escape sequences and route to monochrome pipeline.
+.TP
+\fB\-\-gamma\fR \fIVALUE\fR
+Adjust gamma contrast correction factor (default: \fB1.0\fR).
+.TP
+\fB\-\-brightness\fR \fIFACTOR\fR
+Adjust overall image brightness before rendering (default: \fB1.0\fR).
+.TP
+\fB\-\-contrast\fR \fIFACTOR\fR
+Adjust image tonal contrast multiplier (default: \fB1.0\fR).
+.TP
+\fB\-\-saturation\fR \fIFACTOR\fR
+Adjust image color saturation intensity multiplier (default: \fB1.0\fR).
+.TP
+\fB\-\-shader\fR \fISHADER\fR
+Apply multi-spectral shader filter: \fBneon\fR, \fBcyberpunk\fR, \fBthermal\fR, \fBtron\fR, \fBmatrix\fR, \fBamber\fR, \fBmanga\fR, \fBtheme\fR, \fBnormal\fR, \fBhologram\fR, \fBglitch\fR, \fBphosphor-bloom\fR, \fBsolarize\fR.
 .TP
 \fB\-\-theme\fR, \fB\-\-palette\fR \fITHEME\fR
 Synchronize palette with popular terminal themes: \fBcatppuccin\fR, \fBdracula\fR, \fBnord\fR, \fBgruvbox\fR, \fBsynthwave\fR, \fBvaporwave\fR, \fBgameboy\fR, \fBsolarized\fR.
@@ -113,6 +140,12 @@ Dynamically swap colors within 3D RGB Euclidean color space.
 .TP
 \fB\-r\fR, \fB\-\-remove\-bg\fR
 Intelligent AI background removal without quality loss. If invoked standalone (\fBlumart \-r img.png\fR), exports a full-resolution transparent PNG with zero quality degradation. If combined with engine flags (\fBlumart \-r \-E mary img.png\fR), removes the background first and renders the isolated subject in terminal ASCII.
+.TP
+\fB\-\-bg\-tolerance\fR, \fB\-\-tolerance\fR \fIVALUE\fR
+Color tolerance for intelligent background removal (1\(en100, default: \fB32\fR).
+.TP
+\fB\-\-fps\fR, \fB\-\-target\-fps\fR \fIFPS\fR
+Target framerate for animations, video conversion, and terminal playback.
 .TP
 \fB\-\-transparent\fR
 Export manga renders as alpha-transparent PNG stickers (Luris Mono exclusive).
@@ -150,6 +183,12 @@ Grab image data directly from system clipboard.
 .TP
 \fB\-\-loop\fR
 Animation mode: caches frames in memory for smooth 60 FPS terminal playback, or compiles animated GIF when paired with \fB\-o file.gif\fR.
+.TP
+\fB\-\-preload\fR, \fB\-\-smooth\fR
+Preload and render all animation frames into RAM memory with a live console progress bar to guarantee completely jitter-free 60 FPS playback.
+.TP
+\fB\-\-bench\fR, \fB\-\-benchmark\fR
+Execute comprehensive real-time rendering telemetry and benchmarks comparing SIMD C++ vs Python engines.
 .TP
 \fB\-\-instant\fR, \fB\-\-no\-reveal\fR
 Display render output immediately without progressive line scanning (default).

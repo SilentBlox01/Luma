@@ -112,6 +112,54 @@ Lumart v2.5.0 "Apex Nova" introduces 11 major features, expanding Lumart from a 
 17. **Multi-Spectral Shaders on Static Images (`--shader <name>`, `-E spectra`)**:
     * Brings Spectra Weep's real-time GLSL-inspired shader library to static images: `neon` (synthwave glow), `thermal` (infrared FLIR false color), `tron` (electric vector edge outlines), `matrix` (analog phosphor green code), `amber` (vintage P3 phosphor), and `manga` (high-contrast comic ink).
 
+18. **Manga 45° Pen Crosshatching Dither (`-ch`, `--crosshatch`, `-E crosshatch`)**:
+    * Authentic hand-drawn manga crosshatching algorithm with a curated pen-stroke density ramp (` `, `░`, `▒`, `▓`, `█`). Implemented natively in C++17 with multi-threading OpenMP and zero-dependency Python fallback.
+
+19. **Universal Custom Typography Charsets (`-cs`, `--charset <ramp>`)**:
+    * 13 curated typography character ramps for monochrome and TrueColor ASCII rendering:
+      * `dense`, `standard`, `simple`, `blocks`, `shades`, `math`, `runes`, `katakana`, `crosshatch`, `minimal`, `binary`, `hex`, `braille`.
+      * Supported across C++ native engine (`render_monochrome_v2_c`), Luris Mono, and Trumble Color engines.
+
+20. **Geometric Image Transformations (`--rotate`, `--flip`, `--mirror`)**:
+    * Hardware-speed 90°, 180°, and 270° clockwise rotations (`--rotate 90|180|270`).
+    * Horizontal and vertical axis mirroring (`--flip h|v|horizontal|vertical`).
+    * Works across all static image renders, animations, and TUI parameter sculptor.
+
+21. **Enhanced Background Removal Precision (`--bg-tolerance <1-100>`)**:
+    * Next-generation edge segmentation combining 8-neighborhood flood fill, boundary profiling, morphological hole-filling, and subpixel cosine feathering.
+    * Real-time tolerance sculpting via CLI (`--bg-tolerance <1-100>`) and hotkeys (`[` / `]`) in the interactive TUI.
+
+22. **Expanded Spectra Weep Shaders (12+ Shaders)**:
+    * 4 new real-time GLSL-inspired post-processing shaders: `hologram` (sci-fi cyan scanline projection), `glitch` (RGB chromatic aberration shift), `phosphor-bloom` (CRT beam glow), and `solarize` (tone-reversal effect).
+    * Automatic discovery and enumeration of `/dev/video*` devices on Linux for effortless camera selection.
+
+23. **Redesigned Modern Visual Help (`-h`, `--help`) & Enhanced TUI Studio**:
+    * Elegant UTF-8 box-card layout with distinct categorized modules, color-coded syntax highlights, and practical example recipes.
+    * Studio TUI enhanced with hotkeys for live rotation (`[O]`), horizontal flip (`[P]`), and background tolerance tuning (`[`/`]`), running cleanly in alternate screen buffers (`\033[?1049h`).
+
+19. **Decorative Unicode Borders & Terminal Alignment (`--border`, `--align`, `--center`)**:
+    * Wrap any rendered artwork in high-definition terminal box frames: `rounded` (╭─╮╰─╯), `single` (┌─┐└─┘), `double` (╔═╗╚═╝), `heavy` (┏━┓┗━┛), `ascii` (+--+|), or `blocks` (█▀▄).
+    * Align art cleanly across terminal viewports with `--align [left|center|right]` or `--center`.
+
+20. **Tonal & Color Balance Controls (`--brightness`, `--contrast`, `--saturation`)**:
+    * Floating-point multipliers (e.g. `--brightness 1.2 --contrast 1.1 --saturation 1.3`) for precision image grading prior to quantization across all static and animation engines.
+
+21. **Zero-Lag Monotonic 60 FPS GIF Engine & RAM Preload (`--preload`, `--smooth`, `--fps 60`)**:
+    * Microsecond-precision monotonic clock (`time.perf_counter`) loop ensuring true 60 FPS without scheduler jitter.
+    * Replaced disk-based temporary file writing with zero-copy in-memory rendering (`try_render_native_mary_memory` & `try_render_native_monochrome_memory` using `stbi_load_from_memory`).
+    * `--preload` / `--smooth`: Pre-caches all frames into RAM with an interactive terminal progress bar before playback starts.
+
+22. **Spectra Weep 2.0 Sextants HD (2x3) & Shaders**:
+    * Unicode 13.0 Sextants HD mode (`[T]` texture 4) rendering 6 subpixels per cell in live streams.
+    * Real-time Shaders 12 (Synthwave 80s neon gradient) and 13 (GameBoy Retro 4-shade DMG-01).
+
+23. **Native C++ Performance Benchmark Suite (`lumart bench`, `--bench`)**:
+    * Multi-threaded engine benchmark testing latency (ms/frame) and throughput (FPS) across Mary C++, Luris C++, and Python pipelines.
+
+24. **Installer Redesign & Distro Compatibility (`install.sh`)**:
+    * Guaranteed, robust compatibility with Debian/Ubuntu `apt-get` / `apt` (`python3-pil` / `python3-pillow`), Fedora (`dnf5` and `dnf`), Arch Linux (`pacman`), and openSUSE (`zypper`).
+    * CLI-first cleanliness: removed automatic creation of unwanted `lumart.desktop` icons on desktop and application menus. Added proactive cleanup and optional `--with-desktop` flag.
+
 ---
 
 ## [2.4.1] — "Apex Horizon" — 2026-09-10

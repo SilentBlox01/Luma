@@ -262,6 +262,12 @@ Uso: lumart [OPCIONES] <ruta_o_url_de_imagen>
 | `--swap` | `<color1> <color2>` | Intercambia dinámicamente un color por otro en espacio 3D RGB. |
 | `--instant` | — | Muestra la salida inmediatamente sin animación progresiva (por defecto). |
 | `--reveal` | — | Activa la animación progresiva de escaneo línea por línea. |
+| `--brightness` | `<float>` | Multiplicador de brillo de la imagen (por defecto: `1.0`). |
+| `--contrast` | `<float>` | Multiplicador de contraste tonal (por defecto: `1.0`). |
+| `--saturation` | `<float>` | Multiplicador de saturación cromática (por defecto: `1.0`). |
+| `--border` | `rounded` \| `single` \| `double` \| `heavy` \| `ascii` \| `blocks` | Enmarca el arte en un marco decorativo Unicode. |
+| `--align` | `left` \| `center` \| `right` | Alineación horizontal en el viewport de la terminal. |
+| `--center` | — | Alias rápido para `--align center`. |
 
 ### 3. Exportación a Imagen Gráfica, Animaciones y Portapapeles
 | Parámetro | Argumento | Descripción |

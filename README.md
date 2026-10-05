@@ -264,6 +264,12 @@ Usage: lumart [OPTIONS] <image_path_or_url>
 | `--swap` | `<color1> <color2>` | Dynamically swap colors in 3D Euclidean RGB space. |
 | `--instant` | — | Output immediately without progressive scan animation (default). |
 | `--reveal` | — | Enable progressive scan line-by-line reveal animation. |
+| `--brightness` | `<float>` | Adjust image brightness multiplier (default: `1.0`). |
+| `--contrast` | `<float>` | Adjust tonal contrast multiplier (default: `1.0`). |
+| `--saturation` | `<float>` | Adjust color saturation multiplier (default: `1.0`). |
+| `--border` | `rounded` \| `single` \| `double` \| `heavy` \| `ascii` \| `blocks` | Frame artwork in a decorative Unicode border box. |
+| `--align` | `left` \| `center` \| `right` | Horizontally align artwork in terminal viewport. |
+| `--center` | — | Shorthand alias for `--align center`. |
 
 ### 3. Graphic Export, Animation & Clipboard
 | Flag | Parameter | Description |

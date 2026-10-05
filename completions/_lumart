@@ -16,6 +16,7 @@ _lumart() {
         'bw:Pure Black & White line art'
         'manga:Authentic Manga Screentone mode'
         'sketch:Clean pen-and-ink contour mode'
+        'crosshatch:Authentic Manga 45-degree pen crosshatching dither'
     )
 
     local dithers=(
@@ -23,6 +24,22 @@ _lumart() {
         'floyd:Floyd-Steinberg spatial diffusion'
         'bayer:Bayer ordered 8x8 halftone matrix'
         'none:Direct thresholding without dither'
+    )
+
+    local charsets=(
+        'dense:Ultra-dense ASCII detail ramp'
+        'standard:Standard clean ASCII ramp'
+        'simple:Simplified 10-level ramp'
+        'blocks:Unicode block characters'
+        'shades:Unicode shade density characters'
+        'math:Mathematical operator symbols'
+        'runes:Nordic futhark elder runes'
+        'katakana:Japanese half-width Katakana Matrix code'
+        'crosshatch:Pen crosshatching shading characters'
+        'minimal:Minimal dot and slash ramp'
+        'binary:0 and 1 binary code'
+        'hex:Hexadecimal 0-F code'
+        'braille:Unicode 2x4 braille dot matrix'
     )
 
     local themes=(
@@ -63,6 +80,10 @@ _lumart() {
         'manga:High-contrast monochrome comic ink'
         'theme:Synchronize with active terminal theme'
         'normal:Adaptive high-fidelity TrueColor'
+        'hologram:Sci-fi cyan scanline holographic projection'
+        'glitch:Cyber RGB chromatic aberration displacement'
+        'phosphor-bloom:CRT phosphor beam glow and bloom'
+        'solarize:Tone-reversal solarization effect'
     )
 
     local shells=(
@@ -83,6 +104,8 @@ _lumart() {
         '--logo[Alias for --fastfetch]' \
         '--crop[Crop image: center, square, or x,y,w,h]:crop specification: ' \
         '--zoom[Digital zoom factor centered on subject]:zoom factor: ' \
+        '--rotate[Rotate image clockwise]:angle:(90 180 270)' \
+        '(--flip --mirror)'{--flip,--mirror}'[Mirror image]:direction:(h v horizontal vertical)' \
         '(-E --engine)'{-E,--engine}'[Select rendering engine explicitly]:engine:(($engines))' \
         '(-c --color --no-color)'{-c,--color}'[Force TrueColor output]' \
         '(-c --color --no-color)'--no-color'[Disable color and use monochrome engine]' \
@@ -92,6 +115,17 @@ _lumart() {
         '--blocks[Use optimized half-block characters (▀/▄)]' \
         '(-m --manga)'{-m,--manga}'[Manga Screentone 2.0 (Bayer 8x8 + DoG lines)]' \
         '(-s --sketch)'{-s,--sketch}'[Clean pen-and-ink line sketch mode]' \
+        '(-ch --crosshatch)'{-ch,--crosshatch}'[Authentic Manga 45-degree pen crosshatching dither]' \
+        '(-cs --charset)'{-cs,--charset}'[Select typography charset ramp]:charset:(($charsets))' \
+        '--gamma[Gamma contrast adjustment factor]:gamma: ' \
+        '--border[Decorative frame border style]:border:(rounded single double heavy ascii blocks)' \
+        '--align[Horizontal alignment in terminal]:alignment:(left center right)' \
+        '--center[Center output horizontally in terminal]' \
+        '--brightness[Brightness adjustment multiplier (1.0 default)]:factor: ' \
+        '--contrast[Contrast adjustment multiplier (1.0 default)]:factor: ' \
+        '--saturation[Saturation adjustment multiplier (1.0 default)]:factor: ' \
+        '(--preload --smooth)'{--preload,--smooth}'[Preload all animation frames into RAM for smooth 60 FPS]' \
+        '(--bench --benchmark)'{--bench,--benchmark}'[Run engine performance benchmark suite]' \
         '--matrix[Render in Katakana and binary green Matrix code]' \
         '--matrix-rain[Falling Katakana digital rain animation]' \
         '--theme[Synchronize colors with terminal palette]:palette:(($themes))' \
@@ -106,6 +140,8 @@ _lumart() {
         '(-o -O --output --save)'{-o,-O,--output,--save}'[Export graphic image, ANS, or TXT]:output file:_files' \
         '--loop[Animation mode: smooth terminal loop or animated GIF export]' \
         '(-r --remove-bg)'{-r,--remove-bg}'[Remove background without quality loss (standalone saves HD PNG)]' \
+        '(--bg-tolerance --tolerance)'{--bg-tolerance,--tolerance}'[Color tolerance for background removal (1-100)]:tolerance: ' \
+        '(--fps --target-fps)'{--fps,--target-fps}'[Target framerate for animations and video]:fps: ' \
         '--transparent[Luris Mono transparent sticker]' \
         '(-C --copy)'{-C,--copy}'[Copy rendered ANSI art to system clipboard]' \
         '--copy-plain[Copy plain ASCII text without color codes to clipboard]' \

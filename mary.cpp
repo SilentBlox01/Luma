@@ -47,6 +47,7 @@ struct Oklab {
 
 struct RGB {
     uint8_t r, g, b;
+    bool operator==(const RGB& o) const { return r == o.r && g == o.g && b == o.b; }
 };
 
 static float sRGB_to_Linear_LUT[256];
@@ -431,24 +432,7 @@ static const char* SEXTANTS[64] = {
 // 6. PIPELINE APEX CON PARALELIZACIÓN MULTI-NÚCLEO MARY 3.0
 // ==============================================================================
 
-std::string render_mary_pipeline(const std::string& image_path, int target_w, const std::string& mode, bool raw_colors, bool invert, float font_ratio = 0.5f) {
-    init_oklab_luts();
-
-    if (image_path.empty()) {
-        return "❌ Error: Empty image path provided.";
-    }
-
-    int orig_w = 0, orig_h = 0, channels = 0;
-    unsigned char* raw_data = stbi_load(image_path.c_str(), &orig_w, &orig_h, &channels, 4);
-    if (!raw_data) {
-        return "❌ Error: Could not load image " + image_path;
-    }
-
-    if (orig_w <= 0 || orig_h <= 0) {
-        stbi_image_free(raw_data);
-        return "❌ Error: Invalid image dimensions in " + image_path;
-    }
-
+std::string render_mary_from_data(unsigned char* raw_data, int orig_w, int orig_h, int target_w, const std::string& mode, bool raw_colors, bool invert, float font_ratio) {
     if (target_w < 5) target_w = 5;
     if (font_ratio <= 0.05f || font_ratio >= 3.0f) font_ratio = 0.5f;
 
@@ -533,7 +517,7 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                     if (sextant_code == 0) {
                         row_buf.emit_cell(" ");
                     } else if (sextant_code == 63) {
-                        row_buf.emit_cell(" ", nullptr, &cr.fg);
+                        row_buf.emit_cell("█", &cr.fg, &cr.fg);
                     } else {
                         row_buf.emit_cell(SEXTANTS[sextant_code], &cr.fg, nullptr);
                     }
@@ -542,8 +526,8 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                     float tau = 0.0075f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.80f);
 
                     if (cr.max_delta_e < tau) {
-                        // Superficie lisa o fondo uniforme: emisión limpia sin glifos parásitos
-                        row_buf.emit_cell(" ", nullptr, &cr.bg);
+                        // Superficie lisa o fondo uniforme: emisión sólida sin líneas parásitas
+                        row_buf.emit_cell("█", &cr.bg, &cr.bg);
                     } else {
                         int cnt_true = 0;
                         for (bool m : cr.mask) if (m) cnt_true++;
@@ -560,9 +544,9 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                         }
 
                         if (sextant_code == 0) {
-                            row_buf.emit_cell(" ", nullptr, &cr.bg);
+                            row_buf.emit_cell("█", &cr.bg, &cr.bg);
                         } else if (sextant_code == 63) {
-                            row_buf.emit_cell(" ", nullptr, &cr.fg);
+                            row_buf.emit_cell("█", &cr.fg, &cr.fg);
                         } else {
                             row_buf.emit_cell(SEXTANTS[sextant_code], &cr.fg, &cr.bg);
                         }
@@ -661,7 +645,7 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                     if (braille_code == 0) {
                         row_buf.emit_cell(" ");
                     } else if (braille_code == 0xFF) {
-                        row_buf.emit_cell(" ", nullptr, &cr.fg);
+                        row_buf.emit_cell("█", &cr.fg, &cr.fg);
                     } else {
                         uint32_t cp = 0x2800 + braille_code;
                         std::string glyph;
@@ -672,7 +656,7 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                     }
                 } else {
                     if (cr.max_delta_e < tau) {
-                        row_buf.emit_cell(" ", nullptr, &cr.bg);
+                        row_buf.emit_cell("█", &cr.bg, &cr.bg);
                     } else {
                         int cnt_true = 0;
                         for (bool m : cr.mask) if (m) cnt_true++;
@@ -693,9 +677,9 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                         }
 
                         if (braille_code == 0) {
-                            row_buf.emit_cell(" ", nullptr, &cr.bg);
+                            row_buf.emit_cell("█", &cr.bg, &cr.bg);
                         } else if (braille_code == 0xFF) {
-                            row_buf.emit_cell(" ", nullptr, &cr.fg);
+                            row_buf.emit_cell("█", &cr.fg, &cr.fg);
                         } else {
                             uint32_t cp = 0x2800 + braille_code;
                             std::string glyph;
@@ -795,7 +779,7 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                     if (q_mask == 0) {
                         row_buf.emit_cell(" ");
                     } else if (q_mask == 15) {
-                        row_buf.emit_cell(" ", nullptr, &cr.fg);
+                        row_buf.emit_cell("█", &cr.fg, &cr.fg);
                     } else {
                         const char* glyph = QUADRANTS[q_mask & 0x0F];
                         row_buf.emit_cell(glyph, &cr.fg, nullptr);
@@ -805,7 +789,7 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                     float tau = 0.0075f * std::pow((cr.mean_L + 0.08f) / 0.58f, 0.80f);
 
                     if (cr.max_delta_e < tau) {
-                        row_buf.emit_cell(" ", nullptr, &cr.bg);
+                        row_buf.emit_cell("█", &cr.bg, &cr.bg);
                     } else {
                         int cnt_true = 0;
                         for (bool m : cr.mask) if (m) cnt_true++;
@@ -822,8 +806,14 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                             }
                         }
 
-                        const char* glyph = QUADRANTS[q_mask & 0x0F];
-                        row_buf.emit_cell(glyph, &cr.fg, &cr.bg);
+                        if (q_mask == 0) {
+                            row_buf.emit_cell("█", &cr.bg, &cr.bg);
+                        } else if (q_mask == 15) {
+                            row_buf.emit_cell("█", &cr.fg, &cr.fg);
+                        } else {
+                            const char* glyph = QUADRANTS[q_mask & 0x0F];
+                            row_buf.emit_cell(glyph, &cr.fg, &cr.bg);
+                        }
                     }
                 }
             }
@@ -875,7 +865,11 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
                 } else if (scaled[bot_idx + 3] < 64) {
                     row_buf.emit_cell("▀", &top_c, nullptr);
                 } else {
-                    row_buf.emit_cell("▀", &top_c, &bot_c);
+                    if (top_c == bot_c) {
+                        row_buf.emit_cell("█", &top_c, &top_c);
+                    } else {
+                        row_buf.emit_cell("▀", &top_c, &bot_c);
+                    }
                 }
             }
             row_buf.end_line();
@@ -964,6 +958,32 @@ std::string render_mary_pipeline(const std::string& image_path, int target_w, co
     }
 }
 
+std::string render_mary_pipeline(const std::string& image_path, int target_w, const std::string& mode, bool raw_colors, bool invert, float font_ratio = 0.5f) {
+    init_oklab_luts();
+    if (image_path.empty()) return "❌ Error: Empty image path provided.";
+    int orig_w = 0, orig_h = 0, channels = 0;
+    unsigned char* raw_data = stbi_load(image_path.c_str(), &orig_w, &orig_h, &channels, 4);
+    if (!raw_data) return "❌ Error: Could not load image " + image_path;
+    if (orig_w <= 0 || orig_h <= 0) {
+        stbi_image_free(raw_data);
+        return "❌ Error: Invalid image dimensions in " + image_path;
+    }
+    return render_mary_from_data(raw_data, orig_w, orig_h, target_w, mode, raw_colors, invert, font_ratio);
+}
+
+std::string render_mary_pipeline_memory(const unsigned char* buffer, int len, int target_w, const std::string& mode, bool raw_colors, bool invert, float font_ratio = 0.5f) {
+    init_oklab_luts();
+    if (!buffer || len <= 0) return "❌ Error: Empty image buffer provided.";
+    int orig_w = 0, orig_h = 0, channels = 0;
+    unsigned char* raw_data = stbi_load_from_memory(buffer, len, &orig_w, &orig_h, &channels, 4);
+    if (!raw_data) return "❌ Error: Could not decode image from memory buffer";
+    if (orig_w <= 0 || orig_h <= 0) {
+        stbi_image_free(raw_data);
+        return "❌ Error: Invalid image dimensions from memory buffer";
+    }
+    return render_mary_from_data(raw_data, orig_w, orig_h, target_w, mode, raw_colors, invert, font_ratio);
+}
+
 // ==============================================================================
 // 7. C-API EXPORTADA PARA BINDINGS CTYPES EN PYTHON
 // ==============================================================================
@@ -983,6 +1003,16 @@ extern "C" {
         std::string mode_str = mode ? mode : "sextants";
         if (font_ratio <= 0.05f || font_ratio >= 2.0f) font_ratio = 0.5f;
         std::string res = render_mary_pipeline(image_path, width > 0 ? width : 90, mode_str, raw_colors, invert, font_ratio);
+        char* buf = new char[res.size() + 1];
+        std::strcpy(buf, res.c_str());
+        return buf;
+    }
+
+    const char* render_mary_memory_c(const unsigned char* buffer, int len, int width, const char* mode, bool raw_colors, bool invert, float font_ratio) {
+        if (!buffer || len <= 0) return nullptr;
+        std::string mode_str = mode ? mode : "sextants";
+        if (font_ratio <= 0.05f || font_ratio >= 2.0f) font_ratio = 0.5f;
+        std::string res = render_mary_pipeline_memory(buffer, len, width > 0 ? width : 90, mode_str, raw_colors, invert, font_ratio);
         char* buf = new char[res.size() + 1];
         std::strcpy(buf, res.c_str());
         return buf;

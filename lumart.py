@@ -93,6 +93,190 @@ GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
 # Rampa de densidad ASCII calibrada para percepción tonal uniforme
 ASCII_CHARS = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
 
+# Rampas de fuentes y conjuntos de caracteres estilizados (--charset / -cs)
+CHARSETS = {
+    "dense": "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ",
+    "standard": " .:-=+*#%@",
+    "simple": "@%#*+=-:. ",
+    "blocks": " ░▒▓█",
+    "shades": "█▓▒░ ",
+    "math": " ·:÷+=*%#@",
+    "runes": " ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚻᚾᛁᛃᛈᛇᛉᛊᛋᛏᛒᛖᛗᛚᛜᛞᛟ",
+    "katakana": " ﾘﾕﾒﾓﾊﾎﾂﾉﾇﾈﾗﾘﾜｳ01",
+    "crosshatch": " .'`-~/:;=+|#▓█",
+    "minimal": " .oO@",
+    "binary": " 01",
+    "hex": " 0123456789ABCDEF",
+    "braille": " ⠂⠆⠖⠶⠷⠿",
+}
+
+def get_charset_chars(spec, default="dense"):
+    if not spec:
+        return CHARSETS.get(default, CHARSETS["dense"])
+    key = str(spec).lower().strip()
+    if key in CHARSETS:
+        return CHARSETS[key]
+    return str(spec)
+
+def apply_image_transforms(image, rotate=None, flip=None):
+    """
+    Aplica rotación por grados (90, 180, 270) y volteo/espejado (horizontal/vertical) a una imagen PIL.
+    """
+    if not isinstance(image, Image.Image):
+        return image
+    res = image
+    if rotate:
+        try:
+            r = int(rotate) % 360
+            if r == 90:
+                res = res.transpose(Image.Transpose.ROTATE_270)
+            elif r == 180:
+                res = res.transpose(Image.Transpose.ROTATE_180)
+            elif r == 270:
+                res = res.transpose(Image.Transpose.ROTATE_90)
+            elif r != 0:
+                res = res.rotate(-r, expand=True)
+        except Exception:
+            pass
+    if flip:
+        f = str(flip).lower().strip()
+        if f in ("h", "horizontal", "mirror", "x"):
+            res = res.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        elif f in ("v", "vertical", "y"):
+            res = res.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+    return res
+
+
+def apply_image_adjustments(image, brightness=1.0, contrast=1.0, saturation=1.0, gamma=1.0):
+    """
+    Aplica correcciones universales de imagen (brillo, contraste, saturación, gamma)
+    preservando el canal alfa transparente si existe.
+    """
+    from PIL import ImageEnhance
+    b = float(brightness) if brightness is not None else 1.0
+    c = float(contrast) if contrast is not None else 1.0
+    s = float(saturation) if saturation is not None else 1.0
+    g = float(gamma) if gamma is not None else 1.0
+
+    if b == 1.0 and c == 1.0 and s == 1.0 and g == 1.0:
+        return image
+
+    img = image.copy()
+    has_alpha = (img.mode == "RGBA")
+    alpha = img.split()[3] if has_alpha else None
+
+    # Brillo
+    if b != 1.0:
+        enhancer = ImageEnhance.Brightness(img)
+        img = enhancer.enhance(max(0.0, b))
+
+    # Contraste
+    if c != 1.0:
+        enhancer = ImageEnhance.Contrast(img)
+        img = enhancer.enhance(max(0.0, c))
+
+    # Saturación
+    if s != 1.0:
+        enhancer = ImageEnhance.Color(img)
+        img = enhancer.enhance(max(0.0, s))
+
+    # Corrección Gamma no lineal
+    if g != 1.0 and g > 0.05:
+        inv_gamma = 1.0 / g
+        lut = [max(0, min(255, int(pow(i / 255.0, inv_gamma) * 255.0 + 0.5))) for i in range(256)]
+        if has_alpha:
+            r, g_ch, b_ch, a_ch = img.split()
+            r = r.point(lut)
+            g_ch = g_ch.point(lut)
+            b_ch = b_ch.point(lut)
+            img = Image.merge("RGBA", (r, g_ch, b_ch, a_ch))
+        else:
+            if img.mode != "RGB":
+                img = img.convert("RGB")
+            img = img.point(lut * 3)
+
+    if has_alpha and alpha is not None:
+        img.putalpha(alpha)
+
+    return img
+
+
+def apply_border_and_alignment(ascii_art, border_style=None, align="left", title=None):
+    """
+    Aplica marco decorativo alrededor del arte ANSI y/o alinea horizontalmente
+    (left, center, right) dentro del ancho actual de la terminal.
+    """
+    if not ascii_art:
+        return ascii_art
+
+    lines = ascii_art.split("\n")
+    if not lines:
+        return ascii_art
+
+    trailing_empty = False
+    if lines and lines[-1] == "":
+        trailing_empty = True
+        lines = lines[:-1]
+
+    def _strip_ansi(text):
+        return re.sub(r'\x1b\[[0-9;]*[a-zA-Z]', '', text)
+
+    BORDER_BOXES = {
+        "rounded": ("╭", "─", "╮", "│", "╰", "╯"),
+        "single":  ("┌", "─", "┐", "│", "└", "┘"),
+        "double":  ("╔", "═", "╗", "║", "╚", "╝"),
+        "heavy":   ("┏", "━", "┓", "┃", "┗", "┛"),
+        "ascii":   ("+", "-", "+", "|", "+", "+"),
+        "blocks":  ("█", "▀", "█", "█", "█", "▄")
+    }
+
+    if border_style:
+        b_name = border_style.lower() if isinstance(border_style, str) else "rounded"
+        chars = BORDER_BOXES.get(b_name, BORDER_BOXES["rounded"])
+        tl, h, tr, v, bl, br = chars
+        border_color = "\033[38;2;120;120;150m"
+        rst = "\033[0m"
+
+        max_w = max((len(_strip_ansi(line)) for line in lines), default=1)
+        framed_lines = []
+
+        if title:
+            clean_title = f" {title} "
+            if len(clean_title) <= max_w:
+                top_bar = f"{border_color}{tl}{h}{rst}\033[1;37m{clean_title}\033[0m{border_color}{h * (max_w - len(clean_title) + 1)}{tr}{rst}"
+            else:
+                top_bar = f"{border_color}{tl}{h * (max_w + 2)}{tr}{rst}"
+        else:
+            top_bar = f"{border_color}{tl}{h * (max_w + 2)}{tr}{rst}"
+        framed_lines.append(top_bar)
+
+        for line in lines:
+            line_len = len(_strip_ansi(line))
+            padding = " " * max(0, max_w - line_len)
+            framed_lines.append(f"{border_color}{v}{rst} {line}{padding} {border_color}{v}{rst}")
+
+        bottom_bar = f"{border_color}{bl}{h * (max_w + 2)}{br}{rst}"
+        framed_lines.append(bottom_bar)
+        lines = framed_lines
+
+    # 2. Alineación horizontal
+    if align in ("center", "right"):
+        term_cols = shutil.get_terminal_size((80, 24)).columns
+        block_w = max((len(_strip_ansi(l)) for l in lines), default=0)
+        if align == "center":
+            offset = max(0, (term_cols - block_w) // 2)
+        else: # right
+            offset = max(0, term_cols - block_w)
+
+        pad_str = " " * offset
+        lines = [pad_str + l for l in lines]
+
+    result = "\n".join(lines)
+    if trailing_empty:
+        result += "\n"
+    return result
+
+
 # Paleta de colores predefinidos para la funcionalidad de intercambio (--swap)
 COLOR_MAP = {
     "red": (255, 0, 0), "green": (0, 255, 0), "blue": (0, 0, 255),
@@ -276,14 +460,29 @@ TRANSLATIONS = {
         "help_copy": "Copy rendered ANSI art to system clipboard (-C, --copy).",
         "help_copy_plain": "Copy plain ASCII text (no ANSI color codes) to clipboard for Discord/Markdown.",
         "help_diff": "Visual side-by-side terminal image comparison (lumart diff <img1> <img2>).",
-        "remove_bg_success": "✅ Background removed cleanly with zero quality loss: {} ({}x{})",
+        "remove_bg_success": "✅ Background removed cleanly and save to: {} ({}x{})",
         "clipboard_copied_ansi": "Render copied to system clipboard (ANSI truecolor)!",
         "clipboard_copied_plain": "Render copied to system clipboard (plain ASCII)!",
         "diff_delta": "Average pixel color delta: {:.1f}%",
+        "help_brightness": "Adjust image brightness factor (e.g. 1.2 to brighten, 0.8 to darken; default: 1.0).",
+        "help_contrast": "Adjust image contrast factor (e.g. 1.3 for punchier contrast; default: 1.0).",
+        "help_saturation": "Adjust color saturation (e.g. 1.4 for vivid color, 0.0 for grayscale; default: 1.0).",
+        "help_border": "Enclose render with an aesthetic border (rounded, single, double, heavy, ascii, blocks).",
+        "help_align": "Horizontal alignment: 'left', 'center', or 'right' (default: left).",
+        "help_center": "Horizontally center the ASCII render in the terminal.",
+        "help_bench": "Run benchmark measuring rendering latency and FPS throughput across all engines.",
+        "help_preload": "Preload and pre-render all GIF animation frames into RAM for smooth 60 FPS playback.",
         "help_showcase": "Generate a 4-in-1 comparison showcase across all 4 flagship engines (Mary, Trumble, Luris, Spectra).",
         "help_info": "Display visual image inspector: resolution, aspect ratio, dominant colors, and engine recommendation.",
         "help_fetch_preset": "Generate optimized Fastfetch/Neofetch ANSI art and config.jsonc snippet.",
-        "help_shader": "Apply Spectra Weep 2.0 multi-spectral shader: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
+        "help_shader": "Apply Spectra Weep 2.0 multi-spectral shader: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'normal'.",
+        "help_fps": "Target framerate (e.g. 60, 30) for animated GIF playback or streaming.",
+        "help_bg_tolerance": "Color tolerance for intelligent background removal (1-100, default: 32).",
+        "help_rotate": "Rotate image clockwise by degrees: 90, 180, or 270 (--rotate 90).",
+        "help_flip": "Flip or mirror image: 'h' (horizontal) or 'v' (vertical) (--flip h).",
+        "help_charset": "Select ASCII/B&W font ramp: 'dense', 'standard', 'blocks', 'math', 'runes', 'katakana', 'crosshatch', or custom.",
+        "help_crosshatch": "Authentic Manga/Sketch crosshatching shading (45-degree pen hatching).",
+        "help_gamma": "Gamma curve exponent (e.g. 1.2 or 0.8) for fine tonal calibration.",
     },
     "es": {
         "diag_title_system": "📋 Información del Sistema y Runtime:",
@@ -456,14 +655,29 @@ TRANSLATIONS = {
         "help_copy": "Copiar arte ANSI generado al portapapeles del sistema (-C, --copy).",
         "help_copy_plain": "Copiar texto ASCII plano (sin códigos de color) al portapapeles para Discord/Markdown.",
         "help_diff": "Comparación visual de imágenes lado a lado en la terminal (lumart diff <img1> <img2>).",
-        "remove_bg_success": "✅ Fondo removido exitosamente sin pérdida de calidad: {} ({}x{})",
+        "remove_bg_success": "✅ Fondo removido exitosamente y guardado en: {} ({}x{})",
         "clipboard_copied_ansi": "¡Arte copiado al portapapeles del sistema (ANSI truecolor)!",
         "clipboard_copied_plain": "¡Arte copiado al portapapeles del sistema (ASCII plano)!",
         "diff_delta": "Variación cromática media (Delta): {:.1f}%",
+        "help_brightness": "Ajustar factor de brillo (ej. 1.2 para aclarar, 0.8 para oscurecer; defecto: 1.0).",
+        "help_contrast": "Ajustar factor de contraste (ej. 1.3 para más contraste; defecto: 1.0).",
+        "help_saturation": "Ajustar saturación de color (ej. 1.4 para colores vivos, 0.0 para escala de grises; defecto: 1.0).",
+        "help_border": "Enmarcar el arte con un borde decorativo (rounded, single, double, heavy, ascii, blocks).",
+        "help_align": "Alineación horizontal: 'left', 'center' o 'right' (defecto: left).",
+        "help_center": "Centrar horizontalmente el arte ASCII en la terminal.",
+        "help_bench": "Ejecutar banco de pruebas de rendimiento, latencia y FPS comparando todos los motores.",
+        "help_preload": "Precargar y pre-renderizar todos los fotogramas del GIF en memoria RAM para 60 FPS fluidos.",
         "help_showcase": "Genera una comparativa 4-en-1 mostrando los 4 motores insignia (Mary, Trumble, Luris, Spectra).",
         "help_info": "Muestra el inspector visual: resolución, proporción, paleta dominante HEX/ANSI y recomendación de motor.",
         "help_fetch_preset": "Genera el arte ANSI optimizado y el bloque config.jsonc para Fastfetch/Neofetch.",
-        "help_shader": "Aplicar shader multi-espectral de Spectra Weep 2.0: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
+        "help_shader": "Aplicar shader multi-espectral de Spectra Weep 2.0: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'normal'.",
+        "help_fps": "Framerate objetivo (ej. 60, 30) para reproducción ultra-fluida de GIFs o streaming.",
+        "help_bg_tolerance": "Tolerancia cromática para extracción de fondo transparente (1-100, defecto: 32).",
+        "help_rotate": "Rotar imagen en sentido horario: 90, 180 o 270 grados (--rotate 90).",
+        "help_flip": "Voltear o espejar imagen: 'h' (horizontal) o 'v' (vertical) (--flip h).",
+        "help_charset": "Seleccionar rampa de fuente ASCII/B&W: 'dense', 'standard', 'blocks', 'math', 'runes', 'katakana', 'crosshatch' o texto.",
+        "help_crosshatch": "Sombreado Manga/Boceto con trama cruzada auténtica a 45 grados (-ch).",
+        "help_gamma": "Exponente de curva gamma (ej. 1.2 o 0.8) para calibración tonal fina.",
     },
     "pt": {
         "diag_title_system": "📋 Informações do Sistema e Runtime:",
@@ -636,14 +850,21 @@ TRANSLATIONS = {
         "help_copy": "Copiar arte ANSI gerada para a área de transferência (-C, --copy).",
         "help_copy_plain": "Copiar texto ASCII simples para a área de transferência para Discord/Markdown.",
         "help_diff": "Comparação visual de imagens lado a lado no terminal (lumart diff <img1> <img2>).",
-        "remove_bg_success": "✅ Fundo removido com sucesso sem perda de qualidade: {} ({}x{})",
+        "remove_bg_success": "✅ Fundo removido com sucesso e salvo em: {} ({}x{})",
         "clipboard_copied_ansi": "Arte copiada para a área de transferência (ANSI truecolor)!",
         "clipboard_copied_plain": "Arte copiada para a área de transferência (ASCII simples)!",
         "diff_delta": "Variação cromática média (Delta): {:.1f}%",
         "help_showcase": "Gera uma vitrine comparativa 4-em-1 com os 4 motores principais (Mary, Trumble, Luris, Spectra).",
         "help_info": "Exibe o inspetor visual: resolução, proporção, cores dominantes HEX/ANSI e recomendação de motor.",
         "help_fetch_preset": "Gera arte ANSI otimizada e snippet config.jsonc para Fastfetch/Neofetch.",
-        "help_shader": "Aplicar sombreador multi-espectral do Spectra Weep 2.0: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
+        "help_shader": "Aplicar sombreador multi-espectral do Spectra Weep 2.0: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'normal'.",
+        "help_fps": "Taxa de quadros alvo (ex: 60, 30) para reprodução ultra-fluida de GIF ou streaming.",
+        "help_bg_tolerance": "Tolerância de cor para remoção inteligente de fundo (1-100, padrão: 32).",
+        "help_rotate": "Girar imagem no sentido horário: 90, 180 ou 270 graus (--rotate 90).",
+        "help_flip": "Espelhar imagem: 'h' (horizontal) ou 'v' (vertical) (--flip h).",
+        "help_charset": "Selecionar rampa de fonte ASCII/B&W: 'dense', 'standard', 'blocks', 'math', 'runes', 'katakana', 'crosshatch' ou texto.",
+        "help_crosshatch": "Sombreamento Manga com hachuras cruzadas autênticas a 45 graus (-ch).",
+        "help_gamma": "Expoente de curva gama (ex: 1.2 ou 0.8) para calibração tonal fina.",
     },
     "ru": {
         "diag_title_system": "📋 Информация о системе и среде выполнения:",
@@ -823,7 +1044,14 @@ TRANSLATIONS = {
         "help_showcase": "Сгенерировать сравнительную витрину 4-в-1 по 4 флагманским движкам (Mary, Trumble, Luris, Spectra).",
         "help_info": "Показать инспектор изображения: разрешение, пропорции, доминирующие цвета и рекомендацию движка.",
         "help_fetch_preset": "Сгенерировать ANSI-арт и фрагмент config.jsonc для Fastfetch/Neofetch.",
-        "help_shader": "Применить мультиспектральный шейдер Spectra Weep 2.0: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
+        "help_shader": "Применить мультиспектральный шейдер Spectra Weep 2.0: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'normal'.",
+        "help_fps": "Целевая частота кадров (напр. 60, 30) для плавного воспроизведения GIF или видео.",
+        "help_bg_tolerance": "Цветовой допуск для интеллектуального удаления фона (1-100, по умолч.: 32).",
+        "help_rotate": "Поворот изображения по часовой стрелке: 90, 180 или 270 градусов (--rotate 90).",
+        "help_flip": "Отразить изображение: 'h' (по горизонтали) или 'v' (по вертикали) (--flip h).",
+        "help_charset": "Выбор шрифтовой рампы ASCII/ЧБ: 'dense', 'standard', 'blocks', 'math', 'runes', 'katakana', 'crosshatch' или строка.",
+        "help_crosshatch": "Аутентичная штриховка манги под углом 45 градусов (-ch).",
+        "help_gamma": "Экспонента гамма-кривой (напр. 1.2 или 0.8) для точной тональной калибровки.",
     },
     "ja": {
         "diag_title_system": "📋 システムおよびランタイム診断:",
@@ -1003,7 +1231,14 @@ TRANSLATIONS = {
         "help_showcase": "4大フラッグシップエンジン（Mary、Trumble、Luris、Spectra）による4-in-1比較ショーケースを生成します。",
         "help_info": "画像の解像度、アスペクト比、主要パレット、推奨エンジンを表示するビジュアルインスペクター。",
         "help_fetch_preset": "Fastfetch/Neofetch向けの最適化ANSIアートとconfig.jsonc設定を生成します。",
-        "help_shader": "Spectra Weep 2.0 マルチスペクトルシェーダーを適用: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'。",
+        "help_shader": "Spectra Weep 2.0 マルチスペクトルシェーダーを適用: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'normal'。",
+        "help_fps": "GIF再生またはストリーミングの目標フレームレート（例: 60, 30FPS）。",
+        "help_bg_tolerance": "インテリジェントな背景透過抽出のカラー許容度（1-100、デフォルト: 32）。",
+        "help_rotate": "画像を時計回りに回転: 90、180、または270度 (--rotate 90)。",
+        "help_flip": "画像の反転・ミラーリング: 'h' (水平) または 'v' (垂直) (--flip h)。",
+        "help_charset": "ASCII/白黒フォントランプを選択: 'dense'、'standard'、'blocks'、'math'、'runes'、'katakana'、'crosshatch' またはカスタム文字列。",
+        "help_crosshatch": "本格的なマンガ・ペン画の45度クロスハッチング陰影 (-ch)。",
+        "help_gamma": "ガンマ曲線指数（例: 1.2 または 0.8）による微細なトーン補正。",
     },
     "de": {
         "diag_title_system": "📋 System- und Laufzeitdiagnose:",
@@ -1183,7 +1418,14 @@ TRANSLATIONS = {
         "help_showcase": "Erzeugt eine 4-in-1-Vergleichsansicht über alle 4 Flaggschiff-Engines (Mary, Trumble, Luris, Spectra).",
         "help_info": "Visueller Bild-Inspektor: Auflösung, Seitenverhältnis, dominante Farben und Engine-Empfehlung.",
         "help_fetch_preset": "Erzeugt optimiertes Fastfetch/Neofetch-ANSI-Art und config.jsonc-Konfiguration.",
-        "help_shader": "Spectra Weep 2.0 Multi-Spektral-Shader anwenden: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
+        "help_shader": "Spectra Weep 2.0 Multi-Spektral-Shader anwenden: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'normal'.",
+        "help_fps": "Ziel-Bildrate (z.B. 60, 30) für ultraflüssige GIF-Wiedergabe oder Streaming.",
+        "help_bg_tolerance": "Farbtoleranz für intelligente Hintergrundentfernung (1-100, Standard: 32).",
+        "help_rotate": "Bild im Uhrzeigersinn drehen: 90, 180 oder 270 Grad (--rotate 90).",
+        "help_flip": "Bild spiegeln: 'h' (horizontal) oder 'v' (vertikal) (--flip h).",
+        "help_charset": "ASCII/S&W-Zeichensatzrampe wählen: 'dense', 'standard', 'blocks', 'math', 'runes', 'katakana', 'crosshatch' oder Text.",
+        "help_crosshatch": "Authentische Manga-Kreuzschraffur im 45-Grad-Winkel (-ch).",
+        "help_gamma": "Gamma-Kurven-Exponent (z.B. 1.2 oder 0.8) zur feinen Tonwertabstimmung.",
     },
     "ko": {
         "diag_title_system": "📋 시스템 및 런타임 진단:",
@@ -1363,7 +1605,14 @@ TRANSLATIONS = {
         "help_showcase": "4대 플래그십 엔진(Mary, Trumble, Luris, Spectra)을 통한 4-in-1 비교 쇼케이스를 생성합니다.",
         "help_info": "해상도, 화면비, 주요 색상 팔레트 및 권장 엔진을 보여주는 이미지 인스펙터 대시보드.",
         "help_fetch_preset": "Fastfetch/Neofetch용 최적화 ANSI 아트 및 config.jsonc 설정을 생성합니다.",
-        "help_shader": "Spectra Weep 2.0 다중 스펙트럼 셰이더 적용: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
+        "help_shader": "Spectra Weep 2.0 다중 스펙트럼 셰이더 적용: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'normal'.",
+        "help_fps": "초고속 GIF 재생 또는 스트리밍을 위한 목표 프레임레이트(예: 60, 30FPS).",
+        "help_bg_tolerance": "지능형 배경 투명화 추출을 위한 색상 허용 오차 (1-100, 기본값: 32).",
+        "help_rotate": "이미지를 시계 방향으로 회전: 90, 180 또는 270도 (--rotate 90).",
+        "help_flip": "이미지 뒤집기/대칭: 'h' (가로) 또는 'v' (세로) (--flip h).",
+        "help_charset": "ASCII/흑백 글꼴 램프 선택: 'dense', 'standard', 'blocks', 'math', 'runes', 'katakana', 'crosshatch' 또는 커스텀 문자열.",
+        "help_crosshatch": "정통 만화 펜 터치 45도 크로스해칭 음영 (-ch).",
+        "help_gamma": "미세 톤 보정을 위한 감마 곡선 지수(예: 1.2 또는 0.8).",
     },
     "fr": {
         "diag_title_system": "📋 Diagnostics système et environnement d'exécution :",
@@ -1543,7 +1792,14 @@ TRANSLATIONS = {
         "help_showcase": "Génère une présentation comparative 4-en-1 sur les 4 moteurs phares (Mary, Trumble, Luris, Spectra).",
         "help_info": "Affiche l'inspecteur visuel : résolution, ratio, couleurs dominantes HEX/ANSI et recommandation de moteur.",
         "help_fetch_preset": "Génère un art ANSI optimisé et l'extrait config.jsonc pour Fastfetch/Neofetch.",
-        "help_shader": "Appliquer le shader multi-spectral Spectra Weep 2.0 : 'neon', 'thermal', 'tron', 'matrix', 'amber', 'normal'.",
+        "help_shader": "Appliquer le shader multi-spectral Spectra Weep 2.0 : 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'normal'.",
+        "help_fps": "Fréquence d'images cible (ex. 60, 30) pour une lecture GIF ultra-fluide ou streaming.",
+        "help_bg_tolerance": "Tolérance de couleur pour la suppression intelligente de l'arrière-plan (1-100, défaut: 32).",
+        "help_rotate": "Pivoter l'image dans le sens horaire : 90, 180 ou 270 degrés (--rotate 90).",
+        "help_flip": "Retourner ou refléter l'image : 'h' (horizontal) ou 'v' (vertical) (--flip h).",
+        "help_charset": "Sélectionner la rampe ASCII/N&B : 'dense', 'standard', 'blocks', 'math', 'runes', 'katakana', 'crosshatch' ou personnalisé.",
+        "help_crosshatch": "Ombrage hachuré manga authentique à 45 degrés (-ch).",
+        "help_gamma": "Exposant de courbe gamma (ex. 1.2 ou 0.8) pour un étalonnage tonal précis.",
     }
 }
 
@@ -1663,9 +1919,13 @@ def apply_color_swap(image, swap_args):
 def remove_image_background(pil_img, tolerance=32):
     """
     Remueve inteligentemente el fondo perimetral / conectado a los bordes para salidas transparentes,
-    stickers PNG/WebP y celdas sin fondo opaco.
-    Utiliza segmentación avanzada GrabCut (Gaussian Mixture Models) de OpenCV para aislar
-    figuras complejas, cabellos y degradados sin halos ni recortes prematuros.
+    stickers PNG y celdas sin fondo opaco con precisión quirúrgica.
+    Combina:
+      - Bounding box adaptativo según varianza perimetral (no corta sujetos anclados en el borde inferior).
+      - Segmentación GrabCut (GMM de 5 componentes gaussianas con 5 iteraciones EM).
+      - Protección de orificios internos (Hole-Filling) para que ojos, ropa y detalles interiores no se transparenten.
+      - Refinado de contorno con Alpha Feathering subpíxel (anti-aliasing para bordes suaves sin escalonamiento).
+      - Fallback robusto en espacio de color Lab perceptual y FloodFill multi-semilla.
     """
     if pil_img is None:
         return pil_img
@@ -1688,7 +1948,7 @@ def remove_image_background(pil_img, tolerance=32):
     except Exception:
         pass
 
-    # 2. Segmentación avanzada con OpenCV GrabCut (GMM con 5 componentes gaussianas)
+    # 2. Segmentación avanzada con OpenCV GrabCut y Alpha Feathering
     try:
         import cv2
         import numpy as np
@@ -1699,36 +1959,90 @@ def remove_image_background(pil_img, tolerance=32):
         if h <= 4 or w <= 4:
             return img_rgba
 
-        # Bounding box con margen perimetral adaptativo (1% - 3% del tamaño)
-        margin_x = max(2, min(20, w // 40))
-        margin_y = max(2, min(20, h // 40))
-        rect = (margin_x, margin_y, w - 2 * margin_x, h - 2 * margin_y)
+        # Detección inteligente de bordes: verificar si el sujeto toca la parte inferior o los lados
+        # Tomamos muestras de los 4 bordes
+        top_sample = rgb[0:max(1, h // 50), :, :]
+        bottom_sample = rgb[h - max(1, h // 50):h, :, :]
+        left_sample = rgb[:, 0:max(1, w // 50), :]
+        right_sample = rgb[:, w - max(1, w // 50):w, :]
+
+        # Varianza en el borde inferior vs borde superior
+        var_top = np.var(top_sample)
+        var_bottom = np.var(bottom_sample)
+
+        # Margen perimetral adaptativo (1% - 2.5% del tamaño)
+        margin_x = max(1, min(15, w // 50))
+        margin_y_top = max(1, min(15, h // 50))
+        
+        # Si la varianza del borde inferior es notablemente más alta que el superior, el sujeto está cortado abajo
+        # En ese caso extendemos el rect hasta la última fila para no decapitar piernas/torso
+        touches_bottom = var_bottom > (var_top * 1.8 + 20)
+        margin_y_bottom = 0 if touches_bottom else max(1, min(15, h // 50))
+
+        rect_x = margin_x
+        rect_y = margin_y_top
+        rect_w = max(2, w - 2 * margin_x)
+        rect_h = max(2, h - margin_y_top - margin_y_bottom)
+        rect = (rect_x, rect_y, rect_w, rect_h)
 
         bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
         mask = np.zeros((h, w), np.uint8)
         bgdModel = np.zeros((1, 65), np.float64)
         fgdModel = np.zeros((1, 65), np.float64)
 
-        # 3 iteraciones de optimización EM para máxima velocidad y nitidez de contorno
-        cv2.grabCut(bgr, mask, rect, bgdModel, fgdModel, 3, cv2.GC_INIT_WITH_RECT)
+        # 5 iteraciones de optimización EM para convergencia precisa
+        cv2.grabCut(bgr, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_RECT)
         
         # 0 y 2 son fondo seguro y probable fondo; 1 y 3 son primer plano
-        fg_mask = np.where((mask == 1) | (mask == 3), 255, 0).astype(np.uint8)
+        fg_binary = np.where((mask == 1) | (mask == 3), 255, 0).astype(np.uint8)
 
-        # Refinamiento morfológico para limpiar islas de ruido perimetral y preservar bordes suaves
+        # Protección de orificios internos (Hole-Filling):
+        # Inundar el fondo exterior desde los 4 extremos para detectar solo el fondo conectado por fuera
+        h_pad, w_pad = h + 2, w + 2
+        flood_mask = np.zeros((h_pad, w_pad), np.uint8)
+        inv_fg = 255 - fg_binary
+        # FloodFill desde esquinas
+        for seed in [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]:
+            if inv_fg[seed[1], seed[0]] > 0:
+                cv2.floodFill(inv_fg, flood_mask, seed, 128)
+        
+        # Cualquier píxel no alcanzado por el flood exterior pertenece al sujeto (rellenar agujeros internos)
+        fg_cleaned = np.where(inv_fg == 128, 0, 255).astype(np.uint8)
+
+        # Refinamiento morfológico elíptico suave
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_CLOSE, kernel)
-        fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_OPEN, kernel)
+        fg_cleaned = cv2.morphologyEx(fg_cleaned, cv2.MORPH_CLOSE, kernel)
+        fg_cleaned = cv2.morphologyEx(fg_cleaned, cv2.MORPH_OPEN, kernel)
 
-        # Verificar que la segmentación no haya borrado la figura por completo (>5% y <98% transparencia)
-        trans_ratio = np.mean(fg_mask == 0)
-        if 0.05 <= trans_ratio <= 0.98:
-            arr[:, :, 3] = fg_mask
+        # Alpha Feathering: anti-aliasing de borde mediante desenfoque gaussiano suave en el contorno
+        dist_fg = cv2.distanceTransform(fg_cleaned, cv2.DIST_L2, 3)
+        dist_bg = cv2.distanceTransform(255 - fg_cleaned, cv2.DIST_L2, 3)
+        
+        # Banda de transición de 1.5 píxeles alrededor de la frontera
+        feather_radius = 1.5
+        alpha_mask = np.zeros((h, w), dtype=np.float32)
+        inner = dist_fg > feather_radius
+        outer = dist_bg > feather_radius
+        boundary = (~inner) & (~outer)
+        
+        alpha_mask[inner] = 255.0
+        alpha_mask[outer] = 0.0
+        if np.any(boundary):
+            # Mapear distancia normalizada [0.0, 1.0] en la frontera
+            norm_dist = (dist_fg[boundary] / (dist_fg[boundary] + dist_bg[boundary] + 1e-5))
+            alpha_mask[boundary] = np.clip(norm_dist * 255.0, 0, 255)
+
+        alpha_final = alpha_mask.astype(np.uint8)
+
+        # Verificar que la segmentación tenga sentido (>3% y <98% transparencia)
+        trans_ratio = np.mean(alpha_final < 128)
+        if 0.03 <= trans_ratio <= 0.98:
+            arr[:, :, 3] = alpha_final
             return Image.fromarray(arr)
     except Exception:
         pass
 
-    # 3. Fallback en OpenCV con Connected Components y FloodFill perimetral
+    # 3. Fallback perceptual en espacio Lab con Connected Components y FloodFill perimetral
     try:
         import cv2
         import numpy as np
@@ -1736,18 +2050,27 @@ def remove_image_background(pil_img, tolerance=32):
         arr = np.array(img_rgba)
         rgb = arr[:, :, :3]
         h, w = rgb.shape[:2]
-        bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+        lab = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB)
         mask = np.zeros((h + 2, w + 2), np.uint8)
-        diff = (tolerance, tolerance, tolerance)
+        
+        # Tolerancia en espacio Lab adaptada
+        lab_tol = max(8, min(80, int(tolerance * 0.9)))
+        diff = (lab_tol, lab_tol // 2, lab_tol // 2)
         flags = 4 | cv2.FLOODFILL_MASK_ONLY | cv2.FLOODFILL_FIXED_RANGE | (255 << 8)
         seed_points = [
             (0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1),
-            (w // 2, 0), (w // 2, h - 1), (0, h // 2), (w - 1, h // 2)
+            (w // 2, 0), (w // 2, h - 1), (0, h // 2), (w - 1, h // 2),
+            (w // 4, 0), (3 * w // 4, 0)
         ]
         for pt in seed_points:
-            cv2.floodFill(bgr, mask, pt, 0, diff, diff, flags)
+            cv2.floodFill(lab, mask, pt, 0, diff, diff, flags)
+            
         bg_mask = mask[1:h+1, 1:w+1] == 255
-        arr[bg_mask, 3] = 0
+        
+        # Suavizado suave del canal alfa
+        alpha = np.where(bg_mask, 0, 255).astype(np.uint8)
+        alpha = cv2.GaussianBlur(alpha, (3, 3), 0)
+        arr[:, :, 3] = alpha
         return Image.fromarray(arr)
     except Exception:
         pass
@@ -2189,6 +2512,40 @@ def apply_spectra_shader(image, shader="neon", theme_name=None):
             gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]).astype(np.uint8)
             thresh = (gray > 115).astype(np.uint8) * 255
             return Image.fromarray(np.dstack([thresh, thresh, thresh]))
+
+        # 7. Hologram Beam (Holograma Sci-Fi Azul/Cian)
+        elif sh in ("hologram", "holo", "sci-fi"):
+            gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114])
+            out = np.zeros((h, w, 3), dtype=np.uint8)
+            y_indices = np.arange(h)[:, None]
+            scan_mod = ((y_indices % 3 == 0) * 0.35 + 0.65).astype(np.float32)
+            g_mod = np.clip(gray * scan_mod, 0, 255)
+            out[:, :, 0] = (g_mod * 0.10).astype(np.uint8)
+            out[:, :, 1] = np.clip(g_mod * 0.85 + 20, 0, 255).astype(np.uint8)
+            out[:, :, 2] = np.clip(g_mod * 1.15 + 40, 0, 255).astype(np.uint8)
+            return Image.fromarray(out)
+
+        # 8. RGB Glitch (Desplazamiento cromático)
+        elif sh in ("glitch", "chromatic", "aberration"):
+            shift = max(1, w // 40)
+            out = arr.copy()
+            out[:, shift:, 0] = arr[:, :-shift, 0]
+            out[:, :-shift, 2] = arr[:, shift:, 2]
+            return Image.fromarray(out)
+
+        # 9. Phosphor Bloom (Fósforo verde radiactivo con halo difuso)
+        elif sh in ("phosphor-bloom", "bloom", "radioactive"):
+            gray = np.dot(arr[..., :3], [0.299, 0.587, 0.114]).astype(np.uint8)
+            out = np.zeros((h, w, 3), dtype=np.uint8)
+            out[:, :, 0] = (gray * 0.20).astype(np.uint8)
+            out[:, :, 1] = np.clip(gray * 1.25 + 15, 0, 255).astype(np.uint8)
+            out[:, :, 2] = (gray * 0.30).astype(np.uint8)
+            return Image.fromarray(out)
+
+        # 10. Solarize (Efecto Sabattier / Pseudo-solarización)
+        elif sh in ("solarize", "solar", "sabattier"):
+            solar = np.where(arr > 128, 255 - arr, arr)
+            return Image.fromarray(solar.astype(np.uint8))
             
         else:
             return image
@@ -2456,6 +2813,85 @@ def export_fastfetch_preset(image_path, width=40, font_ratio=0.5, out_dir=None):
     return True
 
 
+def run_benchmark(image_path=None, width=None, iterations=None):
+    """
+    Ejecuta un banco de pruebas de rendimiento comparativo entre motores y algoritmos.
+    """
+    test_img = None
+    if image_path and os.path.exists(image_path):
+        try:
+            test_img = Image.open(image_path).convert("RGBA")
+        except Exception:
+            pass
+
+    if not test_img:
+        for cand in ["assets/slime_mary.png", "assets/hanako_boosted.png", "assets/cinderella_mary_apex.png"]:
+            if os.path.exists(cand):
+                try:
+                    test_img = Image.open(cand).convert("RGBA")
+                    image_path = cand
+                    break
+                except Exception:
+                    pass
+
+    if not test_img:
+        test_img = Image.new("RGBA", (800, 600), (45, 52, 71, 255))
+        image_path = "(sintética 800x600)"
+
+    bench_w = width if width and width > 0 else 90
+    iterations = iterations if iterations and iterations > 0 else 5
+
+    c_cyan = "\033[1;38;2;94;142;240m"
+    c_green = "\033[1;38;2;80;250;123m"
+    c_yellow = "\033[1;38;2;255;184;108m"
+    c_magenta = "\033[1;38;2;255;121;198m"
+    c_bold = "\033[1m"
+    rst = "\033[0m"
+
+    print(f"\n{c_cyan}⚡ Lumart v{VERSION} ({CODENAME}) • Suite Benchmark & Engine Telemetry{rst}")
+    print(f"\033[90m─────────────────────────────────────────────────────────────────────────────{rst}")
+    print(f"  {c_bold}Fuente de prueba:{rst} {image_path}  •  {c_bold}Ancho objetivo:{rst} {bench_w} cols  •  {c_bold}Iteraciones:{rst} {iterations}")
+    print(f"\033[90m─────────────────────────────────────────────────────────────────────────────{rst}")
+    print(f"  {c_bold}{'Motor / Modo':<32} {'Latencia Media':<16} {'Rendimiento':<14} {'Estado':<15}{rst}")
+    print(f"\033[90m  ──────────────────────────────  ──────────────  ─────────────  ───────────{rst}")
+
+    tests = [
+        ("Mary C++ (Sextants RAM)", lambda: try_render_native_mary_memory(test_img, bench_w, mode="sextants")),
+        ("Mary Apex (Sextants 2x3)", lambda: mary.render_mary(test_img, bench_w, mode="sextants") if mary else convert_image_to_blocks(resize_image(test_img, bench_w, is_blocks=True))),
+        ("Mary Apex (Braille 2x4)", lambda: mary.render_mary(test_img, bench_w, mode="braille") if mary else convert_image_to_braille(resize_image(test_img, bench_w, is_braille=True), use_color=True)),
+        ("Mary Apex (Quadrants 2x2)", lambda: mary.render_mary(test_img, bench_w, mode="quadrants") if mary else convert_image_to_blocks(resize_image(test_img, bench_w, is_blocks=True))),
+        ("Trumble Orelx (Cel-Shade)", lambda: convert_image_to_blocks(apply_trumble_cel_shading(test_img.copy(), target_width=bench_w, is_blocks=True)[0])),
+        ("Luris C++ (Braille RAM)", lambda: try_render_native_monochrome_memory(test_img, bench_w, "braille")),
+        ("Luris Mono (Manga DoG)", lambda: render_python_manga(test_img, bench_w)),
+        ("Luris Mono (Sketch Puro)", lambda: render_python_sketch(test_img, bench_w)),
+        ("Luris Mono (Atkinson Dither)", lambda: render_python_bw_quadrants(test_img, bench_w, dither="atkinson")),
+    ]
+
+    for name, fn in tests:
+        times = []
+        try:
+            fn()
+            for _ in range(iterations):
+                t0 = time.perf_counter()
+                fn()
+                t1 = time.perf_counter()
+                times.append(t1 - t0)
+            avg_sec = sum(times) / len(times)
+            avg_ms = avg_sec * 1000.0
+            fps = 1.0 / avg_sec if avg_sec > 0 else 999.0
+            if avg_ms < 15.0:
+                badge = f"{c_green}⚡ Ultra Rápido{rst}"
+            elif avg_ms < 50.0:
+                badge = f"{c_cyan}✅ Alta Fidelidad{rst}"
+            else:
+                badge = f"{c_yellow}⏳ Intensivo{rst}"
+            print(f"  {name:<30}  {avg_ms:6.2f} ms/frame   {fps:6.1f} FPS       {badge}")
+        except Exception as e:
+            print(f"  {name:<30}  {c_magenta}Error: {e}{rst}")
+
+    print(f"\033[90m─────────────────────────────────────────────────────────────────────────────{rst}\n")
+
+
 def run_slideshow(file_list, delay=3.0, width=None, engine=None, theme=None, crt=None):
     """Reproductor de galería interactiva con controles de teclado para la terminal."""
     import glob
@@ -2549,7 +2985,18 @@ def run_slideshow(file_list, delay=3.0, width=None, engine=None, theme=None, crt
     return True
 
 def run_interactive_tui(image_path, initial_width=80):
-    """Modo interactivo en vivo en terminal para ajustar parámetros estéticos en tiempo real."""
+    """
+    Estudio Interactivo en Vivo de Lumart en terminal.
+    Permite calibrar y esculpir parámetros estéticos en tiempo real:
+      - Buffer alternativo (\033[?1049h) para conservar 100% limpia la consola al salir.
+      - Soporte para flechas direccionales: [◄/►] Ancho, [▲/▼] Zoom digital.
+      - Selección directa y rotación de los 4 motores [1-4 / M] (Mary, Trumble, Luris, Spectra).
+      - Conmutación en caliente de glifos/formatos [F] (Sextantes, Braille, Cuadrantes, Bloques, ASCII).
+      - Conmutación de Temas de color [T], CRT [C], Dithering [D] y Shaders [X].
+      - Conmutación en vivo de Eliminación de Fondo [R], Boost [B] e Inversión [I].
+      - Modal de ayuda integrado [H / ?].
+      - Guardado rápido en PNG / ANS [S] y salida confirmada a consola [Enter].
+    """
     import termios
     import tty
     import select
@@ -2560,21 +3007,50 @@ def run_interactive_tui(image_path, initial_width=80):
     except Exception as e:
         print(f"❌ Error al abrir imagen: {e}")
         return False
-        
-    cur_width = initial_width or 70
-    engines = ["mary", "trumble", "luris"]
+
+    term_size = shutil.get_terminal_size((100, 30))
+    cur_width = initial_width or min(80, term_size.columns - 4)
+    zoom_val = 1.0
+    
+    engines = ["mary", "trumble", "luris", "spectra"]
     engine_idx = 0
+    
+    formats_map = {
+        "mary": ["sextants", "braille", "quadrants", "blocks"],
+        "trumble": ["blocks", "braille"],
+        "luris": ["manga", "sketch", "braille", "blocks"],
+        "spectra": ["blocks", "braille", "ascii"]
+    }
+    format_idx = 0
+
+    shaders = [None, "neon", "cyberpunk", "thermal", "tron", "matrix", "amber", "hologram", "glitch", "phosphor-bloom", "solarize", "manga"]
+    shader_idx = 0
+    
     dithers = ["none", "atkinson", "bayer", "floyd"]
     dither_idx = 0
-    themes = [None, "catppuccin", "dracula", "nord", "gruvbox", "synthwave", "gameboy", "solarized"]
+    
+    themes = [None, "catppuccin", "dracula", "nord", "gruvbox", "synthwave", "vaporwave", "gameboy", "solarized"]
     theme_idx = 0
-    crts = [None, "color", "green", "amber"]
+    
+    crts = [None, "color", "green", "amber", "scanlines"]
     crt_idx = 0
+    
     boost = False
+    remove_bg = False
+    bg_tolerance = 32
+    rotate_deg = 0
+    flip_h = False
+    invert = False
+    show_help_modal = False
+    
+    status_msg = ""
+    status_timer = 0
     
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
-    sys.stdout.write("\033[?25l")
+    
+    # Activar buffer alternativo de terminal y ocultar cursor
+    sys.stdout.write("\033[?1049h\033[?25l\033[2J\033[H")
     sys.stdout.flush()
     
     final_art = ""
@@ -2583,74 +3059,248 @@ def run_interactive_tui(image_path, initial_width=80):
         tty.setcbreak(fd)
         while True:
             eng = engines[engine_idx]
+            avail_formats = formats_map.get(eng, ["blocks"])
+            cur_format = avail_formats[format_idx % len(avail_formats)]
             dith = dithers[dither_idx]
             thm = themes[theme_idx]
             crt_val = crts[crt_idx]
+            cur_shader = shaders[shader_idx]
             
+            # 1. Preparar imagen base con transformaciones
             work_img = base_img.copy()
+
+            if rotate_deg != 0 or flip_h:
+                work_img = apply_image_transforms(work_img, rotate=rotate_deg, flip=("h" if flip_h else None))
+            
+            if remove_bg:
+                work_img = remove_image_background(work_img, tolerance=bg_tolerance)
+                
+            if zoom_val != 1.0:
+                work_img = apply_crop_and_zoom(work_img, zoom=zoom_val)
+                
             if thm:
                 work_img = apply_theme_palette(work_img, thm)
                 
+            if cur_shader:
+                work_img = apply_spectra_shader(work_img, shader=cur_shader, theme_name=thm)
+
+            # 2. Renderizar según motor activo
             if eng == "luris":
-                work_img = resize_image(work_img, cur_width, is_blocks=True, is_braille=False)
-                if dith in ("atkinson", "bayer", "floyd"):
-                    work_img = apply_bayer_dither(work_img)
-                art = convert_image_to_blocks(work_img)
-            elif eng == "trumble":
-                work_img = resize_image(work_img, cur_width, is_blocks=True, is_braille=False)
-                art = convert_image_to_blocks(work_img)
-            else:
-                if mary is not None:
-                    art = mary.render_mary(work_img, cur_width, mode="sextants", raw_colors=not boost)
+                if cur_format == "sketch":
+                    art = render_python_sketch(work_img, cur_width, invert=invert)
+                elif cur_format == "manga":
+                    art = render_python_manga(work_img, cur_width, invert=invert)
+                elif cur_format == "braille":
+                    r_img = resize_image(work_img, cur_width, is_blocks=False, is_braille=True)
+                    if dith in ("atkinson", "bayer", "floyd"):
+                        r_img = apply_bayer_dither(r_img)
+                    art = convert_image_to_braille(r_img, use_color=False, invert=invert)
                 else:
-                    art = convert_image_to_blocks(resize_image(work_img, cur_width, is_blocks=True, is_braille=False))
+                    art = render_python_bw_quadrants(work_img, cur_width, dither=dith, invert=invert)
                     
-            if crt_val:
+            elif eng == "trumble":
+                is_bl = (cur_format == "blocks")
+                r_img = resize_image(work_img, cur_width, is_blocks=is_bl, is_braille=(not is_bl))
+                if boost:
+                    r_img, _ = apply_trumble_cel_shading(r_img, target_width=cur_width, is_blocks=is_bl, is_braille=(not is_bl))
+                if dith != "none":
+                    r_img = apply_bayer_dither(r_img)
+                if not is_bl:
+                    art = convert_image_to_braille(r_img, use_color=True, invert=invert)
+                else:
+                    art = convert_image_to_blocks(r_img)
+                    
+            elif eng == "spectra":
+                sh_name = cur_shader or "neon"
+                tex_name = cur_format if cur_format in ("blocks", "braille", "ascii") else "blocks"
+                art = render_spectra_static(work_img, width=cur_width, shader=sh_name, texture=tex_name, font_ratio=0.5, crt_mode=crt_val, theme_name=thm)
+                
+            else: # Mary Apex
+                if mary is not None:
+                    art = mary.render_mary(work_img, cur_width, mode=cur_format, raw_colors=not boost, invert=invert)
+                else:
+                    r_img = resize_image(work_img, cur_width, is_blocks=True, is_braille=False)
+                    art = convert_image_to_blocks(r_img)
+                    
+            if crt_val and eng != "spectra":
                 art = apply_crt_filter(art, crt_val)
                 
             final_art = art
             
+            # 3. Dibujar pantalla completa en buffer alternativo
+            t_cols, t_lines = shutil.get_terminal_size((100, 30))
+            
+            hud_header = (
+                f"\033[1;38;2;64;224;208m╭── ✦ LUMART INTERACTIVE VISUAL STUDIO ✦ "
+                f"\033[38;2;120;220;255m{os.path.basename(image_path)} ({base_img.width}x{base_img.height}) "
+                f"\033[38;2;255;215;100m[Motor: {eng.upper()}] "
+                f"\033[1;38;2;64;224;208m" + ("─" * max(2, t_cols - 65)) + "╮\033[0m"
+            )
+            
+            # Barra de estado inferior 1
+            hud_bar1 = (
+                f" \033[1;38;2;255;215;100m[◄/►]\033[0m Ancho: \033[1;37m{cur_width}\033[0m │ "
+                f"\033[1;38;2;255;215;100m[▲/▼]\033[0m Zoom: \033[1;37m{zoom_val:.1f}x\033[0m │ "
+                f"\033[1;38;2;80;250;123m[1-4/M]\033[0m Motor: \033[1;36m{eng}\033[0m │ "
+                f"\033[1;38;2;80;250;123m[F]\033[0m Modo: \033[1;35m{cur_format}\033[0m │ "
+                f"\033[1;38;2;120;220;255m[T]\033[0m Tema: \033[1;37m{thm or 'off'}\033[0m │ "
+                f"\033[1;38;2;120;220;255m[C]\033[0m CRT: \033[1;37m{crt_val or 'off'}\033[0m"
+            )
+            
+            # Barra de estado inferior 2
+            bg_badge = f"\033[1;32mON\033[0m(tol:{bg_tolerance})" if remove_bg else "\033[90mOFF\033[0m"
+            boost_badge = "\033[1;32mON\033[0m" if boost else "\033[90mOFF\033[0m"
+            inv_badge = "\033[1;32mON\033[0m" if invert else "\033[90mOFF\033[0m"
+            flip_badge = "\033[1;32mON\033[0m" if flip_h else "\033[90mOFF\033[0m"
+            hud_bar2 = (
+                f" \033[1;38;2;255;121;198m[R]\033[0m No-BG: {bg_badge} \033[38;2;255;215;100m[\\[/\\]]\033[0m │ "
+                f"\033[1;38;2;255;121;198m[O]\033[0m Rot: \033[1;37m{rotate_deg}°\033[0m │ "
+                f"\033[1;38;2;255;121;198m[P]\033[0m Flip: {flip_badge} │ "
+                f"\033[1;38;2;255;121;198m[B]\033[0m Boost: {boost_badge} │ "
+                f"\033[1;38;2;255;121;198m[I]\033[0m Inv: {inv_badge} │ "
+                f"\033[1;38;2;120;220;255m[D]\033[0m Dither: {dith} │ "
+                f"\033[1;38;2;120;220;255m[X]\033[0m Shader: {cur_shader or 'none'}"
+            )
+            
+            # Barra de acciones
+            hud_actions = (
+                f" \033[1;33m[H/? Ayuda]\033[0m │ "
+                f"\033[1;32m[S Guardar HD]\033[0m │ "
+                f"\033[1;36m[Enter Imprimir a terminal]\033[0m │ "
+                f"\033[1;31m[Q Salir]\033[0m"
+            )
+            if status_msg and time.time() < status_timer:
+                hud_actions += f"  \033[1;32m{status_msg}\033[0m"
+
             sys.stdout.write("\033[H\033[2J")
-            sys.stdout.write(f"\033[1;36m=== Lumart Interactive Live TUI Mode ===\033[0m\n")
-            sys.stdout.write(art + "\n")
-            sys.stdout.write(f"\033[1;30m─────────────────────────────────────────────────────────────────────────────\033[0m\n")
-            sys.stdout.write(f"\033[1;33m[+/- Ancho: {cur_width}]  [M] Motor: {eng}  [T] Tema: {thm or 'ninguno'}  [C] CRT: {crt_val or 'off'}\033[0m\n")
-            sys.stdout.write(f"\033[1;33m[D] Dither: {dith}  [B] Boost: {'on' if boost else 'off'}  [S] Guardar  [Enter] Imprimir  [Q] Salir\033[0m\n")
+            sys.stdout.write(hud_header + "\n")
+            
+            if show_help_modal:
+                modal = (
+                    "\n\033[1;38;2;64;224;208m╭───────────────────── GUÍA RÁPIDA DE ATAJOS DE ESTUDIO ─────────────────────╮\033[0m\n"
+                    "│ \033[1;33m[◄ / ►]\033[0m Ajustar columnas de ancho (-5 / +5)     \033[1;33m[▲ / ▼]\033[0m Zoom digital (-0.1 / +0.1) │\n"
+                    "│ \033[1;32m[1]\033[0m Mary Apex 3.5 (Oklab HD TrueColor)       \033[1;32m[2]\033[0m Trumble Orelx 2.2 (Cel-shading)  │\n"
+                    "│ \033[1;32m[3]\033[0m Luris Mono 2.6 (Manga & Screentone)      \033[1;32m[4]\033[0m Spectra Weep (Shaders/Cyberpunk) │\n"
+                    "│ \033[1;36m[F]\033[0m Cambiar formato de glifos (Sextants, Braille, Cuadrantes, Bloques)      │\n"
+                    "│ \033[1;36m[T]\033[0m Rotar paletas de terminal (Catppuccin, Dracula, Nord, Gruvbox, etc.)    │\n"
+                    "│ \033[1;36m[C]\033[0m Filtro monitor CRT retro (Color, Green, Amber, Scanlines)                │\n"
+                    "│ \033[1;35m[R]\033[0m Conmutar extracción de fondo transparente   \033[1;35m[ [ / ] ]\033[0m Calibrar tolerancia  │\n"
+                    "│ \033[1;35m[O]\033[0m Rotar imagen en 90° en vivo                 \033[1;35m[P]\033[0m Espejar horizontalmente      │\n"
+                    "│ \033[1;35m[B]\033[0m Conmutar realce vibrante Retinex         \033[1;35m[I]\033[0m Invertir luminancia/tonalidad   │\n"
+                    "│ \033[1;35m[D]\033[0m Rotar algoritmo de tramado dither        \033[1;35m[X]\033[0m Rotar shader multi-espectral     │\n"
+                    "│ \033[1;32m[S]\033[0m Guardar render HD a disco (.png / .ans)   \033[1;32m[Enter]\033[0m Imprimir resultado final   │\n"
+                    "│ \033[1;31m[Q / ESC]\033[0m Salir del estudio sin imprimir       \033[1;33m[H / ?]\033[0m Cerrar esta ventana de ayuda │\n"
+                    "\033[1;38;2;64;224;208m╰─────────────────────────────────────────────────────────────────────────────╯\033[0m\n"
+                )
+                sys.stdout.write(modal)
+            else:
+                sys.stdout.write(art + "\n")
+                
+            sys.stdout.write("\033[1;38;2;64;224;208m" + ("─" * min(t_cols - 2, 85)) + "\033[0m\n")
+            sys.stdout.write(hud_bar1 + "\n")
+            sys.stdout.write(hud_bar2 + "\n")
+            sys.stdout.write(hud_actions + "\n")
             sys.stdout.flush()
             
+            # 4. Escucha de teclado no bloqueante y decodificación de flechas
             ch = sys.stdin.read(1)
-            if ch.lower() == "q" or ch == "\x03":
+            
+            if ch == '\x1b':
+                # Posible secuencia de escape (flechas o ESC)
+                r_seq, _w, _x = select.select([sys.stdin], [], [], 0.05)
+                if r_seq:
+                    seq = sys.stdin.read(2)
+                    if seq == '[C':   # Flecha Derecha -> Más ancho
+                        cur_width = min(240, cur_width + 5)
+                    elif seq == '[D': # Flecha Izquierda -> Menos ancho
+                        cur_width = max(15, cur_width - 5)
+                    elif seq == '[A': # Flecha Arriba -> Más zoom
+                        zoom_val = round(min(5.0, zoom_val + 0.1), 1)
+                    elif seq == '[B': # Flecha Abajo -> Menos zoom
+                        zoom_val = round(max(0.2, zoom_val - 0.1), 1)
+                else:
+                    # Tecla ESC solitaria -> Salir
+                    if show_help_modal:
+                        show_help_modal = False
+                    else:
+                        return False
+            elif ch.lower() in ('q', '\x03'):
                 return False
-            elif ch in ("\r", "\n"):
-                sys.stdout.write("\033[H\033[2J")
-                sys.stdout.write(art + "\n")
-                sys.stdout.flush()
-                return True
-            elif ch in ("+", "="):
-                cur_width = min(200, cur_width + 5)
-            elif ch in ("-", "_"):
+            elif ch in ('\r', '\n'):
+                # Imprimir resultado y salir
+                break
+            elif ch in ('+', '='):
+                cur_width = min(240, cur_width + 5)
+            elif ch in ('-', '_'):
                 cur_width = max(15, cur_width - 5)
-            elif ch.lower() == "m":
+            elif ch == '[' or ch == '{':
+                bg_tolerance = max(4, bg_tolerance - 4)
+                status_msg = f"🎯 Tolerancia fondo: {bg_tolerance}"
+                status_timer = time.time() + 1.5
+            elif ch == ']' or ch == '}':
+                bg_tolerance = min(100, bg_tolerance + 4)
+                status_msg = f"🎯 Tolerancia fondo: {bg_tolerance}"
+                status_timer = time.time() + 1.5
+            elif ch.lower() == 'o':
+                rotate_deg = (rotate_deg + 90) % 360
+                status_msg = f"🔄 Rotación: {rotate_deg}°"
+                status_timer = time.time() + 1.5
+            elif ch.lower() == 'p':
+                flip_h = not flip_h
+                status_msg = f"🪞 Espejo horizontal: {'ACTIVADO' if flip_h else 'DESACTIVADO'}"
+                status_timer = time.time() + 1.5
+            elif ch == '1':
+                engine_idx = 0
+            elif ch == '2':
+                engine_idx = 1
+            elif ch == '3':
+                engine_idx = 2
+            elif ch == '4':
+                engine_idx = 3
+            elif ch.lower() == 'm':
                 engine_idx = (engine_idx + 1) % len(engines)
-            elif ch.lower() == "t":
+            elif ch.lower() == 'f':
+                format_idx = (format_idx + 1)
+            elif ch.lower() == 't':
                 theme_idx = (theme_idx + 1) % len(themes)
-            elif ch.lower() == "c":
+            elif ch.lower() == 'c':
                 crt_idx = (crt_idx + 1) % len(crts)
-            elif ch.lower() == "d":
+            elif ch.lower() == 'd':
                 dither_idx = (dither_idx + 1) % len(dithers)
-            elif ch.lower() == "b":
+            elif ch.lower() == 'x':
+                shader_idx = (shader_idx + 1) % len(shaders)
+            elif ch.lower() == 'r':
+                remove_bg = not remove_bg
+            elif ch.lower() == 'b':
                 boost = not boost
-            elif ch.lower() == "s":
-                out_name = "lumart_tui_export.ans"
-                with open(out_name, "w", encoding="utf-8") as f:
-                    f.write(art)
-                sys.stdout.write(f"\n💾 Guardado exitosamente en: {out_name}\n")
-                sys.stdout.flush()
-                time.sleep(1.0)
+            elif ch.lower() == 'i':
+                invert = not invert
+            elif ch in ('h', 'H', '?'):
+                show_help_modal = not show_help_modal
+            elif ch.lower() == 's':
+                base_name = os.path.splitext(os.path.basename(image_path))[0]
+                out_png = f"{base_name}_studio_export.png"
+                out_ans = f"{base_name}_studio_export.ans"
+                try:
+                    export_ansi_to_image(final_art, out_png, transparent=remove_bg)
+                    with open(out_ans, "w", encoding="utf-8") as f:
+                        f.write(final_art)
+                    status_msg = f"📸 Exportado HD: {out_png} & {out_ans}"
+                except Exception as e:
+                    status_msg = f"❌ Error al guardar: {e}"
+                status_timer = time.time() + 2.5
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        sys.stdout.write("\033[?25h\n")
+        # Salir de buffer alternativo y restaurar cursor
+        sys.stdout.write("\033[?1049l\033[?25h\033[0m\n")
         sys.stdout.flush()
+
+    # Si se confirmó con [Enter], imprimir el arte en el stdout estándar
+    if final_art:
+        sys.stdout.write(final_art + "\n")
+        sys.stdout.flush()
+        return True
+    return False
 
 # Matriz de Bayer 4x4: algoritmo clásico de difuminado ordenado (dithering) estilo retro
 BAYER_MATRIX = [
@@ -2721,10 +3371,20 @@ def apply_trumble_cel_shading(image, target_width=None, is_blocks=True, is_brail
         smooth = cv2.bilateralFilter(gray, d=5, sigmaColor=40, sigmaSpace=40)
         canny_edges = cv2.Canny(smooth, 50, 130)
 
+        # Suprimir bordes artificiales en el perímetro exterior de 1 píxel
+        canny_edges[0, :] = 0
+        canny_edges[-1, :] = 0
+        canny_edges[:, 0] = 0
+        canny_edges[:, -1] = 0
+
         # Contorno perimetral exterior desde canal alpha (solo para píxeles opacos)
         if np.any(alpha < 250):
             alpha_edges = cv2.Canny(alpha, 100, 200)
             alpha_edges = cv2.bitwise_and(alpha_edges, alpha_edges, mask=(alpha >= 128).astype(np.uint8))
+            alpha_edges[0, :] = 0
+            alpha_edges[-1, :] = 0
+            alpha_edges[:, 0] = 0
+            alpha_edges[:, -1] = 0
             combined = cv2.bitwise_or(canny_edges, alpha_edges)
         else:
             combined = canny_edges
@@ -2741,6 +3401,10 @@ def apply_trumble_cel_shading(image, target_width=None, is_blocks=True, is_brail
             edges_pil = gray_pil.filter(ImageFilter.FIND_EDGES)
             rgba_arr = np.array(scaled.convert("RGBA"))
             edge_arr = (np.array(edges_pil, dtype=np.float32) / 255.0 * edge_strength)
+            edge_arr[0, :] = 0
+            edge_arr[-1, :] = 0
+            edge_arr[:, 0] = 0
+            edge_arr[:, -1] = 0
             darkened = (rgba_arr[:, :, :3].astype(np.float32) * (1.0 - edge_arr[:, :, None])).clip(0, 255).astype(np.uint8)
             return Image.fromarray(np.dstack([darkened, rgba_arr[:, :, 3]])), was_resized
         except Exception:
@@ -2868,6 +3532,67 @@ def render_python_manga(image, width, invert=False):
                             thresh = (bayer_8x8[cur_y % 8][cur_x % 8] + 0.5) * (255.0 / 64.0)
                             if (ink - 50.0) >= thresh:
                                 is_on = True
+                        if invert: is_on = not is_on
+                        if is_on:
+                            braille_val |= dot_map[dy][dx]
+            chars.append(" " if braille_val == 0 else chr(0x2800 + braille_val))
+        lines.append("".join(chars))
+    return "\n".join(lines)
+
+def render_python_crosshatch(image, width, invert=False):
+    """Fallback en Python para modo Manga Crosshatching (Tramado cruzado a 45 grados estilo pluma)."""
+    aspect = image.height / image.width
+    scaled_w = width * 2
+    scaled_h = int(scaled_w * aspect * 0.5 * 2.0)
+    scaled_h += (4 - scaled_h % 4) % 4
+    
+    resample_filter = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
+    img_scaled = image.convert("RGBA").resize((scaled_w, scaled_h), resample=resample_filter)
+    
+    gray = img_scaled.convert("L")
+    g1 = gray.filter(ImageFilter.GaussianBlur(0.7))
+    g2 = gray.filter(ImageFilter.GaussianBlur(1.8))
+    
+    g1_p = _get_pixel_sequence(g1)
+    g2_p = _get_pixel_sequence(g2)
+    alpha_p = _get_pixel_sequence(img_scaled.split()[3])
+    
+    dot_map = [
+        [0x01, 0x08],
+        [0x02, 0x10],
+        [0x04, 0x20],
+        [0x40, 0x80]
+    ]
+    
+    lines = []
+    for y in range(0, scaled_h, 4):
+        chars = []
+        for x in range(0, scaled_w, 2):
+            braille_val = 0
+            for dy in range(4):
+                for dx in range(2):
+                    cur_x = x + dx
+                    cur_y = y + dy
+                    if cur_x < scaled_w and cur_y < scaled_h:
+                        idx = cur_y * scaled_w + cur_x
+                        if alpha_p[idx] < 128:
+                            continue
+                        lum = g1_p[idx]
+                        dog = g2_p[idx] - lum
+                        ink = 255.0 - lum
+                        is_on = False
+                        if dog > 6.0:
+                            is_on = True
+                        elif ink > 215.0:
+                            is_on = True
+                        elif ink > 160.0:
+                            is_on = (((cur_x + cur_y) % 2 == 0) or ((cur_x - cur_y) % 2 == 0))
+                        elif ink > 115.0:
+                            is_on = (((cur_x + cur_y) % 3 == 0) or ((cur_x - cur_y) % 3 == 0))
+                        elif ink > 70.0:
+                            is_on = ((cur_x + cur_y) % 3 == 0)
+                        elif ink > 35.0:
+                            is_on = ((cur_x + cur_y) % 4 == 0)
                         if invert: is_on = not is_on
                         if is_on:
                             braille_val |= dot_map[dy][dx]
@@ -3092,39 +3817,72 @@ def convert_image_to_blocks(image):
             
             # Compresión de búfer ANSI por estado
             if fg_opaque and bg_opaque:
-                char = quad_map[best_shape]
                 fg_col = fg_rgba[:3]
                 bg_col = bg_rgba[:3]
                 code = ""
-                if last_fg != fg_col:
-                    code += f"\033[38;2;{fg_col[0]};{fg_col[1]};{fg_col[2]}m"
-                    last_fg = fg_col
-                if last_bg != bg_col:
-                    code += f"\033[48;2;{bg_col[0]};{bg_col[1]};{bg_col[2]}m"
-                    last_bg = bg_col
+                if best_shape == 15 or fg_col == bg_col:
+                    char = "█"
+                    if last_fg != fg_col:
+                        code += f"\033[38;2;{fg_col[0]};{fg_col[1]};{fg_col[2]}m"
+                        last_fg = fg_col
+                    if last_bg != fg_col:
+                        code += f"\033[48;2;{fg_col[0]};{fg_col[1]};{fg_col[2]}m"
+                        last_bg = fg_col
+                elif best_shape == 0:
+                    char = "█"
+                    if last_fg != bg_col:
+                        code += f"\033[38;2;{bg_col[0]};{bg_col[1]};{bg_col[2]}m"
+                        last_fg = bg_col
+                    if last_bg != bg_col:
+                        code += f"\033[48;2;{bg_col[0]};{bg_col[1]};{bg_col[2]}m"
+                        last_bg = bg_col
+                else:
+                    char = quad_map[best_shape]
+                    if last_fg != fg_col:
+                        code += f"\033[38;2;{fg_col[0]};{fg_col[1]};{fg_col[2]}m"
+                        last_fg = fg_col
+                    if last_bg != bg_col:
+                        code += f"\033[48;2;{bg_col[0]};{bg_col[1]};{bg_col[2]}m"
+                        last_bg = bg_col
                 ascii_str += code + char
             elif fg_opaque and not bg_opaque:
                 char = quad_map[best_shape]
                 fg_col = fg_rgba[:3]
                 code = ""
-                if last_bg is not None:
-                    code += "\033[49m"
-                    last_bg = None
-                if last_fg != fg_col:
-                    code += f"\033[38;2;{fg_col[0]};{fg_col[1]};{fg_col[2]}m"
-                    last_fg = fg_col
+                if best_shape == 15:
+                    if last_fg != fg_col:
+                        code += f"\033[38;2;{fg_col[0]};{fg_col[1]};{fg_col[2]}m"
+                        last_fg = fg_col
+                    if last_bg != fg_col:
+                        code += f"\033[48;2;{fg_col[0]};{fg_col[1]};{fg_col[2]}m"
+                        last_bg = fg_col
+                else:
+                    if last_bg is not None:
+                        code += "\033[49m"
+                        last_bg = None
+                    if last_fg != fg_col:
+                        code += f"\033[38;2;{fg_col[0]};{fg_col[1]};{fg_col[2]}m"
+                        last_fg = fg_col
                 ascii_str += code + char
             elif not fg_opaque and bg_opaque:
                 inv_shape = 15 - best_shape
                 char = quad_map[inv_shape]
                 bg_col = bg_rgba[:3]
                 code = ""
-                if last_bg is not None:
-                    code += "\033[49m"
-                    last_bg = None
-                if last_fg != bg_col:
-                    code += f"\033[38;2;{bg_col[0]};{bg_col[1]};{bg_col[2]}m"
-                    last_fg = bg_col
+                if inv_shape == 15:
+                    if last_fg != bg_col:
+                        code += f"\033[38;2;{bg_col[0]};{bg_col[1]};{bg_col[2]}m"
+                        last_fg = bg_col
+                    if last_bg != bg_col:
+                        code += f"\033[48;2;{bg_col[0]};{bg_col[1]};{bg_col[2]}m"
+                        last_bg = bg_col
+                else:
+                    if last_bg is not None:
+                        code += "\033[49m"
+                        last_bg = None
+                    if last_fg != bg_col:
+                        code += f"\033[38;2;{bg_col[0]};{bg_col[1]};{bg_col[2]}m"
+                        last_fg = bg_col
                 ascii_str += code + char
             else:
                 if last_fg or last_bg:
@@ -3320,10 +4078,13 @@ def convert_image_to_braille(image, use_color=False, invert=False):
         
     return ascii_str
 
-def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, os_style=False):
+def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, os_style=False, charset=None, color=None):
     """
     Motor clásico: mapeo tonal de píxeles a caracteres ASCII por luminosidad perceptual.
+    Soporta rampas tipográficas (--charset): dense, standard, blocks, math, runes, katakana, crosshatch, etc.
     """
+    if color is not None:
+        use_color = color
     grayscale_image = image.convert("L")
     
     if not use_color and not binary:
@@ -3340,7 +4101,9 @@ def convert_image_to_ascii(image, use_color=False, invert=False, binary=False, o
     ascii_str = ""
     width, height = image.size
     
-    if binary:
+    if charset:
+        base_chars = get_charset_chars(charset)
+    elif binary:
         base_chars = "01" # Modo binario (0 y 1)
     elif os_style:
         base_chars = " .-+*=#%@WM" # Rampa clásica estilo Neofetch / OS
@@ -3496,6 +4259,260 @@ def get_lumart_banner():
    \033[1;37mModern Terminal Visual Suite\033[0m \033[38;2;100;149;237m•\033[0m \033[38;2;0;255;200mv{VERSION}\033[0m \033[2m({CODENAME})\033[0m
    \033[2m[ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]\033[0m
 """
+
+def get_formatted_lumart_help():
+    """
+    Genera una interfaz de ayuda moderna, estilizada, categorizada y visualmente impactante para Lumart.
+    Utiliza marcos de caja Unicode redondeados, gradientes HSL y diseño modular por tarjetas.
+    Respeta el idioma configurado, el ancho de la terminal y las variables NO_COLOR.
+    """
+    import shutil
+    import textwrap
+
+    is_no_color = "NO_COLOR" in os.environ or not sys.stdout.isatty()
+
+    if is_no_color:
+        c_title = c_sec = c_opt = c_val = c_desc = c_dim = c_cmd = c_sub = c_border = rst = ""
+    else:
+        c_title  = "\033[1;38;2;94;142;240m"    # Azul eléctrico
+        c_sec    = "\033[1;38;2;64;224;208m"    # Turquesa brillante
+        c_border = "\033[38;2;48;130;160m"      # Borde cian sutil
+        c_opt    = "\033[1;38;2;120;220;255m"   # Cyan cielo
+        c_val    = "\033[38;2;255;215;100m"     # Amarillo dorado
+        c_desc   = "\033[38;2;230;235;245m"     # Blanco limpio
+        c_dim    = "\033[38;2;130;145;165m"     # Gris azulado tenue
+        c_cmd    = "\033[1;38;2;80;250;123m"    # Verde neón
+        c_sub    = "\033[1;38;2;255;121;198m"   # Magenta pastel
+        rst      = "\033[0m"
+
+    cols = shutil.get_terminal_size((100, 24)).columns
+    max_w = min(112, max(78, cols - 2))
+
+    lang = CURRENT_LANG or "en"
+    is_es = lang.startswith("es")
+
+    banner = get_lumart_banner() if not is_no_color else (
+        f"Lumart v{VERSION} ({CODENAME}) - Modern Terminal Visual Suite\n"
+        "[ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]\n"
+    )
+
+    def section_header(title):
+        clean_len = len(title) + 6
+        pad = max(2, max_w - clean_len - 1)
+        return f"{c_sec}╭── ❖ {title} {c_border}" + ("─" * pad) + f"╮{rst}"
+
+    def section_footer():
+        return f"{c_border}╰" + ("─" * (max_w - 2)) + f"╯{rst}"
+
+    def row(flags, arg, desc_key):
+        desc_text = _(desc_key)
+        left = f"│ {c_opt}{flags}{rst}"
+        if arg:
+            left += f" {c_val}{arg}{rst}"
+        left_len = len(re.sub(r"\033\[[0-9;]*m", "", left))
+        col_w = 36
+        first_pad = max(2, col_w - left_len)
+        desc_w = max(35, max_w - col_w - 3)
+        wrapped = textwrap.wrap(desc_text, width=desc_w)
+        if not wrapped:
+            r_fill = max(0, max_w - left_len - 1)
+            return left + " " * r_fill + f"{c_border}│{rst}"
+            
+        first_line = f"{left}{' ' * first_pad}{c_desc}{wrapped[0]}{rst}"
+        first_line_clean_len = len(re.sub(r"\033\[[0-9;]*m", "", first_line))
+        fill_1 = max(1, max_w - first_line_clean_len - 1)
+        res = [f"{first_line}{' ' * fill_1}{c_border}│{rst}"]
+        
+        for w in wrapped[1:]:
+            cont_line = f"{c_border}│{rst}{' ' * (col_w - 1)}{c_desc}{w}{rst}"
+            cont_clean = len(re.sub(r"\033\[[0-9;]*m", "", cont_line))
+            fill_c = max(1, max_w - cont_clean - 1)
+            res.append(f"{cont_line}{' ' * fill_c}{c_border}│{rst}")
+            
+        return "\n".join(res)
+
+    def sub_row(cmd, arg, desc_key):
+        desc_text = _(desc_key)
+        left = f"│ {c_sub}{cmd}{rst}"
+        if arg:
+            left += f" {c_val}{arg}{rst}"
+        left_len = len(re.sub(r"\033\[[0-9;]*m", "", left))
+        col_w = 36
+        first_pad = max(2, col_w - left_len)
+        desc_w = max(35, max_w - col_w - 3)
+        wrapped = textwrap.wrap(desc_text, width=desc_w)
+        if not wrapped:
+            r_fill = max(0, max_w - left_len - 1)
+            return left + " " * r_fill + f"{c_border}│{rst}"
+            
+        first_line = f"{left}{' ' * first_pad}{c_desc}{wrapped[0]}{rst}"
+        first_line_clean_len = len(re.sub(r"\033\[[0-9;]*m", "", first_line))
+        fill_1 = max(1, max_w - first_line_clean_len - 1)
+        res = [f"{first_line}{' ' * fill_1}{c_border}│{rst}"]
+        
+        for w in wrapped[1:]:
+            cont_line = f"{c_border}│{rst}{' ' * (col_w - 1)}{c_desc}{w}{rst}"
+            cont_clean = len(re.sub(r"\033\[[0-9;]*m", "", cont_line))
+            fill_c = max(1, max_w - cont_clean - 1)
+            res.append(f"{cont_line}{' ' * fill_c}{c_border}│{rst}")
+            
+        return "\n".join(res)
+
+    lines = []
+    lines.append(banner.rstrip())
+    lines.append("")
+
+    # Sintaxis y descripción
+    usage_title = "SINTAXIS DE USO:" if is_es else "USAGE SYNTAX:"
+    desc_title = "DESCRIPCIÓN DE LA SUITE:" if is_es else "SUITE DESCRIPTION:"
+    desc_body = (
+        "Suite visual y motor de arte para terminal moderno, hiper-optimizado con aceleración nativa C++17 OpenMP."
+        if is_es else
+        "Modern terminal visual suite and art engine, hyper-optimized with native C++17 OpenMP acceleration."
+    )
+    lines.append(f"{c_title}{usage_title}{rst}")
+    lines.append(f"  {c_cmd}lumart{rst} [{c_opt}OPCIONES{rst}] {c_val}<IMAGEN>{rst}" if is_es else f"  {c_cmd}lumart{rst} [{c_opt}OPTIONS{rst}] {c_val}<IMAGE>{rst}")
+    lines.append(f"  {c_cmd}lumart{rst} {c_sub}<SUBCOMANDO>{rst} [{c_opt}ARGUMENTOS{rst}]" if is_es else f"  {c_cmd}lumart{rst} {c_sub}<SUBCOMMAND>{rst} [{c_opt}ARGUMENTS{rst}]")
+    lines.append("")
+    lines.append(f"{c_title}{desc_title}{rst}")
+    lines.append(f"  {c_dim}{desc_body}{rst}")
+    lines.append("")
+
+    # 1. Subcomandos
+    lines.append(section_header("SUBCOMANDOS PRINCIPALES" if is_es else "CORE SUBCOMMANDS"))
+    lines.append(sub_row("showcase", "<imagen>", "help_showcase"))
+    lines.append(sub_row("bench | benchmark", "[imagen]", "help_bench"))
+    lines.append(sub_row("info | inspect", "<imagen>", "help_info"))
+    lines.append(sub_row("fetch", "<imagen>", "help_fetch_preset"))
+    lines.append(sub_row("diff", "<img1> <img2>", "help_diff"))
+    lines.append(section_footer())
+    lines.append("")
+
+    # 2. Motores
+    lines.append(section_header("MOTORES DE RENDERIZADO (QUAD-ENGINE)" if is_es else "RENDERING ENGINES (QUAD-ENGINE)"))
+    lines.append(row("-E, --engine", "<motor>", "help_engine"))
+    lines.append(row("-S, --sextants", "", "help_sextants"))
+    lines.append(row("-B, --braille", "", "help_braille"))
+    lines.append(row("-Q, --quadrants", "", "help_quadrants"))
+    lines.append(row("--blocks", "", "help_blocks"))
+    lines.append(row("-m, --manga", "", "help_manga"))
+    lines.append(row("-s, --sketch", "", "help_sketch"))
+    lines.append(row("-ch, --crosshatch", "", "help_crosshatch"))
+    lines.append(row("-cs, --charset", "<set>", "help_charset"))
+    lines.append(row("-c, --color", "", "help_color"))
+    lines.append(row("--no-color", "", "help_no_color"))
+    lines.append(row("--boost, --vibrant", "", "help_boost"))
+    lines.append(section_footer())
+    lines.append("")
+
+    # 3. Geometría
+    lines.append(section_header("GEOMETRÍA, ENCUADRE & ZOOM" if is_es else "GEOMETRY, CROPPING & ZOOM"))
+    lines.append(row("-w, --width", "<cols>", "help_width"))
+    lines.append(row("-F, --fit", "", "help_fit"))
+    lines.append(row("--rotate", "<deg>", "help_rotate"))
+    lines.append(row("--flip, --mirror", "<dir>", "help_flip"))
+    lines.append(row("--font-ratio", "<ratio>", "help_font_ratio"))
+    lines.append(row("--crop", "<corte>", "help_crop"))
+    lines.append(row("--zoom", "<factor>", "help_zoom"))
+    lines.append(row("--border", "<estilo>", "help_border"))
+    lines.append(row("--align", "<dir>", "help_align"))
+    lines.append(row("--center", "", "help_center"))
+    lines.append(section_footer())
+    lines.append("")
+
+    # 4. Efectos y shaders
+    lines.append(section_header("ESTILO, TEMAS & SHADERS" if is_es else "STYLING, THEMES & SHADERS"))
+    lines.append(row("--shader", "<shader>", "help_shader"))
+    lines.append(row("--theme, --palette", "<tema>", "help_theme"))
+    lines.append(row("--brightness", "<factor>", "help_brightness"))
+    lines.append(row("--contrast", "<factor>", "help_contrast"))
+    lines.append(row("--saturation", "<factor>", "help_saturation"))
+    lines.append(row("--crt, --scanlines", "[modo]", "help_crt"))
+    lines.append(row("--matrix", "", "help_matrix"))
+    lines.append(row("--matrix-rain", "", "help_matrix_rain"))
+    lines.append(row("-i, --invert", "", "help_invert"))
+    lines.append(row("--gamma", "<val>", "help_gamma"))
+    lines.append(row("--swap", "<c1 c2...>", "help_swap"))
+    lines.append(row("-d, --dither", "[algo]", "help_dither"))
+    lines.append(section_footer())
+    lines.append("")
+
+    # 5. Animación & 60 FPS
+    lines.append(section_header("ANIMACIONES, VIDEO & 60 FPS" if is_es else "ANIMATIONS, VIDEO & 60 FPS"))
+    lines.append(row("--loop", "", "help_loop"))
+    lines.append(row("--fps, --target-fps", "<fps>", "help_fps"))
+    lines.append(row("--preload, --smooth", "", "help_preload"))
+    lines.append(row("--bench, --benchmark", "", "help_bench"))
+    lines.append(row("-W, --webcam", "[id]", "help_webcam"))
+    lines.append(row("--slideshow", "", "help_slideshow"))
+    lines.append(row("--delay", "<seg>", "help_delay"))
+    lines.append(section_footer())
+    lines.append("")
+
+    # 6. Segmentación & Remove-BG
+    lines.append(section_header("SEGMENTACIÓN & TRANSPARENCIA (REMOVE-BG)" if is_es else "SEGMENTATION & TRANSPARENCY (REMOVE-BG)"))
+    lines.append(row("-r, --remove-bg", "", "help_remove_bg"))
+    lines.append(row("--bg-tolerance", "<1-100>", "help_bg_tolerance"))
+    lines.append(row("--transparent", "", "help_transparent"))
+    lines.append(section_footer())
+    lines.append("")
+
+    # 7. Exportación y portapapeles
+    lines.append(section_header("EXPORTACIÓN & PORTAPAPELES" if is_es else "EXPORT & SYSTEM CLIPBOARD"))
+    lines.append(row("-o, -O, --output", "<archivo>", "help_output"))
+    lines.append(row("-C, --copy", "", "help_copy"))
+    lines.append(row("--copy-plain", "", "help_copy_plain"))
+    lines.append(row("--fastfetch, --logo", "", "help_fastfetch"))
+    lines.append(section_footer())
+    lines.append("")
+
+    # 8. Interacción y entradas
+    lines.append(section_header("INTERACTIVIDAD & ENTRADAS UNIVERSALES" if is_es else "INTERACTIVITY & UNIVERSAL INPUTS"))
+    lines.append(row("-I, --interactive", "", "help_interactive"))
+    lines.append(row("--paste", "", "help_paste"))
+    lines.append(row("--instant", "", "help_instant"))
+    lines.append(row("--reveal", "", "help_reveal"))
+    lines.append(section_footer())
+    lines.append("")
+
+    # 9. Sistema y mantenimiento
+    lines.append(section_header("SISTEMA, ACTUALIZACIONES & SHELL" if is_es else "SYSTEM, UPDATES & SHELL"))
+    lines.append(row("-v, --version", "", "help_version"))
+    lines.append(row("-u, --update", "", "help_update"))
+    lines.append(row("-uu, --upgrade", "[ver]", "help_upgrade"))
+    lines.append(row("-dg, --downgrade", "[ver]", "help_downgrade"))
+    lines.append(row("-H, --history", "[n]", "help_history"))
+    lines.append(row("-R, --replay", "[id]", "help_replay"))
+    lines.append(row("--clear-history", "", "help_clear_history"))
+    lines.append(row("--lang", "<code>", "help_lang"))
+    lines.append(row("--completions", "<shell>", "help_completions"))
+    lines.append(row("--install-desktop", "", "help_install_desktop"))
+    lines.append(row("-h, --help", "", "help_help"))
+    lines.append(section_footer())
+    lines.append("")
+
+    # 10. Ejemplos de uso
+    lines.append(section_header("EJEMPLOS PRÁCTICOS & RECETAS RÁPIDAS" if is_es else "PRACTICAL EXAMPLES & QUICK RECIPES"))
+    examples = [
+        ("lumart foto.jpg", "Fotorrealismo automático con Mary Apex 3.5 en Sextantes 2x3" if is_es else "Automatic photorealism with Mary Apex 3.5 on 2x3 Sextants"),
+        ("lumart anim.gif --fps 60", "Reproducción ultra-fluida a 60 FPS con reloj monotónico" if is_es else "Ultra-fluid 60 FPS animated playback with monotonic timer"),
+        ("lumart foto.jpg -I", "Estudio interactivo en vivo con controles en caliente y buffer" if is_es else "Interactive live studio with real-time controls and buffer"),
+        ("lumart foto.jpg -r --bg-tolerance 40", "Eliminar fondo con tolerancia afinada y alpha feathering" if is_es else "Remove background with tuned tolerance and alpha feathering"),
+        ("lumart foto.jpg -E trumble --boost", "Cel-shading anime vibrante estilo arcade Capcom CPS-2" if is_es else "Vibrant anime cel-shading in Capcom CPS-2 arcade style"),
+        ("lumart foto.jpg -m -w 90", "Estilo manga auténtico con tramado screentone Bayer 8x8" if is_es else "Authentic manga style with Bayer 8x8 screentone at 90 cols"),
+        ("lumart showcase foto.jpg", "Lienzo comparativo 4-en-1 en vivo entre todos los motores" if is_es else "Live 4-in-1 comparison canvas across all flagship engines"),
+        ("lumart clip.mp4 -o arte.gif", "Conversión directa de clip de video a GIF animado de terminal" if is_es else "Direct video clip conversion to animated terminal GIF"),
+        ("lumart diff img1.png img2.png", "Comparador visual de dos imágenes con telemetría RMSE" if is_es else "Side-by-side terminal image comparison with RMSE delta"),
+    ]
+    for cmd, desc in examples:
+        clean_cmd = f"│ {c_cmd}{cmd:<34}{rst} {c_desc}{desc}{rst}"
+        clean_len = len(re.sub(r"\033\[[0-9;]*m", "", clean_cmd))
+        pad = max(1, max_w - clean_len - 1)
+        lines.append(f"{clean_cmd}{' ' * pad}{c_border}│{rst}")
+    lines.append(section_footer())
+    lines.append("")
+
+    return "\n".join(lines)
 
 def show_version_info():
     """Muestra un informe visual moderno, compacto y minimalista."""
@@ -3954,22 +4971,19 @@ def perform_downgrade(target_ver=None):
         print(_("downgrade_error", e))
         return False
 
-def try_render_native_monochrome(image_path, width, mode="braille", dither="none", invert=False):
-    """
-    Intenta ejecutar el motor nativo en C++ (luma-mono o libmonochrome.so).
-    C++ a toda hostia para que los fans de Rust no vengan a romper las bolas con el rendimiento.
-    Retorna el string de texto renderizado o None si no se encuentra el binario/librería.
-    """
-    import ctypes
-    import shutil
-    import subprocess
+_CACHED_LIB_MONO = None
+_CACHED_LIB_MARY = None
 
+def get_lib_mono():
+    global _CACHED_LIB_MONO
+    if _CACHED_LIB_MONO is not None:
+        return _CACHED_LIB_MONO
+    import ctypes
     exe_dir = os.path.dirname(os.path.abspath(sys.executable))
     base_dir = os.path.dirname(os.path.abspath(__file__))
     lib_paths = [
-        os.path.join(exe_dir, "libmonochrome.so"),
         os.path.join(base_dir, "libmonochrome.so"),
-        os.path.join(exe_dir, "..", "libmonochrome.so"),
+        os.path.join(exe_dir, "libmonochrome.so"),
         os.path.join(base_dir, "..", "libmonochrome.so"),
         "/usr/local/share/luma/libmonochrome.so",
         "/usr/share/luma/libmonochrome.so",
@@ -3981,66 +4995,24 @@ def try_render_native_monochrome(image_path, width, mode="braille", dither="none
         if os.path.exists(lp):
             try:
                 lib = ctypes.CDLL(lp)
-                lib.render_monochrome_c.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_bool]
-                lib.render_monochrome_c.restype = ctypes.c_void_p
                 lib.free_monochrome_buffer.argtypes = [ctypes.c_void_p]
                 lib.free_monochrome_buffer.restype = None
-
-                ptr = lib.render_monochrome_c(
-                    image_path.encode("utf-8"),
-                    int(width),
-                    mode.encode("utf-8"),
-                    str(dither).encode("utf-8"),
-                    bool(invert)
-                )
-                if ptr:
-                    res_bytes = ctypes.string_at(ptr)
-                    lib.free_monochrome_buffer(ptr)
-                    res = res_bytes.decode("utf-8", errors="replace")
-                    if res and not res.startswith("❌"):
-                        return res
+                _CACHED_LIB_MONO = lib
+                return lib
             except Exception:
                 pass
-
-    bin_names = [
-        os.path.join(exe_dir, "luma-mono"),
-        os.path.join(base_dir, "luma-mono"),
-        shutil.which("luma-mono")
-    ]
-    for b in bin_names:
-        if b and os.path.exists(b) and os.access(b, os.X_OK):
-            try:
-                cmd = [b, "-w", str(width), "-m", mode]
-                if dither and dither != "none":
-                    cmd.extend(["-d", str(dither)])
-                if invert:
-                    cmd.append("-i")
-                cmd.append(image_path)
-                proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
-                if proc.stdout and not proc.stdout.startswith("❌"):
-                    return proc.stdout
-            except Exception:
-                pass
-
     return None
 
-def try_render_native_mary(image_path, width, mode="sextants", raw_colors=False, invert=False, font_ratio=0.5):
-    """
-    Intenta ejecutar el motor nativo Mary en C++ (luma-mary o libmary.so).
-    Aceleración C++17 nativa con Guided Filter Oklab O(1), umbral adaptativo Weber-Fechner,
-    renderizado multihilo OpenMP y modos subpíxel Sextants/Braille/Quadrants.
-    Retorna el string de texto renderizado o None si no se encuentra el binario/librería.
-    """
+def get_lib_mary():
+    global _CACHED_LIB_MARY
+    if _CACHED_LIB_MARY is not None:
+        return _CACHED_LIB_MARY
     import ctypes
-    import shutil
-    import subprocess
-
     exe_dir = os.path.dirname(os.path.abspath(sys.executable))
     base_dir = os.path.dirname(os.path.abspath(__file__))
     lib_paths = [
-        os.path.join(exe_dir, "libmary.so"),
         os.path.join(base_dir, "libmary.so"),
-        os.path.join(exe_dir, "..", "libmary.so"),
+        os.path.join(exe_dir, "libmary.so"),
         os.path.join(base_dir, "..", "libmary.so"),
         "/usr/local/share/luma/libmary.so",
         "/usr/share/luma/libmary.so",
@@ -4052,42 +5024,190 @@ def try_render_native_mary(image_path, width, mode="sextants", raw_colors=False,
         if os.path.exists(lp):
             try:
                 lib = ctypes.CDLL(lp)
-                if hasattr(lib, "render_mary_apex_c"):
-                    lib.render_mary_apex_c.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_bool, ctypes.c_bool, ctypes.c_float]
-                    lib.render_mary_apex_c.restype = ctypes.c_void_p
-                    lib.free_mary_buffer.argtypes = [ctypes.c_void_p]
-                    lib.free_mary_buffer.restype = None
-
-                    ptr = lib.render_mary_apex_c(
-                        image_path.encode("utf-8"),
-                        int(width),
-                        mode.encode("utf-8"),
-                        bool(raw_colors),
-                        bool(invert),
-                        float(font_ratio)
-                    )
-                else:
-                    lib.render_mary_c.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_bool, ctypes.c_bool]
-                    lib.render_mary_c.restype = ctypes.c_void_p
-                    lib.free_mary_buffer.argtypes = [ctypes.c_void_p]
-                    lib.free_mary_buffer.restype = None
-
-                    ptr = lib.render_mary_c(
-                        image_path.encode("utf-8"),
-                        int(width),
-                        mode.encode("utf-8"),
-                        bool(raw_colors),
-                        bool(invert)
-                    )
-                if ptr:
-                    res_bytes = ctypes.string_at(ptr)
-                    lib.free_mary_buffer(ptr)
-                    res = res_bytes.decode("utf-8", errors="replace")
-                    if res and not res.startswith("❌"):
-                        return res
+                lib.free_mary_buffer.argtypes = [ctypes.c_void_p]
+                lib.free_mary_buffer.restype = None
+                _CACHED_LIB_MARY = lib
+                return lib
             except Exception:
                 pass
+    return None
 
+
+def try_render_native_monochrome_memory(image_bytes, width, mode="braille", dither="none", invert=False, charset="", gamma=1.0):
+    """Renderiza fotograma en memoria RAM directa usando C++ libmonochrome.so (Zero Disk I/O)."""
+    lib = get_lib_mono()
+    if not lib or not hasattr(lib, "render_monochrome_memory_c"):
+        return None
+    import ctypes
+    try:
+        lib.render_monochrome_memory_c.argtypes = [
+            ctypes.c_char_p, ctypes.c_int, ctypes.c_int,
+            ctypes.c_char_p, ctypes.c_char_p, ctypes.c_bool, ctypes.c_char_p, ctypes.c_float
+        ]
+        lib.render_monochrome_memory_c.restype = ctypes.c_void_p
+        ptr = lib.render_monochrome_memory_c(
+            image_bytes,
+            len(image_bytes),
+            int(width),
+            mode.encode("utf-8"),
+            str(dither).encode("utf-8"),
+            bool(invert),
+            (charset or "").encode("utf-8"),
+            float(gamma or 1.0)
+        )
+        if ptr:
+            res_bytes = ctypes.string_at(ptr)
+            lib.free_monochrome_buffer(ptr)
+            res = res_bytes.decode("utf-8", errors="replace")
+            if res and not res.startswith("❌"):
+                return res
+    except Exception:
+        pass
+    return None
+
+
+def try_render_native_monochrome(image_path, width, mode="braille", dither="none", invert=False, charset="", gamma=1.0):
+    """Intenta ejecutar el motor nativo en C++ (luma-mono o libmonochrome.so)."""
+    lib = get_lib_mono()
+    if lib:
+        import ctypes
+        try:
+            if hasattr(lib, "render_monochrome_v2_c"):
+                lib.render_monochrome_v2_c.argtypes = [
+                    ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p,
+                    ctypes.c_bool, ctypes.c_char_p, ctypes.c_float
+                ]
+                lib.render_monochrome_v2_c.restype = ctypes.c_void_p
+                ptr = lib.render_monochrome_v2_c(
+                    image_path.encode("utf-8"),
+                    int(width),
+                    mode.encode("utf-8"),
+                    str(dither).encode("utf-8"),
+                    bool(invert),
+                    (charset or "").encode("utf-8"),
+                    float(gamma or 1.0)
+                )
+            else:
+                lib.render_monochrome_c.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_bool]
+                lib.render_monochrome_c.restype = ctypes.c_void_p
+                ptr = lib.render_monochrome_c(
+                    image_path.encode("utf-8"),
+                    int(width),
+                    mode.encode("utf-8"),
+                    str(dither).encode("utf-8"),
+                    bool(invert)
+                )
+            if ptr:
+                res_bytes = ctypes.string_at(ptr)
+                lib.free_monochrome_buffer(ptr)
+                res = res_bytes.decode("utf-8", errors="replace")
+                if res and not res.startswith("❌"):
+                    return res
+        except Exception:
+            pass
+
+    import shutil
+    import subprocess
+    exe_dir = os.path.dirname(os.path.abspath(sys.executable))
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    bin_names = [
+        os.path.join(exe_dir, "luma-mono"),
+        os.path.join(base_dir, "luma-mono"),
+        shutil.which("luma-mono")
+    ]
+    for b in bin_names:
+        if b and os.path.exists(b) and os.access(b, os.X_OK):
+            try:
+                cmd = [b, "-w", str(width), "-m", mode]
+                if dither and dither != "none":
+                    cmd.extend(["-d", str(dither)])
+                if charset:
+                    cmd.extend(["-cs", str(charset)])
+                if gamma and gamma != 1.0:
+                    cmd.extend(["-g", str(gamma)])
+                if invert:
+                    cmd.append("-i")
+                cmd.append(image_path)
+                proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                if proc.stdout and not proc.stdout.startswith("❌"):
+                    return proc.stdout
+            except Exception:
+                pass
+    return None
+
+
+def try_render_native_mary_memory(image_bytes, width, mode="sextants", raw_colors=False, invert=False, font_ratio=0.5):
+    """Renderiza fotograma en memoria RAM directa usando C++ libmary.so (Zero Disk I/O)."""
+    lib = get_lib_mary()
+    if not lib or not hasattr(lib, "render_mary_memory_c"):
+        return None
+    import ctypes
+    try:
+        lib.render_mary_memory_c.argtypes = [
+            ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_char_p,
+            ctypes.c_bool, ctypes.c_bool, ctypes.c_float
+        ]
+        lib.render_mary_memory_c.restype = ctypes.c_void_p
+        ptr = lib.render_mary_memory_c(
+            image_bytes,
+            len(image_bytes),
+            int(width),
+            mode.encode("utf-8"),
+            bool(raw_colors),
+            bool(invert),
+            float(font_ratio)
+        )
+        if ptr:
+            res_bytes = ctypes.string_at(ptr)
+            lib.free_mary_buffer(ptr)
+            res = res_bytes.decode("utf-8", errors="replace")
+            if res and not res.startswith("❌"):
+                return res
+    except Exception:
+        pass
+    return None
+
+
+def try_render_native_mary(image_path, width, mode="sextants", raw_colors=False, invert=False, font_ratio=0.5):
+    """Intenta ejecutar el motor nativo Mary en C++ (luma-mary o libmary.so)."""
+    lib = get_lib_mary()
+    if lib:
+        import ctypes
+        try:
+            if hasattr(lib, "render_mary_apex_c"):
+                lib.render_mary_apex_c.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_bool, ctypes.c_bool, ctypes.c_float]
+                lib.render_mary_apex_c.restype = ctypes.c_void_p
+                ptr = lib.render_mary_apex_c(
+                    image_path.encode("utf-8"),
+                    int(width),
+                    mode.encode("utf-8"),
+                    bool(raw_colors),
+                    bool(invert),
+                    float(font_ratio)
+                )
+            else:
+                lib.render_mary_c.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_bool, ctypes.c_bool]
+                lib.render_mary_c.restype = ctypes.c_void_p
+                ptr = lib.render_mary_c(
+                    image_path.encode("utf-8"),
+                    int(width),
+                    mode.encode("utf-8"),
+                    bool(raw_colors),
+                    bool(invert)
+                )
+            if ptr:
+                res_bytes = ctypes.string_at(ptr)
+                lib.free_mary_buffer(ptr)
+                res = res_bytes.decode("utf-8", errors="replace")
+                if res and not res.startswith("❌"):
+                    return res
+        except Exception:
+            pass
+
+    import shutil
+    import subprocess
+    exe_dir = os.path.dirname(os.path.abspath(sys.executable))
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     bin_names = [
         os.path.join(exe_dir, "luma-mary"),
         os.path.join(base_dir, "luma-mary"),
@@ -4106,7 +5226,6 @@ def try_render_native_mary(image_path, width, mode="sextants", raw_colors=False,
                     return proc.stdout
             except Exception:
                 pass
-
     return None
 
 # ==============================================================================
@@ -4476,7 +5595,42 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
         print(f"\033[1;35m[Spectra Weep 2.0]\033[0m Abriendo flujo de video ({source_label})...")
 
     cap = cv2.VideoCapture(cap_arg)
-    if not cap.isOpened():
+    if not cap.isOpened() and is_cam:
+        # Autodetección inteligente de cámaras disponibles en /dev/video* e índices alternativos
+        import glob
+        import re
+        v_devices = sorted(glob.glob("/dev/video*"))
+        test_indices = []
+        for dev in v_devices:
+            m = re.search(r'video(\d+)', dev)
+            if m:
+                idx = int(m.group(1))
+                if idx not in test_indices:
+                    test_indices.append(idx)
+        for idx in range(5):
+            if idx not in test_indices:
+                test_indices.append(idx)
+                
+        found_cam = False
+        for test_idx in test_indices:
+            if test_idx == cap_arg:
+                continue
+            test_cap = cv2.VideoCapture(test_idx)
+            if test_cap.isOpened():
+                ret, _ = test_cap.read()
+                if ret:
+                    cap = test_cap
+                    cap_arg = test_idx
+                    source_label = f"Cámara {test_idx} (auto-detectada)"
+                    found_cam = True
+                    print(f"💡 \033[1;32mDispositivo de cámara web detectado y conectado: {source_label}\033[0m")
+                    break
+                else:
+                    test_cap.release()
+        if not found_cam:
+            print(f"❌ Error: No se pudo conectar a ninguna cámara web disponible (probadas cámaras 0-4 y /dev/video*).")
+            return False
+    elif not cap.isOpened():
         print(f"❌ Error: No se pudo conectar a la fuente '{source}'.")
         return False
 
@@ -4508,7 +5662,8 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
         except Exception:
             pass
 
-    sys.stdout.write("\033[?25l\033[2J\033[H")
+    # Usar buffer alternativo para mantener 100% limpio el historial de terminal
+    sys.stdout.write("\033[?1049h\033[?25l\033[2J\033[H")
     sys.stdout.flush()
 
     fps_count = 0
@@ -4532,15 +5687,23 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
         "Manga Ink",
         "Edge Tron",
         "Amber Phosphor",
-        f"Theme Sync ({active_theme.capitalize()})"
+        "Hologram Beam",
+        "RGB Glitch",
+        "Phosphor Bloom",
+        "Solarize",
+        f"Theme Sync ({active_theme.capitalize()})",
+        "Synthwave 80s",
+        "GameBoy Retro"
     ]
 
     TEXTURE_NAMES = [
         "Half-Blocks (▀/▄)",
         "Braille 2x4 (⣿)",
         "ASCII Glyphs",
-        "Matrix Katakana"
+        "Matrix Katakana",
+        "Sextants HD (2x3)"
     ]
+    SEXTANTS_TABLE = " 🬀🬁🬂🬃🬄🬅🬆🬇🬈🬉🬊🬋🬌🬍🬎🬏🬐🬑🬒🬓▌🬔🬕🬖🬗🬘🬙🬚🬛🬜🬝🬞🬟🬠🬡🬢🬣🬤🬥🬦🬧▐🬨🬩🬪🬫🬬🬭🬮🬯🬰🬱🬲🬳🬴🬵🬶🬷🬸🬹🬺🬻█"
 
     RAMP = " .:-=+*#%@"
     KATAKANA = "ﾘﾕﾒﾓﾊﾎﾂﾉﾇﾈﾗﾘﾜｳ01"
@@ -4590,8 +5753,14 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
                                 cv2.imwrite(snap_name, last_frame_raw)
                                 status_msg = f"📸 Snapshot guardado: {snap_name}"
                                 status_timer = time.time() + 2.5
-                        elif ch in ('1', '2', '3', '4', '5', '6', '7', '8'):
+                        elif ch in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
                             active_filter = int(ch) - 1
+                        elif ch == '0':
+                            active_filter = 9
+                        elif ch in ('x', 'X'):
+                            active_filter = (active_filter + 1) % len(FILTER_NAMES)
+                            status_msg = f"✨ Shader: {FILTER_NAMES[active_filter]}"
+                            status_timer = time.time() + 1.5
                         elif ch == '\x1b': # Flechas
                             try:
                                 r_seq, _w, _x = select.select([sys.stdin], [], [], 0.02)
@@ -4670,10 +5839,60 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
                 frame_rgb[:, :, 1] = (gray * 0.65).astype(np.uint8)
                 frame_rgb[:, :, 2] = (gray * 0.05).astype(np.uint8)
             elif active_filter == 7:
+                # Hologram Beam
+                gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
+                frame_rgb = np.zeros((frame_h_px, target_width, 3), dtype=np.uint8)
+                y_idx = np.arange(frame_h_px)[:, None]
+                scan = ((y_idx % 3 == 0) * 0.35 + 0.65).astype(np.float32)
+                g_scan = np.clip(gray * scan, 0, 255)
+                frame_rgb[:, :, 0] = (g_scan * 0.10).astype(np.uint8)
+                frame_rgb[:, :, 1] = np.clip(g_scan * 0.85 + 20, 0, 255).astype(np.uint8)
+                frame_rgb[:, :, 2] = np.clip(g_scan * 1.15 + 40, 0, 255).astype(np.uint8)
+            elif active_filter == 8:
+                # RGB Glitch
+                frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
+                shift = max(1, target_width // 40)
+                glitched = frame_rgb.copy()
+                glitched[:, shift:, 0] = frame_rgb[:, :-shift, 0]
+                glitched[:, :-shift, 2] = frame_rgb[:, shift:, 2]
+                frame_rgb = glitched
+            elif active_filter == 9:
+                # Phosphor Bloom
+                gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
+                frame_rgb = np.zeros((frame_h_px, target_width, 3), dtype=np.uint8)
+                frame_rgb[:, :, 0] = (gray * 0.20).astype(np.uint8)
+                frame_rgb[:, :, 1] = np.clip(gray * 1.25 + 15, 0, 255).astype(np.uint8)
+                frame_rgb[:, :, 2] = (gray * 0.30).astype(np.uint8)
+            elif active_filter == 10:
+                # Solarize
+                rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
+                solar = np.where(rgb > 128, 255 - rgb, rgb)
+                frame_rgb = solar.astype(np.uint8)
+            elif active_filter == 11:
                 # Theme Sync
                 pil_t = Image.fromarray(cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB))
                 pil_t = apply_theme_palette(pil_t, active_theme)
                 frame_rgb = np.array(pil_t)
+            elif active_filter == 12:
+                # Synthwave 80s
+                gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
+                t = gray.astype(np.float32) / 255.0
+                synth = np.zeros((frame_h_px, target_width, 3), dtype=np.uint8)
+                synth[:, :, 0] = np.clip(t * 240.0 + (1.0 - t) * 60.0, 0, 255).astype(np.uint8)
+                synth[:, :, 1] = np.clip(t * t * 160.0, 0, 255).astype(np.uint8)
+                synth[:, :, 2] = np.clip((1.0 - t) * 140.0 + t * 255.0, 0, 255).astype(np.uint8)
+                frame_rgb = synth
+            elif active_filter == 13:
+                # GameBoy Retro
+                gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
+                gb_lut = np.array([
+                    [15, 56, 15],
+                    [48, 98, 48],
+                    [139, 172, 15],
+                    [155, 188, 15]
+                ], dtype=np.uint8)
+                idx = np.clip(gray // 64, 0, 3)
+                frame_rgb = gb_lut[idx]
             else:
                 frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
 
@@ -4749,7 +5968,7 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
                     line_parts.append("\033[0m")
                     lines.append("".join(line_parts))
 
-            else:
+            elif active_texture == 3:
                 # Matrix Katakana
                 k_len = len(KATAKANA)
                 for y in range(0, frame_h_px, 2):
@@ -4765,6 +5984,28 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
                         if fg_col != last_fg:
                             color_code = f"\033[38;2;{fg_col[0]};{fg_col[1]};{fg_col[2]}m"
                             last_fg = fg_col
+                        line_parts.append(color_code + char)
+                    line_parts.append("\033[0m")
+                    lines.append("".join(line_parts))
+
+            else:
+                # Sextants HD (2x3)
+                gray_all = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2GRAY)
+                for y in range(0, frame_h_px - 2, 3):
+                    line_parts = []
+                    last_fg = None
+                    for x in range(0, target_width - 1, 2):
+                        sub = gray_all[y:y+3, x:x+2]
+                        thresh_val = np.mean(sub)
+                        bits = (sub > thresh_val)
+                        mask = int(bits[0, 0]) | (int(bits[0, 1]) << 1) |                                (int(bits[1, 0]) << 2) | (int(bits[1, 1]) << 3) |                                (int(bits[2, 0]) << 4) | (int(bits[2, 1]) << 5)
+                        char = SEXTANTS_TABLE[mask] if mask < 64 else "█"
+                        avg_col = frame_rgb[y:y+3, x:x+2].mean(axis=(0, 1)).astype(int)
+                        col_tup = (int(avg_col[0]), int(avg_col[1]), int(avg_col[2]))
+                        color_code = ""
+                        if col_tup != last_fg:
+                            color_code = f"\033[38;2;{col_tup[0]};{col_tup[1]};{col_tup[2]}m"
+                            last_fg = col_tup
                         line_parts.append(color_code + char)
                     line_parts.append("\033[0m")
                     lines.append("".join(line_parts))
@@ -4800,7 +6041,7 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
 
             if is_paused:
                 status_bar += "\033[1;33m[PAUSADO]\033[0m "
-            status_bar += "[Espacio] Pausa | [◄/►] Frame | [+/-] Vel | [S] Foto | [T] Textura | [1-8] Shader | [Q] Salir\033[0m"
+            status_bar += "[Espacio] Pausa | [◄/►] Frame | [+/-] Vel | [S] Foto | [T] Textura | [1-9/0/X] Shader | [Q] Salir\033[0m"
 
             if status_msg and time.time() < status_timer:
                 status_bar += f" \033[1;32m{status_msg}\033[0m"
@@ -4808,11 +6049,16 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
             sys.stdout.write("\033[H" + rendered_block + "\n" + status_bar)
             sys.stdout.flush()
 
-            # Temporización del fotograma según FPS nativos y multiplicador
-            t_render = time.time() - t_frame_start
-            target_delay = max(0.005, (native_frame_dur / speed_mult) - t_render)
-            if not is_paused and target_delay > 0:
-                time.sleep(target_delay)
+            # Temporización del fotograma de microsegundo sin jitter
+            stream_cli_fps = getattr(args, "fps", None) if args else None
+            effective_fps = float(stream_cli_fps) if stream_cli_fps and float(stream_cli_fps) > 0 else source_fps
+            target_dur = (1.0 / effective_fps) / speed_mult
+            while not is_paused and (time.perf_counter() - t_frame_start < target_dur):
+                rem = target_dur - (time.perf_counter() - t_frame_start)
+                if rem > 0.003:
+                    time.sleep(rem * 0.5)
+                else:
+                    pass
 
     except KeyboardInterrupt:
         pass
@@ -4824,7 +6070,7 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
                 termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_term_settings)
             except Exception:
                 pass
-        sys.stdout.write("\033[?25h\033[0m\n")
+        sys.stdout.write("\033[?1049l\033[?25h\033[0m\n")
         sys.stdout.flush()
         print(f"✨ Transmisión de Spectra Weep 2.0 finalizada.")
 
@@ -5109,13 +6355,14 @@ def generate_shell_completions(shell_name: str) -> str:
         "-h --help -v --version -u --update --check-update -uu --upgrade "
         "-dg --downgrade --rollback -w --width -F --fit -E --engine -c --color "
         "--no-color -S --sextants -B --braille -Q --quadrants --blocks -m --manga "
-        "-s --sketch --boost --vibrant -i --invert --swap -d --dither --font-ratio "
-        "-o -O --output --save --loop --fastfetch --logo -r --remove-bg --transparent "
-        "--instant --no-reveal --reveal --paste --lang --theme --palette --crt --scanlines "
-        "--matrix --matrix-rain -C --copy --copy-plain --crop --zoom --slideshow --delay "
-        "-I --interactive --tui --diff --showcase --info --inspect --fetch-preset --shader "
-        "-W --webcam -H --history -R --replay --last "
-        "--clear-history --install-desktop --completions"
+        "-s --sketch -ch --crosshatch -cs --charset --rotate --flip --mirror --gamma "
+        "--boost --vibrant -i --invert --swap -d --dither --font-ratio "
+        "-o -O --output --save --loop --fastfetch --logo -r --remove-bg --bg-tolerance "
+        "--fps --transparent --instant --no-reveal --reveal --paste --lang --theme --palette "
+        "--crt --scanlines --matrix --matrix-rain -C --copy --copy-plain --crop --zoom "
+        "--slideshow --delay -I --interactive --tui --diff --showcase --info --inspect "
+        "--fetch-preset --shader -W --webcam -H --history -R --replay --last "
+        "--clear-history --install-desktop --completions --brightness --contrast --saturation --border --align --center --preload --smooth --bench --benchmark"
     )
     if shell == "bash":
         return f"""# Bash completion for lumart and luma
@@ -5123,13 +6370,16 @@ def generate_shell_completions(shell_name: str) -> str:
 _lumart_completions() {{
     local cur prev words cword
     _init_completion || return
-    local engines="mary trumble luris spectra color mono bw manga sketch"
+    local engines="mary trumble luris spectra color mono bw manga sketch crosshatch"
     local dithers="atkinson floyd bayer none"
     local langs="en es pt fr ru ja de ko"
     local shells="bash zsh fish"
     local themes="catppuccin dracula nord gruvbox synthwave vaporwave gameboy solarized"
     local crts="green amber color scanlines"
-    local shaders="neon cyberpunk thermal tron matrix amber manga theme normal"
+    local shaders="neon cyberpunk thermal tron matrix amber manga theme normal hologram glitch phosphor-bloom solarize"
+    local charsets="dense standard simple blocks shades math runes katakana crosshatch minimal binary hex braille"
+    local flips="h v horizontal vertical"
+    local rotates="90 180 270"
     local opts="{opts_list}"
     case "$prev" in
         -E|--engine) COMPREPLY=( $(compgen -W "$engines" -- "$cur") ); return 0 ;;
@@ -5138,7 +6388,12 @@ _lumart_completions() {{
         --theme|--palette) COMPREPLY=( $(compgen -W "$themes" -- "$cur") ); return 0 ;;
         --crt|--scanlines) COMPREPLY=( $(compgen -W "$crts" -- "$cur") ); return 0 ;;
         --shader) COMPREPLY=( $(compgen -W "$shaders" -- "$cur") ); return 0 ;;
+        -cs|--charset) COMPREPLY=( $(compgen -W "$charsets" -- "$cur") ); return 0 ;;
+        --flip|--mirror) COMPREPLY=( $(compgen -W "$flips" -- "$cur") ); return 0 ;;
+        --rotate) COMPREPLY=( $(compgen -W "$rotates" -- "$cur") ); return 0 ;;
         --completions) COMPREPLY=( $(compgen -W "$shells" -- "$cur") ); return 0 ;;
+        --border) COMPREPLY=( $(compgen -W "rounded single double heavy ascii blocks" -- "$cur") ); return 0 ;;
+        --align) COMPREPLY=( $(compgen -W "left center right" -- "$cur") ); return 0 ;;
         -o|-O|--output|--save) _filedir '@(png|jpg|jpeg|gif|ans|asc|txt)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") ); return 0 ;;
         --diff) _filedir '@(png|jpg|jpeg|bmp|gif|webp|apng)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") ); return 0 ;;
     esac
@@ -5146,7 +6401,7 @@ _lumart_completions() {{
         COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
         return 0
     fi
-    if [[ "${{words[1]}}" =~ ^(diff|showcase|compare|info|inspect|fetch)$ ]]; then
+    if [[ "${{words[1]}}" =~ ^(diff|showcase|compare|info|inspect|fetch|bench|benchmark)$ ]]; then
         _filedir '@(png|jpg|jpeg|bmp|gif|webp|apng)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") )
         return 0
     fi
@@ -5168,7 +6423,9 @@ for c in lumart luma
     complete -c $c -s F -l fit -d "Auto-fit to terminal viewport"
     complete -c $c -l crop -d "Crop image: center, square, or x,y,w,h" -r
     complete -c $c -l zoom -d "Digital zoom factor centered on subject" -r
-    complete -c $c -s E -l engine -d "Select rendering engine" -r -a "mary trumble luris spectra color mono bw manga sketch"
+    complete -c $c -l rotate -d "Rotate image 90, 180, or 270 degrees clockwise" -r -a "90 180 270"
+    complete -c $c -l flip -l mirror -d "Mirror image horizontally or vertically" -r -a "h v horizontal vertical"
+    complete -c $c -s E -l engine -d "Select rendering engine" -r -a "mary trumble luris spectra color mono bw manga sketch crosshatch"
     complete -c $c -s c -l color -d "Force TrueColor output"
     complete -c $c -l no-color -d "Disable color output"
     complete -c $c -s S -l sextants -d "Unicode 2x3 sextant blocks (Mary Apex default)"
@@ -5177,6 +6434,9 @@ for c in lumart luma
     complete -c $c -l blocks -d "Optimized terminal half-blocks"
     complete -c $c -s m -l manga -d "Manga Screentone 2.0 mode"
     complete -c $c -s s -l sketch -d "Clean line sketch mode"
+    complete -c $c -s ch -l crosshatch -d "Authentic Manga 45-degree pen crosshatching dither"
+    complete -c $c -s cs -l charset -d "Select typography charset ramp" -r -a "dense standard simple blocks shades math runes katakana crosshatch minimal binary hex braille"
+    complete -c $c -l gamma -d "Gamma contrast adjustment factor" -r
     complete -c $c -l matrix -d "Render image in digital Katakana and binary green Matrix code"
     complete -c $c -l matrix-rain -d "Falling Katakana digital rain animation"
     complete -c $c -l boost -l vibrant -d "Vibrant arcade Retinex boost"
@@ -5188,6 +6448,8 @@ for c in lumart luma
     complete -c $c -s o -s O -l output -l save -d "Export image, GIF, ANS, or TXT" -r
     complete -c $c -l loop -d "Animation mode: smooth terminal loop or animated GIF export"
     complete -c $c -s r -l remove-bg -d "Remove background without quality loss (standalone saves HD PNG)"
+    complete -c $c -l bg-tolerance -l tolerance -d "Color tolerance for background removal (1-100)" -r
+    complete -c $c -l fps -l target-fps -d "Target framerate for animations and video" -r
     complete -c $c -l transparent -d "Luris Mono transparent sticker"
     complete -c $c -s C -l copy -d "Copy rendered ANSI art to system clipboard"
     complete -c $c -l copy-plain -d "Copy plain ASCII text without escape codes to clipboard"
@@ -5201,7 +6463,7 @@ for c in lumart luma
     complete -c $c -l showcase -d "Generate 4-in-1 comparison showcase across all flagship engines"
     complete -c $c -l info -l inspect -d "Display visual image inspector, resolution, and color palette"
     complete -c $c -l fetch-preset -d "Generate Fastfetch/Neofetch ANSI logo and config.jsonc snippet"
-    complete -c $c -l shader -d "Spectra Weep 2.0 multi-spectral shader" -r -a "neon cyberpunk thermal tron matrix amber manga theme normal"
+    complete -c $c -l shader -d "Spectra Weep 2.0 multi-spectral shader" -r -a "neon cyberpunk thermal tron matrix amber manga theme normal hologram glitch phosphor-bloom solarize"
     complete -c $c -l lang -d "Set interface language" -r -a "en es pt fr ru ja de ko"
     complete -c $c -s W -l webcam -d "Webcam streaming 30-60 FPS" -r
     complete -c $c -s H -l history -d "Show execution history" -r
@@ -5229,7 +6491,9 @@ _lumart() {{
         '--logo[Alias for --fastfetch]' \\
         '--crop[Crop image: center, square, or x,y,w,h]:crop specification: ' \\
         '--zoom[Digital zoom factor centered on subject]:zoom factor: ' \\
-        '(-E --engine)'{{-E,--engine}}'[Select rendering engine explicitly]:engine:(mary trumble luris spectra color mono bw manga sketch)' \\
+        '--rotate[Rotate image clockwise]:angle:(90 180 270)' \\
+        '(--flip --mirror)'{{--flip,--mirror}}'[Mirror image]:direction:(h v horizontal vertical)' \\
+        '(-E --engine)'{{-E,--engine}}'[Select rendering engine explicitly]:engine:(mary trumble luris spectra color mono bw manga sketch crosshatch)' \\
         '(-c --color --no-color)'{{-c,--color}}'[Force TrueColor output]' \\
         '(-c --color --no-color)'--no-color'[Disable color and use monochrome engine]' \\
         '(-S --sextants)'{{-S,--sextants}}'[Use Unicode 2x3 sextant blocks (Mary default)]' \\
@@ -5238,6 +6502,9 @@ _lumart() {{
         '--blocks[Use optimized half-block characters (▀/▄)]' \\
         '(-m --manga)'{{-m,--manga}}'[Manga Screentone 2.0 (Bayer 8x8 + DoG lines)]' \\
         '(-s --sketch)'{{-s,--sketch}}'[Clean pen-and-ink line sketch mode]' \\
+        '(-ch --crosshatch)'{{-ch,--crosshatch}}'[Authentic Manga 45-degree pen crosshatching dither]' \\
+        '(-cs --charset)'{{-cs,--charset}}'[Select typography charset ramp]:charset:(dense standard simple blocks shades math runes katakana crosshatch minimal binary hex braille)' \\
+        '--gamma[Gamma contrast adjustment factor]:gamma: ' \\
         '--matrix[Render in Katakana and binary green Matrix code]' \\
         '--matrix-rain[Falling Katakana digital rain animation]' \\
         '--theme[Synchronize colors with terminal palette]:palette:(catppuccin dracula nord gruvbox synthwave vaporwave gameboy solarized)' \\
@@ -5252,6 +6519,8 @@ _lumart() {{
         '(-o -O --output --save)'{{-o,-O,--output,--save}}'[Export graphic image, ANS, or TXT]:output file:_files' \\
         '--loop[Animation mode: smooth terminal loop or animated GIF export]' \\
         '(-r --remove-bg)'{{-r,--remove-bg}}'[Remove background without quality loss (standalone saves HD PNG)]' \\
+        '(--bg-tolerance --tolerance)'{{--bg-tolerance,--tolerance}}'[Color tolerance for background removal (1-100)]:tolerance: ' \\
+        '(--fps --target-fps)'{{--fps,--target-fps}}'[Target framerate for animations and video]:fps: ' \\
         '--transparent[Luris Mono transparent sticker]' \\
         '(-C --copy)'{{-C,--copy}}'[Copy rendered ANSI art to system clipboard]' \\
         '--copy-plain[Copy plain ASCII text without color codes to clipboard]' \\
@@ -5265,7 +6534,7 @@ _lumart() {{
         '--showcase[Generate 4-in-1 comparison showcase across all flagship engines]' \\
         '(--info --inspect)'{{--info,--inspect}}'[Display visual image inspector and color palette]' \\
         '--fetch-preset[Generate Fastfetch/Neofetch ANSI logo and config.jsonc]' \\
-        '--shader[Apply Spectra Weep 2.0 multi-spectral shader]:shader:(neon cyberpunk thermal tron matrix amber manga theme normal)' \\
+        '--shader[Apply Spectra Weep 2.0 multi-spectral shader]:shader:(neon cyberpunk thermal tron matrix amber manga theme normal hologram glitch phosphor-bloom solarize)' \\
         '--lang[Set language]:language:(en es pt fr ru ja de ko)' \\
         '(-W --webcam)'{{-W,--webcam}}'[Webcam streaming]:camera index: ' \\
         '(-H --history)'{{-H,--history}}'[Show execution history]:count: ' \\
@@ -5311,8 +6580,15 @@ def validate_cli_arguments(args, parser):
         print(f"\033[1;31m[Lumart Error]\033[0m {_('err_conflict_textures')}", file=sys.stderr)
         sys.exit(2)
 
-    # 4. Múltiples estilos (-m vs -s)
-    if getattr(args, "manga", False) and getattr(args, "sketch", False):
+    # 4. Múltiples estilos (-m vs -s vs -ch)
+    styles = [
+        opt for cond, opt in [
+            (getattr(args, "manga", False), "-m/--manga"),
+            (getattr(args, "sketch", False), "-s/--sketch"),
+            (getattr(args, "crosshatch", False), "-ch/--crosshatch"),
+        ] if cond
+    ]
+    if len(styles) > 1:
         print(f"\033[1;31m[Lumart Error]\033[0m {_('err_conflict_styles')}", file=sys.stderr)
         sys.exit(2)
 
@@ -5383,8 +6659,25 @@ def crop_empty_borders(pil_img, tolerance=10):
 def render_frame_to_art(frame_img, args, engine, mode, is_raw_colors, invert_mode, font_ratio):
     """
     Renderiza un único frame (PIL.Image) a arte ANSI según el motor y modo configurados.
+    Aceleración directa en memoria RAM (Zero Disk I/O) para 60 FPS ultra-fluidos.
     """
+    import io
     ascii_art = ""
+    # Transformaciones geométricas
+    if getattr(args, "rotate", 0) or getattr(args, "flip", None):
+        frame_img = apply_image_transforms(frame_img, rotate=getattr(args, "rotate", 0), flip=getattr(args, "flip", None))
+
+    # Ajustes universales de color
+    brightness = getattr(args, "brightness", 1.0)
+    contrast = getattr(args, "contrast", 1.0)
+    saturation = getattr(args, "saturation", 1.0)
+    gamma_val = getattr(args, "gamma", 1.0)
+    if (brightness is not None and brightness != 1.0) or \
+       (contrast is not None and contrast != 1.0) or \
+       (saturation is not None and saturation != 1.0) or \
+       (gamma_val is not None and gamma_val != 1.0):
+        frame_img = apply_image_adjustments(frame_img, brightness=brightness, contrast=contrast, saturation=saturation, gamma=gamma_val)
+
     if getattr(args, "swap", None):
         frame_img = apply_color_swap(frame_img, args.swap)
     if getattr(args, "theme", None):
@@ -5393,97 +6686,104 @@ def render_frame_to_art(frame_img, args, engine, mode, is_raw_colors, invert_mod
         frame_img = apply_crop_and_zoom(frame_img, crop_spec=args.crop, zoom=args.zoom)
     if getattr(args, "fastfetch", False) or getattr(args, "logo", False):
         frame_img = crop_empty_borders(frame_img)
+
+    bg_tolerance = getattr(args, "bg_tolerance", 32)
     if getattr(args, "remove_bg", False):
-        frame_img = remove_image_background(frame_img)
+        frame_img = remove_image_background(frame_img, tolerance=bg_tolerance)
 
     # 1. MOTOR LURIS
     if engine == "luris":
-        temp_path = None
+        cur_img = frame_img
+        if getattr(args, "transparent", False):
+            cur_img = remove_image_background(cur_img, tolerance=bg_tolerance)
+
+        mono_mode = "braille"
+        if getattr(args, "crosshatch", False):
+            mono_mode = "crosshatch"
+        elif getattr(args, "sketch", False):
+            mono_mode = "sketch"
+        elif getattr(args, "manga", False):
+            mono_mode = "manga"
+        elif getattr(args, "blocks", False) or getattr(args, "quadrants", False):
+            mono_mode = "blocks"
+
+        dither_algo = "none"
+        if getattr(args, "dither", None):
+            dither_algo = "atkinson" if args.dither is True else str(args.dither).lower()
+
+        charset = getattr(args, "charset", None) or ("crosshatch" if mono_mode == "crosshatch" else "braille")
+        gamma_param = getattr(args, "gamma", 1.0) or 1.0
+
+        # Primero intentar en memoria RAM directa sin tocar disco
         try:
-            cur_img = frame_img
-            if getattr(args, "transparent", False):
-                cur_img = remove_image_background(cur_img)
-            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-                temp_path = tmp.name
-                cur_img.save(temp_path)
+            buf = io.BytesIO()
+            cur_img.save(buf, format="PNG", compress_level=1)
+            native_art = try_render_native_monochrome_memory(buf.getvalue(), args.width, mono_mode, dither_algo, invert_mode, charset=charset, gamma=gamma_param)
+        except Exception:
+            native_art = None
 
-            mono_mode = "braille"
-            if getattr(args, "sketch", False):
-                mono_mode = "sketch"
-            elif getattr(args, "manga", False):
-                mono_mode = "manga"
-            elif getattr(args, "blocks", False) or getattr(args, "quadrants", False):
-                mono_mode = "blocks"
-
-            dither_algo = "none"
-            if getattr(args, "dither", None):
-                dither_algo = "atkinson" if args.dither is True else str(args.dither).lower()
-
-            native_art = try_render_native_monochrome(temp_path, args.width, mono_mode, dither_algo, invert_mode)
-            if native_art is not None:
-                ascii_art = native_art
+        if native_art is not None:
+            ascii_art = native_art
+        else:
+            # Fallback a funciones python
+            if mono_mode == "crosshatch":
+                ascii_art = render_python_crosshatch(cur_img, args.width, invert_mode, gamma=gamma_param)
+            elif mono_mode == "sketch":
+                ascii_art = render_python_sketch(cur_img, args.width, invert_mode)
+            elif mono_mode == "manga":
+                ascii_art = render_python_manga(cur_img, args.width, invert_mode)
+            elif mono_mode == "blocks":
+                ascii_art = render_python_bw_quadrants(cur_img, args.width, dither_algo, invert_mode)
             else:
-                if mono_mode == "sketch":
-                    ascii_art = render_python_sketch(cur_img, args.width, invert_mode)
-                elif mono_mode == "manga":
-                    ascii_art = render_python_manga(cur_img, args.width, invert_mode)
-                elif mono_mode == "blocks":
-                    ascii_art = render_python_bw_quadrants(cur_img, args.width, dither_algo, invert_mode)
+                resized = resize_image(cur_img, args.width, getattr(args, "blocks", False), getattr(args, "braille", False))
+                if dither_algo in ("atkinson", "bayer", "floyd") or getattr(args, "dither", None):
+                    resized = apply_bayer_dither(resized)
+                if getattr(args, "braille", False) or charset == "braille":
+                    ascii_art = convert_image_to_braille(resized, getattr(args, "color", False), invert_mode)
                 else:
-                    resized = resize_image(cur_img, args.width, getattr(args, "blocks", False), getattr(args, "braille", False))
-                    if dither_algo in ("atkinson", "bayer", "floyd") or getattr(args, "dither", None):
-                        resized = apply_bayer_dither(resized)
-                    if getattr(args, "braille", False):
-                        ascii_art = convert_image_to_braille(resized, getattr(args, "color", False), invert_mode)
-                    else:
-                        ascii_art = convert_image_to_blocks(resized)
-        finally:
-            if temp_path and os.path.exists(temp_path):
-                try: os.unlink(temp_path)
-                except Exception: pass
+                    ascii_art = convert_image_to_ascii(resized, color=getattr(args, "color", False), invert=invert_mode, charset=charset)
 
     # 2. MOTOR MARY
     elif engine == "mary":
-        temp_path = None
         mary_img = frame_img
-        try:
-            if getattr(args, "transparent", False):
-                mary_img = remove_image_background(mary_img)
-            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-                temp_path = tmp.name
-                mary_img.save(temp_path)
+        if getattr(args, "transparent", False):
+            mary_img = remove_image_background(mary_img, tolerance=bg_tolerance)
 
-            native_mary = try_render_native_mary(
-                temp_path,
+        # Primero intentar en memoria RAM directa sin tocar disco
+        try:
+            buf = io.BytesIO()
+            mary_img.save(buf, format="PNG", compress_level=1)
+            native_mary = try_render_native_mary_memory(
+                buf.getvalue(),
                 args.width,
                 mode=mode,
                 raw_colors=is_raw_colors,
                 invert=invert_mode,
                 font_ratio=font_ratio
             )
-            if native_mary is not None:
-                ascii_art = native_mary
-            elif mary is not None:
-                ascii_art = mary.render_mary(
-                    mary_img,
-                    args.width,
-                    mode=mode,
-                    raw_colors=is_raw_colors,
-                    invert=invert_mode,
-                    font_ratio=font_ratio
-                )
-            else:
-                engine = "trumble"
-        finally:
-            if temp_path and os.path.exists(temp_path):
-                try: os.unlink(temp_path)
-                except Exception: pass
+        except Exception:
+            native_mary = None
+
+        if native_mary is not None:
+            ascii_art = native_mary
+        elif mary is not None:
+            ascii_art = mary.render_mary(
+                mary_img,
+                args.width,
+                mode=mode,
+                raw_colors=is_raw_colors,
+                invert=invert_mode,
+                font_ratio=font_ratio,
+                dither=getattr(args, "dither", None)
+            )
+        else:
+            engine = "trumble"
 
     # 3. MOTOR TRUMBLE
     if engine == "trumble":
         t_img = frame_img
         if getattr(args, "transparent", False):
-            t_img = remove_image_background(t_img)
+            t_img = remove_image_background(t_img, tolerance=bg_tolerance)
 
         is_blocks_mode = not getattr(args, "braille", False)
         if getattr(args, "boost", False):
@@ -5496,7 +6796,10 @@ def render_frame_to_art(frame_img, args, engine, mode, is_raw_colors, invert_mod
         if getattr(args, "dither", None):
             t_img = apply_bayer_dither(t_img)
 
-        if getattr(args, "braille", False):
+        charset = getattr(args, "charset", None)
+        if charset and charset != "braille":
+            ascii_art = convert_image_to_ascii(t_img, color=getattr(args, "color", True), invert=invert_mode, charset=charset)
+        elif getattr(args, "braille", False):
             ascii_art = convert_image_to_braille(t_img, getattr(args, "color", True), invert_mode)
         else:
             ascii_art = convert_image_to_blocks(t_img)
@@ -5572,9 +6875,14 @@ def export_video_to_gif(video_path, out_target, args=None, font_ratio=0.5):
 
 def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, invert_mode, font_ratio, out_target=None):
     """
-    Maneja la reproducción fluida interactiva de GIFs animados en terminal o la exportación a GIF animado.
-    Incorpora arranque instantáneo en 0 ms (Zero-Lag Lazy Caching) y controles interactivos en caliente:
-    [Espacio] Pausa | [◄/►] Frame a frame | [+/-] Velocidad | [S] Snapshot HD | [R] Reiniciar | [Q] Salir.
+    Maneja la reproducción ultra-fluida interactiva de GIFs animados en terminal o la exportación a GIF animado.
+    Incorpora:
+      - Motor de 60 FPS con reloj monotónico de precisión de microsegundos (time.perf_counter).
+      - Arranque instantáneo en 0 ms con pre-caching multihilo asíncrono en segundo plano (Zero-Lag).
+      - Buffer alternativo de terminal (\033[?1049h) para no contaminar el historial ni la consola del usuario.
+      - Medidor de FPS en tiempo real y selector en caliente de framerate (60 FPS, 30 FPS, Nativo).
+      - Controles interactivos en caliente:
+        [Espacio] Pausa | [◄/►] Frame | [6] 60 FPS | [3] 30 FPS | [0] FPS Nativo | [+/-] Vel | [S] Snapshot | [R] Reiniciar | [Q] Salir.
     """
     try:
         from PIL import ImageSequence
@@ -5639,17 +6947,39 @@ def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, inve
         return
 
     # Extracción de fotogramas originales para streaming dinámico
+    req_b = getattr(args, "brightness", 1.0) or 1.0
+    req_c = getattr(args, "contrast", 1.0) or 1.0
+    req_s = getattr(args, "saturation", 1.0) or 1.0
+    has_adjust = (req_b != 1.0 or req_c != 1.0 or req_s != 1.0)
+
     frames_data = []
     for frame in ImageSequence.Iterator(base_img):
         dur = (frame.info.get("duration", 100) or 100) / 1000.0
-        dur = max(0.02, min(dur, 2.0))
+        dur = max(0.016, min(dur, 2.0))
         cur = frame.copy().convert("RGBA" if getattr(args, "transparent", False) else "RGB")
+        if has_adjust:
+            cur = apply_image_adjustments(cur, brightness=req_b, contrast=req_c, saturation=req_s)
         frames_data.append((cur, dur))
 
     total_frames = len(frames_data)
     cached_arts = [None] * total_frames
 
-    # Configuración de entrada de terminal no bloqueante (cbreak)
+    # Hilo en segundo plano para pre-renderizar progresivamente todos los frames
+    # permitiendo que el frame 0 inicie en 0 ms y que los ciclos subsiguientes vuelen a 60 FPS
+    _stop_bg_cache = [False]
+    def _bg_precache_worker():
+        for f_i in range(total_frames):
+            if _stop_bg_cache[0]:
+                break
+            if cached_arts[f_i] is None:
+                try:
+                    c_img, c_dur = frames_data[f_i]
+                    c_art = render_frame_to_art(c_img, args, engine, mode, is_raw_colors, invert_mode, font_ratio)
+                    cached_arts[f_i] = (c_art, c_dur)
+                except Exception:
+                    pass
+
+    # Configuración de entrada de terminal no bloqueante (cbreak) y buffer alternativo
     old_term_settings = None
     is_interactive_tty = sys.stdin.isatty() and sys.stdout.isatty()
     if is_interactive_tty:
@@ -5666,12 +6996,45 @@ def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, inve
     speed_mult = 1.0
     status_msg = ""
     status_timer = 0
+    
+    # Soporte para --preload / --smooth en RAM previa y --fps desde CLI (ej: --fps 60)
+    is_preload = getattr(args, "preload", False) or getattr(args, "smooth", False)
+    cli_fps = getattr(args, "fps", None)
+    fps_target = float(cli_fps) if cli_fps and cli_fps > 0 else (60.0 if is_preload else None)
 
-    sys.stdout.write("\033[?25l\033[2J\033[H")
+    if is_preload:
+        print(f"\033[1;36m[Lumart 60FPS]\033[0m Pre-cargando {total_frames} frames en memoria RAM para reproducción continua...")
+        for f_i in range(total_frames):
+            c_img, c_dur = frames_data[f_i]
+            c_art = render_frame_to_art(c_img, args, engine, mode, is_raw_colors, invert_mode, font_ratio)
+            cached_arts[f_i] = (c_art, c_dur)
+            pct = int(((f_i + 1) / total_frames) * 100)
+            bar_len = 30
+            filled = int(bar_len * (f_i + 1) / total_frames)
+            bar = "█" * filled + "░" * (bar_len - filled)
+            sys.stdout.write(f"\r  \033[1;32m[{bar}]\033[0m {pct}% ({f_i + 1}/{total_frames})")
+            sys.stdout.flush()
+        print("\n\033[1;32m✓ ¡Todos los fotogramas cacheados en RAM!\033[0m Iniciando a 60 FPS...")
+        time.sleep(0.3)
+    
+    # Medidor de FPS reales
+    fps_start = time.perf_counter()
+    fps_frames = 0
+    real_fps = 0.0
+
+    # Activar buffer alternativo y ocultar cursor
+    sys.stdout.write("\033[?1049h\033[?25l\033[2J\033[H")
     sys.stdout.flush()
+
+    # Iniciar pre-renderizado asíncrono si no se precacheó completamente
+    if not is_preload:
+        bg_thread = threading.Thread(target=_bg_precache_worker, daemon=True)
+        bg_thread.start()
 
     try:
         while True:
+            t_frame_start = time.perf_counter()
+
             # 1. Obtener o renderizar frame actual (Zero-Lag Lazy Cache)
             if cached_arts[cur_idx] is None:
                 cur_img, dur = frames_data[cur_idx]
@@ -5679,36 +7042,69 @@ def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, inve
                 cached_arts[cur_idx] = (art, dur)
             art, base_dur = cached_arts[cur_idx]
 
-            # 2. Barra de estado / HUD interactivo
+            # 2. Medir FPS reales
+            fps_frames += 1
+            t_now = time.perf_counter()
+            if t_now - fps_start >= 0.5:
+                real_fps = fps_frames / (t_now - fps_start)
+                fps_frames = 0
+                fps_start = t_now
+
+            # 3. Barra de estado / HUD interactivo de 60 FPS
             speed_txt = f"{speed_mult:.2f}x" if speed_mult != 1.0 else "1.0x"
-            status_tag = f"\033[1;30;46m GIF ANIMADO \033[0m \033[1;37mFrame: {cur_idx + 1}/{total_frames} | Vel: {speed_txt} | "
+            fps_badge = f"\033[1;32m{real_fps:.1f} FPS\033[0m" if real_fps >= 45.0 else f"\033[1;33m{real_fps:.1f} FPS\033[0m"
+            target_str = f" [Objetivo: {fps_target:.0f} FPS]" if fps_target else ""
+            status_tag = (
+                f"\033[1;30;46m ⚡ LUMART 60FPS GIF \033[0m \033[1;37mFrame: {cur_idx + 1}/{total_frames} | "
+                f"{fps_badge}{target_str} | Vel: {speed_txt} | "
+            )
             if is_paused:
                 status_tag += "\033[1;33m[PAUSADO]\033[0m "
-            status_tag += "[Espacio] Pausa | [◄/►] Frame | [+/-] Vel | [S] Capturar | [R] Reiniciar | [Q] Salir\033[0m"
+            status_tag += "[Espacio] Pausa | [◄/►] Frame | [6] 60FPS | [3] 30FPS | [0] Nativo | [+/-] Vel | [S] Foto | [Q] Salir\033[0m"
             if status_msg and time.time() < status_timer:
                 status_tag += f" \033[1;32m{status_msg}\033[0m"
 
-            sys.stdout.write(f"\033[H{art}\n{status_tag}")
+            sys.stdout.write(f"\033[H{art}\n{status_tag}\033[K")
             sys.stdout.flush()
 
-            # 3. Temporización y escucha de teclado
-            effective_dur = max(0.01, min(2.0, base_dur / speed_mult))
-            sleep_step = 0.02
-            elapsed = 0.0
+            # 4. Cálculo de duración con reloj de microsegundos
+            if fps_target:
+                effective_dur = (1.0 / fps_target) / speed_mult
+            else:
+                effective_dur = max(0.008, (base_dur / speed_mult))
+
             advance_step = 0
 
-            while elapsed < effective_dur or is_paused:
-                wait_time = sleep_step if not is_paused else 0.05
+            # Bucle de espera no bloqueante de alta frecuencia
+            while is_paused or (time.perf_counter() - t_frame_start < effective_dur):
+                time_left = max(0.0005, effective_dur - (time.perf_counter() - t_frame_start))
+                wait_step = min(0.005, time_left) if not is_paused else 0.05
+                
                 if is_interactive_tty:
                     try:
                         import select
-                        r_in, _w, _x = select.select([sys.stdin], [], [], wait_time)
+                        r_in, _w, _x = select.select([sys.stdin], [], [], wait_step)
                         if r_in:
                             ch = sys.stdin.read(1)
                             if ch in ('q', 'Q', '\x03'):
                                 return
                             elif ch == ' ':
                                 is_paused = not is_paused
+                                break
+                            elif ch == '6':
+                                fps_target = 60.0
+                                status_msg = "⚡ Modo 60 FPS Ultra-Fluido Activado"
+                                status_timer = time.time() + 1.5
+                                break
+                            elif ch == '3':
+                                fps_target = 30.0
+                                status_msg = "🎬 Modo 30 FPS Cinematográfico Activado"
+                                status_timer = time.time() + 1.5
+                                break
+                            elif ch in ('0', 'n', 'N'):
+                                fps_target = None
+                                status_msg = "🎞️  Framerate Nativo Restaurado"
+                                status_timer = time.time() + 1.5
                                 break
                             elif ch in ('.', 'l', 'L'):
                                 cur_idx = (cur_idx + 1) % total_frames
@@ -5756,10 +7152,9 @@ def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, inve
                     except Exception:
                         pass
                 else:
-                    time.sleep(wait_time)
+                    time.sleep(wait_step)
 
-                elapsed += wait_time
-                if not is_paused and elapsed >= effective_dur:
+                if not is_paused and (time.perf_counter() - t_frame_start >= effective_dur):
                     break
 
             if not is_paused and advance_step == 0:
@@ -5768,13 +7163,15 @@ def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, inve
     except KeyboardInterrupt:
         pass
     finally:
+        _stop_bg_cache[0] = True
         if old_term_settings and is_interactive_tty:
             try:
                 import termios
                 termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_term_settings)
             except Exception:
                 pass
-        sys.stdout.write("\033[?25h\033[0m\n")
+        # Salir de buffer alternativo y restaurar cursor
+        sys.stdout.write("\033[?1049l\033[?25h\033[0m\n")
         sys.stdout.flush()
 
 def main():
@@ -5896,6 +7293,17 @@ def main():
         record_command_to_history()
         sys.exit(0 if success else 1)
 
+    # Intercepción inmediata de subcomando 'bench' / 'benchmark' (ej: lumart bench [img.png] [-w 100])
+    if len(sys.argv) >= 2 and sys.argv[1] in ("bench", "benchmark"):
+        bench_parser = argparse.ArgumentParser(prog="lumart bench", description=_("help_bench"))
+        bench_parser.add_argument("image", nargs="?", default=None, help="Image for benchmark")
+        bench_parser.add_argument("-w", "--width", type=int, default=100, help=_("help_width"))
+        bench_parser.add_argument("-n", "--iterations", type=int, default=10, help="Iterations per engine")
+        b_args = bench_parser.parse_args(sys.argv[2:])
+        run_benchmark(image_path=b_args.image, width=b_args.width, iterations=b_args.iterations)
+        record_command_to_history()
+        sys.exit(0)
+
     # Sin argumentos: mostrar banner informativo y ayuda básica de uso
     if len(sys.argv) == 1 and sys.stdin.isatty():
         print(banner)
@@ -5903,10 +7311,12 @@ def main():
         sys.exit(1)
         
     if "-h" in sys.argv or "--help" in sys.argv:
-        print(banner)
+        print(get_formatted_lumart_help())
+        sys.exit(0)
 
     # Configuración de argumentos de línea de comandos con argparse
     parser = argparse.ArgumentParser(prog="lumart", description=_( "desc" ), add_help=False)
+    parser.format_help = get_formatted_lumart_help
     parser.add_argument("-h", "--help", action="help", help=_("help_help"))
     parser.add_argument("-v", "--version", action="store_true", help=_("help_version"))
     parser.add_argument("-u", "--update", "--check-update", action="store_true", help=_("help_update"))
@@ -5916,7 +7326,7 @@ def main():
     parser.add_argument("image_path", nargs="?", default=None, help=_("help_image_path"))
     parser.add_argument("-w", "--width", type=int, default=None, help=_("help_width"))
     parser.add_argument("-F", "--fit", action="store_true", help=_("help_fit"))
-    parser.add_argument("-E", "--engine", choices=["mary", "trumble", "luris", "spectra", "color", "mono", "bw", "manga", "sketch"], default=None, help=_("help_engine"))
+    parser.add_argument("-E", "--engine", choices=["mary", "trumble", "luris", "spectra", "color", "mono", "bw", "manga", "sketch", "crosshatch"], default=None, help=_("help_engine"))
     parser.add_argument("-c", "--color", action="store_true", dest="color", default=True, help=_("help_color"))
     parser.add_argument("--no-color", action="store_false", dest="color", help=_("help_no_color"))
     parser.add_argument("-S", "--sextants", action="store_true", help=_("help_sextants"))
@@ -5925,6 +7335,11 @@ def main():
     parser.add_argument("--blocks", action="store_true", help=_("help_blocks"))
     parser.add_argument("-m", "--manga", action="store_true", help=_("help_manga"))
     parser.add_argument("-s", "--sketch", action="store_true", help=_("help_sketch"))
+    parser.add_argument("-ch", "--crosshatch", action="store_true", help=_("help_crosshatch"))
+    parser.add_argument("-cs", "--charset", choices=list(CHARSETS.keys()), default=None, help=_("help_charset"))
+    parser.add_argument("--rotate", type=int, choices=[0, 90, 180, 270], default=0, help=_("help_rotate"))
+    parser.add_argument("--flip", "--mirror", choices=["h", "v", "horizontal", "vertical"], default=None, help=_("help_flip"))
+    parser.add_argument("--gamma", type=float, default=1.0, help=_("help_gamma"))
     parser.add_argument("--boost", "--vibrant", action="store_true", default=False, help=_("help_boost"))
     parser.add_argument("-i", "--invert", action="store_true", help=_("help_invert"))
     parser.add_argument("--swap", nargs="+", help=_("help_swap"))
@@ -5934,6 +7349,8 @@ def main():
     parser.add_argument("--loop", action="store_true", help=_("help_loop"))
     parser.add_argument("--fastfetch", "--logo", action="store_true", help=_("help_fastfetch"))
     parser.add_argument("-r", "--remove-bg", action="store_true", help=_("help_remove_bg"))
+    parser.add_argument("--bg-tolerance", "--tolerance", type=int, default=32, help=_("help_bg_tolerance"))
+    parser.add_argument("--fps", "--target-fps", type=float, default=None, help=_("help_fps"))
     parser.add_argument("--transparent", action="store_true", help=_("help_transparent"))
     parser.add_argument("--instant", "--no-reveal", action="store_true", help=_("help_instant"))
     parser.add_argument("--reveal", action="store_true", help=_("help_reveal"))
@@ -5941,6 +7358,14 @@ def main():
     parser.add_argument("--lang", help=_("help_lang"))
 
     # Nuevas funcionalidades avanzadas v2.5.0
+    parser.add_argument("--brightness", type=float, default=1.0, help=_("help_brightness"))
+    parser.add_argument("--contrast", type=float, default=1.0, help=_("help_contrast"))
+    parser.add_argument("--saturation", type=float, default=1.0, help=_("help_saturation"))
+    parser.add_argument("--border", choices=["rounded", "single", "double", "heavy", "ascii", "blocks"], default=None, help=_("help_border"))
+    parser.add_argument("--align", choices=["left", "center", "right"], default=None, help=_("help_align"))
+    parser.add_argument("--center", action="store_true", help=_("help_center"))
+    parser.add_argument("--preload", "--smooth", dest="smooth", action="store_true", help=_("help_preload"))
+    parser.add_argument("--bench", "--benchmark", dest="bench", action="store_true", help=_("help_bench"))
     parser.add_argument("--theme", "--palette", choices=list(THEME_PALETTES.keys()), default=None, help=_("help_theme"))
     parser.add_argument("--crt", "--scanlines", choices=["green", "amber", "color", "scanlines"], nargs="?", const="color", default=None, help=_("help_crt"))
     parser.add_argument("--matrix", action="store_true", help=_("help_matrix"))
@@ -5956,7 +7381,7 @@ def main():
     parser.add_argument("--showcase", action="store_true", help=_("help_showcase"))
     parser.add_argument("--info", "--inspect", dest="info", action="store_true", help=_("help_info"))
     parser.add_argument("--fetch-preset", action="store_true", help=_("help_fetch_preset"))
-    parser.add_argument("--shader", choices=["neon", "cyberpunk", "thermal", "tron", "matrix", "amber", "manga", "theme", "normal"], default=None, help=_("help_shader"))
+    parser.add_argument("--shader", choices=["neon", "cyberpunk", "thermal", "tron", "matrix", "amber", "manga", "theme", "normal", "hologram", "glitch", "phosphor-bloom", "solarize"], default=None, help=_("help_shader"))
     parser.add_argument("extra_images", nargs="*", default=[], help=argparse.SUPPRESS)
 
     # Utilidades del sistema
@@ -6009,6 +7434,12 @@ def main():
     # Instalar integración de escritorio y gestores de archivos
     if args.install_desktop:
         install_desktop_integration()
+        sys.exit(0)
+
+    # Benchmark de rendimiento nativo (--bench / --benchmark)
+    if getattr(args, "bench", False):
+        run_benchmark(image_path=args.image_path, width=args.width or 100)
+        record_command_to_history()
         sys.exit(0)
 
     # Motor Spectra para webcam
@@ -6118,8 +7549,13 @@ def main():
     # Comprobar si se especificó algún flag de modelo / motor de renderizado
     has_model_flag = any([
         args.engine is not None,
+        args.width is not None,
+        getattr(args, "fit", False),
         getattr(args, "manga", False),
         getattr(args, "sketch", False),
+        getattr(args, "crosshatch", False),
+        getattr(args, "charset", None) is not None,
+        getattr(args, "shader", None) is not None,
         getattr(args, "sextants", False),
         getattr(args, "braille", False),
         getattr(args, "quadrants", False),
@@ -6143,10 +7579,13 @@ def main():
                 print(_("error_open", e))
                 sys.exit(1)
 
+            if getattr(args, "rotate", 0) or getattr(args, "flip", None):
+                raw_img = apply_image_transforms(raw_img, rotate=getattr(args, "rotate", 0), flip=getattr(args, "flip", None))
+
             if getattr(args, "crop", None) or (getattr(args, "zoom", 1.0) and args.zoom != 1.0):
                 raw_img = apply_crop_and_zoom(raw_img, crop_spec=args.crop, zoom=args.zoom)
 
-            nobg_img = remove_image_background(raw_img)
+            nobg_img = remove_image_background(raw_img, tolerance=getattr(args, "bg_tolerance", 32))
 
             if args.output:
                 out_target = args.output
@@ -6181,13 +7620,15 @@ def main():
         elif req_engine in ("mono", "bw", "luris"):
             engine = "luris"
             args.color = False
-        elif req_engine in ("manga", "sketch"):
+        elif req_engine in ("manga", "sketch", "crosshatch"):
             engine = "luris"
             args.color = False
             if req_engine == "manga":
                 args.manga = True
             elif req_engine == "sketch":
                 args.sketch = True
+            elif req_engine == "crosshatch":
+                args.crosshatch = True
         elif req_engine == "spectra":
             engine = "spectra"
         else:
@@ -6198,14 +7639,18 @@ def main():
             not getattr(args, "color", True) or
             getattr(args, "manga", False) or 
             getattr(args, "sketch", False) or 
+            getattr(args, "crosshatch", False) or 
             getattr(args, "dither", None) is not None or 
             "NO_COLOR" in os.environ
         )
         if is_mono:
             engine = "luris"
             args.color = False
-            if getattr(args, "manga", False) or getattr(args, "sketch", False):
+            if getattr(args, "manga", False) or getattr(args, "sketch", False) or getattr(args, "crosshatch", False):
                 args.braille = True
+        elif getattr(args, "charset", None) and getattr(args, "charset", None) != "braille":
+            engine = "trumble"
+            args.color = True
         else:
             engine = "mary"
             args.color = True
@@ -6227,6 +7672,10 @@ def main():
             except Exception as e:
                 print(_("error_open", e))
                 sys.exit(1)
+            if getattr(args, "rotate", 0) or getattr(args, "flip", None):
+                raw_img = apply_image_transforms(raw_img, rotate=getattr(args, "rotate", 0), flip=getattr(args, "flip", None))
+            if getattr(args, "remove_bg", False) or getattr(args, "transparent", False):
+                raw_img = remove_image_background(raw_img, tolerance=getattr(args, "bg_tolerance", 32))
             if getattr(args, "crop", None) or (getattr(args, "zoom", 1.0) and args.zoom != 1.0):
                 raw_img = apply_crop_and_zoom(raw_img, crop_spec=args.crop, zoom=args.zoom)
             
@@ -6336,9 +7785,25 @@ def main():
     # =============================================================
     # PROCESAMIENTO DE IMAGEN ESTÁTICA
     # =============================================================
+    # Aplicar transformaciones geométricas (rotación y volteo)
+    if getattr(args, "rotate", 0) or getattr(args, "flip", None):
+        image = apply_image_transforms(image, rotate=getattr(args, "rotate", 0), flip=getattr(args, "flip", None))
+
+    # Segmentación y extracción inteligente de fondo transparente
+    bg_tol = getattr(args, "bg_tolerance", 32)
+    if getattr(args, "remove_bg", False):
+        image = remove_image_background(image, tolerance=bg_tol)
+
     # Aplicar recorte y zoom digital
     if getattr(args, "crop", None) or (getattr(args, "zoom", 1.0) and args.zoom != 1.0):
         image = apply_crop_and_zoom(image, crop_spec=args.crop, zoom=args.zoom)
+
+    # Ajustes tonales y cromáticos (brillo, contraste, saturación)
+    req_b = getattr(args, "brightness", 1.0) or 1.0
+    req_c = getattr(args, "contrast", 1.0) or 1.0
+    req_s = getattr(args, "saturation", 1.0) or 1.0
+    if req_b != 1.0 or req_c != 1.0 or req_s != 1.0:
+        image = apply_image_adjustments(image, brightness=req_b, contrast=req_c, saturation=req_s)
 
     # Recorte automático de bordes vacíos/transparentes para fastfetch o logos compactos
     if getattr(args, "fastfetch", False) or getattr(args, "logo", False):
@@ -6390,7 +7855,7 @@ def main():
     # -------------------------------------------------------------
     if getattr(args, "matrix", False) or getattr(args, "matrix_rain", False):
         if getattr(args, "transparent", False):
-            image = remove_image_background(image)
+            image = remove_image_background(image, tolerance=bg_tol)
         if getattr(args, "matrix_rain", False):
             render_matrix_art(image, width=args.width, font_ratio=font_ratio, animated=True)
             record_command_to_history()
@@ -6406,19 +7871,22 @@ def main():
         temp_luris_path = None
         luris_input_path = args.image_path
         if getattr(args, "transparent", False):
-            image = remove_image_background(image)
+            image = remove_image_background(image, tolerance=bg_tol)
             with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
                 temp_luris_path = tmp.name
                 image.save(temp_luris_path)
             luris_input_path = temp_luris_path
-        elif not args.image_path or not os.path.exists(args.image_path):
+        elif not args.image_path or not os.path.exists(args.image_path) or getattr(args, "rotate", 0) or getattr(args, "flip", None) or getattr(args, "remove_bg", False):
             with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
                 temp_luris_path = tmp.name
                 image.save(temp_luris_path)
             luris_input_path = temp_luris_path
 
         try:
-            if getattr(args, "sketch", False):
+            mono_mode = "braille"
+            if getattr(args, "crosshatch", False):
+                mono_mode = "crosshatch"
+            elif getattr(args, "sketch", False):
                 mono_mode = "sketch"
             elif getattr(args, "manga", False):
                 mono_mode = "manga"
@@ -6433,11 +7901,16 @@ def main():
             if args.dither:
                 dither_algo = "atkinson" if args.dither is True else str(args.dither).lower()
 
-            native_art = try_render_native_monochrome(luris_input_path, args.width, mono_mode, dither_algo, invert_mode)
+            charset = getattr(args, "charset", None) or ("crosshatch" if mono_mode == "crosshatch" else "braille")
+            gamma = getattr(args, "gamma", 1.0) or 1.0
+
+            native_art = try_render_native_monochrome(luris_input_path, args.width, mono_mode, dither_algo, invert_mode, charset=charset, gamma=gamma)
             if native_art is not None:
                 ascii_art = native_art
             else:
-                if mono_mode == "sketch":
+                if mono_mode == "crosshatch":
+                    ascii_art = render_python_crosshatch(image, args.width, invert_mode, gamma=gamma)
+                elif mono_mode == "sketch":
                     ascii_art = render_python_sketch(image, args.width, invert_mode)
                 elif mono_mode == "manga":
                     ascii_art = render_python_manga(image, args.width, invert_mode)
@@ -6447,10 +7920,10 @@ def main():
                     image = resize_image(image, args.width, args.blocks, args.braille)
                     if dither_algo in ("atkinson", "bayer", "floyd") or args.dither:
                         image = apply_bayer_dither(image)
-                    if args.braille:
+                    if getattr(args, "braille", False) or charset == "braille":
                         ascii_art = convert_image_to_braille(image, args.color, invert_mode)
                     else:
-                        ascii_art = convert_image_to_blocks(image)
+                        ascii_art = convert_image_to_ascii(image, color=args.color, invert=invert_mode, charset=charset)
         finally:
             if temp_luris_path and os.path.exists(temp_luris_path):
                 try: os.unlink(temp_luris_path)
@@ -6477,12 +7950,12 @@ def main():
         mary_image = image
         mary_input_path = args.image_path
         if getattr(args, "transparent", False):
-            mary_image = remove_image_background(image)
+            mary_image = remove_image_background(image, tolerance=bg_tol)
             with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
                 temp_mary_path = tmp.name
                 mary_image.save(temp_mary_path)
             mary_input_path = temp_mary_path
-        elif not args.image_path or not os.path.exists(args.image_path):
+        elif not args.image_path or not os.path.exists(args.image_path) or getattr(args, "rotate", 0) or getattr(args, "flip", None) or getattr(args, "remove_bg", False):
             with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
                 temp_mary_path = tmp.name
                 mary_image.save(temp_mary_path)
@@ -6527,7 +8000,7 @@ def main():
     if not ascii_art and engine == "trumble":
         # MOTOR A COLOR: Remover fondo ANTES DE FINALIZAR EL PROCESO
         if getattr(args, "transparent", False):
-            image = remove_image_background(image)
+            image = remove_image_background(image, tolerance=bg_tol)
 
         # Trumble por defecto renderiza en Bloques HD TrueColor (medios bloques ▀)
         is_blocks_mode = not getattr(args, "braille", False)
@@ -6543,7 +8016,10 @@ def main():
         if args.dither:
             image = apply_bayer_dither(image)
         
-        if args.braille:
+        charset = getattr(args, "charset", None)
+        if charset and charset != "braille":
+            ascii_art = convert_image_to_ascii(image, color=args.color, invert=invert_mode, charset=charset)
+        elif args.braille:
             ascii_art = convert_image_to_braille(image, args.color, invert_mode)
         else:
             ascii_art = convert_image_to_blocks(image)
@@ -6551,6 +8027,12 @@ def main():
     # 4. Filtro retro CRT / Scanlines
     if getattr(args, "crt", None):
         ascii_art = apply_crt_filter(ascii_art, crt_mode=args.crt)
+
+    # 4.5. Aplicación de marco decorativo y alineación visual
+    align_val = "center" if getattr(args, "center", False) else getattr(args, "align", None)
+    border_val = getattr(args, "border", None)
+    if border_val or align_val:
+        ascii_art = apply_border_and_alignment(ascii_art, border_style=border_val, align=align_val)
 
     # 5. Copiado inteligente al portapapeles (-C / --copy y --copy-plain)
     if getattr(args, "copy", False) or getattr(args, "copy_plain", False):

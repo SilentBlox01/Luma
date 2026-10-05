@@ -23,15 +23,28 @@ for c in lumart luma
     complete -c $c -l fastfetch -l logo -d "Auto-crop empty margins for fastfetch logos"
     complete -c $c -l crop -d "Crop image: center, square, or x,y,w,h" -r
     complete -c $c -l zoom -d "Digital zoom factor centered on subject" -r
+    complete -c $c -l rotate -d "Rotate image 90, 180, or 270 degrees clockwise" -r -a "90 180 270"
+    complete -c $c -l flip -l mirror -d "Mirror image horizontally or vertically" -r -a "h v horizontal vertical"
 
     # Engines & Textures
-    complete -c $c -s E -l engine -d "Select rendering engine" -r -a "mary trumble luris spectra color mono bw manga sketch"
+    complete -c $c -s E -l engine -d "Select rendering engine" -r -a "mary trumble luris spectra color mono bw manga sketch crosshatch"
     complete -c $c -s S -l sextants -d "Unicode 2x3 sextant blocks (Mary Apex default)"
     complete -c $c -s B -l braille -d "Unicode 2x4 braille characters (8 subpixels)"
     complete -c $c -s Q -l quadrants -d "Unicode 2x2 quadrant blocks (4 subpixels)"
     complete -c $c -l blocks -d "Optimized terminal half-blocks (▀/▄)"
     complete -c $c -s m -l manga -d "Manga Screentone 2.0 (Bayer 8x8 + DoG lines)"
     complete -c $c -s s -l sketch -d "Clean pen-and-ink line sketch mode"
+    complete -c $c -s ch -l crosshatch -d "Authentic Manga 45-degree pen crosshatching dither"
+    complete -c $c -s cs -l charset -d "Select typography charset ramp" -r -a "dense standard simple blocks shades math runes katakana crosshatch minimal binary hex braille"
+    complete -c $c -l gamma -d "Gamma contrast adjustment factor" -r
+    complete -c $c --border -d "Decorative frame border style" -r -a "rounded single double heavy ascii blocks"
+    complete -c $c --align -d "Horizontal alignment" -r -a "left center right"
+    complete -c $c --center -d "Center horizontally in terminal"
+    complete -c $c --brightness -d "Adjust image brightness multiplier" -r
+    complete -c $c --contrast -d "Adjust image contrast multiplier" -r
+    complete -c $c --saturation -d "Adjust image color saturation multiplier" -r
+    complete -c $c -l preload -l smooth -d "Preload all frames into RAM for smooth 60 FPS playback"
+    complete -c $c -l bench -l benchmark -d "Run performance benchmark suite"
     complete -c $c -l matrix -d "Render image in digital Katakana and binary green Matrix code"
     complete -c $c -l matrix-rain -d "Falling Katakana digital rain animation"
 
@@ -50,6 +63,8 @@ for c in lumart luma
     complete -c $c -s o -s O -l output -l save -d "Export to PNG, JPG, GIF, ANS, or TXT" -r
     complete -c $c -l loop -d "Animation mode: smooth terminal loop or animated GIF export"
     complete -c $c -s r -l remove-bg -d "Remove background without quality loss (standalone saves HD PNG)"
+    complete -c $c -l bg-tolerance -l tolerance -d "Color tolerance for background removal (1-100)" -r
+    complete -c $c -l fps -l target-fps -d "Target framerate for animations and video" -r
     complete -c $c -l transparent -d "Luris Mono exclusive: transparent background sticker"
     complete -c $c -s C -l copy -d "Copy rendered ANSI art to system clipboard"
     complete -c $c -l copy-plain -d "Copy plain ASCII text without escape codes to clipboard"
@@ -65,7 +80,7 @@ for c in lumart luma
     complete -c $c -l showcase -d "Generate 4-in-1 comparison showcase across all flagship engines"
     complete -c $c -l info -l inspect -d "Display visual image inspector, resolution, and color palette"
     complete -c $c -l fetch-preset -d "Generate Fastfetch/Neofetch ANSI logo and config.jsonc snippet"
-    complete -c $c -l shader -d "Spectra Weep 2.0 multi-spectral shader" -r -a "neon cyberpunk thermal tron matrix amber manga theme normal"
+    complete -c $c -l shader -d "Spectra Weep 2.0 multi-spectral shader" -r -a "neon cyberpunk thermal tron matrix amber manga theme normal hologram glitch phosphor-bloom solarize"
 
     # System & Utilities
     complete -c $c -l lang -d "Set interface language" -r -a "en es pt fr ru ja de ko"

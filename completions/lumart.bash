@@ -5,13 +5,16 @@ _lumart_completions() {
     local cur prev words cword
     _init_completion || return
 
-    local engines="mary trumble luris spectra color mono bw manga sketch"
+    local engines="mary trumble luris spectra color mono bw manga sketch crosshatch"
     local dithers="atkinson floyd bayer none"
     local langs="en es pt fr ru ja de ko"
     local shells="bash zsh fish"
     local themes="catppuccin dracula nord gruvbox synthwave vaporwave gameboy solarized"
     local crts="green amber color scanlines"
-    local shaders="neon cyberpunk thermal tron matrix amber manga theme normal"
+    local shaders="neon cyberpunk thermal tron matrix amber manga theme normal hologram glitch phosphor-bloom solarize"
+    local charsets="dense standard simple blocks shades math runes katakana crosshatch minimal binary hex braille"
+    local flips="h v horizontal vertical"
+    local rotates="90 180 270"
     local opts="
         -h --help
         -v --version
@@ -28,6 +31,11 @@ _lumart_completions() {
         --blocks
         -m --manga
         -s --sketch
+        -ch --crosshatch
+        -cs --charset
+        --rotate
+        --flip --mirror
+        --gamma
         --boost --vibrant
         -i --invert
         --swap
@@ -37,6 +45,8 @@ _lumart_completions() {
         --loop
         --fastfetch --logo
         -r --remove-bg
+        --bg-tolerance --tolerance
+        --fps --target-fps
         --transparent
         --instant --no-reveal
         --reveal
@@ -64,6 +74,14 @@ _lumart_completions() {
         --clear-history
         --install-desktop
         --completions
+        --brightness
+        --contrast
+        --saturation
+        --border
+        --align
+        --center
+        --preload --smooth
+        --bench --benchmark
     "
 
     case "$prev" in
@@ -91,6 +109,26 @@ _lumart_completions() {
             COMPREPLY=( $(compgen -W "$shaders" -- "$cur") )
             return 0
             ;;
+        -cs|--charset)
+            COMPREPLY=( $(compgen -W "$charsets" -- "$cur") )
+            return 0
+            ;;
+        --border)
+            COMPREPLY=( $(compgen -W "rounded single double heavy ascii blocks" -- "$cur") )
+            return 0
+            ;;
+        --align)
+            COMPREPLY=( $(compgen -W "left center right" -- "$cur") )
+            return 0
+            ;;
+        --flip|--mirror)
+            COMPREPLY=( $(compgen -W "$flips" -- "$cur") )
+            return 0
+            ;;
+        --rotate)
+            COMPREPLY=( $(compgen -W "$rotates" -- "$cur") )
+            return 0
+            ;;
         --completions)
             COMPREPLY=( $(compgen -W "$shells" -- "$cur") )
             return 0
@@ -103,7 +141,7 @@ _lumart_completions() {
             _filedir '@(png|jpg|jpeg|bmp|gif|webp|apng|PNG|JPG|JPEG|BMP|GIF|WEBP|APNG)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") )
             return 0
             ;;
-        -w|--width|--font-ratio|--zoom|--delay|-H|--history|-R|--replay|--last|-W|--webcam|-dg|--downgrade|--rollback|--swap|--crop)
+        -w|--width|--font-ratio|--zoom|--delay|-H|--history|-R|--replay|--last|-W|--webcam|-dg|--downgrade|--rollback|--swap|--crop|--gamma|--bg-tolerance|--tolerance|--fps|--target-fps)
             return 0
             ;;
     esac
@@ -114,7 +152,7 @@ _lumart_completions() {
     fi
 
     # Subcommands
-    if [[ "${words[1]}" =~ ^(diff|showcase|compare|info|inspect|fetch)$ ]]; then
+    if [[ "${words[1]}" =~ ^(diff|showcase|compare|info|inspect|fetch|bench|benchmark)$ ]]; then
         _filedir '@(png|jpg|jpeg|bmp|gif|webp|apng|PNG|JPG|JPEG|BMP|GIF|WEBP|APNG)' 2>/dev/null || COMPREPLY=( $(compgen -f -- "$cur") )
         return 0
     fi

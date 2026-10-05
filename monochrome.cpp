@@ -85,6 +85,52 @@ static inline void encode_braille_utf8(int val, std::string& out) {
     out.push_back(static_cast<char>(0x80 | (val & 0x3F)));
 }
 
+// Split any multi-byte UTF-8 string into individual glyph characters
+static std::vector<std::string> split_utf8_chars(const std::string& str) {
+    std::vector<std::string> chars;
+    for (size_t i = 0; i < str.size();) {
+        unsigned char c = static_cast<unsigned char>(str[i]);
+        size_t len = 1;
+        if ((c & 0x80) == 0) len = 1;
+        else if ((c & 0xE0) == 0xC0) len = 2;
+        else if ((c & 0xF0) == 0xE0) len = 3;
+        else if ((c & 0xF8) == 0xF0) len = 4;
+        if (i + len <= str.size()) {
+            chars.push_back(str.substr(i, len));
+            i += len;
+        } else {
+            chars.push_back(str.substr(i));
+            break;
+        }
+    }
+    return chars;
+}
+
+// Preset and custom character fonts/ramps (dark to light)
+static std::vector<std::string> get_charset_ramp(const std::string& name_or_str) {
+    if (name_or_str == "standard" || name_or_str == "simple") {
+        return split_utf8_chars("@%#*+=-:. ");
+    } else if (name_or_str == "blocks" || name_or_str == "shades") {
+        return split_utf8_chars("█▓▒░ ");
+    } else if (name_or_str == "math") {
+        return split_utf8_chars("@%*+=:· ");
+    } else if (name_or_str == "runes") {
+        return split_utf8_chars("ᛟᛞᛜᛚᛗᛖᛒᛏᛋᛊᛉᛇᛈᛃᛁᚾᚻᚺᚹᚷᚲᚱᚨᚦᚢᚠ ");
+    } else if (name_or_str == "katakana") {
+        return split_utf8_chars("10ｳﾜﾘﾗﾈﾇﾉﾂﾎﾊﾓﾒﾕﾘ ");
+    } else if (name_or_str == "crosshatch") {
+        return split_utf8_chars("█▓#|+;:/~-'` ");
+    } else if (name_or_str == "minimal") {
+        return split_utf8_chars("@Oo. ");
+    } else if (name_or_str == "binary") {
+        return split_utf8_chars("10");
+    } else if (name_or_str == "dense" || name_or_str == "ascii" || name_or_str.empty()) {
+        return split_utf8_chars(ASCII_70);
+    } else {
+        return split_utf8_chars(name_or_str);
+    }
+}
+
 // Perceptual luminance calculation according to ITU-R BT.709
 static inline float get_luminance(uint8_t r, uint8_t g, uint8_t b) {
     return 0.2126f * r + 0.7152f * g + 0.0722f * b;
@@ -246,30 +292,16 @@ static std::vector<uint8_t> bayer_dither(const std::vector<float>& input, int w,
 
 struct RenderConfig {
     int target_width = 90;
-    std::string mode = "braille"; // braille, manga, sketch, blocks, ascii, shades
-    std::string dither = "none";  // atkinson, floyd, bayer, none
+    std::string mode = "braille"; // braille, manga, sketch, blocks, ascii, shades, crosshatch
+    std::string dither = "none";  // atkinson, floyd, bayer, crosshatch, none
+    std::string charset = "";     // dense, standard, blocks, math, runes, katakana, crosshatch, minimal, binary, or custom
     bool invert = false;
     bool high_contrast = true;
     float gamma = 1.0f;
     std::string output_file = "";
 };
 
-std::string render_monochrome_image(const std::string& image_path, const RenderConfig& cfg) {
-    if (image_path.empty()) {
-        return "❌ Error: Empty image path provided.\n";
-    }
-
-    int orig_w, orig_h, channels;
-    uint8_t* raw_data = stbi_load(image_path.c_str(), &orig_w, &orig_h, &channels, 4);
-    if (!raw_data) {
-        return "❌ Error: Could not open image: " + image_path + "\n";
-    }
-
-    if (orig_w <= 0 || orig_h <= 0) {
-        stbi_image_free(raw_data);
-        return "❌ Error: Invalid image dimensions in: " + image_path + "\n";
-    }
-
+std::string render_monochrome_from_raw(uint8_t* raw_data, int orig_w, int orig_h, const RenderConfig& cfg) {
     int target_w = cfg.target_width >= 5 ? cfg.target_width : 90;
     float aspect = static_cast<float>(orig_h) / static_cast<float>(orig_w);
 
@@ -386,6 +418,35 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
                     }
                 }
             }
+        } else if (cfg.dither == "crosshatch" || cfg.mode == "crosshatch") {
+            // Authentic Manga Crosshatch dither: 45-degree pen hatching lines
+            std::vector<float> dog = compute_dog_edges(luminance, scaled_w, scaled_h, 0.7f * dog_scale, 1.8f * dog_scale);
+            for (int y = 0; y < scaled_h; ++y) {
+                for (int x = 0; x < scaled_w; ++x) {
+                    int i = y * scaled_w + x;
+                    if (alpha[i] < 128) {
+                        binary_grid[i] = 0;
+                        continue;
+                    }
+                    float ink = ink_density[i];
+                    bool is_line = (dog[i] > 6.0f);
+                    if (is_line || ink > 215.0f) {
+                        binary_grid[i] = 255;
+                    } else if (ink > 160.0f) {
+                        // Dense crosshatch: both diagonals
+                        binary_grid[i] = (((x + y) % 2 == 0) || ((x - y) % 2 == 0)) ? 255 : 0;
+                    } else if (ink > 115.0f) {
+                        // Medium crosshatch
+                        binary_grid[i] = (((x + y) % 3 == 0) || ((x - y) % 3 == 0)) ? 255 : 0;
+                    } else if (ink > 70.0f) {
+                        // Single diagonal hatch
+                        binary_grid[i] = ((x + y) % 3 == 0) ? 255 : 0;
+                    } else if (ink > 35.0f) {
+                        // Light sparse hatch
+                        binary_grid[i] = ((x + y) % 4 == 0) ? 255 : 0;
+                    }
+                }
+            }
         } else if (cfg.dither == "atkinson" || cfg.dither == "1" || cfg.dither == "true" || cfg.dither == "default") {
             // Atkinson error diffusion: clean paper highlights
             std::vector<float> cleaned_ink = ink_density;
@@ -497,10 +558,14 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
         }
     }
     // -------------------------------------------------------------
-    // MODE: Extended 70-character ASCII Density Ramp
+    // MODE: Extended Character Ramps / Charset Font Mode
     // -------------------------------------------------------------
-    else if (cfg.mode == "ascii") {
-        int ramp_len = strlen(ASCII_70);
+    else if (cfg.mode == "ascii" || !cfg.charset.empty()) {
+        std::vector<std::string> ramp = get_charset_ramp(cfg.charset.empty() ? "dense" : cfg.charset);
+        int ramp_len = static_cast<int>(ramp.size());
+        if (ramp_len == 0) ramp = split_utf8_chars(ASCII_70);
+        ramp_len = static_cast<int>(ramp.size());
+
         for (int y = 0; y < scaled_h; ++y) {
             for (int x = 0; x < scaled_w; ++x) {
                 int idx = y * scaled_w + x;
@@ -512,7 +577,7 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
                 int char_idx = static_cast<int>((val / 255.0f) * (ramp_len - 1));
                 char_idx = std::max(0, std::min(ramp_len - 1, char_idx));
                 if (cfg.invert) char_idx = (ramp_len - 1) - char_idx;
-                ascii_art.push_back(ASCII_70[char_idx]);
+                ascii_art += ramp[char_idx];
             }
             ascii_art.push_back('\n');
         }
@@ -542,6 +607,30 @@ std::string render_monochrome_image(const std::string& image_path, const RenderC
 }
 
 // C-compatible Exported API for Python ctypes bindings
+std::string render_monochrome_image(const std::string& image_path, const RenderConfig& cfg) {
+    if (image_path.empty()) return std::string("❌ Error: Empty image path provided.\n");
+    int orig_w, orig_h, channels;
+    uint8_t* raw_data = stbi_load(image_path.c_str(), &orig_w, &orig_h, &channels, 4);
+    if (!raw_data) return std::string("❌ Error: Could not open image: ") + image_path + "\n";
+    if (orig_w <= 0 || orig_h <= 0) {
+        stbi_image_free(raw_data);
+        return std::string("❌ Error: Invalid image dimensions in: ") + image_path + "\n";
+    }
+    return render_monochrome_from_raw(raw_data, orig_w, orig_h, cfg);
+}
+
+std::string render_monochrome_image_memory(const unsigned char* buffer, int len, const RenderConfig& cfg) {
+    if (!buffer || len <= 0) return std::string("❌ Error: Empty image buffer provided.\n");
+    int orig_w, orig_h, channels;
+    uint8_t* raw_data = stbi_load_from_memory(buffer, len, &orig_w, &orig_h, &channels, 4);
+    if (!raw_data) return std::string("❌ Error: Could not decode image from memory buffer\n");
+    if (orig_w <= 0 || orig_h <= 0) {
+        stbi_image_free(raw_data);
+        return std::string("❌ Error: Invalid image dimensions from memory buffer\n");
+    }
+    return render_monochrome_from_raw(raw_data, orig_w, orig_h, cfg);
+}
+
 extern "C" {
     const char* render_monochrome_c(const char* image_path, int width, const char* mode, const char* dither, bool invert) {
         if (!image_path) return nullptr;
@@ -557,6 +646,38 @@ extern "C" {
         return buffer;
     }
 
+    const char* render_monochrome_v2_c(const char* image_path, int width, const char* mode, const char* dither, bool invert, const char* charset, float gamma) {
+        if (!image_path) return nullptr;
+        RenderConfig cfg;
+        cfg.target_width = width > 0 ? width : 90;
+        cfg.mode = mode ? mode : "braille";
+        cfg.dither = dither ? dither : "none";
+        cfg.invert = invert;
+        if (charset) cfg.charset = charset;
+        if (gamma > 0.01f) cfg.gamma = gamma;
+
+        std::string result = render_monochrome_image(image_path, cfg);
+        char* buffer = new char[result.size() + 1];
+        std::strcpy(buffer, result.c_str());
+        return buffer;
+    }
+
+    const char* render_monochrome_memory_c(const unsigned char* buffer, int len, int width, const char* mode, const char* dither, bool invert, const char* charset, float gamma) {
+        if (!buffer || len <= 0) return nullptr;
+        RenderConfig cfg;
+        cfg.target_width = width > 0 ? width : 90;
+        cfg.mode = mode ? mode : "braille";
+        cfg.dither = dither ? dither : "none";
+        cfg.invert = invert;
+        if (charset) cfg.charset = charset;
+        if (gamma > 0.01f) cfg.gamma = gamma;
+
+        std::string result = render_monochrome_image_memory(buffer, len, cfg);
+        char* out_buf = new char[result.size() + 1];
+        std::strcpy(out_buf, result.c_str());
+        return out_buf;
+    }
+
     void free_monochrome_buffer(char* ptr) {
         delete[] ptr;
     }
@@ -565,20 +686,22 @@ extern "C" {
 static void print_banner() {
     std::cout << "\033[1;37m"
               << " █    █ █ █▄ ▄█ ▄▀▄   █▄ ▄█ ▄▀▄ █▄ █ ▄▀▄\n"
-              << " █▄▄▄ ▀▄█ █ ▀ █ █▀█ ▀ █ ▀ █ ▀▄▀ █ ▀█ ▀▄▀ (B&W Engine v2.1.2)\033[0m\n\n";
+              << " █▄▄▄ ▀▄█ █ ▀ █ █▀█ ▀ █ ▀ █ ▀▄▀ █ ▀█ ▀▄▀ (B&W Engine v2.5.0)\033[0m\n\n";
 }
 
 static void print_usage(const char* prog) {
     print_banner();
     std::cout << "Usage: " << prog << " [options] <image_path>\n\n"
               << "Options:\n"
-              << "  -w, --width <num>    Output width in terminal cells (default: auto-detected)\n"
-              << "  -m, --mode <type>    Rendering mode: braille (default), manga, sketch, blocks, ascii, shades\n"
-              << "  -d, --dither <algo>  Dithering algorithm: atkinson (default), floyd, bayer, none\n"
-              << "  -i, --invert         Invert lightness (useful for dark vs light terminals)\n"
-              << "  -g, --gamma <val>    Adjust gamma curve (e.g. 1.5 for punchier contrast)\n"
-              << "  -o, --output <file>  Save output directly to text file\n"
-              << "  -h, --help           Show this help message\n";
+              << "  -w, --width <num>      Output width in terminal cells (default: auto-detected)\n"
+              << "  -m, --mode <type>      Rendering mode: braille (default), manga, sketch, blocks, ascii, shades, crosshatch\n"
+              << "  -d, --dither <algo>    Dithering algorithm: atkinson (default), floyd, bayer, crosshatch, none\n"
+              << "  -cs, --charset <name>  Character font ramp: dense, standard, blocks, math, runes, katakana, crosshatch, minimal, binary, or custom\n"
+              << "  -ch, --crosshatch      Enable authentic Manga 45-degree crosshatching shading\n"
+              << "  -i, --invert           Invert lightness (useful for dark vs light terminals)\n"
+              << "  -g, --gamma <val>      Adjust gamma curve (e.g. 1.5 for punchier contrast)\n"
+              << "  -o, --output <file>    Save output directly to text file\n"
+              << "  -h, --help             Show this help message\n";
 }
 
 int main(int argc, char** argv) {
@@ -613,6 +736,10 @@ int main(int argc, char** argv) {
             } else {
                 cfg.dither = "atkinson";
             }
+        } else if (arg == "-cs" || arg == "--charset") {
+            if (i + 1 < argc) cfg.charset = argv[++i];
+        } else if (arg == "-ch" || arg == "--crosshatch") {
+            cfg.dither = "crosshatch";
         } else if (arg == "-b" || arg == "--bayer") {
             cfg.dither = "bayer";
         } else if (arg == "-i" || arg == "--invert") {

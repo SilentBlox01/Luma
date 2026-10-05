@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
 ==============================================================================
- Luma - Mary Apex 3.5 Engine
+ Luma - Mary Apex 3.6 Engine
  Motor a Color de Nueva Generación basado en Percepción Visual Computacional.
 ==============================================================================
  "Cero redes neuronales, cero modelos de 4 GB, cero humo de Silicon Valley:
   Pura matemática óptica, espacio de color perceptual Oklab, clustering K-Means
-  sub-píxel y optimización de flujo ANSI para terminales de ultra-alta fidelidad."
+  sub-píxel, tramado perceptual ordenado y optimización de flujo ANSI para
+  terminales de ultra-alta fidelidad."
 ==============================================================================
 """
 
@@ -347,11 +348,18 @@ SEXTANT_BLOCKS = [
     "🬵", "🬶", "🬷", "🬸", "🬹", "🬺", "🬻", "█"
 ]
 
-def render_mary_sextants(image, width, font_ratio=0.5, invert=False):
+BAYER_4X4 = [
+    [ 0,  8,  2, 10],
+    [12,  4, 14,  6],
+    [ 3, 11,  1,  9],
+    [15,  7, 13,  5]
+]
+
+def render_mary_sextants(image, width, font_ratio=0.5, invert=False, dither=None):
     """
-    Renderizador de Sextantes HD Mary 3.0 Apex (2x3 subpíxeles por celda, Unicode 13.0).
+    Renderizador de Sextantes HD Mary 3.6 Apex (2x3 subpíxeles por celda, Unicode 13.0).
     Proporciona cobertura 100% sólida sin micropuntos ni perforaciones, con umbral
-    adaptativo biofísico de Weber-Fechner y retención de bordes.
+    adaptativo biofísico de Weber-Fechner, tramado perceptual opcional y retención de bordes.
     """
     orig_w, orig_h = image.size
     if orig_w <= 0: orig_w = 1
@@ -382,6 +390,11 @@ def render_mary_sextants(image, width, font_ratio=0.5, invert=False):
                     if cur_x < sub_w and cur_y < sub_h:
                         p = pixels[cur_y * sub_w + cur_x]
                         r, g, b, a = p[0], p[1], p[2], p[3] if len(p) > 3 else 255
+                        if dither:
+                            b_val = (BAYER_4X4[(cur_y) % 4][(cur_x) % 4] / 15.0 - 0.5) * 18.0
+                            r = max(0, min(255, int(r + b_val)))
+                            g = max(0, min(255, int(g + b_val)))
+                            b = max(0, min(255, int(b + b_val)))
                         cell_pixels.append((r, g, b))
                         cell_alphas.append(a)
                     else:
@@ -447,7 +460,7 @@ def render_mary_sextants(image, width, font_ratio=0.5, invert=False):
         
     return stream.get_output()
 
-def render_mary_braille(image, width, font_ratio=0.5, invert=False):
+def render_mary_braille(image, width, font_ratio=0.5, invert=False, dither=None):
     """
     Renderizador Braille Perceptual Dual-Color (8 subpíxeles por celda).
     Calcula simultáneamente el color del micropunto y el color del fondo de la celda.
@@ -481,6 +494,11 @@ def render_mary_braille(image, width, font_ratio=0.5, invert=False):
                     if cur_x < sub_w and cur_y < sub_h:
                         p = pixels[cur_y * sub_w + cur_x]
                         r, g, b, a = p[0], p[1], p[2], p[3] if len(p) > 3 else 255
+                        if dither:
+                            b_val = (BAYER_4X4[(cur_y) % 4][(cur_x) % 4] / 15.0 - 0.5) * 18.0
+                            r = max(0, min(255, int(r + b_val)))
+                            g = max(0, min(255, int(g + b_val)))
+                            b = max(0, min(255, int(b + b_val)))
                         cell_pixels.append((r, g, b))
                         cell_alphas.append(a)
                     else:
@@ -786,13 +804,14 @@ def render_mary_ascii(image, width, font_ratio=0.5, invert=False):
     return stream.get_output()
 
 # ==============================================================================
-# 6. PUNTO DE ENTRADA PRINCIPAL DEL MOTOR MARY 3.0 APEX
+# 6. PUNTO DE ENTRADA PRINCIPAL DEL MOTOR MARY 3.6 APEX
 # ==============================================================================
 
-def render_mary(image, width, mode="sextants", raw_colors=False, invert=False, font_ratio=0.5):
+def render_mary(image, width, mode="sextants", raw_colors=False, invert=False, font_ratio=0.5, dither=None):
     """
-    Punto de entrada maestro para el motor Mary 3.0 Apex:
+    Punto de entrada maestro para el motor Mary 3.6 Apex:
     - Preprocesamiento perceptual adaptativo (Auto-HDR).
+    - Tramado ordenado perceptual opcional (dither).
     - Despacho al modo solicitado (sextants, braille, blocks, quadrants, ascii).
     - Compresión de flujo ANSI TrueColor.
     """
@@ -802,9 +821,9 @@ def render_mary(image, width, mode="sextants", raw_colors=False, invert=False, f
     # 2. Despacho según modo de subpíxel
     mode_lower = mode.lower() if mode else "sextants"
     if mode_lower in ("sextants", "sextant", "s"):
-        return render_mary_sextants(enhanced, width, font_ratio=font_ratio, invert=invert)
+        return render_mary_sextants(enhanced, width, font_ratio=font_ratio, invert=invert, dither=dither)
     elif mode_lower in ("braille", "hybrid", "super", "b"):
-        return render_mary_braille(enhanced, width, font_ratio=font_ratio, invert=invert)
+        return render_mary_braille(enhanced, width, font_ratio=font_ratio, invert=invert, dither=dither)
     elif mode_lower in ("quadrants", "quadrant", "q"):
         return render_mary_quadrants(enhanced, width, font_ratio=font_ratio, invert=invert)
     elif mode_lower in ("blocks", "block", "k"):
@@ -813,5 +832,5 @@ def render_mary(image, width, mode="sextants", raw_colors=False, invert=False, f
         return render_mary_ascii(enhanced, width, font_ratio=font_ratio, invert=invert)
     else:
         # Por defecto Sextantes HD de alta definición sólida
-        return render_mary_sextants(enhanced, width, font_ratio=font_ratio, invert=invert)
+        return render_mary_sextants(enhanced, width, font_ratio=font_ratio, invert=invert, dither=dither)
 
