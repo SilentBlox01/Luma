@@ -1,5 +1,16 @@
 # 🔧 Luma Comprehensive Troubleshooting & Deep Technical Guide
 
+> [!NOTE]
+> 📖 **Unified Master Guide Available**: This troubleshooting guide has been unified with the complete CLI walkthrough into our Master Manual, available in all 8 supported languages:
+> * 🇬🇧 [English Master Manual (WALKTHROUGH.md)](WALKTHROUGH.md)
+> * 🇪🇸 [Manual Maestro en Español (WALKTHROUGH.es.md)](WALKTHROUGH.es.md)
+> * 🇫🇷 [Manuel Maître en Français (WALKTHROUGH.fr.md)](WALKTHROUGH.fr.md)
+> * 🇩🇪 [Master-Handbuch auf Deutsch (WALKTHROUGH.de.md)](WALKTHROUGH.de.md)
+> * 🇧🇷 [Manual Mestre em Português (WALKTHROUGH.pt.md)](WALKTHROUGH.pt.md)
+> * 🇷🇺 [Полное Руководство на Русском (WALKTHROUGH.ru.md)](WALKTHROUGH.ru.md)
+> * 🇯🇵 [日本語完全マスターマニュアル (WALKTHROUGH.ja.md)](WALKTHROUGH.ja.md)
+> * 🇰🇷 [한국어 마스터 매뉴얼 (WALKTHROUGH.ko.md)](WALKTHROUGH.ko.md)
+
 Welcome to the definitive troubleshooting, architectural reference, and operational manual for **Luma** (and `lumart`). This guide provides in-depth solutions to common issues, terminal emulator compatibility benchmarks, native C++ compilation guides, rendering engine mechanics, localization configuration, and internal architectural details.
 
 ---
@@ -14,7 +25,7 @@ Welcome to the definitive troubleshooting, architectural reference, and operatio
    - [Mary Apex 3.5 (Perceptual Oklab & Subpixel Micro-Blocks)](#51-mary-apex-35-perceptual-oklab--subpixel-micro-blocks)
    - [Trumble Orelx 2.2 (Retro-Arcade Cel-Shading & Anime Ink)](#52-trumble-orelx-22-retro-arcade-cel-shading--anime-ink)
    - [Luris Mono 2.6 (Monochrome Manga Screentone & Transparent Stickers)](#53-luris-mono-26-monochrome-manga-screentone--stickers)
-   - [Spectra Weep 1.4 (Real-Time Live Webcam Streaming)](#54-spectra-weep-14-real-time-live-webcam-streaming)
+   - [Spectra Weep 2.0 (Real-Time Live Webcam Streaming)](#54-spectra-weep-14-real-time-live-webcam-streaming)
 6. [Sizing, Aspect Ratio & Character Font Calibration](#6-sizing-aspect-ratio--font-calibration)
 7. [High-Definition Graphic Image & Sticker Export (`-o`)](#7-high-definition-graphic-image--sticker-export)
 8. [Configuration, Persistence & Localization (i18n)](#8-configuration-persistence--localization-i18n)
@@ -333,7 +344,7 @@ Luma features four dedicated rendering engines, each mathematically engineered f
      ```
      Creates an authentic manga cutout sticker with transparent alpha channel!
 
-### 5.4 Spectra Weep 1.4 (Real-Time Live Webcam Streaming)
+### 5.4 Spectra Weep 2.0 (Real-Time Live Webcam Streaming)
 - **Flagship Command**: `lumart -E spectra` (or `lumart --webcam`, `lumart -W`)
 - **Core Technology**:
   1. **Zero-Lag OpenCV Video Pipeline**: Captures video frames, downsamples in real time, and renders high-FPS ANSI terminal streams (30–60 FPS).
