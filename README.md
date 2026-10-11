@@ -243,6 +243,22 @@ chmod +x install.sh
   pkg install python python-pillow clang make
   curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
   ```
+* **Void Linux (xbps)**:
+  ```bash
+  sudo xbps-install -S python3 python3-Pillow gcc make git && ./install.sh
+  ```
+* **Alpine Linux (apk & musl)**:
+  ```bash
+  apk add python3 py3-pillow g++ openmp-dev make git bash && ./install.sh
+  ```
+* **Nix / NixOS**:
+  ```bash
+  nix-shell -p python3 python3Packages.pillow gcc openmp git --run "./install.sh"
+  ```
+* **Gentoo Linux (Portage)**:
+  ```bash
+  sudo emerge --ask dev-lang/python dev-python/pillow sys-devel/gcc sys-devel/make && ./install.sh
+  ```
 *(Note: Installation scripts and native packages install clean CLI binaries and man pages without cluttering your desktop with unwanted GUI icons).*
 
 ### Method 4: Manual Native C++ Compilation

@@ -364,12 +364,51 @@ cd Luma
 ./install.sh
 ```
 
-#### 8. Contenedores y Entornos Minimalistas (Docker / Podman / Alpine)
+#### 8. Void Linux (glibc y musl vía xbps)
 ```bash
-# Alpine Linux:
-apk add --no-cache python3 py3-pillow g++ openmp-dev make git bash
-git clone https://github.com/SilentBlox01/Luma.git && cd Luma && ./install.sh
+# Paso 1: Instalar dependencias del sistema y compilador
+sudo xbps-install -S python3 python3-Pillow gcc make libgomp git bash
 
+# Paso 2: Ejecutar el instalador automático
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 9. Alpine Linux (musl libc en entornos ultra-ligeros)
+```bash
+# Paso 1: Instalar dependencias con APK
+apk add --no-cache python3 py3-pillow g++ openmp-dev make git bash
+
+# Paso 2: Configurar codificación UTF-8 obligatoria en Alpine
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+
+# Paso 3: Ejecutar instalador
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 10. Nix / NixOS (Entornos declarativos y reproducibles)
+```bash
+# Opción A: Entorno temporal ad-hoc para instalar y probar:
+nix-shell -p python3 python3Packages.pillow gcc openmp git --run "curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash"
+
+# Opción B: Ejecución interactiva dentro de nix-shell:
+git clone https://github.com/SilentBlox01/Luma.git
+cd Luma
+nix-shell -p python3 python3Packages.pillow gcc openmp git
+./install.sh
+```
+
+#### 11. Gentoo Linux (Portage y compilación nativa desde código fuente)
+```bash
+# Paso 1: Instalar dependencias con Portage
+sudo emerge --ask dev-lang/python dev-python/pillow sys-devel/gcc sys-devel/make dev-vcs/git
+
+# Paso 2: Ejecutar el instalador automático
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 12. Contenedores y Entornos Minimalistas (Docker / Podman / LXC)
+```bash
 # Configuración obligatoria de codificación en contenedores Docker/LXC:
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8

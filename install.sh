@@ -73,6 +73,10 @@ if [ "$LANG_MODE" = "es" ]; then
     MSG_DEBIAN="📦 Detectado Debian/Ubuntu/derivadas. Instalando python3-pil vía apt..."
     MSG_ARCH="📦 Detectado Arch Linux. Instalando python-pillow vía pacman..."
     MSG_SUSE="📦 Detectado openSUSE. Instalando python3-Pillow vía zypper..."
+    MSG_VOID="📦 Detectado Void Linux. Instalando python3-Pillow vía xbps-install..."
+    MSG_ALPINE="📦 Detectado Alpine Linux. Instalando py3-pillow vía apk..."
+    MSG_GENTOO="📦 Detectado Gentoo Linux. Instalando dev-python/pillow vía emerge..."
+    MSG_NIX="📦 Detectado Nix/NixOS. Instalando python3Packages.pillow vía nix-env..."
     MSG_PIP="🐍 Instalando Pillow con pip de usuario (--break-system-packages)..."
     MSG_VENV="🛡️  Creando entorno virtual aislado en"
     MSG_FAIL="⚠️  Nota: No se pudo instalar Pillow automáticamente."
@@ -97,6 +101,10 @@ else
     MSG_DEBIAN="📦 Detected Debian/Ubuntu/derivatives. Installing python3-pil via apt..."
     MSG_ARCH="📦 Detected Arch Linux. Installing python-pillow via pacman..."
     MSG_SUSE="📦 Detected openSUSE. Installing python3-Pillow via zypper..."
+    MSG_VOID="📦 Detected Void Linux. Installing python3-Pillow via xbps-install..."
+    MSG_ALPINE="📦 Detected Alpine Linux. Installing py3-pillow via apk..."
+    MSG_GENTOO="📦 Detected Gentoo Linux. Installing dev-python/pillow via emerge..."
+    MSG_NIX="📦 Detected Nix/NixOS. Installing python3Packages.pillow via nix-env..."
     MSG_PIP="🐍 Installing Pillow with user pip (--break-system-packages)..."
     MSG_VENV="🛡️  Setting up isolated virtual environment in"
     MSG_FAIL="⚠️  Note: Could not auto-install Pillow automatically."
@@ -125,6 +133,10 @@ if ! command -v python3 &>/dev/null; then
     echo "  • Ubuntu/Debian: sudo apt install python3"
     echo "  • Arch Linux:    sudo pacman -S python"
     echo "  • openSUSE:      sudo zypper install python3"
+    echo "  • Void Linux:    sudo xbps-install -S python3"
+    echo "  • Alpine Linux:  sudo apk add python3"
+    echo "  • Gentoo Linux:  sudo emerge --ask dev-lang/python"
+    echo "  • NixOS:         nix-shell -p python3"
     exit 1
 fi
 
@@ -186,6 +198,10 @@ if [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
         echo "  • Fedora/RHEL:   sudo dnf install gcc-c++ libgomp"
         echo "  • Debian/Ubuntu: sudo apt install g++"
         echo "  • Arch Linux:    yay -S gcc (o: sudo pacman -S gcc)"
+        echo "  • Void Linux:    sudo xbps-install -S gcc make"
+        echo "  • Alpine Linux:  sudo apk add g++ openmp-dev make"
+        echo "  • Gentoo Linux:  sudo emerge --ask sys-devel/gcc"
+        echo "  • NixOS / Nix:   nix-shell -p gcc openmp"
     fi
 fi
 
@@ -231,6 +247,18 @@ if ! python3 -c "from PIL import Image" &>/dev/null; then
         elif command -v zypper &>/dev/null; then
             echo "${MSG_SUSE}"
             zypper --non-interactive install python3-Pillow && INSTALLED=1 || true
+        elif command -v xbps-install &>/dev/null; then
+            echo "${MSG_VOID}"
+            xbps-install -Sy python3-Pillow && INSTALLED=1 || true
+        elif command -v apk &>/dev/null; then
+            echo "${MSG_ALPINE}"
+            apk add --no-cache py3-pillow && INSTALLED=1 || true
+        elif command -v emerge &>/dev/null; then
+            echo "${MSG_GENTOO}"
+            emerge --ask=n dev-python/pillow && INSTALLED=1 || true
+        elif command -v nix-env &>/dev/null; then
+            echo "${MSG_NIX}"
+            nix-env -iA nixpkgs.python3Packages.pillow && INSTALLED=1 || true
         fi
     else
         # Opción B: Modo usuario regular (sin sudo invasivo que bloquee)
@@ -274,6 +302,18 @@ if ! python3 -c "from PIL import Image" &>/dev/null; then
             elif command -v zypper &>/dev/null; then
                 echo "${MSG_SUSE}"
                 sudo zypper --non-interactive install python3-Pillow && INSTALLED=1 || true
+            elif command -v xbps-install &>/dev/null; then
+                echo "${MSG_VOID}"
+                sudo xbps-install -Sy python3-Pillow && INSTALLED=1 || true
+            elif command -v apk &>/dev/null; then
+                echo "${MSG_ALPINE}"
+                sudo apk add --no-cache py3-pillow && INSTALLED=1 || true
+            elif command -v emerge &>/dev/null; then
+                echo "${MSG_GENTOO}"
+                sudo emerge --ask=n dev-python/pillow && INSTALLED=1 || true
+            elif command -v nix-env &>/dev/null; then
+                echo "${MSG_NIX}"
+                nix-env -iA nixpkgs.python3Packages.pillow && INSTALLED=1 || true
             fi
         fi
     fi

@@ -367,12 +367,51 @@ cd Luma
 ./install.sh
 ```
 
-#### 8. Containers & Minimalist Environments (Docker / Podman / Alpine)
+#### 8. Void Linux (glibc & musl via xbps)
 ```bash
-# Alpine Linux:
-apk add --no-cache python3 py3-pillow g++ openmp-dev make git bash
-git clone https://github.com/SilentBlox01/Luma.git && cd Luma && ./install.sh
+# Step 1: Install system dependencies and compiler
+sudo xbps-install -S python3 python3-Pillow gcc make libgomp git bash
 
+# Step 2: Run automated installer
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 9. Alpine Linux (musl libc in ultra-lightweight environments)
+```bash
+# Step 1: Install dependencies with APK
+apk add --no-cache python3 py3-pillow g++ openmp-dev make git bash
+
+# Step 2: Configure required UTF-8 locale on Alpine
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+
+# Step 3: Run installer
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 10. Nix / NixOS (Declarative & Reproducible Environments)
+```bash
+# Option A: Ad-hoc nix-shell environment:
+nix-shell -p python3 python3Packages.pillow gcc openmp git --run "curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash"
+
+# Option B: Interactive clone inside nix-shell:
+git clone https://github.com/SilentBlox01/Luma.git
+cd Luma
+nix-shell -p python3 python3Packages.pillow gcc openmp git
+./install.sh
+```
+
+#### 11. Gentoo Linux (Portage source-based compilation)
+```bash
+# Step 1: Install dependencies with Portage
+sudo emerge --ask dev-lang/python dev-python/pillow sys-devel/gcc sys-devel/make dev-vcs/git
+
+# Step 2: Run automated installer
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 12. Containers & Minimalist Environments (Docker / Podman / LXC)
+```bash
 # Mandatory locale encoding in containers:
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8

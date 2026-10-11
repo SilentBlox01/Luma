@@ -235,6 +235,22 @@ chmod +x install.sh
   pkg install python python-pillow clang make
   curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
   ```
+* **Void Linux (xbps)**:
+  ```bash
+  sudo xbps-install -S python3 python3-Pillow gcc make git && ./install.sh
+  ```
+* **Alpine Linux (apk & musl)**:
+  ```bash
+  apk add python3 py3-pillow g++ openmp-dev make git bash && ./install.sh
+  ```
+* **Nix / NixOS**:
+  ```bash
+  nix-shell -p python3 python3Packages.pillow gcc openmp git --run "./install.sh"
+  ```
+* **Gentoo Linux (Portage)**:
+  ```bash
+  sudo emerge --ask dev-lang/python dev-python/pillow sys-devel/gcc sys-devel/make && ./install.sh
+  ```
 *(Nota: Tanto el instalador como los paquetes registran binarios limpios y páginas de manual sin ensuciar tu escritorio con iconos gráficos innecesarios)*.
 
 ### Método 4: Construcción Manual de Paquetes
