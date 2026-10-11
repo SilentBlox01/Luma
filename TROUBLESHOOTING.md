@@ -1,5 +1,10 @@
-# 🔧 Luma Comprehensive Troubleshooting & Deep Technical Guide
+# 🔧 Lumart (Luma) v2.5.0 Master Walkthrough, Technical Manual & Troubleshooting Guide
 
+[English (Default)](TROUBLESHOOTING.md) | [Español](TROUBLESHOOTING.es.md) | [Português](TROUBLESHOOTING.pt.md) | [Français](TROUBLESHOOTING.fr.md) | [Deutsch](TROUBLESHOOTING.de.md) | [Русский](TROUBLESHOOTING.ru.md) | [日本語](TROUBLESHOOTING.ja.md) | [한국어](TROUBLESHOOTING.ko.md)
+
+> **The definitive master guide for Lumart (Luma)**: Architectural foundations, four flagship rendering engines, dedicated CLI subcommands, complete flag encyclopedia, practical recipes, and exhaustive troubleshooting manual.
+
+---
 > [!NOTE]
 > 📖 **Unified Master Guide Available**: This troubleshooting guide has been unified with the complete CLI walkthrough into our Master Manual, available in all 8 supported languages:
 > * 🇬🇧 [English Master Manual (WALKTHROUGH.md)](WALKTHROUGH.md)
@@ -17,22 +22,33 @@ Welcome to the definitive troubleshooting, architectural reference, and operatio
 
 ## 📑 Table of Contents
 1. [Quick Diagnostic Checklist](#1-quick-diagnostic-checklist)
-   - [1.1 Visual "Dos & Don'ts" Master Guide (Lo que se DEBE y NO se debe hacer)](#11-visual-dos--donts-master-guide-lo-que-se-debe-y-no-se-debe-hacer)
+   - [1.1 Visual "Dos & Don'ts" Master Guide](#11-visual-dos--donts-master-guide-lo-que-se-debe-y-no-se-debe-hacer)
 2. [Installation & Native C++ Dependency Resolution](#2-installation--native-c-dependency-resolution)
 3. [Terminal Emulators & Font Compatibility](#3-terminal-emulators--font-compatibility)
 4. [Color Fidelity & TrueColor (24-bit ANSI)](#4-color-fidelity--truecolor-24-bit-ansi)
-5. [The Four Flagship Rendering Engines (Deep Dive & Troubleshooting)](#5-the-four-flagship-rendering-engines)
-   - [Mary Apex 3.5 (Perceptual Oklab & Subpixel Micro-Blocks)](#51-mary-apex-35-perceptual-oklab--subpixel-micro-blocks)
-   - [Trumble Orelx 2.2 (Retro-Arcade Cel-Shading & Anime Ink)](#52-trumble-orelx-22-retro-arcade-cel-shading--anime-ink)
-   - [Luris Mono 2.6 (Monochrome Manga Screentone & Transparent Stickers)](#53-luris-mono-26-monochrome-manga-screentone--stickers)
-   - [Spectra Weep 2.0 (Real-Time Live Webcam Streaming)](#54-spectra-weep-14-real-time-live-webcam-streaming)
-6. [Sizing, Aspect Ratio & Character Font Calibration](#6-sizing-aspect-ratio--font-calibration)
-7. [High-Definition Graphic Image & Sticker Export (`-o`)](#7-high-definition-graphic-image--sticker-export)
-8. [Configuration, Persistence & Localization (i18n)](#8-configuration-persistence--localization-i18n)
-9. [Command History & Interactive Replay System (`-H`, `-R`)](#9-command-history--interactive-replay-system)
-10. [Updates, Upgrades & Rollback System (`-u`, `-uu`, `-dg`)](#10-updates-upgrades--rollback-system)
-11. [Linux Desktop & File Manager Integration (`--install-desktop`)](#11-linux-desktop--file-manager-integration)
-12. [Master Command Reference & Cheat Sheet](#12-master-command-reference--cheat-sheet)
+5. [The Four Flagship Rendering Engines (Deep Dive & Architecture)](#5-the-four-flagship-rendering-engines)
+   - [5.1 Mary Apex 3.5 (Perceptual Oklab & Subpixel Micro-Blocks)](#51-mary-apex-35-perceptual-oklab--subpixel-micro-blocks)
+   - [5.2 Trumble Orelx 2.2 (Retro-Arcade Cel-Shading & Anime Ink)](#52-trumble-orelx-22-retro-arcade-cel-shading--anime-ink)
+   - [5.3 Luris Mono 2.6 (Monochrome Manga Screentone & Transparent Stickers)](#53-luris-mono-26-monochrome-manga-screentone--stickers)
+   - [5.4 Spectra Weep 2.0 (Real-Time Live Video, Webcam & 12 Shaders)](#54-spectra-weep-20-real-time-live-video-webcam--12-shaders)
+6. [Specialized Subcommands & Built-in Tools](#6-specialized-subcommands--built-in-tools)
+   - [6.1 lumart fetch (Fastfetch / Neofetch Preset Generator)](#61-lumart-fetch-fastfetch--neofetch-preset-generator)
+   - [6.2 lumart bench (Multi-Core Performance & Latency Benchmark)](#62-lumart-bench-multi-core-performance--latency-benchmark)
+   - [6.3 lumart showcase (4-in-1 Comparison Canvas)](#63-lumart-showcase-4-in-1-comparison-canvas)
+   - [6.4 lumart info (Visual Image Inspector & Engine Recommender)](#64-lumart-info-visual-image-inspector--engine-recommender)
+   - [6.5 lumart diff (Chromatic Delta Heatmap Between Two Images)](#65-lumart-diff-chromatic-delta-heatmap-between-two-images)
+   - [6.6 lumart slideshow (Full-Screen Terminal Presentation)](#66-lumart-slideshow-full-screen-terminal-presentation)
+   - [6.7 lumart -I / --interactive (Interactive TUI Viewer)](#67-lumart--i----interactive-interactive-tui-viewer)
+   - [6.8 lumart animate (GIF Transcoder & Video Compiler)](#68-lumart-animate-gif-transcoder--video-compiler)
+7. [Sizing, Aspect Ratio & Character Font Calibration](#7-sizing-aspect-ratio--character-font-calibration)
+8. [High-Definition Graphic Image & Sticker Export (`-o`, `--loop`, `--preload`)](#8-high-definition-graphic-image--sticker-export--o---loop---preload)
+9. [Configuration, Persistence & Localization (i18n)](#9-configuration-persistence--localization-i18n)
+10. [Command History & Interactive Replay System (`-H`, `-R`)](#10-command-history--interactive-replay-system--h--r)
+11. [Updates, Upgrades & Rollback System (`-u`, `-uu`, `-dg`)](#11-updates-upgrades--rollback-system--u--uu--dg)
+12. [Linux Desktop & File Manager Integration (`--install-desktop`)](#12-linux-desktop--file-manager-integration---install-desktop)
+13. [Real-World Practical Recipes & Workflows](#13-real-world-practical-recipes--workflows)
+14. [Complete CLI Encyclopedia of Flags & Options](#14-complete-cli-encyclopedia-of-flags--options)
+15. [Master Command Reference & Cheat Sheet](#15-master-command-reference--cheat-sheet)
 
 ---
 
@@ -344,7 +360,21 @@ Luma features four dedicated rendering engines, each mathematically engineered f
      ```
      Creates an authentic manga cutout sticker with transparent alpha channel!
 
-### 5.4 Spectra Weep 2.0 (Real-Time Live Webcam Streaming)
+### 5.4 Spectra Weep 2.0 (Real-Time Live Video, Webcam & 12 Shaders)
+- **Flagship Command**: `lumart -E spectra` (or `lumart --webcam`, `lumart -W`, `lumart clip.mp4`, `lumart image.png --shader neon`)
+- **Core Technology**:
+  1. **Zero-Lag OpenCV Video Pipeline**: Captures video frames, downsamples in real time, and renders high-FPS ANSI terminal streams (30–60 FPS).
+  2. **12 Multi-Spectral Shaders**:
+     - `neon`: Hyper-saturated cyberpunk synthwave glow with edge contrast.
+     - `thermal`: FLIR military infrared heat map vision.
+     - `tron`: Glowing electric vector wireframes over deep black.
+     - `matrix`: Authentic Katakana digital rain + P1 green phosphor bloom (525nm).
+     - `amber`: Classic 1970s amber CRT phosphor terminal.
+     - `hologram`: Sci-fi cyan holographic interference.
+     - `glitch`: RGB chromatic aberration with temporal jitter.
+     - `phosphor-bloom`: Diffuse analog CRT bloom.
+     - `solarize`, `manga`, `theme`, `normal`.
+  3. **Direct Video Playback**: Render any `.mp4`, `.mkv`, `.webm`, or `.mov` directly in the terminal at native framerates.
 - **Flagship Command**: `lumart -E spectra` (or `lumart --webcam`, `lumart -W`)
 - **Core Technology**:
   1. **Zero-Lag OpenCV Video Pipeline**: Captures video frames, downsamples in real time, and renders high-FPS ANSI terminal streams (30–60 FPS).
@@ -357,7 +387,86 @@ Luma features four dedicated rendering engines, each mathematically engineered f
 
 ---
 
-## 6. Sizing, Aspect Ratio & Font Calibration
+
+---
+
+## 6. Specialized Subcommands & Built-in Tools
+
+Beyond standard single-image rendering, Lumart v2.5.0 integrates dedicated CLI tools for system customization, performance auditing, and batch workflow automation:
+
+### 6.1 `lumart fetch` (Fastfetch / Neofetch Preset Generator)
+```bash
+lumart fetch <image.png> [-w WIDTH]
+```
+- **Automated Workflow**:
+  1. Detects and auto-crops empty/transparent margins using `--fastfetch` boundary trimming.
+  2. Resizes and renders image into 24-bit TrueColor half-blocks (`▀` / `▄`, 2 vertical pixels per cell).
+  3. Writes the ANSI art file directly to `~/.config/fastfetch/<name>_logo.ans`.
+  4. Generates and prints the ready-to-copy JSON block for `~/.config/fastfetch/config.jsonc`.
+- **Optimal Width**: We recommend `-w 36` to `-w 42`. Columns wider than 45 force line wrapping and misalign the system information column on standard terminal windows.
+
+### 6.2 `lumart bench` (Multi-Core Performance & Latency Benchmark)
+```bash
+lumart bench [image.png] [-w WIDTH]
+```
+- Executes an automated stress-test across all 4 flagship engines (Mary Apex, Trumble Arcade, Luris Mono C++, and Spectra Weep).
+- Reports precise metrics:
+  - **Latency**: Processing time per frame in milliseconds (`ms`).
+  - **Throughput**: Megapixels processed per second (`MP/s`).
+  - **Potential Framerate**: Render capacity in frames per second (`FPS`).
+
+### 6.3 `lumart showcase` (4-in-1 Comparison Canvas)
+```bash
+lumart showcase <image.png> [-w WIDTH] [-o comparison.png]
+```
+- Divides the terminal canvas into 4 equal quadrants rendering the same image across all flagship engines side by side:
+  - **Top-Left**: Mary Apex 3.5 (Photorealistic Oklab K-Means)
+  - **Top-Right**: Trumble Orelx 2.2 (Retro-Arcade Cel-Shading)
+  - **Bottom-Left**: Luris Mono 2.6 (Manga Screentone Bayer 8x8)
+  - **Bottom-Right**: Spectra Weep 2.0 (Neon Cyberpunk Shader)
+- Supports exporting the full 4-quadrant comparison directly to PNG via `-o`.
+
+### 6.4 `lumart info` (Visual Image Inspector & Engine Recommender)
+```bash
+lumart info <image.png>
+```
+- Performs visual and statistical inspection of the source image:
+  - Resolution, width, height, and physical aspect ratio.
+  - Average luminance, dynamic range, and tonal contrast.
+  - Top 6 dominant colors displayed with HEX values and live ANSI color swatches.
+  - **Automated Engine Recommendation**: Analyzes whether the image is photographic, lineart, or vector, and recommends the optimal engine.
+
+### 6.5 `lumart diff` (Chromatic Delta Heatmap Between Two Images)
+```bash
+lumart diff <image1.png> <image2.png> [-w WIDTH]
+```
+- Computes pixel-by-pixel Euclidean and perceptual color differences between two images.
+- Displays a false-color heatmap of altered regions and prints the average Delta percentage ($\Delta E$).
+
+### 6.6 `lumart slideshow` (Full-Screen Terminal Presentation)
+```bash
+lumart slideshow <folder/> [--delay 3.0] [-w WIDTH]
+```
+- Cycles through all images in a directory with full-screen terminal rendering and smooth transitions.
+- Interactive controls: `Space` (pause/resume), `Left`/`Right` arrows (previous/next), `Q` (quit).
+
+### 6.7 `lumart -I` / `--interactive` (Interactive TUI Viewer)
+```bash
+lumart -I <image.png>
+```
+- Launches the interactive terminal UI with live keyboard bindings:
+  - `+` / `-`: Increase or decrease brightness.
+  - `M` / `T` / `L`: Instantly switch between Mary, Trumble, and Luris engines.
+  - `G`: Toggle Manga Screentone mode.
+  - `Z`: Zoom in/out dynamically.
+
+### 6.8 `lumart animate` (GIF Transcoder & Video Compiler)
+```bash
+lumart animate <clip.mp4 | frame_dir/> -o result.gif [--fps 30]
+```
+- Compiles video files or image frame sequences directly into optimized animated GIFs processed through Lumart's ASCII/ANSI engine.
+
+## 7. Sizing, Aspect Ratio & Character Font Calibration
 
 ### 6.1 The 1:2 Character Cell Calibration
 Terminal character cells are not square; standard monospace characters are roughly **twice as tall as they are wide** ($1:2$ ratio).
@@ -380,7 +489,7 @@ lumart photo.png --font-ratio 0.55
 
 ---
 
-## 7. High-Definition Graphic Image & Sticker Export
+## 8. High-Definition Graphic Image & Sticker Export (`-o`, `--loop`, `--preload`)
 
 Luma can rasterize terminal art into crisp, high-resolution graphic images (`.png`, `.jpg`):
 
@@ -400,7 +509,7 @@ WebP lossy and near-lossless compression algorithms apply spatial chroma subsamp
 
 ---
 
-## 8. Configuration, Persistence & Localization (i18n)
+## 9. Configuration, Persistence & Localization (i18n)
 
 Starting with version 2.3.1 ("Rosetta"), Luma features a comprehensive, zero-leak internationalization engine supporting 8 languages with runtime and persistent configuration.
 
@@ -476,7 +585,7 @@ When Luma starts up, it resolves language using this strict 4-tier hierarchy:
 
 ---
 
-## 9. Command History & Interactive Replay System
+## 10. Command History & Interactive Replay System (`-H`, `-R`)
 
 Luma automatically records execution history with timestamps, version tags, and command lines.
 
@@ -518,7 +627,7 @@ lumart --clear-history
 
 ---
 
-## 10. Updates, Upgrades & Rollback System
+## 11. Updates, Upgrades & Rollback System (`-u`, `-uu`, `-dg`)
 
 Luma includes a built-in release manager with automatic rollback protection:
 
@@ -547,7 +656,7 @@ lumart -dg 2.3.0
 
 ---
 
-## 11. Linux Desktop & File Manager Integration
+## 12. Linux Desktop & File Manager Integration (`--install-desktop`)
 
 Integrate Luma directly into your desktop environment and file managers (GNOME Files/Nautilus, Nemo, Dolphin, Thunar):
 
@@ -561,7 +670,163 @@ This performs:
 
 ---
 
-## 12. Master Command Reference & Cheat Sheet
+
+---
+
+## 13. Real-World Practical Recipes & Workflows
+
+### Recipe 1: The Perfect Fastfetch / Neofetch Sidebar Logo
+```bash
+# Option A: TrueColor half-blocks (Recommended)
+lumart fetch "avatar.png" -w 38
+
+# Option B: Minimalist manga screentone (Ideal for Catppuccin / Nord themes)
+lumart "avatar.png" -w 38 --fastfetch -m -o ~/.config/fastfetch/logo_manga.ans
+
+# Option C: High-density Braille 2x4
+lumart "avatar.png" -w 38 --fastfetch -E mary -B -o ~/.config/fastfetch/logo_braille.ans
+```
+*Test immediately in your terminal:*
+```bash
+fastfetch --logo ~/.config/fastfetch/avatar_logo.ans --logo-type file
+```
+
+### Recipe 2: Transparent Anime Cutout Stickers for Discord / Telegram
+```bash
+# Export a transparent sticker (no black background box):
+lumart "character.png" -w 80 -m --transparent -o sticker.png
+
+# With automated flood-fill background removal:
+lumart "character.png" -w 80 -m -r --bg-tolerance 40 --transparent -o sticker_clean.png
+```
+
+### Recipe 3: Zero-Lag 60 FPS Animated GIFs with Full RAM Preload
+```bash
+# Smooth 60 FPS playback pre-rendered in RAM:
+lumart "animation.gif" -w 70 --loop --fps 60 --preload
+
+# Export rendered animation with a Synthwave palette to a new GIF:
+lumart "animation.gif" -w 60 --theme synthwave --fps 30 -o anim_synthwave.gif
+```
+
+### Recipe 4: Cyberpunk Matrix CRT Live Webcam Stream
+```bash
+# Green P1 phosphor Matrix code with vintage scanlines:
+lumart -W 0 --matrix --crt green --fps 60
+
+# Military FLIR infrared thermal vision:
+lumart -W 0 --shader thermal --fps 30
+```
+
+### Recipe 5: Automation in Bash Scripts, Unix Pipelines & MOTD
+```bash
+# Welcome banner in ~/.bashrc:
+if command -v lumart &>/dev/null; then
+    lumart ~/.config/banner.png -w 60 --border rounded --align center --instant
+fi
+
+# Render directly from web HTTPS URL:
+lumart "https://raw.githubusercontent.com/fastfetch-cli/fastfetch/dev/assets/arch.png" -w 50
+
+# Render image from system clipboard:
+lumart --paste -w 60 --border double
+
+# Copy generated ANSI art to clipboard:
+lumart "logo.png" -w 40 -C
+```
+
+---
+
+## 14. Complete CLI Encyclopedia of Flags & Options
+
+### A. Engines & Character Textures
+| Flag | Parameter | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `-E`, `--engine` | `mary` \| `trumble` \| `luris` \| `spectra` | *auto* | Explicitly select engine (auto-routed by default). |
+| `-S`, `--sextants`| — | *active* | Unicode 2x3 Sextant blocks (Mary Apex flagship default, 6 subpixels/cell). |
+| `-B`, `--braille` | — | `false` | Unicode 2x4 Braille matrix (8 subpixels/cell, highest outline precision). |
+| `-Q`, `--quadrants`| — | `false` | Unicode 2x2 Quadrant blocks (4 subpixels/cell). |
+| `--blocks` | — | `false` | Optimized half-blocks (`▀` / `▄`, 2 vertical pixels/cell with 24-bit TrueColor). |
+| `-m`, `--manga` | — | `false` | Manga Screentone mode (*Ami-tone* Bayer 8x8 + clean DoG ink contours). |
+| `-s`, `--sketch`| — | `false` | Clean pencil sketch mode without shadow blotches. |
+| `-ch`, `--crosshatch`| — | `false` | Authentic 45-degree pen crosshatch shading with 6 perpendicular density tiers. |
+| `-cs`, `--charset` | `<name>` | `standard` | Font glyph ramp: `dense`, `standard`, `blocks`, `math`, `runes`, `katakana`, `crosshatch`. |
+| `--matrix` | — | `false` | Transform output into Matrix Katakana digital code with 525nm P1 green phosphor bloom. |
+| `--matrix-rain` | — | `false` | Animated downward falling Matrix digital code rain. |
+
+### B. Geometry, Dimensions & Framing
+| Flag | Parameter | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `-w`, `--width` | `<int>` | *terminal* | Output width in columns (mutually exclusive with `-F`). |
+| `-F`, `--fit` | — | `false` | **Auto-fit viewport**: calculates optimal width & height to fit terminal without scrolling. |
+| `--fastfetch`, `--logo` | — | `false` | Auto-crop empty/transparent borders for compact logos and fetch screens. |
+| `--font-ratio` | `<float>` | `0.5` | Terminal font aspect ratio calibration width/height. |
+| `--crop` | `"x,y,w,h"` | `None` | Crop region before rendering: `--crop "100,50,400,400"`. |
+| `--zoom` | `<float>` | `1.0` | Digital zoom magnification factor (e.g. `--zoom 1.5` for 150%). |
+| `--rotate` | `0` \| `90` \| `180` \| `270` | `0` | Clockwise rotation in degrees. |
+| `--flip`, `--mirror` | `h` \| `v` | `None` | Geometric mirror reflection: horizontal (`h`) or vertical (`v`). |
+| `--border` | `rounded` \| `single` \| `double` \| `heavy` \| `ascii` \| `blocks` | `None` | Enclose render in aesthetic Unicode border frame. |
+| `--align` | `left` \| `center` \| `right` | `left` | Horizontal alignment in terminal viewport. |
+| `--center` | — | `false` | Shorthand alias for `--align center`. |
+
+### C. Colorimetry, Shaders & Visual Tuning
+| Flag | Parameter | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `-c`, `--color` | — | `true` | Force 24-bit TrueColor output. |
+| `--no-color` | — | `false` | Disable ANSI color codes and route to monochrome engine. |
+| `--brightness` | `<float>` | `1.0` | Brightness multiplier (e.g. `1.2` to brighten, `0.8` to darken). |
+| `--contrast` | `<float>` | `1.0` | Tonal contrast multiplier (e.g. `1.3` for punchier contrast). |
+| `--saturation` | `<float>` | `1.0` | Color saturation multiplier (e.g. `1.4` for vivid, `0.0` for grayscale). |
+| `--boost`, `--vibrant` | — | `false` | Enhanced saturation and Retinex curves for punchy arcade look. |
+| `--gamma` | `<float>` | `1.0` | Non-linear midtone gamma curve correction exponent. |
+| `-i`, `--invert`| — | `false` | Invert brightness mapping (useful for light-theme terminals). |
+| `--swap` | `<c1> <c2>` | `None` | Dynamically swap two colors in 3D RGB space. |
+| `--theme`, `--palette` | `<name>` | `None` | Curated palette: `cyberpunk`, `dracula`, `nord`, `catppuccin`, `gruvbox`, `synthwave`, `monokai`, `gameboy`, `amber`. |
+| `--crt`, `--scanlines` | `green` \| `amber` \| `color` \| `scanlines` | `None` | Analog CRT monitor emulation with vintage scanlines. |
+| `--shader` | `<name>` | `None` | Multi-spectral shaders: `neon`, `cyberpunk`, `thermal`, `tron`, `matrix`, `amber`, `manga`, `hologram`, `glitch`, `phosphor-bloom`, `solarize`. |
+| `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | *auto* | Error-diffusion dithering algorithm for shading. |
+
+### D. Animation, GIFs & Framerates
+| Flag | Parameter | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `--loop` | — | `false` | Continuous loop playback mode in terminal for GIF/APNG files. |
+| `--fps`, `--target-fps` | `<float>` | *from gif* | Target framerate for playback or GIF export (e.g. `--fps 60`). |
+| `--preload`, `--smooth` | — | `false` | **Full RAM Preload**: pre-renders all frames into memory for **silky 60 FPS with 0 ms lag**. |
+| `--instant`, `--no-reveal`| — | `true` | Print full image immediately without progressive delay. |
+| `--reveal` | — | `false` | Progressive line-by-line reveal animation effect. |
+
+### E. Graphic Image Export, Stickers & Clipboard
+| Flag | Parameter | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `-o`, `-O`, `--output`, `--save` | `<file.png / .jpg / .gif>` | `None` | Export output to raster image or animated GIF. |
+| `--transparent` | — | `false` | **Exclusive to Luris Mono**: exports transparent-background stickers (no black box). |
+| `-r`, `--remove-bg` | — | `false` | Intelligent perceptual flood-fill background removal. |
+| `--bg-tolerance` | `<1-100>` | `32` | Color tolerance threshold for background removal. |
+| `-C`, `--copy` | — | `false` | Copy formatted ANSI art (with color codes) directly to system clipboard. |
+| `--copy-plain` | — | `false` | Copy clean plain ASCII text (uncolored) directly to clipboard. |
+| `--paste` | — | `false` | Read and render image currently in system clipboard (Ctrl+C). |
+
+### F. Video & Live Webcam Streaming
+| Flag | Parameter | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `-W`, `--webcam`| `[id]` | `0` | Stream live webcam to terminal at 30-60 FPS (0 = default camera, 1 = external USB). |
+| `<video.mp4>` | `<path>` | `None` | Directly play video files (`.mp4`, `.mkv`, `.webm`, `.mov`) in terminal. |
+
+### G. System, Diagnostics & Languages
+| Flag | Parameter | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `--lang` | `<code>` | *auto* | Set display language (`en`, `es`, `pt`, `fr`, `ru`, `ja`, `de`, `ko` or full names like `spanish`, `japanese`). |
+| `-H`, `--history` | `[N]` | `10` | Display the last N commands stored in Lumart history. |
+| `-R`, `--replay` | `[N]` | *last* | Re-run command N from history (default: last command). |
+| `--clear-history`| — | `false` | Wipe command history cache. |
+| `--install-desktop` | — | `false` | Register "Open with Lumart" in Linux file manager context menus. |
+| `--completions` | `bash` \| `zsh` \| `fish` | `None` | Generate shell autocomplete scripts. |
+| `-v`, `--version` | — | `false` | Show full diagnostic report of hardware, OS, and native C++ engines. |
+| `-u`, `--check-update`| — | `false` | Check GitHub for newer releases. |
+| `-uu`, `--upgrade` | `optional` | `latest` | Interactive upgrade assistant with automated backups. |
+| `-dg`, `--downgrade` | `optional` | `prev` | Interactive rollback selector to restore previous version. |
+
+## 15. Master Command Reference & Cheat Sheet
 
 ```bash
 # ==============================================================================
@@ -641,6 +906,39 @@ lumart -uu                               # Download and apply latest update
 lumart -dg                               # Roll back to previous version from backup
 lumart --install-desktop                 # Install desktop launcher & right-click scripts
 lumart --paste                           # Load and render image from system clipboard
+# ==============================================================================
+# 9. ADVANCED v2.5.0 SHADERS, CRT EMULATION & MATRIX RAIN
+# ==============================================================================
+lumart image.png --matrix                # Digital Matrix Katakana + P1 green phosphor bloom (525nm)
+lumart image.png --matrix-rain           # Animated falling Matrix digital rain
+lumart image.png --shader neon           # Cyberpunk synthwave glow
+lumart image.png --shader thermal        # Military FLIR infrared thermal heat map
+lumart image.png --shader tron           # Electric cyan vector wireframe
+lumart image.png --theme catppuccin      # Curated Catppuccin color palette
+lumart image.png --theme dracula         # Curated Dracula color palette
+lumart image.png --theme synthwave       # Curated 1980s Synthwave palette
+lumart image.png --crt green             # Vintage analog green CRT phosphor monitor with scanlines
+lumart image.png --crt amber             # Vintage analog amber CRT phosphor monitor
+lumart image.png --border rounded        # Enclose render in rounded Unicode decorative frame
+lumart image.png --border double         # Enclose render in double-line Unicode frame
+lumart image.png --align center          # Horizontally center render in terminal window
+lumart image.png --crop "100,50,400,400" # Crop specific rectangle before rendering
+lumart image.png --zoom 1.5              # 150% digital zoom magnification
+lumart image.png -C                      # Copy ANSI art (with color escape codes) to clipboard
+lumart image.png --copy-plain            # Copy clean plain ASCII text (uncolored) to clipboard
+
+# ==============================================================================
+# 10. SPECIALIZED BUILT-IN SUBCOMMANDS
+# ==============================================================================
+lumart fetch avatar.png -w 38            # Auto-crop, generate Fastfetch ANSI logo & JSON block
+lumart bench photo.jpg -w 100            # Run latency, throughput, and FPS benchmark
+lumart showcase image.png -w 90          # 4-in-1 comparison quad-view (Mary, Trumble, Luris, Spectra)
+lumart info photo.jpg                    # Visual image inspector, color profiler & engine recommendation
+lumart diff img1.png img2.png -w 80      # Chromatic delta heatmap between two images
+lumart slideshow ./wallpapers/ --delay 3 # Full-screen interactive terminal slideshow
+lumart -I image.png                      # Interactive TUI viewer (+/- brightness, Z zoom, engines)
+lumart animate clip.mp4 -o out.gif       # Transcode video clip directly to animated GIF
+lumart anim.gif --preload --loop --fps 60# Zero-lag 60 FPS GIF playback pre-rendered in RAM
 ```
 
 ---
