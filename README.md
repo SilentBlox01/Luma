@@ -214,19 +214,34 @@ chmod +x install.sh
 ./install.sh
 ```
 
-### Method 3: Distribution Package Managers (AUR, APT, DNF)
-* **Arch Linux / Manjaro (AUR)**:
+### Method 3: Installation by Operating System Family (Arch, Debian, Fedora, macOS, Windows)
+* **Arch Linux / Manjaro / EndeavourOS (AUR & makepkg)**:
   ```bash
-  yay -S lumart
-  # or: paru -S lumart
+  yay -S lumart-bin
+  # or build locally with makepkg:
+  cd dist/arch && makepkg -si
   ```
-* **Debian / Ubuntu / Pop!_OS (`.deb`)**:
+* **Debian / Ubuntu / Linux Mint / Pop!_OS (`.deb`)**:
   ```bash
-  sudo apt install ./dist/deb/lumart_2.5.0-1_all.deb
+  sudo apt install ./dist/lumart.deb
   ```
-* **Fedora / RHEL / AlmaLinux (`.rpm`)**:
+* **Fedora / RHEL / Rocky Linux / openSUSE (`.rpm`)**:
   ```bash
-  sudo dnf install ./dist/rpm/lumart-2.5.0-1.noarch.rpm
+  sudo dnf install ./dist/lumart.rpm
+  ```
+* **Windows 10 / 11 / Server (PowerShell 5.1+ / 7+)**:
+  ```powershell
+  irm https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.ps1 | iex
+  ```
+* **macOS (Apple Silicon M1-M4 & Intel Processors)**:
+  ```bash
+  brew install libomp pillow
+  curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+  ```
+* **Android (Termux)**:
+  ```bash
+  pkg install python python-pillow clang make
+  curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
   ```
 *(Note: Installation scripts and native packages install clean CLI binaries and man pages without cluttering your desktop with unwanted GUI icons).*
 

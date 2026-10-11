@@ -19,6 +19,7 @@ Bienvenido al manual operativo definitivo, referencia arquitectónica y guía de
    - [2.3 Compilación Manual de Librerías de Aceleración Nativas](#23-compilación-manual-de-librerías-de-aceleración-nativas)
    - [2.4 Verificación del Estado de Motores (lumart -v)](#24-verificación-del-estado-de-motores-lumart--v)
    - [2.5 Empaquetado de Distribución y Configuración para Arch Linux / AUR (yay)](#25-empaquetado-de-distribución-y-configuración-para-arch-linux--aur-yay)
+   - [2.6 Guía Paso a Paso Detallada por Familia de Sistemas Operativos](#26-guía-paso-a-paso-detallada-por-familia-de-sistemas-operativos)
 3. [Emuladores de Terminal y Compatibilidad de Tipografías](#3-emuladores-de-terminal-y-compatibilidad-de-tipografías)
    - [3.1 Matriz de Compatibilidad de Emuladores de Terminal](#31-matriz-de-compatibilidad-de-emuladores-de-terminal)
    - [3.2 Corrección de Huecos Verticales en Braille y Bloques (Ajuste de Line-Height)](#32-corrección-de-huecos-verticales-en-braille-y-bloques-ajuste-de-line-height)
@@ -276,6 +277,103 @@ Luma ofrece soporte oficial para gestores de paquetes nativos:
   # O localmente desde el repositorio clonado:
   powershell -ExecutionPolicy Bypass -File .\install.ps1
   ```
+
+### 2.6 Guía Paso a Paso Detallada por Familia de Sistemas Operativos
+
+#### 1. Familia Arch Linux (Arch Linux, Manjaro, EndeavourOS, Garuda, ArcoLinux)
+```bash
+# Opción A (Asistente AUR yay/paru - Recomendada):
+yay -S lumart-bin
+# (o: paru -S lumart-bin)
+
+# Opción B (Compilación nativa con makepkg desde PKGBUILD):
+git clone https://github.com/SilentBlox01/Luma.git
+cd Luma/dist/arch
+makepkg -si
+
+# Opción C (Instalador universal en un solo paso):
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 2. Familia Debian / Ubuntu (Ubuntu, Debian, Linux Mint, Pop!_OS, Zorin OS, Kubuntu)
+```bash
+# Paso 1: Instalar compilador C++17 y dependencias del sistema
+sudo apt update && sudo apt install -y build-essential g++ libgomp1 python3-pil git
+
+# Paso 2: Ejecutar el instalador automático
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+
+# (Opcional) Instalar paquete .deb precompilado:
+# sudo apt install ./dist/lumart.deb
+```
+
+#### 3. Familia Red Hat / Fedora (Fedora, RHEL, CentOS Stream, Rocky Linux, AlmaLinux)
+```bash
+# Paso 1: Instalar compilador y librerías necesarias
+sudo dnf install -y gcc-c++ make libgomp python3-pillow git
+
+# Paso 2: Ejecutar el instalador automático
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+
+# (Opcional) Instalar paquete .rpm precompilado:
+# sudo dnf install ./dist/lumart.rpm
+```
+
+#### 4. Familia openSUSE (Tumbleweed, Leap)
+```bash
+# Paso 1: Instalar dependencias
+sudo zypper install -y gcc-c++ make python3-Pillow git
+
+# Paso 2: Ejecutar el instalador
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 5. Familia Windows (Windows 10, Windows 11, Windows Server)
+```powershell
+# Método 1 (PowerShell 5.1+ / 7+ en un solo comando - Recomendado):
+irm https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.ps1 | iex
+
+# Método 2 (Local desde repositorio clonado):
+git clone https://github.com/SilentBlox01/Luma.git
+cd Luma
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+
+# Método 3 (Vía WSL2 en Windows con Ubuntu):
+wsl
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 6. Familia macOS (Apple Silicon M1/M2/M3/M4 y Procesadores Intel)
+```bash
+# Paso 1: Instalar Xcode Command Line Tools y dependencias de Homebrew
+xcode-select --install
+brew install libomp pillow git
+
+# Paso 2: Ejecutar el instalador universal
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 7. Android / Dispositivos Móviles (Termux)
+```bash
+# Paso 1: Actualizar repositorios e instalar paquetes en Termux
+pkg update && pkg install -y python python-pillow clang make git
+
+# Paso 2: Clonar e instalar
+git clone https://github.com/SilentBlox01/Luma.git
+cd Luma
+./install.sh
+```
+
+#### 8. Contenedores y Entornos Minimalistas (Docker / Podman / Alpine)
+```bash
+# Alpine Linux:
+apk add --no-cache python3 py3-pillow g++ openmp-dev make git bash
+git clone https://github.com/SilentBlox01/Luma.git && cd Luma && ./install.sh
+
+# Configuración obligatoria de codificación en contenedores Docker/LXC:
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+```
 
 ---
 

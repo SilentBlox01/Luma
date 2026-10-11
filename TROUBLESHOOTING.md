@@ -19,6 +19,7 @@ Welcome to the definitive troubleshooting, architectural reference, and operatio
    - [2.3 Compiling Native Acceleration Libraries Manually](#23-compiling-native-acceleration-libraries-manually)
    - [2.4 Verifying Engine Status (lumart -v)](#24-verifying-engine-status-lumart--v)
    - [2.5 Distribution Packaging & Arch Linux / AUR (yay) Setup](#25-distribution-packaging--arch-linux--aur-yay-setup)
+   - [2.6 Detailed Step-by-Step Guide by Operating System Family](#26-detailed-step-by-step-guide-by-operating-system-family)
 3. [Terminal Emulators & Font Compatibility](#3-terminal-emulators--font-compatibility)
    - [3.1 Terminal Emulator Compatibility Matrix](#31-terminal-emulator-compatibility-matrix)
    - [3.2 Fixing Vertical Gaps in Braille & Blocks (Line-Height Fix)](#32-fixing-vertical-gaps-in-braille--blocks-line-height-fix)
@@ -279,6 +280,103 @@ Luma provides distribution-specific packaging and build scripts:
   # Or locally from cloned repo:
   powershell -ExecutionPolicy Bypass -File .\install.ps1
   ```
+
+### 2.6 Detailed Step-by-Step Guide by Operating System Family
+
+#### 1. Arch Linux Family (Arch Linux, Manjaro, EndeavourOS, Garuda, ArcoLinux)
+```bash
+# Option A (AUR Helper yay/paru - Recommended):
+yay -S lumart-bin
+# (or: paru -S lumart-bin)
+
+# Option B (Native PKGBUILD Compilation via makepkg):
+git clone https://github.com/SilentBlox01/Luma.git
+cd Luma/dist/arch
+makepkg -si
+
+# Option C (One-line Universal Installer):
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 2. Debian / Ubuntu Family (Ubuntu, Debian, Linux Mint, Pop!_OS, Zorin OS, Kubuntu)
+```bash
+# Step 1: Install C++17 compiler and system dependencies
+sudo apt update && sudo apt install -y build-essential g++ libgomp1 python3-pil git
+
+# Step 2: Run automated installer
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+
+# (Optional) Install pre-built .deb package:
+# sudo apt install ./dist/lumart.deb
+```
+
+#### 3. Red Hat / Fedora Family (Fedora, RHEL, CentOS Stream, Rocky Linux, AlmaLinux)
+```bash
+# Step 1: Install compiler and required development libraries
+sudo dnf install -y gcc-c++ make libgomp python3-pillow git
+
+# Step 2: Run automated installer
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+
+# (Optional) Install pre-built .rpm package:
+# sudo dnf install ./dist/lumart.rpm
+```
+
+#### 4. openSUSE Family (Tumbleweed, Leap)
+```bash
+# Step 1: Install dependencies
+sudo zypper install -y gcc-c++ make python3-Pillow git
+
+# Step 2: Run installer
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 5. Windows Family (Windows 10, Windows 11, Windows Server)
+```powershell
+# Method 1 (PowerShell 5.1+ / 7+ one-liner - Recommended):
+irm https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.ps1 | iex
+
+# Method 2 (Locally from cloned repository):
+git clone https://github.com/SilentBlox01/Luma.git
+cd Luma
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+
+# Method 3 (Via WSL2 on Windows with Ubuntu):
+wsl
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 6. macOS Family (Apple Silicon M1/M2/M3/M4 & Intel Processors)
+```bash
+# Step 1: Install Xcode Command Line Tools & Homebrew packages
+xcode-select --install
+brew install libomp pillow git
+
+# Step 2: Run universal installer
+curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+#### 7. Android / Mobile Devices (Termux)
+```bash
+# Step 1: Update repositories and install Termux packages
+pkg update && pkg install -y python python-pillow clang make git
+
+# Step 2: Clone and install
+git clone https://github.com/SilentBlox01/Luma.git
+cd Luma
+./install.sh
+```
+
+#### 8. Containers & Minimalist Environments (Docker / Podman / Alpine)
+```bash
+# Alpine Linux:
+apk add --no-cache python3 py3-pillow g++ openmp-dev make git bash
+git clone https://github.com/SilentBlox01/Luma.git && cd Luma && ./install.sh
+
+# Mandatory locale encoding in containers:
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+```
 
 ---
 
