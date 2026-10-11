@@ -14,8 +14,18 @@ Welcome to the definitive troubleshooting, architectural reference, and operatio
 1. [Quick Diagnostic Checklist](#1-quick-diagnostic-checklist)
    - [1.1 Visual "Dos & Don'ts" Master Guide](#11-visual-dos--donts-master-guide-lo-que-se-debe-y-no-se-debe-hacer)
 2. [Installation & Native C++ Dependency Resolution](#2-installation--native-c-dependency-resolution)
+   - [2.1 The Universal Plug & Play Installer](#21-the-universal-plug--play-installer)
+   - [2.2 Native C++17 Compiler Setup](#22-native-c17-compiler-setup)
+   - [2.3 Compiling Native Acceleration Libraries Manually](#23-compiling-native-acceleration-libraries-manually)
+   - [2.4 Verifying Engine Status (lumart -v)](#24-verifying-engine-status-lumart--v)
+   - [2.5 Distribution Packaging & Arch Linux / AUR (yay) Setup](#25-distribution-packaging--arch-linux--aur-yay-setup)
 3. [Terminal Emulators & Font Compatibility](#3-terminal-emulators--font-compatibility)
+   - [3.1 Terminal Emulator Compatibility Matrix](#31-terminal-emulator-compatibility-matrix)
+   - [3.2 Fixing Vertical Gaps in Braille & Blocks (Line-Height Fix)](#32-fixing-vertical-gaps-in-braille--blocks-line-height-fix)
+   - [3.3 Recommended Fonts](#33-recommended-fonts)
 4. [Color Fidelity & TrueColor (24-bit ANSI)](#4-color-fidelity--truecolor-24-bit-ansi)
+   - [4.1 Checking TrueColor Support](#41-checking-truecolor-support)
+   - [4.2 Linear RGB vs Standard sRGB Gamma Blending](#42-linear-rgb-vs-standard-srgb-gamma-blending)
 5. [The Four Flagship Rendering Engines (Deep Dive & Architecture)](#5-the-four-flagship-rendering-engines)
    - [5.1 Mary Apex 3.5 (Perceptual Oklab & Subpixel Micro-Blocks)](#51-mary-apex-35-perceptual-oklab--subpixel-micro-blocks)
    - [5.2 Trumble Orelx 2.2 (Retro-Arcade Cel-Shading & Anime Ink)](#52-trumble-orelx-22-retro-arcade-cel-shading--anime-ink)
@@ -31,12 +41,36 @@ Welcome to the definitive troubleshooting, architectural reference, and operatio
    - [6.7 lumart -I / --interactive (Interactive TUI Viewer)](#67-lumart--i----interactive-interactive-tui-viewer)
    - [6.8 lumart animate (GIF Transcoder & Video Compiler)](#68-lumart-animate-gif-transcoder--video-compiler)
 7. [Sizing, Aspect Ratio & Character Font Calibration](#7-sizing-aspect-ratio--character-font-calibration)
-8. [High-Definition Graphic Image & Sticker Export (`-o`, `--loop`, `--preload`)](#8-high-definition-graphic-image--sticker-export--o---loop---preload)
+   - [7.1 The 1:2 Character Cell Calibration](#71-the-12-character-cell-calibration)
+   - [7.2 Viewport Auto-Fitting (-F) vs Fixed Width (-w)](#72-viewport-auto-fitting--f-vs-fixed-width--w)
+   - [7.3 Font Aspect Ratio Calibration (--font-ratio)](#73-font-aspect-ratio-calibration---font-ratio)
+8. [High-Definition Graphic Image & Sticker Export (-o, --loop, --preload)](#8-high-definition-graphic-image--sticker-export--o---loop---preload)
+   - [8.1 High-Definition Graphic Image & Rasterization](#81-high-definition-graphic-image--rasterization)
+   - [8.2 Transparent Manga Sticker Export (--transparent)](#82-transparent-manga-sticker-export---transparent)
+   - [8.3 Zero-Lag 60 FPS Animated GIF Preload & Compilation](#83-zero-lag-60-fps-animated-gif-preload--compilation)
+   - [8.4 Why WebP (.webp) Export was Removed](#84-why-webp-webp-export-was-removed)
 9. [Configuration, Persistence & Localization (i18n)](#9-configuration-persistence--localization-i18n)
-10. [Command History & Interactive Replay System (`-H`, `-R`)](#10-command-history--interactive-replay-system--h--r)
-11. [Updates, Upgrades & Rollback System (`-u`, `-uu`, `-dg`)](#11-updates-upgrades--rollback-system--u--uu--dg)
-12. [Linux Desktop & File Manager Integration (`--install-desktop`)](#12-linux-desktop--file-manager-integration---install-desktop)
+   - [9.1 Supported Languages Matrix](#91-supported-languages-matrix)
+   - [9.2 Persistent vs Ephemeral / Runtime Override](#92-persistent-vs-ephemeral--runtime-override)
+   - [9.3 Hierarchy of Language Resolution](#93-hierarchy-of-language-resolution)
+   - [9.4 Troubleshooting Localization Issues](#94-troubleshooting-localization-issues)
+10. [Command History & Interactive Replay System (-H, -R)](#10-command-history--interactive-replay-system--h--r)
+    - [10.1 Viewing History (-H / --history)](#101-viewing-history--h---history)
+    - [10.2 Instant Replay (-R / --replay)](#102-instant-replay--r---replay)
+    - [10.3 Clearing History (--clear-history)](#103-clearing-history---clear-history)
+11. [Updates, Upgrades & Rollback System (-u, -uu, -dg)](#11-updates-upgrades--rollback-system--u--uu--dg)
+    - [11.1 Checking for Updates (-u / --update)](#111-checking-for-updates--u---update)
+    - [11.2 Applying Upgrades (-uu / --upgrade)](#112-applying-upgrades--uu---upgrade)
+    - [11.3 Rolling Back / Downgrading (-dg / --downgrade)](#113-rolling-back--downgrading--dg---downgrade)
+12. [Linux Desktop & File Manager Integration (--install-desktop)](#12-linux-desktop--file-manager-integration---install-desktop)
+    - [12.1 Desktop Launcher & MIME Integration](#121-desktop-launcher--mime-integration)
+    - [12.2 File Manager Right-Click Context Menu Scripts](#122-file-manager-right-click-context-menu-scripts)
 13. [Real-World Practical Recipes & Workflows](#13-real-world-practical-recipes--workflows)
+    - [13.1 Recipe 1: The Perfect Fastfetch / Neofetch Sidebar Logo](#131-recipe-1-the-perfect-fastfetch--neofetch-sidebar-logo)
+    - [13.2 Recipe 2: Transparent Anime Cutout Stickers for Discord / Telegram](#132-recipe-2-transparent-anime-cutout-stickers-for-discord--telegram)
+    - [13.3 Recipe 3: Zero-Lag 60 FPS Animated GIFs with Full RAM Preload](#133-recipe-3-zero-lag-60-fps-animated-gifs-with-full-ram-preload)
+    - [13.4 Recipe 4: Cyberpunk Matrix CRT Live Webcam Stream](#134-recipe-4-cyberpunk-matrix-crt-live-webcam-stream)
+    - [13.5 Recipe 5: Automation in Bash Scripts, Unix Pipelines & MOTD](#135-recipe-5-automation-in-bash-scripts-unix-pipelines--motd)
 14. [Complete CLI Encyclopedia of Flags & Options](#14-complete-cli-encyclopedia-of-flags--options)
 15. [Master Command Reference & Cheat Sheet](#15-master-command-reference--cheat-sheet)
 
@@ -218,6 +252,34 @@ Inspect the **⚡ Rendering Engines** section:
 - `Luris (Monochrome Mono 2.6): Active (.../libmonochrome.so)` -> ✅ Native C++ monochrome active.
 - If it displays `(Python Fallback)`, ensure `libmary.so` and `libmonochrome.so` are placed in the same directory as `lumart.py` or in `/usr/local/lib/` / `/usr/local/share/luma/`.
 
+### 2.5 Distribution Packaging & Arch Linux / AUR (`yay`) Setup
+Luma provides distribution-specific packaging and build scripts:
+- **Arch Linux & Manjaro (`makepkg` / `yay`)**:
+  Build and install directly from the repository's native Arch specification:
+  ```bash
+  cd dist/arch && makepkg -si
+  ```
+  Or install via AUR helper:
+  ```bash
+  yay -S lumart-bin
+  ```
+  *(Installs `/usr/bin/lumart`, `/usr/bin/luma`, native C++ acceleration libraries in `/usr/lib/`, shell completions for bash/zsh/fish, and man pages).*
+- **Debian / Ubuntu / Linux Mint (`.deb`)**:
+  ```bash
+  sudo apt install ./dist/lumart-2.5.0.deb
+  ```
+- **Fedora / RHEL / openSUSE (`.rpm`)**:
+  ```bash
+  sudo dnf install ./dist/lumart-2.5.0-1.x86_64.rpm
+  ```
+- **Windows 10 / 11 (Native PowerShell Installer)**:
+  Run the automated Windows PowerShell installer:
+  ```powershell
+  irm https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.ps1 | iex
+  # Or locally from cloned repo:
+  powershell -ExecutionPolicy Bypass -File .\install.ps1
+  ```
+
 ---
 
 ## 3. Terminal Emulators & Font Compatibility
@@ -365,18 +427,13 @@ Luma features four dedicated rendering engines, each mathematically engineered f
      - `phosphor-bloom`: Diffuse analog CRT bloom.
      - `solarize`, `manga`, `theme`, `normal`.
   3. **Direct Video Playback**: Render any `.mp4`, `.mkv`, `.webm`, or `.mov` directly in the terminal at native framerates.
-- **Flagship Command**: `lumart -E spectra` (or `lumart --webcam`, `lumart -W`)
-- **Core Technology**:
-  1. **Zero-Lag OpenCV Video Pipeline**: Captures video frames, downsamples in real time, and renders high-FPS ANSI terminal streams (30–60 FPS).
-  2. **5 Live Weep Filters**: Real-time edge enhancement, cyber neon, inverted infrared, and retro monochrome streaming.
 - **Troubleshooting Spectra**:
   - *Symptom*: `Permission denied: '/dev/video0'`
     - *Fix*: `sudo usermod -aG video $USER` and log out/log back in.
   - *Symptom*: Blank screen or `Camera index out of range`
     - *Fix*: Specify alternative camera index: `lumart -W 1` or `lumart -W 2`.
-
----
-
+  - *Symptom*: `OpenCV required for Spectra engine`
+    - *Fix*: Install `python3-opencv` via system package manager or `pip install opencv-python`.
 
 ---
 
@@ -458,7 +515,7 @@ lumart animate <clip.mp4 | frame_dir/> -o result.gif [--fps 30]
 
 ## 7. Sizing, Aspect Ratio & Character Font Calibration
 
-### 6.1 The 1:2 Character Cell Calibration
+### 7.1 The 1:2 Character Cell Calibration
 Terminal character cells are not square; standard monospace characters are roughly **twice as tall as they are wide** ($1:2$ ratio).
 If an image is downscaled without aspect ratio compensation, it will look vertically stretched by 200%.
 
@@ -467,7 +524,13 @@ Luma automatically applies calibrated mathematical scaling based on character ge
 - **Half-Blocks (`--blocks`)**: 1 character wide $\times$ 2 pixels tall ($1:2$).
 - **Sextants (Default / `-S`)**: 2 subpixels wide $\times$ 3 subpixels tall ($2:3$). Calibrated at the standard 0.5 font ratio for distortion-free geometry.
 
-### 6.2 Font Aspect Ratio Calibration (`--font-ratio`)
+### 7.2 Viewport Auto-Fitting (`-F`) vs Fixed Width (`-w`)
+- **Auto-Fit Viewport (`-F` / `--fit`)**: Evaluates terminal columns and lines dynamically (`shutil.get_terminal_size()`), automatically factoring in character cell aspect ratio to maximize render size within the window without vertical scrolling or prompt overflow.
+- **Fixed Column Width (`-w <cols>`)**: Forces render to an exact horizontal column count. Ideal for system fetch sidebars (36–42 cols) and script automation.
+> [!WARNING]
+> `-F` and `-w` are mutually exclusive. Passing both flags will cause Lumart to halt with code 2.
+
+### 7.3 Font Aspect Ratio Calibration (`--font-ratio`)
 While `0.5` represents the standard 1:2 monospace width-to-height ratio, specific terminal fonts (such as Victor Mono, Terminus, or customized line heights) may vary between `0.42` and `0.58`. You can calibrate the vertical scaling dynamically:
 ```bash
 # Narrow / condensed fonts:
@@ -481,6 +544,7 @@ lumart photo.png --font-ratio 0.55
 
 ## 8. High-Definition Graphic Image & Sticker Export (`-o`, `--loop`, `--preload`)
 
+### 8.1 High-Definition Graphic Image & Rasterization
 Luma can rasterize terminal art into crisp, high-resolution graphic images (`.png`, `.jpg`):
 
 ```bash
@@ -489,12 +553,29 @@ lumart photo.png -w 120 -o render.png
 
 # Export anime block art to JPEG:
 lumart photo.png --blocks -w 100 -o render.jpg
-
-# Export transparent manga sticker (Exclusive to Luris Mono):
-lumart anime.png -m --transparent -o sticker.png
 ```
 
-### Why was WebP (`.webp`) Export Removed?
+### 8.2 Transparent Manga Sticker Export (`--transparent`)
+Exclusive to the **Luris Mono** engine, `--transparent` removes the dark backing box and outputs pure alpha-channel lineart:
+```bash
+# Export transparent manga sticker (Exclusive to Luris Mono):
+lumart anime.png -m --transparent -o sticker.png
+
+# Combined with intelligent background flood-fill removal:
+lumart anime.png -m -r --bg-tolerance 40 --transparent -o sticker_clean.png
+```
+
+### 8.3 Zero-Lag 60 FPS Animated GIF Preload & Compilation
+Render and transcode animated GIFs at high framerates with RAM preloading:
+```bash
+# Full RAM preload for silky smooth 60 FPS in terminal:
+lumart anim.gif --loop --fps 60 --preload
+
+# Export rendered terminal animation with a theme to a new animated GIF:
+lumart anim.gif --loop --theme synthwave --fps 30 -o out_synthwave.gif
+```
+
+### 8.4 Why WebP (`.webp`) Export was Removed
 WebP lossy and near-lossless compression algorithms apply spatial chroma subsampling and macroblock frequency transforms that blur discrete subpixel glyphs (Sextants, Braille dots, Quadrant boundaries). To guarantee pristine, uncorrupted pixel-art fidelity and transparent alpha cutouts, Luma strictly standardizes on lossless `.png` (with optional transparent alpha) and high-quality `.jpg`.
 
 ---
@@ -503,7 +584,7 @@ WebP lossy and near-lossless compression algorithms apply spatial chroma subsamp
 
 Starting with version 2.3.1 ("Rosetta"), Luma features a comprehensive, zero-leak internationalization engine supporting 8 languages with runtime and persistent configuration.
 
-### 8.1 Supported Languages Matrix
+### 9.1 Supported Languages Matrix
 
 | Code | Language | Native Name | Command Example |
 | :---: | :--- | :--- | :--- |
@@ -516,7 +597,7 @@ Starting with version 2.3.1 ("Rosetta"), Luma features a comprehensive, zero-lea
 | `de` | **German** | Deutsch | `lumart --lang de` |
 | `ko` | **Korean** | 한국어 | `lumart --lang ko` |
 
-### 8.2 Persistent vs Ephemeral / Runtime Override
+### 9.2 Persistent vs Ephemeral / Runtime Override
 Luma offers two flexible modes for localization:
 
 #### 1. Persistent Setting (Saves across all future terminal sessions):
@@ -542,14 +623,14 @@ lumart character.png --lang es
 lumart --lang de -H 5
 ```
 
-### 8.3 Hierarchy of Language Resolution
+### 9.3 Hierarchy of Language Resolution
 When Luma starts up, it resolves language using this strict 4-tier hierarchy:
 1. **Command Line Flag**: `--lang <code>` or `--lang=<code>` (highest priority).
 2. **Persistent User Config**: `~/.config/luma/config.json` (if previously saved).
 3. **Environment Locale Detection**: Evaluates `$LC_ALL`, `$LC_MESSAGES`, and `$LANG`, extracting the ISO 639-1 two-letter language code (e.g. `fr_FR.UTF-8` $\to$ `fr`).
 4. **Fallback Default**: English (`en`).
 
-### 8.4 Troubleshooting Localization Issues
+### 9.4 Troubleshooting Localization Issues
 
 - **Issue 1: `UnicodeEncodeError: 'ascii' codec can't encode character` in Docker / Containers**
   - *Cause*: Minimal Linux containers or chroots often lack UTF-8 locale definitions and default to `POSIX` or `C`.
@@ -579,7 +660,7 @@ When Luma starts up, it resolves language using this strict 4-tier hierarchy:
 
 Luma automatically records execution history with timestamps, version tags, and command lines.
 
-### 9.1 Viewing History (`-H` / `--history`)
+### 10.1 Viewing History (`-H` / `--history`)
 ```bash
 # View recent commands (default: all):
 lumart -H
@@ -600,7 +681,7 @@ Example Output:
   💡 To re-execute any command, run: lumart --replay <number> (e.g.: lumart -R 1)
 ```
 
-### 9.2 Instant Replay (`-R` / `--replay`)
+### 10.2 Instant Replay (`-R` / `--replay`)
 Re-execute any previous command directly without retyping:
 ```bash
 # Re-run the most recent command:
@@ -610,7 +691,7 @@ lumart -R
 lumart -R 2
 ```
 
-### 9.3 Clearing History (`--clear-history`)
+### 10.3 Clearing History (`--clear-history`)
 ```bash
 lumart --clear-history
 ```
@@ -621,20 +702,20 @@ lumart --clear-history
 
 Luma includes a built-in release manager with automatic rollback protection:
 
-### 10.1 Checking for Updates (`-u` / `--update`)
+### 11.1 Checking for Updates (`-u` / `--update`)
 Check GitHub for new releases without modifying any files:
 ```bash
 lumart -u
 ```
 
-### 10.2 Applying Upgrades (`-uu` / `--upgrade`)
+### 11.2 Applying Upgrades (`-uu` / `--upgrade`)
 Download and atomically upgrade to the latest stable release:
 ```bash
 lumart -uu
 ```
 Before updating, Luma automatically archives your current version in `~/.config/luma/backup/lumart-v<VERSION>`.
 
-### 10.3 Rolling Back / Downgrading (`-dg` / `--downgrade`)
+### 11.3 Rolling Back / Downgrading (`-dg` / `--downgrade`)
 If an update causes issues on your system, roll back immediately:
 ```bash
 # Interactive rollback selector (restores from local backup instantly without network):
@@ -653,19 +734,21 @@ Integrate Luma directly into your desktop environment and file managers (GNOME F
 ```bash
 lumart --install-desktop
 ```
-This performs:
-1. Installs `lumart.desktop` in `~/.local/share/applications` (allowing you to set Lumart as default image viewer).
-2. Installs right-click contextual scripts in Nautilus and Nemo (`Scripts > Abrir con Lumart` / `Open with Lumart`).
-3. Updates system MIME and desktop database caches.
 
----
+### 12.1 Desktop Launcher & MIME Integration
+Installs `lumart.desktop` in `~/.local/share/applications` with proper MIME associations (`image/png`, `image/jpeg`, `image/gif`, `image/webp`). This allows setting Lumart as default image viewer or opening images directly from application launchers (Rofi, Wofi, KRunner, GNOME Dash).
 
+### 12.2 File Manager Right-Click Context Menu Scripts
+Installs contextual scripts into Nautilus (`~/.local/share/nautilus/scripts/`) and Nemo (`~/.local/share/nemo/scripts/`):
+- Right-click any image in your file manager $	o$ **Scripts** $	o$ **Open with Lumart (Terminal)**.
+- Spawns terminal window displaying the rendered ANSI art.
+Automatically refreshes desktop databases via `update-desktop-database`.
 
 ---
 
 ## 13. Real-World Practical Recipes & Workflows
 
-### Recipe 1: The Perfect Fastfetch / Neofetch Sidebar Logo
+### 13.1 Recipe 1: The Perfect Fastfetch / Neofetch Sidebar Logo
 ```bash
 # Option A: TrueColor half-blocks (Recommended)
 lumart fetch "avatar.png" -w 38
@@ -681,7 +764,7 @@ lumart "avatar.png" -w 38 --fastfetch -E mary -B -o ~/.config/fastfetch/logo_bra
 fastfetch --logo ~/.config/fastfetch/avatar_logo.ans --logo-type file
 ```
 
-### Recipe 2: Transparent Anime Cutout Stickers for Discord / Telegram
+### 13.2 Recipe 2: Transparent Anime Cutout Stickers for Discord / Telegram
 ```bash
 # Export a transparent sticker (no black background box):
 lumart "character.png" -w 80 -m --transparent -o sticker.png
@@ -690,7 +773,7 @@ lumart "character.png" -w 80 -m --transparent -o sticker.png
 lumart "character.png" -w 80 -m -r --bg-tolerance 40 --transparent -o sticker_clean.png
 ```
 
-### Recipe 3: Zero-Lag 60 FPS Animated GIFs with Full RAM Preload
+### 13.3 Recipe 3: Zero-Lag 60 FPS Animated GIFs with Full RAM Preload
 ```bash
 # Smooth 60 FPS playback pre-rendered in RAM:
 lumart "animation.gif" -w 70 --loop --fps 60 --preload
@@ -699,7 +782,7 @@ lumart "animation.gif" -w 70 --loop --fps 60 --preload
 lumart "animation.gif" -w 60 --theme synthwave --fps 30 -o anim_synthwave.gif
 ```
 
-### Recipe 4: Cyberpunk Matrix CRT Live Webcam Stream
+### 13.4 Recipe 4: Cyberpunk Matrix CRT Live Webcam Stream
 ```bash
 # Green P1 phosphor Matrix code with vintage scanlines:
 lumart -W 0 --matrix --crt green --fps 60
@@ -708,7 +791,7 @@ lumart -W 0 --matrix --crt green --fps 60
 lumart -W 0 --shader thermal --fps 30
 ```
 
-### Recipe 5: Automation in Bash Scripts, Unix Pipelines & MOTD
+### 13.5 Recipe 5: Automation in Bash Scripts, Unix Pipelines & MOTD
 ```bash
 # Welcome banner in ~/.bashrc:
 if command -v lumart &>/dev/null; then
@@ -867,7 +950,7 @@ lumart anime.png -i                      # Force invert (auto-detected on white 
 lumart waifu.png -m --transparent -o sticker.png  # Transparent sticker!
 
 # ==============================================================================
-# 5. SPECTRA WEEP 1.4 (LIVE WEBCAM STREAMING)
+# 5. SPECTRA WEEP 2.0 (LIVE WEBCAM & VIDEO STREAMING)
 # ==============================================================================
 lumart -E spectra                        # Stream live webcam via engine selector
 lumart --webcam                          # Stream default webcam (/dev/video0)
@@ -896,6 +979,7 @@ lumart -uu                               # Download and apply latest update
 lumart -dg                               # Roll back to previous version from backup
 lumart --install-desktop                 # Install desktop launcher & right-click scripts
 lumart --paste                           # Load and render image from system clipboard
+
 # ==============================================================================
 # 9. ADVANCED v2.5.0 SHADERS, CRT EMULATION & MATRIX RAIN
 # ==============================================================================
