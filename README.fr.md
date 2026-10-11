@@ -8,10 +8,13 @@
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
    Modern Terminal Visual Suite • v2.5.0 (Apex Nova)
-   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]
+   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]
 ```
 
 # Lumart (Luma) v2.5.0
+
+> [!TIP]
+> 📖 **Besoin d'un guide exhaustif étape par étape ?** Consultez le guide complet [**WALKTHROUGH.md**](WALKTHROUGH.md) (ou [`walkthrough.md`](walkthrough.md)) détaillant l'ensemble des commandes, drapeaux, shaders et cas d'usage techniques.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)
@@ -32,7 +35,7 @@ Contrairement aux convertisseurs ASCII basiques qui se contentent d'associer la 
    - [Mary Apex 3.5](#1-mary-apex-35-photoréaliste-vectoriel)
    - [Trumble Orelx 2.2](#2-trumble-orelx-22-rétro-arcade--anime-cel-shading)
    - [Luris Mono 2.6](#3-luris-mono-26-manga-screentone--monochrome)
-   - [Spectra Weep 1.4](#4-spectra-weep-14-webcam-en-direct)
+   - [Spectra Weep 2.0](#4-spectra-weep-14-webcam-en-direct)
 2. [Matrice Comparative des Moteurs](#matrice-comparative-des-moteurs)
 3. [Galerie Visuelle et Face-à-face](#galerie-visuelle-et-face-à-face)
 4. [Exportation Graphique, Animations et Politique de Stickers](#exportation-graphique-animations-et-politique-de-stickers)
@@ -91,7 +94,7 @@ Contrairement aux convertisseurs ASCII basiques qui se contentent d'associer la 
 * **Diffusion d'Erreur Atkinson (MacPaint 1984)** : L'algorithme légendaire de Bill Atkinson qui retient 25% d'énergie résiduelle pour générer des textures nettes sans grains parasites.
 * **Exclusivité des Stickers Transparents (`--transparent`)** : Luris Mono est le **seul moteur habilité à créer des stickers découpés avec arrière-plan transparent en `.png`**, idéal pour Discord, Telegram ou WhatsApp.
 
-### 4. Spectra Weep 1.4 (Webcam en Direct dans le Terminal)
+### 4. Spectra Weep 2.0 (Vidéo en Direct, Webcam & Shaders Multi-Spectraux)
 * **Objectif** : Diffusion vidéo interactive en temps réel à 30-60 FPS directement dans la console (`lumart --webcam` ou `lumart -W`).
 * **Latence Zéro** : Capture optimisée via OpenCV/V4L2 avec synchronisation directe au taux de rafraîchissement du terminal.
 * **5 Filtres Shaders en Temps Réel** : Normal TrueColor, Weep Cyberpunk, Matrix Green Rain, Thermal FLIR Infrarouge et Manga Ink.
@@ -100,7 +103,7 @@ Contrairement aux convertisseurs ASCII basiques qui se contentent d'associer la 
 
 ## Matrice Comparative des Moteurs
 
-| Fonctionnalité | Mary Apex 3.5 | Trumble Orelx 2.2 | Luris Mono 2.6 | Spectra Weep 1.4 |
+| Fonctionnalité | Mary Apex 3.5 | Trumble Orelx 2.2 | Luris Mono 2.6 | Spectra Weep 2.0 |
 | :--- | :--- | :--- | :--- | :--- |
 | **Style Visuel** | Photoréaliste Vectoriel | Rétro-Arcade / Cel-Shading | Manga Japonais / Encre | Vidéo Direct / Webcam |
 | **Langage de Base** | C++17 OpenMP + SIMD | Python + OpenCV Optimisé | C++17 Natif | Python + OpenCV V4L2 |
@@ -195,55 +198,128 @@ chmod +x install.sh
 ./install.sh
 ```
 
-### Méthode 3 : Paquets Linux Natifs Précompilés
-Téléchargez les paquets binaires depuis [GitHub Releases](https://github.com/SilentBlox01/Luma/releases) :
-* **Debian / Ubuntu / Linux Mint** : `sudo apt install ./lumart-*.deb`
-* **Fedora / RHEL / AlmaLinux** : `sudo dnf install ./lumart-*.rpm`
-* **Arch Linux / Manjaro** : `makepkg -si` dans le dossier `dist/arch`
+### Méthode 3 : Gestionnaires de Paquets (AUR, APT, DNF)
+* **Arch Linux / Manjaro (AUR)** :
+  ```bash
+  yay -S lumart
+  # ou : paru -S lumart
+  ```
+* **Debian / Ubuntu / Linux Mint (`.deb`)** :
+  ```bash
+  sudo apt install ./dist/deb/lumart_2.5.0-1_all.deb
+  ```
+* **Fedora / RHEL / AlmaLinux (`.rpm`)** :
+  ```bash
+  sudo dnf install ./dist/rpm/lumart-2.5.0-1.noarch.rpm
+  ```
+*(Remarque : L'installateur et les paquets installent des exécutables propres et les pages man sans encombrer le bureau d'icônes inutiles).*
 
 ---
 
 ## Référence Complète des Commandes
 
 ```text
-Utilisation : lumart [OPTIONS] <chemin_ou_url_de_l'image>
+Utilisation : lumart [COMMANDE] [OPTIONS] <chemin_ou_url_de_l'image>
 ```
 
+### Sous-Commandes Spécialisées & Outils Intégrés
+| Sous-Commande | Arguments | Description |
+| :--- | :--- | :--- |
+| `fetch` | `<image> [-w COLS]` | Rognage auto, génération de logo TrueColor dans `~/.config/fastfetch/` et affichage du bloc JSON pour `config.jsonc`. |
+| `bench`, `--bench` | `[image] [-w COLS]` | Exécute un benchmark mesurant la latence (`ms`), le débit (`MP/s`) et le taux de `FPS` sur tous les moteurs. |
+| `showcase`, `--showcase` | `<image> [-w COLS]` | Génère une vue comparative 4-en-1 côte à côte (Mary, Trumble, Luris et Spectra). |
+| `info`, `--info` | `<image>` | Inspecteur visuel : résolution, luminance, ratio, 6 couleurs dominantes (HEX/ANSI) et moteur recommandé. |
+| `diff`, `--diff` | `<img1> <img2>` | Calcule la carte thermique delta et le pourcentage moyen d'écart chromatique entre deux images. |
+| `slideshow`, `--slideshow` | `<dossier> [--delay S]`| Diaporama plein écran interactif dans le terminal avec commandes clavier. |
+| `-I`, `--interactive`, `--tui`| `<image>` | Visionneuse TUI interactive avec touches dynamiques pour luminosité, zoom, moteurs et shaders. |
+| `animate` | `<video/frames> -o out.gif`| Compile des vidéos ou séquences d'images en GIFs animés optimisés. |
+
+### 1. Moteurs et Textures de Glyphes
 | Option | Paramètre | Description |
 | :--- | :--- | :--- |
 | `-E`, `--engine` | `mary` \| `trumble` \| `luris` \| `spectra` | Sélectionne le moteur de rendu explicitement (auto-détecté par défaut). |
-| `-S`, `--sextants`| — | Active les blocs Sextants Unicode 2x3 (standard par défaut de Mary Apex). |
-| `-m`, `--manga` | — | Active le mode Manga Screentone 2.0 (trames Bayer 8x8 + lignes DoG). |
-| `-s`, `--sketch`| — | Active le mode croquis épuré de lignes pures. |
-| `-B`, `--braille` | — | Active les caractères Braille Unicode 2x4 (8 sous-pixels/cellule). |
+| `-S`, `--sextants`| — | Active les blocs Sextants Unicode 2x3 (standard par défaut de Mary Apex, 6 sous-pixels/cellule). |
+| `-B`, `--braille` | — | Active les caractères Braille Unicode 2x4 (8 sous-pixels/cellule, précision maximale des contours). |
 | `-Q`, `--quadrants`| — | Active les blocs Quadrants Unicode 2x2 (4 sous-pixels/cellule). |
-| `--blocks` | — | Active les blocs de terminal optimisés (`▀` / `▄`). |
+| `--blocks` | — | Active les demi-blocs optimisés (`▀` / `▄`, 2 pixels verticaux/cellule en TrueColor 24 bits). |
+| `-m`, `--manga` | — | Active le mode Manga Screentone (*Ami-tone* Bayer 8x8 + lignes DoG nettes). |
+| `-s`, `--sketch`| — | Active le mode croquis au crayon épuré sans taches noires parasites. |
+| `-ch`, `--crosshatch`| — | Hachures croisées authentiques à la plume à 45° avec 6 niveaux de densité perpendiculaires. |
+| `-cs`, `--charset` | `<nom>` | Rampe de caractères ASCII : `dense`, `standard`, `blocks`, `math`, `runes`, `katakana`, `crosshatch`. |
+| `--matrix` | — | Transforme le rendu en code Matrix Katakana avec phosphore vert P1 (525nm). |
+| `--matrix-rain` | — | Animation de pluie de code numérique Matrix dans le terminal. |
+
+### 2. Géométrie, Dimensions et Cadrage
+| Option | Paramètre | Description |
+| :--- | :--- | :--- |
 | `-w`, `--width` | `<int>` | Largeur de sortie en colonnes (incompatible avec `-F`). |
 | `-F`, `--fit` | — | **Ajustement Viewport** : calcule largeur et hauteur optimales pour s'adapter à l'écran sans défilement (incompatible avec `-w`). |
 | `--fastfetch`, `--logo` | — | Rognage automatique des marges vides/transparentes pour logos compacts. |
-| `-c`, `--color` | — | Force la sortie en mode couleur TrueColor complet (défaut). |
-| `--no-color` | — | Désactive la sortie couleur et utilise le moteur monochrome. |
 | `--font-ratio` | `<float>` | Calibration du ratio largeur/hauteur de la police du terminal (défaut : `0.5`). |
+| `--crop` | `"x,y,w,h"` | Rogne une région spécifique avant rendu (ex. `--crop "100,50,400,400"`). |
+| `--zoom` | `<float>` | Facteur de zoom ou agrandissement numérique (ex. `--zoom 1.5` pour 150%). |
+| `--rotate` | `0` \| `90` \| `180` \| `270` | Rotation en degrés dans le sens des aiguilles d'une montre. |
+| `--flip`, `--mirror` | `h` \| `v` | Miroir géométrique : horizontal (`h`) ou vertical (`v`). |
+| `--border` | `rounded` \| `single` \| `double` \| `heavy` \| `ascii` \| `blocks` | Encadre le rendu avec une bordure décorative Unicode. |
+| `--align` | `left` \| `center` \| `right` | Alignement horizontal dans la fenêtre du terminal (défaut : `left`). |
+| `--center` | — | Alias raccourci pour `--align center`. |
+
+### 3. Colorimétrie, Shaders et Réglages Visuels
+| Option | Paramètre | Description |
+| :--- | :--- | :--- |
+| `-c`, `--color` | — | Force la sortie en mode couleur TrueColor complet (défaut : activé). |
+| `--no-color` | — | Désactive les couleurs ANSI et utilise le moteur monochrome. |
+| `--brightness` | `<float>` | Multiplicateur de luminosité (défaut : `1.0`). |
+| `--contrast` | `<float>` | Multiplicateur de contraste tonal (défaut : `1.0`). |
+| `--saturation` | `<float>` | Multiplicateur de saturation des couleurs (défaut : `1.0`, `0.0` pour niveaux de gris). |
 | `--boost`, `--vibrant` | — | Applique une saturation renforcée, du contraste et un traitement Retinex pour un rendu arcade vif. |
-| `-i`, `--invert`| — | Inverse la luminosité (idéal pour terminaux à fond clair ; auto-détecté dans `-m`). |
-| `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | Algorithme de tramage pour simuler des dégradés. |
-| `--swap` | `<couleur1> <couleur2>` | Échange dynamiquement des couleurs dans l'espace 3D RGB. |
-| `-o`, `-O`, `--output`, `--save` | `<fichier.png / .jpg / .gif>` | Exporte le résultat en image graphique ou GIF animé. |
-| `--loop` | — | **Mode animation** : lecture en direct dans le terminal ou exportation en GIF animé. |
-| `--transparent` | — | **Exclusif à Luris Mono** : exporte un sticker découpé avec transparence. |
-| `--instant` | — | Affiche immédiatement sans animation de balayage progressif (défaut). |
-| `--reveal` | — | Active l'animation de balayage progressif ligne par ligne. |
-| `--paste` | — | Charge et restitue l'image actuellement dans le presse-papiers. |
-| `-W`, `--webcam`| `[id]` | Diffuse la webcam en direct dans le terminal (30-60 FPS). |
-| `--lang` | `<code>` | Définit la langue de l'interface (`fr`, `en`, `es`, etc.). |
-| `-H`, `--history` | `[N]` | Affiche les N dernières commandes enregistrées dans l'historique. |
+| `--gamma` | `<float>` | Exposant de correction de courbe gamma non linéaire. |
+| `-i`, `--invert`| — | Inverse la luminosité (idéal pour terminaux à fond clair). |
+| `--swap` | `<couleur1> <couleur2>` | Échange dynamiquement deux couleurs dans l'espace 3D RGB. |
+| `--theme`, `--palette` | `<nom>` | Applique une palette thématique : `cyberpunk`, `dracula`, `nord`, `catppuccin`, `gruvbox`, `synthwave`, `monokai`, `gameboy`, `amber`. |
+| `--crt`, `--scanlines` | `green` \| `amber` \| `color` \| `scanlines` | Émulation de moniteur CRT analogique vintage avec lignes de balayage. |
+| `--shader` | `<nom>` | Shaders multi-spectraux : `neon`, `cyberpunk`, `thermal`, `tron`, `matrix`, `amber`, `manga`, `hologram`, `glitch`, `phosphor-bloom`, `solarize`. |
+| `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | Algorithme de tramage par diffusion d'erreur pour simuler des dégradés. |
+
+### 4. Animation, GIFs et Framerates
+| Option | Paramètre | Description |
+| :--- | :--- | :--- |
+| `--loop` | — | **Mode animation** : lecture en boucle dans le terminal ou exportation en GIF animé (`-o anim.gif`). |
+| `--fps`, `--target-fps` | `<float>` | Taux de rafraîchissement cible pour la lecture ou l'exportation GIF (ex. `--fps 60`). |
+| `--preload`, `--smooth` | — | **Préchargement complet en RAM** : pré-rend toutes les images en mémoire pour **60 FPS ultra-fluides sans aucun lag**. |
+| `--instant`, `--no-reveal`| — | Affiche immédiatement sans animation de balayage progressif (défaut). |
+| `--reveal` | — | Effet nostalgique de balayage progressif ligne par ligne. |
+
+### 5. Exportation Graphique, Stickers et Presse-papiers
+| Option | Paramètre | Description |
+| :--- | :--- | :--- |
+| `-o`, `-O`, `--output`, `--save` | `<fichier.png / .jpg / .gif>` | Exporte le résultat en image haute résolution ou GIF animé. |
+| `--transparent` | — | **Exclusif à Luris Mono** : exporte des stickers découpés avec canal alpha transparent (sans cadre noir). |
+| `-r`, `--remove-bg` | — | Suppression intelligente de l'arrière-plan par inondation perceptuelle. |
+| `--bg-tolerance` | `<1-100>` | Seuil de tolérance pour le détourage de fond (défaut : `32`). |
+| `-C`, `--copy` | — | Copie l'art ANSI (avec codes de couleurs) directement dans le presse-papiers. |
+| `--copy-plain` | — | Copie le texte ASCII brut (sans couleurs ANSI) directement dans le presse-papiers. |
+| `--paste` | — | Charge et restitue automatiquement l'image présente dans le presse-papiers (Ctrl+C). |
+
+### 6. Vidéo et Diffusion Webcam
+| Option | Paramètre | Description |
+| :--- | :--- | :--- |
+| `-W`, `--webcam`| `[id]` | Diffuse la webcam en direct dans le terminal à 30-60 FPS (défaut ID : `0`). |
+| `<video.mp4>` | `<chemin>` | Lit directement des fichiers vidéo (`.mp4`, `.mkv`, `.webm`, `.mov`) dans le terminal. |
+
+### 7. Gestion, Historique et Langues
+| Option | Paramètre | Description |
+| :--- | :--- | :--- |
+| `--lang` | `<code>` | Définit la langue (`fr`, `en`, `es`, `pt`, `ru`, `ja`, `de`, `ko` ou noms complets comme `french`). |
+| `-H`, `--history` | `[N]` | Affiche les N dernières commandes enregistrées dans l'historique de Lumart. |
 | `-R`, `--replay` | `[N]` | Réexécute la commande N de l'historique (défaut : la dernière). |
-| `--clear-history`| — | Efface l'historique des commandes enregistrées. |
-| `--install-desktop` | — | Ajoute l'action "Ouvrir avec Lumart" dans le menu contextuel Linux. |
-| `-v`, `--version` | — | Affiche le rapport complet de diagnostic matériel, OS et moteurs. |
-| `-u`, `--check-update`| — | Vérifie si de nouvelles versions sont disponibles sur GitHub. |
-| `-uu`, `--upgrade` | — | Assistant interactif de mise à jour vers la version la plus récente. |
-| `-dg`, `--downgrade` | `[ver]` | Sélecteur interactif de retour vers des versions antérieures. |
+| `--clear-history`| — | Efface complètement l'historique des commandes. |
+| `--install-desktop` | — | Enregistre l'action *"Ouvrir avec Lumart"* dans les menus contextuels Linux. |
+| `--completions` | `bash` \| `zsh` \| `fish` | Génère les scripts d'autocomplétion pour le shell spécifié. |
+| `-v`, `--version` | — | Affiche le rapport de diagnostic complet du système, du terminal et des moteurs natifs C++. |
+| `-u`, `--check-update`| — | Vérifie si une nouvelle version est disponible sur GitHub. |
+| `-uu`, `--upgrade` | — | Assistant interactif de mise à jour avec sauvegardes automatiques. |
+| `-dg`, `--downgrade` | `[ver]` | Sélecteur interactif pour restaurer une version précédente. |
 
 ---
 
@@ -291,7 +367,7 @@ lumart building.jpg -s -w 120
 lumart poster.jpg -m -d bayer -w 100
 ```
 
-### 4. Diffusion Webcam en Direct dans le Terminal (Spectra Weep 1.4)
+### 4. Diffusion Webcam en Direct dans le Terminal (Spectra Weep 2.0)
 ```bash
 # Diffuser la webcam par défaut avec filtres shader temps réel
 lumart -W

@@ -13,6 +13,9 @@
 
 # Lumart (Luma) v2.5.0
 
+> [!TIP]
+> 📖 **Need a complete step-by-step handbook?** Read the comprehensive [**WALKTHROUGH.md**](WALKTHROUGH.md) (or [`walkthrough.md`](walkthrough.md)) covering every single command, flag, recipe, and technical nuance in extreme detail.
+
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)
 [![C++: 17 Multi-Core](https://img.shields.io/badge/C%2B%2B-17%20OpenMP%20SIMD-orange.svg)](https://isocpp.org/)
@@ -211,11 +214,21 @@ chmod +x install.sh
 ./install.sh
 ```
 
-### Method 3: Pre-built Distribution Packages
-Download native packages from [GitHub Releases](https://github.com/SilentBlox01/Luma/releases):
-* **Debian / Ubuntu / Pop!_OS**: `sudo apt install ./lumart-*.deb`
-* **Fedora / RHEL / AlmaLinux**: `sudo dnf install ./lumart-*.rpm`
-* **Arch Linux / Manjaro**: Run `makepkg -si` inside `dist/arch`
+### Method 3: Distribution Package Managers (AUR, APT, DNF)
+* **Arch Linux / Manjaro (AUR)**:
+  ```bash
+  yay -S lumart
+  # or: paru -S lumart
+  ```
+* **Debian / Ubuntu / Pop!_OS (`.deb`)**:
+  ```bash
+  sudo apt install ./dist/deb/lumart_2.5.0-1_all.deb
+  ```
+* **Fedora / RHEL / AlmaLinux (`.rpm`)**:
+  ```bash
+  sudo dnf install ./dist/rpm/lumart-2.5.0-1.noarch.rpm
+  ```
+*(Note: Installation scripts and native packages install clean CLI binaries and man pages without cluttering your desktop with unwanted GUI icons).*
 
 ### Method 4: Manual Native C++ Compilation
 To build the shared libraries and standalone C++ binaries directly:
@@ -235,64 +248,104 @@ g++ -O3 -std=c++17 monochrome.cpp -o luma-mono
 ## Complete CLI Reference
 
 ```text
-Usage: lumart [OPTIONS] <image_path_or_url>
+Usage: lumart [COMMAND] [OPTIONS] <image_path_or_url>
 ```
+
+### Specialized Subcommands & Built-in Tools
+| Subcommand | Arguments | Description |
+| :--- | :--- | :--- |
+| `fetch` | `<image> [-w COLS]` | Auto-crop, generate TrueColor ANSI logo in `~/.config/fastfetch/` and output ready-to-copy `config.jsonc` block. |
+| `bench`, `--bench` | `[image] [-w COLS]` | Run multi-core benchmark measuring rendering latency (`ms`), throughput (`MP/s`), and `FPS` across all engines. |
+| `showcase`, `--showcase` | `<image> [-w COLS]` | Generate a side-by-side 4-in-1 comparison quad-view across Mary, Trumble, Luris, and Spectra. |
+| `info`, `--info` | `<image>` | Visual image inspector: resolution, aspect ratio, luminance, 6 dominant colors (HEX/ANSI), and optimal engine recommendation. |
+| `diff`, `--diff` | `<img1> <img2>` | Compute chromatic delta heatmap and average color deviation percentage between two images. |
+| `slideshow`, `--slideshow` | `<dir> [--delay S]` | Full-screen interactive terminal slideshow for a folder with keyboard navigation. |
+| `-I`, `--interactive`, `--tui`| `<image>` | Interactive terminal UI with live keys for brightness, zoom, engine switching, and shaders. |
+| `animate` | `<video/frames> -o out.gif`| Compile video clips or image sequences into optimized animated GIFs. |
 
 ### 1. Engine & Character Textures
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
 | `-E`, `--engine` | `mary` \| `trumble` \| `luris` \| `spectra` | Select rendering engine explicitly (auto-routed by default). |
-| `-S`, `--sextants`| — | Render using solid Unicode Sextants 2x3 (Mary Apex flagship default). |
-| `-B`, `--braille` | — | Render using Unicode Braille 2x4 (8 subpixels/cell). |
+| `-S`, `--sextants`| — | Render using solid Unicode Sextants 2x3 (Mary Apex flagship default, 6 subpixels/cell). |
+| `-B`, `--braille` | — | Render using Unicode Braille 2x4 (8 subpixels/cell, highest contour precision). |
 | `-Q`, `--quadrants`| — | Render using Unicode Quadrants 2x2 (4 subpixels/cell). |
-| `--blocks` | — | Render using optimized half-blocks (`▀` / `▄`). |
-| `-m`, `--manga` | — | Transform artwork into Manga Screentone 2.0 (*Ami-tone* Bayer 8x8 + DoG lineart). |
-| `-s`, `--sketch`| — | Transform artwork into pure line art sketch mode (clean contours). |
+| `--blocks` | — | Render using optimized half-blocks (`▀` / `▄`, 2 vertical pixels/cell with 24-bit TrueColor). |
+| `-m`, `--manga` | — | Transform artwork into Manga Screentone (*Ami-tone* Bayer 8x8 + clean DoG lineart). |
+| `-s`, `--sketch`| — | Transform artwork into pure pencil sketch mode (clean contours without shadow blotches). |
+| `-ch`, `--crosshatch`| — | Authentic 45-degree pen crosshatch shading with 6 perpendicular density tiers. |
+| `-cs`, `--charset` | `<name>` | Select ASCII font ramp: `dense`, `standard`, `blocks`, `math`, `runes`, `katakana`, `crosshatch`. |
+| `--matrix` | — | Transform render into authentic Matrix Katakana code with P1 phosphor bloom (525nm). |
+| `--matrix-rain` | — | Animated downward falling Matrix digital code rain. |
 
-### 2. Color, Dimensions & Visual Tuning
+### 2. Geometry, Dimensions & Framing
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
 | `-w`, `--width` | `<int>` | Output width in columns (mutually exclusive with `-F`). |
 | `-F`, `--fit` | — | **Auto-fit viewport**: calculates optimal width & height to fit terminal without scrolling (mutually exclusive with `-w`). |
 | `--fastfetch`, `--logo` | — | Auto-crop empty/transparent borders for compact logos and system fetch screens. |
-| `-c`, `--color` | — | Force output in full TrueColor mode (default). |
-| `--no-color` | — | Disable color output and route to monochrome engine. |
-| `--font-ratio` | `<float>` | Terminal font aspect ratio width/height calibration (default: `0.5`). |
-| `--boost`, `--vibrant` | — | Apply enhanced saturation, contrast, and Retinex curves for punchy arcade output. |
-| `-i`, `--invert`| — | Invert brightness mapping (essential for light-theme terminals; auto-detected in `-m`). |
-| `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | Dithering algorithm for shading. |
-| `--swap` | `<color1> <color2>` | Dynamically swap colors in 3D Euclidean RGB space. |
-| `--instant` | — | Output immediately without progressive scan animation (default). |
-| `--reveal` | — | Enable progressive scan line-by-line reveal animation. |
-| `--brightness` | `<float>` | Adjust image brightness multiplier (default: `1.0`). |
-| `--contrast` | `<float>` | Adjust tonal contrast multiplier (default: `1.0`). |
-| `--saturation` | `<float>` | Adjust color saturation multiplier (default: `1.0`). |
-| `--border` | `rounded` \| `single` \| `double` \| `heavy` \| `ascii` \| `blocks` | Frame artwork in a decorative Unicode border box. |
-| `--align` | `left` \| `center` \| `right` | Horizontally align artwork in terminal viewport. |
+| `--font-ratio` | `<float>` | Terminal font aspect ratio calibration width/height (default: `0.5`). |
+| `--crop` | `"x,y,w,h"` | Crop specific region of interest before rendering (e.g. `--crop "100,50,400,400"`). |
+| `--zoom` | `<float>` | Digital zoom magnification factor (e.g. `--zoom 1.5` for 150% zoom). |
+| `--rotate` | `0` \| `90` \| `180` \| `270` | Clockwise rotation in degrees. |
+| `--flip`, `--mirror` | `h` \| `v` | Geometric mirror reflection: horizontal (`h`) or vertical (`v`). |
+| `--border` | `rounded` \| `single` \| `double` \| `heavy` \| `ascii` \| `blocks` | Enclose render in an aesthetic Unicode border frame. |
+| `--align` | `left` \| `center` \| `right` | Horizontally align render within terminal viewport (default: `left`). |
 | `--center` | — | Shorthand alias for `--align center`. |
 
-### 3. Graphic Export, Animation & Clipboard
+### 3. Colorimetry, Shaders & Visual Tuning
+| Flag | Parameter | Description |
+| :--- | :--- | :--- |
+| `-c`, `--color` | — | Force output in full TrueColor mode (default: enabled). |
+| `--no-color` | — | Disable ANSI colors and route to monochrome engine. |
+| `--brightness` | `<float>` | Adjust image brightness multiplier (default: `1.0`). |
+| `--contrast` | `<float>` | Adjust tonal contrast multiplier (default: `1.0`). |
+| `--saturation` | `<float>` | Adjust color saturation multiplier (default: `1.0`, `0.0` for grayscale). |
+| `--boost`, `--vibrant` | — | Apply enhanced saturation, contrast, and Retinex curves for punchy arcade output. |
+| `--gamma` | `<float>` | Nonlinear midtone gamma curve correction exponent. |
+| `-i`, `--invert`| — | Invert brightness mapping (essential for light-theme terminals). |
+| `--swap` | `<color1> <color2>` | Dynamically swap colors in 3D Euclidean RGB space. |
+| `--theme`, `--palette` | `<name>` | Apply curated color palette: `cyberpunk`, `dracula`, `nord`, `catppuccin`, `gruvbox`, `synthwave`, `monokai`, `gameboy`, `amber`. |
+| `--crt`, `--scanlines` | `green` \| `amber` \| `color` \| `scanlines` | Vintage analog CRT monitor emulation with authentic scanlines. |
+| `--shader` | `<name>` | Multi-spectral shaders: `neon`, `cyberpunk`, `thermal`, `tron`, `matrix`, `amber`, `manga`, `hologram`, `glitch`, `phosphor-bloom`, `solarize`. |
+| `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | Error-diffusion dithering algorithm for shading. |
+
+### 4. Animation, GIFs & Framerates
+| Flag | Parameter | Description |
+| :--- | :--- | :--- |
+| `--loop` | — | **Animation mode**: live terminal playback for GIFs/APNGs, or compile to animated GIF (`-o anim.gif`). |
+| `--fps`, `--target-fps` | `<float>` | Target framerate for animation playback or GIF duration export (e.g. `--fps 60`). |
+| `--preload`, `--smooth` | — | **Full RAM Preload**: pre-renders all GIF frames into memory before playback for silky 60 FPS with 0 ms lag. |
+| `--instant`, `--no-reveal`| — | Print full image immediately without progressive scan delay (default). |
+| `--reveal` | — | Progressive line-by-line reveal animation effect. |
+
+### 5. Graphic Export, Stickers & Clipboard
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
 | `-o`, `-O`, `--output`, `--save` | `<file.png / .jpg / .gif>` | Rasterize and export terminal artwork to high-res image or animated GIF. |
-| `--loop` | — | **Animation mode**: live terminal playback for GIFs/APNGs, or compile to animated GIF (`-o anim.gif` / `--save anim.gif`). |
-| `--transparent` | — | **Luris Mono exclusive**: exports transparent-background stickers. |
-| `--paste` | — | Load and render image currently in system clipboard. |
+| `--transparent` | — | **Luris Mono exclusive**: exports transparent-background stickers (no black box). |
+| `-r`, `--remove-bg` | — | Intelligent perceptual flood-fill background removal. |
+| `--bg-tolerance` | `<1-100>` | Color tolerance threshold for background removal (default: `32`). |
+| `-C`, `--copy` | — | Copy formatted ANSI art (with color escape codes) directly to system clipboard. |
+| `--copy-plain` | — | Copy clean plain ASCII text (uncolored) directly to system clipboard. |
+| `--paste` | — | Read and render image currently in system clipboard (Ctrl+C). |
 
-### 4. Webcam & Live Video
+### 6. Webcam & Live Video
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
 | `-W`, `--webcam`| `[id]` | Stream live webcam to terminal at 30-60 FPS (default ID: `0`). |
+| `<video.mp4>` | `<path>` | Directly play video files (`.mp4`, `.mkv`, `.webm`, `.mov`) in the terminal. |
 
-### 5. Management, History & Language
+### 7. Management, History & Language
 | Flag | Parameter | Description |
 | :--- | :--- | :--- |
-| `--lang` | `<code>` | Set display language (`en`, `es`, `pt`, `fr`, `ru`, `ja`, `de`, `ko`). |
+| `--lang` | `<code>` | Set display language (`en`, `es`, `pt`, `fr`, `ru`, `ja`, `de`, `ko` or full names like `spanish`, `japanese`). |
 | `-H`, `--history` | `[N]` | Display the last N commands stored in Lumart history. |
 | `-R`, `--replay` | `[N]` | Re-run command N from history (default: last command). |
 | `--clear-history`| — | Wipe the command history cache. |
 | `--install-desktop` | — | Register "Open with Lumart" in Linux file manager context menus. |
-| `-v`, `--version` | — | Show full diagnostic report of hardware, OS, and engines. |
+| `--completions` | `bash` \| `zsh` \| `fish` | Generate shell autocomplete scripts. |
+| `-v`, `--version` | — | Show full diagnostic report of hardware, OS, and native C++ engines. |
 | `-u`, `--check-update`| — | Check GitHub for newer releases. |
 | `-uu`, `--upgrade` | — | Interactive upgrade assistant with automated backups. |
 | `-dg`, `--downgrade` | `[ver]` | Interactive rollback selector to restore previous versions. |

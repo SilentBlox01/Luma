@@ -8,10 +8,13 @@
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
    Modern Terminal Visual Suite • v2.5.0 (Apex Nova)
-   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]
+   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]
 ```
 
 # Lumart (Luma) v2.5.0
+
+> [!TIP]
+> 📖 **상세한 단계별 전체 가이드가 필요하신가요?** 모든 명령어, 플래그, 셰이더 및 실전 테크니컬 레시피를 총망라한 [**WALKTHROUGH.md**](WALKTHROUGH.md) (또는 [`walkthrough.md`](walkthrough.md))를 확인하세요.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)
@@ -32,7 +35,7 @@
    - [Mary Apex 3.5](#1-mary-apex-35-사진-실사-벡터-컬러)
    - [Trumble Orelx 2.2](#2-trumble-orelx-22-레트로-아케이드--애니메이션-셀셰이딩)
    - [Luris Mono 2.6](#3-luris-mono-26-만화-스크린톤--모노크롬)
-   - [Spectra Weep 1.4](#4-spectra-weep-14-실시간-웹캠-스트리밍)
+   - [Spectra Weep 2.0](#4-spectra-weep-14-실시간-웹캠-스트리밍)
 2. [엔진 비교 매트릭스](#엔진-비교-매트릭스)
 3. [비주얼 갤러리 및 결과물 쇼케이스](#비주얼-갤러리-및-결과물-쇼케이스)
 4. [그래픽 이미지 내보내기, 애니메이션 및 스티커 정책](#그래픽-이미지-내보내기-애니메이션-및-스티커-정책)
@@ -91,7 +94,7 @@
 * **앳킨슨(Atkinson) 오차 확산 (1984 MacPaint)**: 빌 앳킨슨이 고안한 명작 알고리즘으로 잔여 에너지 25%를 보존해 지저분한 노이즈 없이 정갈한 톤을 형성.
 * **투명 스티커 전용 엔진 (`--transparent`)**: Luris Mono는 **투명 배경 PNG 스티커를 출력할 수 있는 유일한 엔진**으로, 메신저용 이모티콘 제작에 최적화.
 
-### 4. Spectra Weep 1.4 (실시간 웹캠 스트리밍)
+### 4. Spectra Weep 2.0 (실시간 웹캠 스트리밍)
 * **목표**: 터미널 창에서 30~60 FPS의 초저지연 실시간 비디오 스트리밍 (`lumart --webcam` 또는 `lumart -W`).
 * **제로 레이턴시**: 터미널 주사율과 완벽하게 동기화된 V4L2/OpenCV 파이프라인.
 * **5가지 라이브 셰이더 필터**: Normal TrueColor, Weep Cyberpunk, Matrix Green Rain, Thermal FLIR, Manga Ink.
@@ -100,7 +103,7 @@
 
 ## 엔진 비교 매트릭스
 
-| 기능 | Mary Apex 3.5 | Trumble Orelx 2.2 | Luris Mono 2.6 | Spectra Weep 1.4 |
+| 기능 | Mary Apex 3.5 | Trumble Orelx 2.2 | Luris Mono 2.6 | Spectra Weep 2.0 |
 | :--- | :--- | :--- | :--- | :--- |
 | **비주얼 스타일** | 실사 벡터 컬러 | 레트로 아케이드 셀셰이딩 | 일본 만화 망점 / 잉크 | 실시간 비디오 / 웹캠 |
 | **기반 언어** | C++17 OpenMP + SIMD | Python + 가속 OpenCV | C++17 네이티브 | Python + OpenCV V4L2 |
@@ -193,11 +196,21 @@ chmod +x install.sh
 ./install.sh
 ```
 
-### 방법 3: 사전 컴파일된 네이티브 Linux 패키지
-[GitHub Releases](https://github.com/SilentBlox01/Luma/releases)에서 배포판별 패키지를 직접 다운로드할 수 있습니다:
-* **Debian / Ubuntu / Linux Mint**: `sudo apt install ./lumart-*.deb`
-* **Fedora / RHEL / AlmaLinux**: `sudo dnf install ./lumart-*.rpm`
-* **Arch Linux / Manjaro**: `dist/arch` 디렉터리에서 `makepkg -si`
+### 방법 3: 배포판 패키지 관리자 (AUR, APT, DNF)
+* **Arch Linux / Manjaro (AUR)**:
+  ```bash
+  yay -S lumart
+  # 또는: paru -S lumart
+  ```
+* **Debian / Ubuntu / Linux Mint (`.deb`)**:
+  ```bash
+  sudo apt install ./dist/deb/lumart_2.5.0-1_all.deb
+  ```
+* **Fedora / RHEL / AlmaLinux (`.rpm`)**:
+  ```bash
+  sudo dnf install ./dist/rpm/lumart-2.5.0-1.noarch.rpm
+  ```
+*(참고: 설치 스크립트와 패키지는 바탕화면에 불필요한 아이콘을 생성하지 않고 깔끔한 CLI 바이너리와 man 페이지를 설치합니다).*
 
 ---
 
@@ -289,7 +302,7 @@ lumart building.jpg -s -w 120
 lumart poster.jpg -m -d bayer -w 100
 ```
 
-### 4. 터미널 실시간 웹캠 스트리밍 (Spectra Weep 1.4)
+### 4. 터미널 실시간 웹캠 스트리밍 (Spectra Weep 2.0)
 ```bash
 # 기본 웹캠으로 실시간 셰이더 스트리밍
 lumart -W

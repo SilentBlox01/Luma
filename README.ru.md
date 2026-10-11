@@ -8,10 +8,13 @@
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
    Modern Terminal Visual Suite • v2.5.0 (Apex Nova)
-   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]
+   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]
 ```
 
 # Lumart (Luma) v2.5.0
+
+> [!TIP]
+> 📖 **Ищете подробное пошаговое руководство?** Ознакомьтесь с полным руководством [**WALKTHROUGH.md**](WALKTHROUGH.md) (или [`walkthrough.md`](walkthrough.md)) с детальным описанием всех команд, флагов, шейдеров и сценариев использования.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)
@@ -32,7 +35,7 @@
    - [Mary Apex 3.5](#1-mary-apex-35-векторный-фотореализм)
    - [Trumble Orelx 2.2](#2-trumble-orelx-22-ретро-аркада-и-cel-shading)
    - [Luris Mono 2.6](#3-luris-mono-26-манга-скринтон-и-монохром)
-   - [Spectra Weep 1.4](#4-spectra-weep-14-живая-веб-камера)
+   - [Spectra Weep 2.0](#4-spectra-weep-14-живая-веб-камера)
 2. [Сравнительная Таблица Моделей](#сравнительная-таблица-моделей)
 3. [Визуальная Галерея и Демонстрация Результатов](#визуальная-галерея-и-демонстрация-результатов)
 4. [Графический Экспорт, Анимации и Политика Стикеров](#графический-экспорт-анимации-и-политика-стикеров)
@@ -91,7 +94,7 @@
 * **Диффузия Ошибки Аткинсона (MacPaint 1984)**: Классический алгоритм Билла Аткинсона, удерживающий 25% остаточной энергии для чистых, плотных текстур.
 * **Эксклюзивные Прозрачные Стикеры (`--transparent`)**: Luris Mono — **единственный движок, формирующий прозрачные PNG-стикеры**, идеальные для использования в Telegram, Discord и WhatsApp.
 
-### 4. Spectra Weep 1.4 (Живая Веб-Камера в Терминале)
+### 4. Spectra Weep 2.0 (Живая Веб-Камера в Терминале)
 * **Назначение**: Интерактивная трансляция видео в реальном времени с частотой 30-60 кадров/с (`lumart --webcam` или `lumart -W`).
 * **Нулевая Задержка**: Оптимизированный захват через OpenCV/V4L2 с буферизацией и синхронизацией частоты терминала.
 * **5 Живых Шейдеров**: Normal TrueColor, Weep Cyberpunk, Matrix Green Rain, Thermal FLIR и Manga Ink.
@@ -100,7 +103,7 @@
 
 ## Сравнительная Таблица Моделей
 
-| Функция | Mary Apex 3.5 | Trumble Orelx 2.2 | Luris Mono 2.6 | Spectra Weep 1.4 |
+| Функция | Mary Apex 3.5 | Trumble Orelx 2.2 | Luris Mono 2.6 | Spectra Weep 2.0 |
 | :--- | :--- | :--- | :--- | :--- |
 | **Визуальный Стиль** | Векторный Фотореализм | Ретро-Аркада / Cel-Shading | Японская Манга / Тушь | Живое Видео / Веб-камера |
 | **Базовый Язык** | C++17 OpenMP + SIMD | Python + OpenCV Оптимизация | C++17 Нативный | Python + OpenCV V4L2 |
@@ -195,11 +198,21 @@ chmod +x install.sh
 ./install.sh
 ```
 
-### Готовые Нативные Пакеты Linux
-Скачайте готовые сборки со страницы [GitHub Releases](https://github.com/SilentBlox01/Luma/releases):
-* **Debian / Ubuntu / Linux Mint**: `sudo apt install ./lumart-*.deb`
-* **Fedora / RHEL / AlmaLinux**: `sudo dnf install ./lumart-*.rpm`
-* **Arch Linux / Manjaro**: `makepkg -si` в директории `dist/arch`
+### Пакетные Менеджеры Дистрибутивов (AUR, APT, DNF)
+* **Arch Linux / Manjaro (AUR)**:
+  ```bash
+  yay -S lumart
+  # или: paru -S lumart
+  ```
+* **Debian / Ubuntu / Linux Mint (`.deb`)**:
+  ```bash
+  sudo apt install ./dist/deb/lumart_2.5.0-1_all.deb
+  ```
+* **Fedora / RHEL / AlmaLinux (`.rpm`)**:
+  ```bash
+  sudo dnf install ./dist/rpm/lumart-2.5.0-1.noarch.rpm
+  ```
+*(Примечание: Установочные скрипты и пакеты устанавливают только консольные бинарники и man-страницы, не создавая лишних значков на рабочем столе).*
 
 ---
 
@@ -291,7 +304,7 @@ lumart building.jpg -s -w 120
 lumart poster.jpg -m -d bayer -w 100
 ```
 
-### 4. Трансляция Веб-Камеры в Терминале (Spectra Weep 1.4)
+### 4. Трансляция Веб-Камеры в Терминале (Spectra Weep 2.0)
 ```bash
 # Трансляция с веб-камеры по умолчанию с шейдерными фильтрами в реальном времени
 lumart -W

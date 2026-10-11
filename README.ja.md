@@ -8,10 +8,13 @@
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
    Modern Terminal Visual Suite • v2.5.0 (Apex Nova)
-   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 1.4 ]
+   [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]
 ```
 
 # Lumart (Luma) v2.5.0
+
+> [!TIP]
+> 📖 **徹底的なステップバイステップ完全マニュアルをお探しですか？** すべてのコマンド、フラグ、シェーダー、テクニカルレシピを網羅した [**WALKTHROUGH.md**](WALKTHROUGH.md) (または [`walkthrough.md`](walkthrough.md)) をご覧ください。
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)
@@ -32,7 +35,7 @@
    - [Mary Apex 3.5](#1-mary-apex-35-写実的ベクターカラー旗艦)
    - [Trumble Orelx 2.2](#2-trumble-orelx-22-レトロアーケード--アニメセルルック)
    - [Luris Mono 2.6](#3-luris-mono-26-漫画スクリーントーン--モノクロ)
-   - [Spectra Weep 1.4](#4-spectra-weep-14-リアルタイムwebカメラ映像)
+   - [Spectra Weep 2.0](#4-spectra-weep-14-リアルタイムwebカメラ映像)
 2. [エンジン比較マトリックス](#エンジン比較マトリックス)
 3. [ビジュアルギャラリー＆出力例](#ビジュアルギャラリー出力例)
 4. [画像エクスポート、アニメーションおよび透過ステッカー方針](#画像エクスポートアニメーションおよび透過ステッカー方針)
@@ -91,7 +94,7 @@
 * **Atkinson誤差拡散法 (MacPaint 1984)**: 25%の誤差をあえて保持することで、不規則なざらつきを抑えた美しいグラデーションを生み出す名作アルゴリズム。
 * **透過ステッカー専用エンジン（`--transparent`）**: Luris Monoは**透過背景付きPNGステッカーを出力できる唯一のエンジン**であり、DiscordやTelegram用スタンプの作成に最適。
 
-### 4. Spectra Weep 1.4 (リアルタイムWebカメラ映像)
+### 4. Spectra Weep 2.0 (リアルタイムWebカメラ映像)
 * **設計目標**: ターミナル内での秒間30〜60フレーム超低遅延ビデオストリーミング（`lumart --webcam` または `lumart -W`）。
 * **ゼロレイテンシ**: V4L2/OpenCVの最適化キャプチャとターミナルリフレッシュレートの同期。
 * **5種のリアルタイムシェーダー**: Normal TrueColor, Weep Cyberpunk, Matrix Green Rain, Thermal FLIR, Manga Ink。
@@ -100,7 +103,7 @@
 
 ## エンジン比較マトリックス
 
-| 項目 | Mary Apex 3.5 | Trumble Orelx 2.2 | Luris Mono 2.6 | Spectra Weep 1.4 |
+| 項目 | Mary Apex 3.5 | Trumble Orelx 2.2 | Luris Mono 2.6 | Spectra Weep 2.0 |
 | :--- | :--- | :--- | :--- | :--- |
 | **美学的フォーカス** | 写実的ベクター表現 | レトロアーケード / セルルック | 日本の漫画 / ペン画 | リアルタイム動画 / Webカメラ |
 | **実装言語** | C++17 OpenMP + SIMD | Python + 高速化OpenCV | C++17 ネイティブ | Python + OpenCV V4L2 |
@@ -193,11 +196,21 @@ chmod +x install.sh
 ./install.sh
 ```
 
-### ネイティブLinuxパッケージ（ビルド済み）
-[GitHub Releases](https://github.com/SilentBlox01/Luma/releases) からバイナリパッケージをダウンロード：
-* **Debian / Ubuntu / Linux Mint**: `sudo apt install ./lumart-*.deb`
-* **Fedora / RHEL / AlmaLinux**: `sudo dnf install ./lumart-*.rpm`
-* **Arch Linux / Manjaro**: `dist/arch` ディレクトリで `makepkg -si`
+### ディストリビューションパッケージマネージャー (AUR, APT, DNF)
+* **Arch Linux / Manjaro (AUR)**:
+  ```bash
+  yay -S lumart
+  # または: paru -S lumart
+  ```
+* **Debian / Ubuntu / Linux Mint (`.deb`)**:
+  ```bash
+  sudo apt install ./dist/deb/lumart_2.5.0-1_all.deb
+  ```
+* **Fedora / RHEL / AlmaLinux (`.rpm`)**:
+  ```bash
+  sudo dnf install ./dist/rpm/lumart-2.5.0-1.noarch.rpm
+  ```
+*(注: インストーラおよび各パッケージはCLIバイナリとmanページのみを導入し、不要なデスクトップアイコンで散らかすことはありません)。*
 
 ---
 
@@ -306,7 +319,7 @@ lumart building.jpg -s -w 120
 lumart poster.jpg -m -d bayer -w 100
 ```
 
-### 4. ターミナル内リアルタイムWebカメラ映像 (Spectra Weep 1.4)
+### 4. ターミナル内リアルタイムWebカメラ映像 (Spectra Weep 2.0)
 ```bash
 # デフォルトWebカメラのリアルタイムシェーダー描画
 lumart -W

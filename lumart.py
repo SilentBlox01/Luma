@@ -854,6 +854,14 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Arte copiada para a área de transferência (ANSI truecolor)!",
         "clipboard_copied_plain": "Arte copiada para a área de transferência (ASCII simples)!",
         "diff_delta": "Variação cromática média (Delta): {:.1f}%",
+        "help_brightness": "Ajustar fator de brilho (ex: 1.2 para clarear, 0.8 para escurecer; padrão: 1.0).",
+        "help_contrast": "Ajustar fator de contraste (ex: 1.3 para mais contraste; padrão: 1.0).",
+        "help_saturation": "Ajustar saturação de cores (ex: 1.4 para cores vivas, 0.0 para escala de cinza; padrão: 1.0).",
+        "help_border": "Envolver a renderização com borda decorativa (rounded, single, double, heavy, ascii, blocks).",
+        "help_align": "Alinhamento horizontal: 'left', 'center' ou 'right' (padrão: left).",
+        "help_center": "Centralizar horizontalmente a arte ASCII no terminal.",
+        "help_bench": "Executar benchmark medindo latência de renderização e taxa de FPS entre todos os motores.",
+        "help_preload": "Pré-carregar e pré-renderizar todos os quadros do GIF na memória RAM para 60 FPS fluídos.",
         "help_showcase": "Gera uma vitrine comparativa 4-em-1 com os 4 motores principais (Mary, Trumble, Luris, Spectra).",
         "help_info": "Exibe o inspetor visual: resolução, proporção, cores dominantes HEX/ANSI e recomendação de motor.",
         "help_fetch_preset": "Gera arte ANSI otimizada e snippet config.jsonc para Fastfetch/Neofetch.",
@@ -1041,6 +1049,14 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Арт скопирован в буфер обмена (ANSI truecolor)!",
         "clipboard_copied_plain": "Арт скопирован в буфер обмена (чистый ASCII)!",
         "diff_delta": "Средняя цветовая разница (Delta): {:.1f}%",
+        "help_brightness": "Настройка яркости изображения (напр. 1.2 светлее, 0.8 темнее; по умолч.: 1.0).",
+        "help_contrast": "Настройка контрастности изображения (напр. 1.3 для усиления; по умолч.: 1.0).",
+        "help_saturation": "Настройка насыщенности цвета (напр. 1.4 ярче, 0.0 ч/б; по умолч.: 1.0).",
+        "help_border": "Оформить рендер декоративной рамкой (rounded, single, double, heavy, ascii, blocks).",
+        "help_align": "Горизонтальное выравнивание: 'left', 'center' или 'right' (по умолч.: left).",
+        "help_center": "Выровнять ASCII-арт по центру терминала по горизонтали.",
+        "help_bench": "Запустить бенчмарк для замера задержки и FPS рендеринга на всех движках.",
+        "help_preload": "Предварительная загрузка и рендеринг всех кадров GIF в ОЗУ для плавных 60 FPS.",
         "help_showcase": "Сгенерировать сравнительную витрину 4-в-1 по 4 флагманским движкам (Mary, Trumble, Luris, Spectra).",
         "help_info": "Показать инспектор изображения: разрешение, пропорции, доминирующие цвета и рекомендацию движка.",
         "help_fetch_preset": "Сгенерировать ANSI-арт и фрагмент config.jsonc для Fastfetch/Neofetch.",
@@ -1228,6 +1244,14 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "レンダリング結果をクリップボードにコピーしました（ANSI truecolor）！",
         "clipboard_copied_plain": "レンダリング結果をクリップボードにコピーしました（プレーンASCII）！",
         "diff_delta": "平均ピクセル色差（Delta）: {:.1f}%",
+        "help_brightness": "画像の明るさ倍率を調整 (例: 1.2で明るく、0.8で暗く; デフォルト: 1.0)。",
+        "help_contrast": "画像のコントラスト倍率を調整 (例: 1.3でメリハリを強化; デフォルト: 1.0)。",
+        "help_saturation": "彩度を調整 (例: 1.4で鮮やかに、0.0でグレースケール; デフォルト: 1.0)。",
+        "help_border": "装飾フレームで描画を囲む (rounded, single, double, heavy, ascii, blocks)。",
+        "help_align": "水平方向の配置: 'left'、'center'、'right' (デフォルト: left)。",
+        "help_center": "ターミナルの中央にASCIIアートを水平センタリング。",
+        "help_bench": "全エンジンの描画遅延とFPSスループットを計測するベンチマークを実行。",
+        "help_preload": "全GIFフレームをRAMにプリレンダリングして滑らかな60 FPS再生を実現。",
         "help_showcase": "4大フラッグシップエンジン（Mary、Trumble、Luris、Spectra）による4-in-1比較ショーケースを生成します。",
         "help_info": "画像の解像度、アスペクト比、主要パレット、推奨エンジンを表示するビジュアルインスペクター。",
         "help_fetch_preset": "Fastfetch/Neofetch向けの最適化ANSIアートとconfig.jsonc設定を生成します。",
@@ -1415,6 +1439,14 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Grafik in Zwischenablage kopiert (ANSI truecolor)!",
         "clipboard_copied_plain": "Grafik in Zwischenablage kopiert (reiner ASCII-Text)!",
         "diff_delta": "Durchschnittliche Pixelfarbabweichung (Delta): {:.1f}%",
+        "help_brightness": "Bildhelligkeitsfaktor anpassen (z. B. 1.2 für heller, 0.8 für dunkler; Standard: 1.0).",
+        "help_contrast": "Bildkontrastfaktor anpassen (z. B. 1.3 für stärkeren Kontrast; Standard: 1.0).",
+        "help_saturation": "Farbsättigung anpassen (z. B. 1.4 für lebendige Farben, 0.0 für Graustufen; Standard: 1.0).",
+        "help_border": "Render mit dekorativem Rahmen einfassen (rounded, single, double, heavy, ascii, blocks).",
+        "help_align": "Horizontale Ausrichtung: 'left', 'center' oder 'right' (Standard: left).",
+        "help_center": "ASCII-Grafik im Terminal horizontal zentrieren.",
+        "help_bench": "Benchmark zur Messung von Rendering-Latenz und FPS über alle Engines ausführen.",
+        "help_preload": "Alle GIF-Frames zur flüssigen 60-FPS-Wiedergabe im RAM vorab rendern.",
         "help_showcase": "Erzeugt eine 4-in-1-Vergleichsansicht über alle 4 Flaggschiff-Engines (Mary, Trumble, Luris, Spectra).",
         "help_info": "Visueller Bild-Inspektor: Auflösung, Seitenverhältnis, dominante Farben und Engine-Empfehlung.",
         "help_fetch_preset": "Erzeugt optimiertes Fastfetch/Neofetch-ANSI-Art und config.jsonc-Konfiguration.",
@@ -1602,6 +1634,14 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "렌더링 결과가 클립보드에 복사되었습니다 (ANSI 트루컬러)!",
         "clipboard_copied_plain": "렌더링 결과가 클립보드에 복사되었습니다 (순수 ASCII)!",
         "diff_delta": "평균 픽셀 색상 차이 (Delta): {:.1f}%",
+        "help_brightness": "이미지 밝기 배율 조정 (예: 1.2 밝게, 0.8 어둡게; 기본값: 1.0).",
+        "help_contrast": "이미지 대비 배율 조정 (예: 1.3 대비 강화; 기본값: 1.0).",
+        "help_saturation": "색상 채도 조정 (예: 1.4 선명한 색상, 0.0 그레이스케일; 기본값: 1.0).",
+        "help_border": "아트 렌더링에 장식 테두리 추가 (rounded, single, double, heavy, ascii, blocks).",
+        "help_align": "가로 정렬: 'left', 'center' 또는 'right' (기본값: left).",
+        "help_center": "터미널에서 ASCII 아트를 가로 중앙 정렬.",
+        "help_bench": "모든 엔진의 렌더링 지연 시간 및 FPS 처리량을 측정하는 벤치마크 실행.",
+        "help_preload": "부드러운 60 FPS 재생을 위해 모든 GIF 프레임을 RAM에 사전 렌더링.",
         "help_showcase": "4대 플래그십 엔진(Mary, Trumble, Luris, Spectra)을 통한 4-in-1 비교 쇼케이스를 생성합니다.",
         "help_info": "해상도, 화면비, 주요 색상 팔레트 및 권장 엔진을 보여주는 이미지 인스펙터 대시보드.",
         "help_fetch_preset": "Fastfetch/Neofetch용 최적화 ANSI 아트 및 config.jsonc 설정을 생성합니다.",
@@ -1789,6 +1829,14 @@ TRANSLATIONS = {
         "clipboard_copied_ansi": "Rendu copié dans le presse-papiers système (ANSI truecolor) !",
         "clipboard_copied_plain": "Rendu copié dans le presse-papiers système (ASCII brut) !",
         "diff_delta": "Variation chromatique moyenne (Delta) : {:.1f}%",
+        "help_brightness": "Ajuster le facteur de luminosité (ex. 1.2 pour éclaircir, 0.8 pour assombrir ; défaut : 1.0).",
+        "help_contrast": "Ajuster le facteur de contraste (ex. 1.3 pour un contraste plus prononcé ; défaut : 1.0).",
+        "help_saturation": "Ajuster la saturation des couleurs (ex. 1.4 pour des couleurs vives, 0.0 pour niveaux de gris ; défaut : 1.0).",
+        "help_border": "Encadrer le rendu avec une bordure décorative (rounded, single, double, heavy, ascii, blocks).",
+        "help_align": "Alignement horizontal : 'left', 'center' ou 'right' (défaut : left).",
+        "help_center": "Centrer horizontalement le rendu ASCII dans le terminal.",
+        "help_bench": "Exécuter un benchmark mesurant la latence de rendu et le débit FPS sur tous les moteurs.",
+        "help_preload": "Précharger et pré-rendre toutes les images GIF en RAM pour une lecture fluide à 60 FPS.",
         "help_showcase": "Génère une présentation comparative 4-en-1 sur les 4 moteurs phares (Mary, Trumble, Luris, Spectra).",
         "help_info": "Affiche l'inspecteur visuel : résolution, ratio, couleurs dominantes HEX/ANSI et recommandation de moteur.",
         "help_fetch_preset": "Génère un art ANSI optimisé et l'extrait config.jsonc pour Fastfetch/Neofetch.",
@@ -1805,26 +1853,35 @@ TRANSLATIONS = {
 
 CURRENT_LANG = "en"
 
+LANGUAGE_ALIASES = {
+    "en": "en", "english": "en", "inglés": "en", "ingles": "en",
+    "es": "es", "spanish": "es", "español": "es", "espanol": "es", "castellano": "es",
+    "pt": "pt", "portuguese": "pt", "português": "pt", "portugues": "pt",
+    "ru": "ru", "russian": "ru", "ruso": "ru",
+    "ja": "ja", "jp": "ja", "japanese": "ja", "japonés": "ja", "japones": "ja", "nihongo": "ja",
+    "de": "de", "german": "de", "deutsch": "de", "alemán": "de", "aleman": "de",
+    "ko": "ko", "kr": "ko", "korean": "ko", "coreano": "ko", "hangul": "ko",
+    "fr": "fr", "french": "fr", "français": "fr", "francais": "fr", "francés": "fr", "frances": "fr",
+}
+
+def normalize_language_code(lang_code):
+    if not lang_code:
+        return "en"
+    cleaned = str(lang_code).strip().lower()
+    if cleaned in LANGUAGE_ALIASES:
+        return LANGUAGE_ALIASES[cleaned]
+    if cleaned in TRANSLATIONS:
+        return cleaned
+    prefix = cleaned.split(".")[0].split("_")[0].split("-")[0]
+    if prefix in LANGUAGE_ALIASES:
+        return LANGUAGE_ALIASES[prefix]
+    if prefix in TRANSLATIONS:
+        return prefix
+    return "en"
+
 def set_language(lang_code):
     global CURRENT_LANG
-    if lang_code in TRANSLATIONS:
-        CURRENT_LANG = lang_code
-    elif lang_code and lang_code.startswith("es"):
-        CURRENT_LANG = "es"
-    elif lang_code and lang_code.startswith("pt"):
-        CURRENT_LANG = "pt"
-    elif lang_code and lang_code.startswith("ru"):
-        CURRENT_LANG = "ru"
-    elif lang_code and lang_code.startswith("ja"):
-        CURRENT_LANG = "ja"
-    elif lang_code and lang_code.startswith("de"):
-        CURRENT_LANG = "de"
-    elif lang_code and lang_code.startswith("ko"):
-        CURRENT_LANG = "ko"
-    elif lang_code and lang_code.startswith("fr"):
-        CURRENT_LANG = "fr"
-    else:
-        CURRENT_LANG = "en"
+    CURRENT_LANG = normalize_language_code(lang_code)
 
 def _(key, *args):
     text = TRANSLATIONS.get(CURRENT_LANG, TRANSLATIONS["en"]).get(key, TRANSLATIONS["en"].get(key, key))
@@ -1836,20 +1893,33 @@ def _(key, *args):
 def auto_detect_language():
     try:
         # 1. Revisar variables de entorno estándar primero
-        for var in ("LC_ALL", "LC_MESSAGES", "LANG"):
+        for var in ("LC_ALL", "LC_MESSAGES", "LANG", "LANGUAGE"):
             val = os.environ.get(var)
             if val:
                 code = val.split(".")[0].split("_")[0].lower()
-                if code in TRANSLATIONS:
-                    set_language(code)
-                    return code
+                norm = normalize_language_code(code)
+                if norm in TRANSLATIONS:
+                    set_language(norm)
+                    return norm
         # 2. Revisar configuración regional del sistema
-        lang, _enc = locale.getdefaultlocale()
-        if lang:
-            code = lang[:2].lower()
-            if code in TRANSLATIONS:
-                set_language(code)
-                return code
+        try:
+            loc_tuple = locale.getlocale()
+            if loc_tuple and loc_tuple[0]:
+                norm = normalize_language_code(loc_tuple[0])
+                if norm in TRANSLATIONS:
+                    set_language(norm)
+                    return norm
+        except Exception:
+            pass
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            lang, _enc = locale.getdefaultlocale()
+            if lang:
+                norm = normalize_language_code(lang)
+                if norm in TRANSLATIONS:
+                    set_language(norm)
+                    return norm
     except Exception:
         pass
     set_language("en")
@@ -7377,11 +7447,20 @@ def main():
         # Autodetección del idioma del sistema
         auto_detect_language()
 
-    # Si la invocación es solo para cambiar el idioma (ej: lumart --lang es), guardar y salir
+    # Si la invocación es solo para cambiar el idioma (ej: lumart --lang es / lumart --lang=spanish), guardar y salir
     is_lang_only = (len(sys.argv) == 3 and "--lang" in sys.argv) or \
                    (len(sys.argv) == 2 and any(a.startswith("--lang=") for a in sys.argv))
     if is_lang_only:
-        if lang_override in TRANSLATIONS:
+        target_code = normalize_language_code(lang_override) if lang_override else None
+        if target_code in TRANSLATIONS and lang_override and normalize_language_code(lang_override) != "en" or lang_override in ("en", "english", "inglés"):
+            set_language(target_code)
+            os.makedirs(config_dir, exist_ok=True)
+            with open(config_file, "w") as f:
+                json.dump({"lang": target_code}, f)
+            print(_("lang_success", target_code))
+            sys.exit(0)
+        elif lang_override in TRANSLATIONS:
+            set_language(lang_override)
             os.makedirs(config_dir, exist_ok=True)
             with open(config_file, "w") as f:
                 json.dump({"lang": lang_override}, f)
