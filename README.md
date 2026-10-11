@@ -14,7 +14,7 @@
 # Lumart (Luma) v2.5.0
 
 > [!TIP]
-> 📖 **Need a complete step-by-step handbook?** Read the comprehensive [**WALKTHROUGH.md**](WALKTHROUGH.md) (or [`walkthrough.md`](walkthrough.md)) covering every single command, flag, recipe, and technical nuance in extreme detail.
+> 📖 **Need the master technical guide or troubleshooting manual?** Read the flagship [**TROUBLESHOOTING.md**](TROUBLESHOOTING.md) — our comprehensive master guide covering diagnostic checklists, visual "Dos & Don'ts", CLI walkthrough, every flag, and practical recipes.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)

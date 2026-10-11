@@ -1,8 +1,8 @@
-# 🔧 Manual Maestro, Guía Técnica y Resolución de Problemas de Lumart (Luma) v2.5.0
+# 🔧 Guía Maestra de Solución de Problemas (Troubleshooting) y Manual Técnico de Lumart (Luma) v2.5.0
 
 [English](TROUBLESHOOTING.md) | [Español (Predeterminado)](TROUBLESHOOTING.es.md) | [Português](TROUBLESHOOTING.pt.md) | [Français](TROUBLESHOOTING.fr.md) | [Deutsch](TROUBLESHOOTING.de.md) | [Русский](TROUBLESHOOTING.ru.md) | [日本語](TROUBLESHOOTING.ja.md) | [한국어](TROUBLESHOOTING.ko.md)
 
-> **El manual maestro definitivo para Lumart (Luma)**: Fundamentos de arquitectura, los cuatro motores insignia de renderizado, subcomandos CLI especializados, enciclopedia completa de opciones, recetas prácticas del mundo real y guía exhaustiva de resolución de problemas técnicos (Troubleshooting).
+> **El Documento Maestro Insignia de Lumart (Luma)**: Listas de diagnóstico rápido, guía visual "Lo que se debe y no se debe hacer", física del terminal, inmersión técnica en los cuatro motores de renderizado, subcomandos especializados, enciclopedia completa de opciones, recetas prácticas y resolución exhaustiva de problemas técnicos.
 
 ---
 

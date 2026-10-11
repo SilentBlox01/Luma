@@ -14,7 +14,7 @@
 # Lumart (Luma) v2.5.0
 
 > [!TIP]
-> 📖 **Ausführliches Schritt-für-Schritt-Handbuch gesucht?** Lesen Sie das umfassende [**WALKTHROUGH.md**](WALKTHROUGH.md) (oder [`walkthrough.md`](walkthrough.md)) mit detaillierten Erklärungen aller Befehle, Flags, Shader und Workflows.
+> 📖 **Benötigen Sie das technische Master-Handbuch oder den Leitfaden zur Fehlerbehebung?** Lesen Sie das Flaggschiff-Dokument [**TROUBLESHOOTING.de.md**](TROUBLESHOOTING.de.md) (oder [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)) mit Diagnose-Checklisten, Do's & Don'ts, CLI-Walkthrough und allen Optionen.
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)

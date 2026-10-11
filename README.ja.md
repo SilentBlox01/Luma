@@ -14,7 +14,7 @@
 # Lumart (Luma) v2.5.0
 
 > [!TIP]
-> 📖 **徹底的なステップバイステップ完全マニュアルをお探しですか？** すべてのコマンド、フラグ、シェーダー、テクニカルレシピを網羅した [**WALKTHROUGH.md**](WALKTHROUGH.md) (または [`walkthrough.md`](walkthrough.md)) をご覧ください。
+> 📖 **技術仕様書およびトラブルシューティングのマスターマニュアルをお探しですか？** 診断チェックリスト、推奨・禁止事項、全コマンドウォークスルー、全オプションを網羅したフラグシップ文書 [**TROUBLESHOOTING.ja.md**](TROUBLESHOOTING.ja.md) (または [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)) をご覧ください。
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Language: Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)

@@ -1,20 +1,10 @@
-# 🔧 Lumart (Luma) v2.5.0 Master Walkthrough, Technical Manual & Troubleshooting Guide
+# 🔧 Lumart (Luma) v2.5.0 Master Troubleshooting Guide & Technical Manual
 
 [English (Default)](TROUBLESHOOTING.md) | [Español](TROUBLESHOOTING.es.md) | [Português](TROUBLESHOOTING.pt.md) | [Français](TROUBLESHOOTING.fr.md) | [Deutsch](TROUBLESHOOTING.de.md) | [Русский](TROUBLESHOOTING.ru.md) | [日本語](TROUBLESHOOTING.ja.md) | [한국어](TROUBLESHOOTING.ko.md)
 
-> **The definitive master guide for Lumart (Luma)**: Architectural foundations, four flagship rendering engines, dedicated CLI subcommands, complete flag encyclopedia, practical recipes, and exhaustive troubleshooting manual.
+> **The Flagship Master Document of Lumart (Luma)**: Architectural foundations, diagnostic checklists, visual "Dos & Don'ts", terminal grid physics, four rendering engines deep-dive, dedicated CLI subcommands, complete flag encyclopedia, practical recipes, and technical problem resolution.
 
 ---
-> [!NOTE]
-> 📖 **Unified Master Guide Available**: This troubleshooting guide has been unified with the complete CLI walkthrough into our Master Manual, available in all 8 supported languages:
-> * 🇬🇧 [English Master Manual (WALKTHROUGH.md)](WALKTHROUGH.md)
-> * 🇪🇸 [Manual Maestro en Español (WALKTHROUGH.es.md)](WALKTHROUGH.es.md)
-> * 🇫🇷 [Manuel Maître en Français (WALKTHROUGH.fr.md)](WALKTHROUGH.fr.md)
-> * 🇩🇪 [Master-Handbuch auf Deutsch (WALKTHROUGH.de.md)](WALKTHROUGH.de.md)
-> * 🇧🇷 [Manual Mestre em Português (WALKTHROUGH.pt.md)](WALKTHROUGH.pt.md)
-> * 🇷🇺 [Полное Руководство на Русском (WALKTHROUGH.ru.md)](WALKTHROUGH.ru.md)
-> * 🇯🇵 [日本語完全マスターマニュアル (WALKTHROUGH.ja.md)](WALKTHROUGH.ja.md)
-> * 🇰🇷 [한국어 마스터 매뉴얼 (WALKTHROUGH.ko.md)](WALKTHROUGH.ko.md)
 
 Welcome to the definitive troubleshooting, architectural reference, and operational manual for **Luma** (and `lumart`). This guide provides in-depth solutions to common issues, terminal emulator compatibility benchmarks, native C++ compilation guides, rendering engine mechanics, localization configuration, and internal architectural details.
 
