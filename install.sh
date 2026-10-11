@@ -2,7 +2,7 @@
 # ==============================================================================
 #  Luma / Lumart Universal Installer / Instalador Universal
 #  Compatible: Fedora, RHEL, Ubuntu, Debian, Arch Linux, openSUSE, macOS
-#  "Si esto no funciona a la primera, el problema suele estar entre la silla y el teclado"
+#  Si esto no funciona a la primera, el problema suele estar entre la silla y el teclado
 # ==============================================================================
 set -e
 
