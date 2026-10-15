@@ -1,12 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==============================================================================
 #  Luma / Lumart Universal Installer / Instalador Universal
-#  Compatible: Fedora, RHEL, Ubuntu, Debian, Arch Linux, openSUSE, macOS
-#  Si esto no funciona a la primera, el problema suele estar entre la silla y el teclado
+#  Compatible: Fedora, RHEL, Ubuntu, Debian, Arch Linux, openSUSE, Void, Alpine,
+#              Gentoo, NixOS, macOS, Android (Termux)
 # ==============================================================================
 set -e
 
 VERSION="2.5.0"
+RAW_BASE="https://raw.githubusercontent.com/SilentBlox01/Luma/main"
 
 # Color helpers
 CYAN='\033[1;36m'
@@ -14,6 +15,12 @@ GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
 RED='\033[1;31m'
 NC='\033[0m'
+
+# --- Environment & OS Autodetection ---
+IS_TERMUX=0
+if [ -n "${TERMUX_VERSION:-}" ] || [ -d "/data/data/com.termux" ] || [[ "${PREFIX:-}" == *"com.termux"* ]] || ([ -n "${PREFIX:-}" ] && [ -d "$PREFIX/bin" ] && [ -w "$PREFIX/bin" ] && ! [ -d "/usr/bin" ]); then
+    IS_TERMUX=1
+fi
 
 # --- Language Autodetection ---
 SYS_LOCALE="${LC_ALL:-${LC_MESSAGES:-${LANG:-}}}"
@@ -73,6 +80,7 @@ if [ "$LANG_MODE" = "es" ]; then
     MSG_DEBIAN="📦 Detectado Debian/Ubuntu/derivadas. Instalando python3-pil vía apt..."
     MSG_ARCH="📦 Detectado Arch Linux. Instalando python-pillow vía pacman..."
     MSG_SUSE="📦 Detectado openSUSE. Instalando python3-Pillow vía zypper..."
+    MSG_TERMUX="📦 Detectado Termux (Android). Instalando python-pillow vía pkg..."
     MSG_VOID="📦 Detectado Void Linux. Instalando python3-Pillow vía xbps-install..."
     MSG_ALPINE="📦 Detectado Alpine Linux. Instalando py3-pillow vía apk..."
     MSG_GENTOO="📦 Detectado Gentoo Linux. Instalando dev-python/pillow vía emerge..."
@@ -101,6 +109,7 @@ else
     MSG_DEBIAN="📦 Detected Debian/Ubuntu/derivatives. Installing python3-pil via apt..."
     MSG_ARCH="📦 Detected Arch Linux. Installing python-pillow via pacman..."
     MSG_SUSE="📦 Detected openSUSE. Installing python3-Pillow via zypper..."
+    MSG_TERMUX="📦 Detected Termux (Android). Installing python-pillow via pkg..."
     MSG_VOID="📦 Detected Void Linux. Installing python3-Pillow via xbps-install..."
     MSG_ALPINE="📦 Detected Alpine Linux. Installing py3-pillow via apk..."
     MSG_GENTOO="📦 Detected Gentoo Linux. Installing dev-python/pillow via emerge..."
@@ -125,23 +134,43 @@ echo " v${VERSION} - ${MSG_TAGLINE}"
 echo -e "${NC}"
 echo -e "${MSG_START}"
 
-# 1. Check Python 3
+# 1. Android Termux Auto-Bootstrap & Python 3 Check
+if [ "$IS_TERMUX" -eq 1 ] && command -v pkg &>/dev/null; then
+    NEEDED_PKGS=()
+    command -v python3 &>/dev/null || NEEDED_PKGS+=("python")
+    python3 -c "from PIL import Image" &>/dev/null 2>&1 || NEEDED_PKGS+=("python-pillow")
+    command -v clang++ &>/dev/null || NEEDED_PKGS+=("clang" "make" "libomp")
+    if [ ${#NEEDED_PKGS[@]} -gt 0 ]; then
+        if [ "$LANG_MODE" = "es" ]; then
+            echo -e "${YELLOW}📦 Detectado Termux (Android). Instalando paquetes esenciales: ${NEEDED_PKGS[*]}...${NC}"
+        else
+            echo -e "${YELLOW}📦 Detected Termux (Android). Installing essential packages: ${NEEDED_PKGS[*]}...${NC}"
+        fi
+        pkg install -y "${NEEDED_PKGS[@]}" || true
+    fi
+fi
+
 if ! command -v python3 &>/dev/null; then
     echo -e "${RED}${MSG_NO_PYTHON}${NC}"
     echo "${MSG_INSTALL_PY}"
-    echo "  • Fedora/RHEL:   sudo dnf install python3"
-    echo "  • Ubuntu/Debian: sudo apt install python3"
-    echo "  • Arch Linux:    sudo pacman -S python"
-    echo "  • openSUSE:      sudo zypper install python3"
-    echo "  • Void Linux:    sudo xbps-install -S python3"
-    echo "  • Alpine Linux:  sudo apk add python3"
-    echo "  • Gentoo Linux:  sudo emerge --ask dev-lang/python"
-    echo "  • NixOS:         nix-shell -p python3"
+    echo "  • Android (Termux): pkg install python python-pillow"
+    echo "  • Fedora/RHEL:      sudo dnf install python3"
+    echo "  • Ubuntu/Debian:    sudo apt install python3"
+    echo "  • Arch Linux:       sudo pacman -S python"
+    echo "  • openSUSE:         sudo zypper install python3"
+    echo "  • Void Linux:       sudo xbps-install -S python3"
+    echo "  • Alpine Linux:     sudo apk add python3"
+    echo "  • Gentoo Linux:     sudo emerge --ask dev-lang/python"
+    echo "  • NixOS / Nix:      nix-shell -p python3"
     exit 1
 fi
 
 # 2. Determine target install directory
-if [ "$EUID" -eq 0 ]; then
+if [ "$IS_TERMUX" -eq 1 ] && [ -n "${PREFIX:-}" ] && [ -d "$PREFIX/bin" ] && [ -w "$PREFIX/bin" ]; then
+    # Termux / Android environment: standard prefix
+    INSTALL_DIR="$PREFIX/bin"
+    SHARE_DIR="$PREFIX/share/luma"
+elif [ "$EUID" -eq 0 ]; then
     INSTALL_DIR="/usr/local/bin"
     SHARE_DIR="/usr/local/share/luma"
 else
@@ -160,7 +189,7 @@ if [ -f "$SCRIPT_DIR/lumart.py" ]; then
     cp "$SCRIPT_DIR/lumart.py" "$SHARE_DIR/lumart.py"
 else
     echo -e "${MSG_DOWNLOAD}"
-    curl -fsSL "https://raw.githubusercontent.com/SilentBlox01/Luma/main/lumart.py" -o "$SHARE_DIR/lumart.py"
+    curl -fsSL "$RAW_BASE/lumart.py" -o "$SHARE_DIR/lumart.py"
 fi
 chmod +x "$SHARE_DIR/lumart.py"
 
@@ -168,59 +197,76 @@ if [ -f "$SCRIPT_DIR/mary.py" ]; then
     [ -L "$SHARE_DIR/mary.py" ] && rm -f "$SHARE_DIR/mary.py"
     cp "$SCRIPT_DIR/mary.py" "$SHARE_DIR/mary.py"
 else
-    curl -fsSL "https://raw.githubusercontent.com/SilentBlox01/Luma/main/mary.py" -o "$SHARE_DIR/mary.py" 2>/dev/null || true
+    curl -fsSL "$RAW_BASE/mary.py" -o "$SHARE_DIR/mary.py" 2>/dev/null || true
 fi
 chmod +x "$SHARE_DIR/mary.py" 2>/dev/null || true
 
-if [ -d "$SCRIPT_DIR/completions" ]; then
-    mkdir -p "$SHARE_DIR/completions" 2>/dev/null || true
-    cp -r "$SCRIPT_DIR/completions/"* "$SHARE_DIR/completions/" 2>/dev/null || true
-fi
-
-# 3b. C++ Monochrome Engine (standalone binary and shared library)
-if [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
-    cp "$SCRIPT_DIR/monochrome.cpp" "$SHARE_DIR/"
-    [ -f "$SCRIPT_DIR/stb_image.h" ] && cp "$SCRIPT_DIR/stb_image.h" "$SHARE_DIR/"
-    [ -f "$SCRIPT_DIR/stb_image_resize2.h" ] && cp "$SCRIPT_DIR/stb_image_resize2.h" "$SHARE_DIR/"
-    [ -f "$SCRIPT_DIR/libmonochrome.so" ] && cp "$SCRIPT_DIR/libmonochrome.so" "$SHARE_DIR/" 2>/dev/null || true
-    [ -f "$SCRIPT_DIR/luma-mono" ] && cp "$SCRIPT_DIR/luma-mono" "$INSTALL_DIR/" 2>/dev/null || true
-    if command -v g++ &>/dev/null; then
-        echo "⚡ Compiling native C++ monochrome engine (luma-mono)..."
-        g++ -O3 -march=native -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || \
-        g++ -O3 -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || \
-        g++ -O3 -std=c++17 -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || true
-
-        g++ -O3 -march=native -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || \
-        g++ -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || \
-        g++ -O3 -std=c++17 -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || true
-    else
-        echo -e "${YELLOW}ℹ️  g++ no detectado. Para soporte C++ de máxima aceleración:${NC}"
-        echo "  • Fedora/RHEL:   sudo dnf install gcc-c++ libgomp"
-        echo "  • Debian/Ubuntu: sudo apt install g++"
-        echo "  • Arch Linux:    yay -S gcc (o: sudo pacman -S gcc)"
-        echo "  • Void Linux:    sudo xbps-install -S gcc make"
-        echo "  • Alpine Linux:  sudo apk add g++ openmp-dev make"
-        echo "  • Gentoo Linux:  sudo emerge --ask sys-devel/gcc"
-        echo "  • NixOS / Nix:   nix-shell -p gcc openmp"
+# 3b. Locate or download C++ engine sources and headers
+for src_file in monochrome.cpp mary.cpp stb_image.h stb_image_resize2.h; do
+    if [ -f "$SCRIPT_DIR/$src_file" ]; then
+        cp "$SCRIPT_DIR/$src_file" "$SHARE_DIR/$src_file"
+    elif [ ! -f "$SHARE_DIR/$src_file" ]; then
+        curl -fsSL "$RAW_BASE/$src_file" -o "$SHARE_DIR/$src_file" 2>/dev/null || true
     fi
+done
+
+# If prebuilt binaries exist locally (e.g. from local git clone), copy them
+[ -f "$SCRIPT_DIR/libmonochrome.so" ] && cp "$SCRIPT_DIR/libmonochrome.so" "$SHARE_DIR/" 2>/dev/null || true
+[ -f "$SCRIPT_DIR/luma-mono" ] && cp "$SCRIPT_DIR/luma-mono" "$INSTALL_DIR/" 2>/dev/null || true
+[ -f "$SCRIPT_DIR/libmary.so" ] && cp "$SCRIPT_DIR/libmary.so" "$SHARE_DIR/" 2>/dev/null || true
+[ -f "$SCRIPT_DIR/luma-mary" ] && cp "$SCRIPT_DIR/luma-mary" "$INSTALL_DIR/" 2>/dev/null || true
+
+# 3c. Compile native C++ engines if compiler is available
+CXX_BIN=""
+if command -v g++ &>/dev/null; then
+    CXX_BIN="g++"
+elif command -v clang++ &>/dev/null; then
+    CXX_BIN="clang++"
 fi
 
-# 3c. C++ Mary Color Super-Engine (standalone binary and shared library)
-if [ -f "$SCRIPT_DIR/mary.cpp" ]; then
-    cp "$SCRIPT_DIR/mary.cpp" "$SHARE_DIR/"
-    [ -f "$SCRIPT_DIR/stb_image.h" ] && cp "$SCRIPT_DIR/stb_image.h" "$SHARE_DIR/"
-    [ -f "$SCRIPT_DIR/stb_image_resize2.h" ] && cp "$SCRIPT_DIR/stb_image_resize2.h" "$SHARE_DIR/"
-    [ -f "$SCRIPT_DIR/libmary.so" ] && cp "$SCRIPT_DIR/libmary.so" "$SHARE_DIR/" 2>/dev/null || true
-    [ -f "$SCRIPT_DIR/luma-mary" ] && cp "$SCRIPT_DIR/luma-mary" "$INSTALL_DIR/" 2>/dev/null || true
-    if command -v g++ &>/dev/null; then
-        echo "⚡ Compiling native C++ Mary color super-engine (luma-mary)..."
-        g++ -O3 -march=native -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$INSTALL_DIR/luma-mary" 2>/dev/null || \
-        g++ -O3 -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$INSTALL_DIR/luma-mary" 2>/dev/null || \
-        g++ -O3 -std=c++17 -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$INSTALL_DIR/luma-mary" 2>/dev/null || true
+if [ -n "$CXX_BIN" ]; then
+    if [ -f "$SHARE_DIR/monochrome.cpp" ]; then
+        echo "⚡ Compiling native C++ monochrome engine (luma-mono) with $CXX_BIN..."
+        "$CXX_BIN" -O3 -march=native -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || \
+        "$CXX_BIN" -O3 -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || \
+        "$CXX_BIN" -O3 -std=c++17 -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$INSTALL_DIR/luma-mono" 2>/dev/null || true
 
-        g++ -O3 -march=native -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$SHARE_DIR/libmary.so" 2>/dev/null || \
-        g++ -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$SHARE_DIR/libmary.so" 2>/dev/null || \
-        g++ -O3 -std=c++17 -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$SHARE_DIR/libmary.so" 2>/dev/null || true
+        "$CXX_BIN" -O3 -march=native -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || \
+        "$CXX_BIN" -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || \
+        "$CXX_BIN" -O3 -std=c++17 -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/monochrome.cpp" -o "$SHARE_DIR/libmonochrome.so" 2>/dev/null || true
+    fi
+
+    if [ -f "$SHARE_DIR/mary.cpp" ]; then
+        echo "⚡ Compiling native C++ Mary color super-engine (luma-mary) with $CXX_BIN..."
+        "$CXX_BIN" -O3 -march=native -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$INSTALL_DIR/luma-mary" 2>/dev/null || \
+        "$CXX_BIN" -O3 -std=c++17 -fopenmp -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$INSTALL_DIR/luma-mary" 2>/dev/null || \
+        "$CXX_BIN" -O3 -std=c++17 -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$INSTALL_DIR/luma-mary" 2>/dev/null || true
+
+        "$CXX_BIN" -O3 -march=native -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$SHARE_DIR/libmary.so" 2>/dev/null || \
+        "$CXX_BIN" -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$SHARE_DIR/libmary.so" 2>/dev/null || \
+        "$CXX_BIN" -O3 -std=c++17 -fPIC -shared -I"$SHARE_DIR" "$SHARE_DIR/mary.cpp" -o "$SHARE_DIR/libmary.so" 2>/dev/null || true
+    fi
+else
+    if [ "$LANG_MODE" = "es" ]; then
+        echo -e "${YELLOW}ℹ️  Compilador C++ (g++/clang++) no detectado. Para soporte C++ de máxima aceleración:${NC}"
+        echo "  • Android (Termux): pkg install clang make libomp"
+        echo "  • Fedora/RHEL:      sudo dnf install gcc-c++ libgomp"
+        echo "  • Debian/Ubuntu:    sudo apt install g++"
+        echo "  • Arch Linux:       yay -S gcc (o: sudo pacman -S gcc)"
+        echo "  • Void Linux:       sudo xbps-install -S gcc make"
+        echo "  • Alpine Linux:     sudo apk add g++ openmp-dev make"
+        echo "  • Gentoo Linux:     sudo emerge --ask sys-devel/gcc"
+        echo "  • NixOS / Nix:      nix-shell -p gcc openmp"
+    else
+        echo -e "${YELLOW}ℹ️  C++ compiler (g++/clang++) not found. For maximum native C++ speed:${NC}"
+        echo "  • Android (Termux): pkg install clang make libomp"
+        echo "  • Fedora/RHEL:      sudo dnf install gcc-c++ libgomp"
+        echo "  • Debian/Ubuntu:    sudo apt install g++"
+        echo "  • Arch Linux:       sudo pacman -S gcc"
+        echo "  • Void Linux:       sudo xbps-install -S gcc make"
+        echo "  • Alpine Linux:     sudo apk add g++ openmp-dev make"
+        echo "  • Gentoo Linux:     sudo emerge --ask sys-devel/gcc"
+        echo "  • NixOS / Nix:      nix-shell -p gcc openmp"
     fi
 fi
 
@@ -230,8 +276,14 @@ if ! python3 -c "from PIL import Image" &>/dev/null; then
     echo -e "${YELLOW}${MSG_RESOLVING}${NC}"
     INSTALLED=0
 
+    # Opción Termux (Android)
+    if [ "$IS_TERMUX" -eq 1 ] && command -v pkg &>/dev/null; then
+        echo "${MSG_TERMUX}"
+        pkg install -y python-pillow clang make libomp && INSTALLED=1 || true
+    fi
+
     # Opción A: Modo administrador / root
-    if [ "$EUID" -eq 0 ]; then
+    if [ "$INSTALLED" -eq 0 ] && [ "$EUID" -eq 0 ]; then
         if command -v dnf5 &>/dev/null; then
             echo "${MSG_FEDORA}"
             dnf5 install -y python3-pillow && INSTALLED=1 || true
@@ -260,9 +312,10 @@ if ! python3 -c "from PIL import Image" &>/dev/null; then
             echo "${MSG_NIX}"
             nix-env -iA nixpkgs.python3Packages.pillow && INSTALLED=1 || true
         fi
-    else
-        # Opción B: Modo usuario regular (sin sudo invasivo que bloquee)
-        # Si yay (Arch Linux / AUR helper) está disponible, instalar limpiamente
+    fi
+
+    # Opción B: Modo usuario regular
+    if [ "$INSTALLED" -eq 0 ]; then
         if command -v yay &>/dev/null; then
             echo "📦 Detectado yay (Arch Linux / AUR). Instalando dependencias de Pillow..."
             yay -S --noconfirm --needed python-pillow && INSTALLED=1 || true
@@ -273,7 +326,7 @@ if ! python3 -c "from PIL import Image" &>/dev/null; then
             python3 -m pip install Pillow --user --break-system-packages -q &>/dev/null && INSTALLED=1 || true
         fi
 
-        # Opción C: Entorno virtual aislado en ~/.local/share/luma/venv
+        # Opción C: Entorno virtual aislado en SHARE_DIR/venv
         if [ "$INSTALLED" -eq 0 ]; then
             echo "${MSG_VENV} $SHARE_DIR/venv..."
             python3 -m venv "$SHARE_DIR/venv" &>/dev/null || true
@@ -293,9 +346,6 @@ if ! python3 -c "from PIL import Image" &>/dev/null; then
             elif command -v apt-get &>/dev/null; then
                 echo "${MSG_DEBIAN}"
                 (sudo apt-get update -qq && (sudo apt-get install -y -qq python3-pil || sudo apt-get install -y -qq python3-pillow)) && INSTALLED=1 || true
-            elif command -v yay &>/dev/null; then
-                echo "📦 Detectado yay (Arch Linux / AUR)..."
-                yay -S --noconfirm --needed python-pillow && INSTALLED=1 || true
             elif command -v pacman &>/dev/null; then
                 echo "${MSG_ARCH}"
                 sudo pacman -S --noconfirm python-pillow && INSTALLED=1 || true
@@ -321,10 +371,15 @@ if ! python3 -c "from PIL import Image" &>/dev/null; then
     if [ "$INSTALLED" -eq 0 ]; then
         echo -e "${YELLOW}${MSG_FAIL}${NC}"
         echo "${MSG_FAIL_HINT}"
-        echo "  • Fedora/RHEL:   sudo dnf install python3-pillow"
-        echo "  • Debian/Ubuntu: sudo apt install python3-pil"
-        echo "  • Arch Linux:    yay -S python-pillow (o: sudo pacman -S python-pillow)"
-        echo "  • openSUSE:      sudo zypper install python3-Pillow"
+        echo "  • Android (Termux): pkg install python-pillow"
+        echo "  • Fedora/RHEL:      sudo dnf install python3-pillow"
+        echo "  • Debian/Ubuntu:    sudo apt install python3-pil"
+        echo "  • Arch Linux:       yay -S python-pillow (o: sudo pacman -S python-pillow)"
+        echo "  • openSUSE:         sudo zypper install python3-Pillow"
+        echo "  • Void Linux:       sudo xbps-install -S python3-Pillow"
+        echo "  • Alpine Linux:     sudo apk add py3-pillow"
+        echo "  • Gentoo Linux:     sudo emerge --ask dev-python/pillow"
+        echo "  • NixOS / Nix:      nix-env -iA nixpkgs.python3Packages.pillow"
     fi
 fi
 
@@ -337,13 +392,18 @@ if [ -f "$SHARE_DIR/venv/bin/python" ]; then
 fi
 
 rm -f "$INSTALL_DIR/lumart" "$INSTALL_DIR/luma"
+BASH_BIN="$(command -v bash 2>/dev/null || command -v sh 2>/dev/null || echo "/bin/sh")"
 cat << EOF_WRAPPER > "$INSTALL_DIR/lumart"
-#!/bin/bash
+#!$BASH_BIN
 exec "$PY_EXEC" "$SHARE_DIR/lumart.py" "\$@"
 EOF_WRAPPER
 
 chmod +x "$INSTALL_DIR/lumart"
 ln -sf "$INSTALL_DIR/lumart" "$INSTALL_DIR/luma"
+
+if command -v termux-fix-shebang &>/dev/null; then
+    termux-fix-shebang "$INSTALL_DIR/lumart" 2>/dev/null || true
+fi
 
 # 5b. Manejo de icono de escritorio: CLI limpia por defecto, opcional con --desktop
 if [ "$WITH_DESKTOP" -eq 1 ]; then
@@ -357,7 +417,30 @@ else
 fi
 
 # 5c. Shell Completions & UNIX Man Page
-if [ "$EUID" -eq 0 ]; then
+if [ -d "$SCRIPT_DIR/completions" ]; then
+    mkdir -p "$SHARE_DIR/completions" 2>/dev/null || true
+    cp -r "$SCRIPT_DIR/completions/"* "$SHARE_DIR/completions/" 2>/dev/null || true
+else
+    mkdir -p "$SHARE_DIR/completions" 2>/dev/null || true
+    curl -fsSL "$RAW_BASE/completions/lumart.bash" -o "$SHARE_DIR/completions/lumart.bash" 2>/dev/null || true
+    curl -fsSL "$RAW_BASE/completions/_lumart" -o "$SHARE_DIR/completions/_lumart" 2>/dev/null || true
+    curl -fsSL "$RAW_BASE/completions/lumart.fish" -o "$SHARE_DIR/completions/lumart.fish" 2>/dev/null || true
+fi
+
+if [ -f "$SCRIPT_DIR/man/lumart.1" ]; then
+    mkdir -p "$SHARE_DIR/man" 2>/dev/null || true
+    cp "$SCRIPT_DIR/man/lumart.1" "$SHARE_DIR/man/lumart.1" 2>/dev/null || true
+else
+    mkdir -p "$SHARE_DIR/man" 2>/dev/null || true
+    curl -fsSL "$RAW_BASE/man/lumart.1" -o "$SHARE_DIR/man/lumart.1" 2>/dev/null || true
+fi
+
+if [ "$IS_TERMUX" -eq 1 ] && [ -n "${PREFIX:-}" ] && [ -d "$PREFIX/share" ]; then
+    BASH_COMP_DIR="$PREFIX/share/bash-completion/completions"
+    ZSH_COMP_DIR="$PREFIX/share/zsh/site-functions"
+    FISH_COMP_DIR="$PREFIX/share/fish/vendor_completions.d"
+    MAN_DIR="$PREFIX/share/man/man1"
+elif [ "$EUID" -eq 0 ]; then
     BASH_COMP_DIR="/usr/share/bash-completion/completions"
     ZSH_COMP_DIR="/usr/share/zsh/site-functions"
     FISH_COMP_DIR="/usr/share/fish/vendor_completions.d"
@@ -369,48 +452,75 @@ else
     MAN_DIR="$HOME/.local/share/man/man1"
 fi
 
-if [ -f "$SCRIPT_DIR/completions/lumart.bash" ]; then
+if [ -f "$SHARE_DIR/completions/lumart.bash" ]; then
     mkdir -p "$BASH_COMP_DIR" 2>/dev/null || true
-    cp "$SCRIPT_DIR/completions/lumart.bash" "$BASH_COMP_DIR/lumart" 2>/dev/null || true
+    cp "$SHARE_DIR/completions/lumart.bash" "$BASH_COMP_DIR/lumart" 2>/dev/null || true
     ln -sf lumart "$BASH_COMP_DIR/luma" 2>/dev/null || true
 fi
-if [ -f "$SCRIPT_DIR/completions/_lumart" ]; then
+if [ -f "$SHARE_DIR/completions/_lumart" ]; then
     mkdir -p "$ZSH_COMP_DIR" 2>/dev/null || true
-    cp "$SCRIPT_DIR/completions/_lumart" "$ZSH_COMP_DIR/_lumart" 2>/dev/null || true
+    cp "$SHARE_DIR/completions/_lumart" "$ZSH_COMP_DIR/_lumart" 2>/dev/null || true
     ln -sf _lumart "$ZSH_COMP_DIR/_luma" 2>/dev/null || true
-    if [ "$EUID" -ne 0 ]; then
+    if [ "$EUID" -ne 0 ] && [ "$IS_TERMUX" -ne 1 ]; then
         mkdir -p "$HOME/.zsh/completion" 2>/dev/null || true
-        cp "$SCRIPT_DIR/completions/_lumart" "$HOME/.zsh/completion/_lumart" 2>/dev/null || true
+        cp "$SHARE_DIR/completions/_lumart" "$HOME/.zsh/completion/_lumart" 2>/dev/null || true
         ln -sf _lumart "$HOME/.zsh/completion/_luma" 2>/dev/null || true
     fi
 fi
-if [ -f "$SCRIPT_DIR/completions/lumart.fish" ]; then
+if [ -f "$SHARE_DIR/completions/lumart.fish" ]; then
     mkdir -p "$FISH_COMP_DIR" 2>/dev/null || true
-    cp "$SCRIPT_DIR/completions/lumart.fish" "$FISH_COMP_DIR/lumart.fish" 2>/dev/null || true
+    cp "$SHARE_DIR/completions/lumart.fish" "$FISH_COMP_DIR/lumart.fish" 2>/dev/null || true
     ln -sf lumart.fish "$FISH_COMP_DIR/luma.fish" 2>/dev/null || true
 fi
-if [ -f "$SCRIPT_DIR/man/lumart.1" ]; then
+if [ -f "$SHARE_DIR/man/lumart.1" ]; then
     mkdir -p "$MAN_DIR" 2>/dev/null || true
-    cp "$SCRIPT_DIR/man/lumart.1" "$MAN_DIR/lumart.1" 2>/dev/null || true
+    cp "$SHARE_DIR/man/lumart.1" "$MAN_DIR/lumart.1" 2>/dev/null || true
     ln -sf lumart.1 "$MAN_DIR/luma.1" 2>/dev/null || true
     if command -v mandb &>/dev/null; then
         mandb -q "$MAN_DIR/.." 2>/dev/null || true
     fi
 fi
 
-# 6. Verify PATH
+# 6. Verify installation execution & PATH
+INSTALL_VERIFIED=0
+if [ -x "$INSTALL_DIR/lumart" ]; then
+    if "$INSTALL_DIR/lumart" --version &>/dev/null; then
+        INSTALL_VERIFIED=1
+    fi
+fi
+
+if [ "$INSTALL_VERIFIED" -eq 1 ]; then
+    echo -e "\n${GREEN}${MSG_SUCCESS}${NC}"
+    echo -e "${MSG_READY}\n"
+else
+    if [ "$LANG_MODE" = "es" ]; then
+        echo -e "\n${YELLOW}⚠️  Luma se instaló pero la verificación de ejecución reportó un aviso.${NC}"
+        echo "Prueba ejecutar directamente: $INSTALL_DIR/lumart --version"
+    else
+        echo -e "\n${YELLOW}⚠️  Luma was installed but execution verification reported a warning.${NC}"
+        echo "Try executing directly: $INSTALL_DIR/lumart --version"
+    fi
+fi
+
 IN_PATH=0
 case ":$PATH:" in
     *":$INSTALL_DIR:"*) IN_PATH=1 ;;
 esac
 
-echo -e "\n${GREEN}${MSG_SUCCESS}${NC}"
-echo -e "${MSG_READY}\n"
-
 if [ "$IN_PATH" -eq 0 ]; then
     echo -e "${YELLOW}${MSG_PATH_WARN/INSTALL_DIR/$INSTALL_DIR}${NC}"
     echo "${MSG_PATH_HINT}"
-    echo -e "  ${CYAN}export PATH=\"\$HOME/.local/bin:\$PATH\"${NC}\n"
+    echo -e "  ${CYAN}export PATH=\"$INSTALL_DIR:\$PATH\"${NC}\n"
+    for rc in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile"; do
+        if [ -f "$rc" ] && ! grep -q "$INSTALL_DIR" "$rc"; then
+            echo "export PATH=\"$INSTALL_DIR:\$PATH\"" >> "$rc"
+            if [ "$LANG_MODE" = "es" ]; then
+                echo -e "${GREEN}✓ Se ha agregado $INSTALL_DIR a $rc${NC}"
+            else
+                echo -e "${GREEN}✓ Added $INSTALL_DIR to $rc${NC}"
+            fi
+        fi
+    done
 fi
 
 echo -e "${MSG_UPDATE_HINT}\n"

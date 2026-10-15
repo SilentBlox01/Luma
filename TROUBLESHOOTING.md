@@ -83,6 +83,7 @@ If an image looks distorted, pixelated, fails to render, or displays unexpected 
 
 | Symptom | Primary Cause | Immediate Resolution |
 | :--- | :--- | :--- |
+| On Android/Termux: `No command luma found` or `bad interpreter` | Target binary outside PATH or rigid shebang incompatible with Android | Run: `pkg update && pkg install -y python python-pillow clang make && curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh \| bash` |
 | `command not found: luma` or `lumart` | `~/.local/bin` is missing from `$PATH` | Run `./install.sh` or add `export PATH="$HOME/.local/bin:$PATH"` to `~/.bashrc` / `~/.zshrc`. |
 | `error: externally-managed-environment` | PEP 668 restriction on Fedora, Debian, or Ubuntu | Install native system packages: `sudo dnf install python3-pillow` / `sudo apt install python3-pil`, or run `./install.sh`. |
 | Braille dots or blocks look like `?`, ``, or empty boxes | Active terminal font lacks Unicode glyph coverage | Switch to a Nerd Font (JetBrains Mono Nerd Font, Fira Code, Cascadia Code). |
@@ -357,15 +358,28 @@ curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh |
 ```
 
 #### 7. Android / Mobile Devices (Termux)
+> [!NOTE]
+> Termux does not have standard `/bin/bash` or `/usr/local/bin` directories. Luma automatically identifies Android/Termux environments and compiles/installs directly into `$PREFIX/bin` (`/data/data/com.termux/files/usr/bin`), ensuring immediate `$PATH` availability.
+
+**Quick 1-Line Install (Recommended):**
 ```bash
-# Step 1: Update repositories and install Termux packages
+pkg update && pkg install -y python python-pillow clang make && curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+```
+
+**Or manual Git clone:**
+```bash
+# Step 1: Update repos and install packages in Termux
 pkg update && pkg install -y python python-pillow clang make git
 
-# Step 2: Clone and install
+# Step 2: Clone and run installer
 git clone https://github.com/SilentBlox01/Luma.git
 cd Luma
 ./install.sh
 ```
+
+**Termux Troubleshooting Notes:**
+- **Dynamic Shebang:** Android bash is located at `/data/data/com.termux/files/usr/bin/bash`. Installer v2.5.0 auto-resolves bash and invokes `termux-fix-shebang`.
+- **Precompiled Pillow:** Termux provides precompiled Pillow via `pkg install python-pillow`. Avoid raw `pip install Pillow` on mobile ARM as C build libraries are absent by default.
 
 #### 8. Void Linux (glibc & musl via xbps)
 ```bash

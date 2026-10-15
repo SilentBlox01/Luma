@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==============================================================================
 # Luma / Lumart Uninstaller Script / Desinstalador Completo
 # ==============================================================================
@@ -19,6 +19,17 @@ if [ -f "/usr/bin/lumart" ]; then
     echo "  • Debian/Ubuntu: sudo apt remove lumart"
     echo "  • Fedora/RHEL:   sudo dnf remove lumart"
     echo "  • Arch Linux:    sudo pacman -Rns lumart"
+fi
+
+# 1b. Remove Termux binaries and share dir (Android)
+if [ -n "${PREFIX:-}" ] && [ -d "$PREFIX/bin" ]; then
+    rm -f "$PREFIX/bin/lumart" "$PREFIX/bin/luma" "$PREFIX/bin/luma-mono" "$PREFIX/bin/luma-mary"
+    rm -rf "$PREFIX/share/luma"
+    rm -f "$PREFIX/share/bash-completion/completions/lumart" "$PREFIX/share/bash-completion/completions/luma" \
+          "$PREFIX/share/zsh/site-functions/_lumart" "$PREFIX/share/zsh/site-functions/_luma" \
+          "$PREFIX/share/fish/vendor_completions.d/lumart.fish" "$PREFIX/share/fish/vendor_completions.d/luma.fish" \
+          "$PREFIX/share/man/man1/lumart.1*" "$PREFIX/share/man/man1/luma.1*" 2>/dev/null || true
+    echo "  ✅ Removed Termux installation from $PREFIX"
 fi
 
 # 2. Remove user local binaries, shared data, completions and man pages

@@ -240,8 +240,7 @@ chmod +x install.sh
   ```
 * **Android (Termux)**:
   ```bash
-  pkg install python python-pillow clang make
-  curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
+  pkg update && pkg install -y python python-pillow clang make && curl -fsSL https://raw.githubusercontent.com/SilentBlox01/Luma/main/install.sh | bash
   ```
 * **Void Linux (xbps)**:
   ```bash

@@ -4679,8 +4679,10 @@ def show_version_info():
     exe_dir = os.path.dirname(os.path.abspath(sys.executable))
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
-    has_mary_cpp = any(os.path.exists(os.path.join(d, "libmary.so")) for d in [exe_dir, base_dir, "/usr/local/share/luma", "/usr/share/luma"]) or bool(shutil.which("luma-mary"))
-    has_luris_cpp = any(os.path.exists(os.path.join(d, "libmonochrome.so")) for d in [exe_dir, base_dir, "/usr/local/share/luma", "/usr/share/luma"]) or bool(shutil.which("luma-mono"))
+    prefix_share = os.path.join(os.environ.get("PREFIX", ""), "share", "luma") if os.environ.get("PREFIX") else ""
+    search_dirs = [d for d in [exe_dir, base_dir, prefix_share, "/usr/local/share/luma", "/usr/share/luma"] if d]
+    has_mary_cpp = any(os.path.exists(os.path.join(d, "libmary.so")) for d in search_dirs) or bool(shutil.which("luma-mary"))
+    has_luris_cpp = any(os.path.exists(os.path.join(d, "libmonochrome.so")) for d in search_dirs) or bool(shutil.which("luma-mono"))
 
     mary_badge = f"{c_ok}C++17 OpenMP{rst}" if has_mary_cpp else f"{c_warn}Python{rst}"
     luris_badge = f"{c_ok}C++17 OpenMP{rst}" if has_luris_cpp else f"{c_warn}Python{rst}"
@@ -5127,12 +5129,15 @@ def get_lib_mono():
         os.path.join(base_dir, "libmonochrome.so"),
         os.path.join(exe_dir, "libmonochrome.so"),
         os.path.join(base_dir, "..", "libmonochrome.so"),
+        os.path.join(os.environ.get("PREFIX", ""), "share", "luma", "libmonochrome.so") if os.environ.get("PREFIX") else "",
+        os.path.join(os.environ.get("PREFIX", ""), "lib", "libmonochrome.so") if os.environ.get("PREFIX") else "",
         "/usr/local/share/luma/libmonochrome.so",
         "/usr/share/luma/libmonochrome.so",
         "/usr/local/lib/libmonochrome.so",
         "/usr/lib/libmonochrome.so",
         "libmonochrome.so"
     ]
+    lib_paths = [p for p in lib_paths if p]
     for lp in lib_paths:
         if os.path.exists(lp):
             try:
@@ -5156,12 +5161,15 @@ def get_lib_mary():
         os.path.join(base_dir, "libmary.so"),
         os.path.join(exe_dir, "libmary.so"),
         os.path.join(base_dir, "..", "libmary.so"),
+        os.path.join(os.environ.get("PREFIX", ""), "share", "luma", "libmary.so") if os.environ.get("PREFIX") else "",
+        os.path.join(os.environ.get("PREFIX", ""), "lib", "libmary.so") if os.environ.get("PREFIX") else "",
         "/usr/local/share/luma/libmary.so",
         "/usr/share/luma/libmary.so",
         "/usr/local/lib/libmary.so",
         "/usr/lib/libmary.so",
         "libmary.so"
     ]
+    lib_paths = [p for p in lib_paths if p]
     for lp in lib_paths:
         if os.path.exists(lp):
             try:
