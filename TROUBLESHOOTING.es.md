@@ -1034,9 +1034,9 @@ lumart "logo.png" -w 40 -C
 | `--gamma` | `<float>` | `1.0` | Exponente de corrección no lineal de curva gamma en medios tonos. |
 | `-i`, `--invert`| — | `false` | Invierte el mapeo de luminancia (muy útil en terminales con fondo blanco). |
 | `--swap` | `<c1> <c2>` | `None` | Intercambia dinámicamente dos colores en el espacio tridimensional RGB. |
-| `--theme`, `--palette` | `<nombre>` | `None` | Paleta de color curada: `cyberpunk`, `dracula`, `nord`, `catppuccin`, `gruvbox`, `synthwave`, `monokai`, `gameboy`, `amber`. |
+| `--theme`, `--palette` | `<nombre>` | `None` | Paleta de color curada: `catppuccin`, `dracula`, `nord`, `gruvbox`, `synthwave`, `gameboy`, `solarized`, `tokyo-night`, `rose-pine`, `kanagawa`, `everforest`, `one-dark`. |
 | `--crt`, `--scanlines` | `green` \| `amber` \| `color` \| `scanlines` | `None` | Emulación analógica de monitor CRT vintage con líneas de escaneo. |
-| `--shader` | `<nombre>` | `None` | Shaders multi-espectrales: `neon`, `cyberpunk`, `thermal`, `tron`, `matrix`, `amber`, `manga`, `hologram`, `glitch`, `phosphor-bloom`, `solarize`. |
+| `--shader` | `<nombre>` | `None` | Shaders multi-espectrales: `neon`, `cyberpunk`, `thermal`, `tron`, `matrix`, `amber`, `manga`, `hologram`, `glitch`, `phosphor-bloom`, `solarize`, `vhs`, `blueprint`. |
 | `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | *auto* | Algoritmo de difusión de error para sombreado y tramas. |
 
 ### D. Animación, GIFs y Framerates
@@ -1174,6 +1174,11 @@ lumart imagen.png --shader tron          # Líneas vectoriales cian brillantes
 lumart imagen.png --theme catppuccin     # Paleta de color Catppuccin
 lumart imagen.png --theme dracula        # Paleta de color Dracula
 lumart imagen.png --theme synthwave      # Paleta de color Synthwave de los 80
+lumart imagen.png --theme tokyo-night    # Paleta Tokyo Night neón
+lumart imagen.png --theme rose-pine      # Paleta escandinava Rosé Pine
+lumart imagen.png --shader vhs           # Emulación de cinta VHS con aberración cromática
+lumart imagen.png --shader blueprint     # Cianotipo / Plano técnico de ingeniería
+lumart imagen.png -o arte.html           # Exportar a página HTML interactiva standalone
 lumart imagen.png --crt green            # Monitor analógico CRT fósforo verde vintage
 lumart imagen.png --crt amber            # Monitor analógico CRT fósforo ámbar
 lumart imagen.png --border rounded       # Enmarcar en marco decorativo Unicode redondeado

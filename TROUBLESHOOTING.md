@@ -1005,9 +1005,9 @@ lumart "logo.png" -w 40 -C
 | `--gamma` | `<float>` | `1.0` | Non-linear midtone gamma curve correction exponent. |
 | `-i`, `--invert`| — | `false` | Invert brightness mapping (useful for light-theme terminals). |
 | `--swap` | `<c1> <c2>` | `None` | Dynamically swap two colors in 3D RGB space. |
-| `--theme`, `--palette` | `<name>` | `None` | Curated palette: `cyberpunk`, `dracula`, `nord`, `catppuccin`, `gruvbox`, `synthwave`, `monokai`, `gameboy`, `amber`. |
+| `--theme`, `--palette` | `<name>` | `None` | Curated palette: `catppuccin`, `dracula`, `nord`, `gruvbox`, `synthwave`, `gameboy`, `solarized`, `tokyo-night`, `rose-pine`, `kanagawa`, `everforest`, `one-dark`. |
 | `--crt`, `--scanlines` | `green` \| `amber` \| `color` \| `scanlines` | `None` | Analog CRT monitor emulation with vintage scanlines. |
-| `--shader` | `<name>` | `None` | Multi-spectral shaders: `neon`, `cyberpunk`, `thermal`, `tron`, `matrix`, `amber`, `manga`, `hologram`, `glitch`, `phosphor-bloom`, `solarize`. |
+| `--shader` | `<name>` | `None` | Multi-spectral shaders: `neon`, `cyberpunk`, `thermal`, `tron`, `matrix`, `amber`, `manga`, `hologram`, `glitch`, `phosphor-bloom`, `solarize`, `vhs`, `blueprint`. |
 | `-d`, `--dither` | `atkinson` \| `floyd` \| `bayer` \| `none` | *auto* | Error-diffusion dithering algorithm for shading. |
 
 ### D. Animation, GIFs & Framerates

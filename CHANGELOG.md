@@ -7,6 +7,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [2.5.1] — 2026-10-14
 
+### ⚡ 70 FPS Turbo Video & GIF Engine, HTML Exporter, New Themes & Mobile Resilience
+
+* **🚀 Motor de Video y GIF a 70 FPS Turbo**:
+  * **Cola asíncrona de decodificación**: Desacopla la decodificación de video OpenCV (`cv2.VideoCapture`) del renderizado en terminal mediante un hilo secundario y `queue.Queue`, eliminando el jitter y el cuello de botella de I/O.
+  * **Modo 70 FPS Turbo**: Selector interactivo en caliente con la tecla `[7]` tanto en GIF animados como en streaming de video/webcam (Spectra Weep 2.0).
+  * **Pre-renderizado multi-hilo en RAM**: Precacheo acelerado en paralelo con `concurrent.futures.ThreadPoolExecutor`, reduciendo el tiempo de carga de GIFs hasta en un 70%.
+  * **Reloj monotónico de precisión de microsegundos**: Temporización ultra-estable a 14.28 ms por fotograma sin drift ni saltos de cuadros.
+
+* **🌐 Exportador Standalone a HTML (`-o salida.html`)**:
+  * Permite exportar cualquier render de terminal ANSI TrueColor o monocromático a una página web HTML independiente y elegante.
+  * Incluye ventana de terminal oscura (`#0d1117`), controles estilo macOS/Linux, fuentes monospace de alta definición y botón integrado de copiado al portapapeles.
+
+* **🎨 5 Nuevas Paletas Oficiales de Temas (`--theme`)**:
+  * `tokyo-night`: Azules y púrpuras profundos, ciano neón y acentos pastel de Tokyo Night.
+  * `rose-pine`: Tonos escandinavos apagados con rosa, lavanda y pizarra.
+  * `kanagawa`: Tonos otoñales orgánicos y pigmentos de tinta japonesa inspirados en Hokusai.
+  * `everforest`: Paleta natural y suave de verdes bosque, tonos tierra y crema cálido.
+  * `one-dark`: El esquema oscuro icónico y equilibrado de Atom.
+
+* **🔮 2 Nuevos Shaders Espectrales (`--shader`)**:
+  * `vhs`: Emulación de cinta analógica VHS con aberración cromática RGB y saturación cálida retro.
+  * `blueprint`: Cianotipo arquitectónico / técnico con fondo azul de Prusia profundo y trazos técnicos blancos.
+
+* **📱 Modo Móvil Inteligente (`--mobile` y autodetección en Termux)**:
+  * Auto-calibración de resolución, ancho de columnas (máx. 52 cols) y proporción de caracteres (`font_ratio=0.48`) para evitar el desbordamiento visual en pantallas verticales táctiles de smartphones.
+
 ### 📱 Android (Termux) & Universal Installation Resilience
 
 * **Android / Termux Native Support**:

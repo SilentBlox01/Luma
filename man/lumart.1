@@ -110,10 +110,10 @@ Adjust image tonal contrast multiplier (default: \fB1.0\fR).
 Adjust image color saturation intensity multiplier (default: \fB1.0\fR).
 .TP
 \fB\-\-shader\fR \fISHADER\fR
-Apply multi-spectral shader filter: \fBneon\fR, \fBcyberpunk\fR, \fBthermal\fR, \fBtron\fR, \fBmatrix\fR, \fBamber\fR, \fBmanga\fR, \fBtheme\fR, \fBnormal\fR, \fBhologram\fR, \fBglitch\fR, \fBphosphor-bloom\fR, \fBsolarize\fR.
+Apply multi-spectral shader filter: \fBneon\fR, \fBcyberpunk\fR, \fBthermal\fR, \fBtron\fR, \fBmatrix\fR, \fBamber\fR, \fBmanga\fR, \fBtheme\fR, \fBnormal\fR, \fBhologram\fR, \fBglitch\fR, \fBphosphor-bloom\fR, \fBsolarize\fR, \fBvhs\fR, \fBblueprint\fR.
 .TP
 \fB\-\-theme\fR, \fB\-\-palette\fR \fITHEME\fR
-Synchronize palette with popular terminal themes: \fBcatppuccin\fR, \fBdracula\fR, \fBnord\fR, \fBgruvbox\fR, \fBsynthwave\fR, \fBvaporwave\fR, \fBgameboy\fR, \fBsolarized\fR.
+Synchronize palette with popular terminal themes: \fBcatppuccin\fR, \fBdracula\fR, \fBnord\fR, \fBgruvbox\fR, \fBsynthwave\fR, \fBvaporwave\fR, \fBgameboy\fR, \fBsolarized\fR, \fBtokyo-night\fR, \fBrose-pine\fR, \fBkanagawa\fR, \fBeverforest\fR, \fBone-dark\fR.
 .TP
 \fB\-\-crt\fR, \fB\-\-scanlines\fR [\fIMODE\fR]
 Simulate retro cathode ray tube monitors and phosphor displays (\fBcolor\fR, \fBgreen\fR P1 phosphor, \fBamber\fR P3 phosphor, \fBscanlines\fR).
@@ -149,6 +149,10 @@ Target framerate for animations, video conversion, and terminal playback.
 .TP
 \fB\-\-transparent\fR
 Export manga renders as alpha-transparent PNG stickers (Luris Mono exclusive).
+
+.TP
+\fB\-\-\mobile\fR
+Calibrate output resolution, width, and font ratio for mobile screens and Android/Termux environments.
 
 .SS "Interactive TUI, Gallery & Diff"
 .TP

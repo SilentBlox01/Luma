@@ -448,7 +448,7 @@ TRANSLATIONS = {
         "err_conflict_loop_static": "Incompatible format: --loop is an animated mode and cannot be exported to a static image format (.png/.jpg). To save the animation, explicitly specify an animated format (.gif), e.g.: -o output.gif or --save output.gif.",
         "err_conflict_transparent_jpg": "Incompatible format: --transparent requires export to .png (JPEG does not support alpha channel transparency).",
         "help_remove_bg": "Remove background from image without losing quality (-r, --remove-bg). If used without engine flags, saves HD transparent PNG.",
-        "help_theme": "Synchronize colors with terminal theme (catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized).",
+        "help_theme": "Synchronize colors with terminal theme (catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized, tokyo-night, rose-pine, kanagawa, everforest, one-dark).",
         "help_crt": "Simulate retro CRT scanlines and phosphor monitor (--crt [green|amber|color]).",
         "help_matrix": "Render image in digital Katakana and binary green Matrix code (--matrix).",
         "help_matrix_rain": "Play falling Katakana Matrix rain animation resolving into image (--matrix-rain).",
@@ -475,8 +475,8 @@ TRANSLATIONS = {
         "help_showcase": "Generate a 4-in-1 comparison showcase across all 4 flagship engines (Mary, Trumble, Luris, Spectra).",
         "help_info": "Display visual image inspector: resolution, aspect ratio, dominant colors, and engine recommendation.",
         "help_fetch_preset": "Generate optimized Fastfetch/Neofetch ANSI art and config.jsonc snippet.",
-        "help_shader": "Apply Spectra Weep 2.0 multi-spectral shader: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'normal'.",
-        "help_fps": "Target framerate (e.g. 60, 30) for animated GIF playback or streaming.",
+        "help_shader": "Apply Spectra Weep 2.0 multi-spectral shader: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'vhs', 'blueprint', 'normal'.",
+        "help_fps": "Target framerate (e.g. 70, 60, 30) for ultra-fluid animated GIF playback or video streaming.",
         "help_bg_tolerance": "Color tolerance for intelligent background removal (1-100, default: 32).",
         "help_rotate": "Rotate image clockwise by degrees: 90, 180, or 270 (--rotate 90).",
         "help_flip": "Flip or mirror image: 'h' (horizontal) or 'v' (vertical) (--flip h).",
@@ -643,7 +643,7 @@ TRANSLATIONS = {
         "err_conflict_loop_static": "Incompatibilidad de formato: --loop es un modo animado y no puede exportarse a una imagen estática (.png/.jpg). Para guardar la animación completa, especifica explícitamente un archivo .gif (ej: -o salida.gif o --save salida.gif).",
         "err_conflict_transparent_jpg": "Incompatibilidad de formato: --transparent requiere exportación en formato .png (el formato JPEG no admite canal alfa transparente).",
         "help_remove_bg": "Quitar el fondo sin perder calidad (-r, --remove-bg). Si se usa solo, guarda PNG transparente HD sin aplicar modelos ASCII.",
-        "help_theme": "Sincronizar colores con tema de terminal (catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized).",
+        "help_theme": "Sincronizar colores con tema de terminal (catppuccin, dracula, nord, gruvbox, synthwave, gameboy, solarized, tokyo-night, rose-pine, kanagawa, everforest, one-dark).",
         "help_crt": "Simular monitor CRT retro con líneas de barrido y fósforo (--crt [green|amber|color]).",
         "help_matrix": "Renderizar imagen en glifos Katakana y código binario Matrix verde (--matrix).",
         "help_matrix_rain": "Animación de lluvia de código Matrix que se ensambla en la imagen (--matrix-rain).",
@@ -670,7 +670,7 @@ TRANSLATIONS = {
         "help_showcase": "Genera una comparativa 4-en-1 mostrando los 4 motores insignia (Mary, Trumble, Luris, Spectra).",
         "help_info": "Muestra el inspector visual: resolución, proporción, paleta dominante HEX/ANSI y recomendación de motor.",
         "help_fetch_preset": "Genera el arte ANSI optimizado y el bloque config.jsonc para Fastfetch/Neofetch.",
-        "help_shader": "Aplicar shader multi-espectral de Spectra Weep 2.0: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'normal'.",
+        "help_shader": "Aplicar shader multi-espectral de Spectra Weep 2.0: 'neon', 'thermal', 'tron', 'matrix', 'amber', 'hologram', 'glitch', 'phosphor-bloom', 'solarize', 'vhs', 'blueprint', 'normal'.",
         "help_fps": "Framerate objetivo (ej. 60, 30) para reproducción ultra-fluida de GIFs o streaming.",
         "help_bg_tolerance": "Tolerancia cromática para extracción de fondo transparente (1-100, defecto: 32).",
         "help_rotate": "Rotar imagen en sentido horario: 90, 180 o 270 grados (--rotate 90).",
@@ -2216,6 +2216,31 @@ THEME_PALETTES = {
         (131, 148, 150), (147, 161, 161), (238, 232, 213), (253, 246, 227),
         (181, 137, 0), (203, 75, 22), (220, 50, 47), (211, 54, 130),
         (108, 113, 196), (38, 139, 210), (42, 161, 152), (133, 153, 0)
+    ],
+    "tokyo-night": [
+        (26, 27, 38), (36, 40, 59), (41, 46, 66), (86, 95, 137),
+        (192, 202, 245), (122, 162, 247), (187, 154, 247), (125, 207, 255),
+        (158, 206, 106), (224, 175, 104), (247, 118, 142), (255, 158, 100), (42, 195, 222)
+    ],
+    "rose-pine": [
+        (25, 23, 36), (31, 29, 46), (38, 35, 58), (110, 106, 134),
+        (224, 222, 244), (235, 188, 186), (49, 116, 143), (156, 207, 216),
+        (196, 167, 231), (246, 193, 119), (235, 111, 146)
+    ],
+    "kanagawa": [
+        (31, 31, 40), (42, 42, 55), (84, 84, 109), (114, 113, 105),
+        (220, 215, 186), (126, 156, 216), (149, 127, 184), (118, 148, 106),
+        (220, 165, 97), (195, 64, 67), (210, 126, 156), (101, 133, 148)
+    ],
+    "everforest": [
+        (45, 53, 59), (52, 63, 68), (68, 82, 88), (133, 146, 137),
+        (211, 198, 170), (167, 192, 128), (219, 188, 127), (230, 126, 128),
+        (214, 153, 182), (127, 187, 179), (131, 192, 146), (229, 170, 112)
+    ],
+    "one-dark": [
+        (40, 44, 52), (59, 64, 72), (75, 82, 93), (92, 99, 112),
+        (171, 178, 191), (97, 175, 239), (198, 120, 221), (152, 195, 121),
+        (229, 192, 123), (224, 108, 117), (86, 182, 194), (209, 154, 102)
     ]
 }
 
@@ -2657,7 +2682,31 @@ def apply_spectra_shader(image, shader="neon", theme_name=None):
         elif sh in ("solarize", "solar", "sabattier"):
             solar = np.where(arr > 128, 255 - arr, arr)
             return Image.fromarray(solar.astype(np.uint8))
-            
+
+        # 11. VHS Analog Tape (Aberración cromática analógica y saturación cálida retro)
+        elif sh in ("vhs", "analog", "tape"):
+            rgb = arr.copy()
+            shift = max(1, w // 75)
+            r_chan = np.roll(rgb[:, :, 0], shift, axis=1)
+            b_chan = np.roll(rgb[:, :, 2], -shift, axis=1)
+            g_chan = rgb[:, :, 1]
+            out = np.dstack([
+                np.clip(r_chan.astype(np.float32) * 1.15 + 10, 0, 255).astype(np.uint8),
+                np.clip(g_chan.astype(np.float32) * 0.95, 0, 255).astype(np.uint8),
+                np.clip(b_chan.astype(np.float32) * 1.10, 0, 255).astype(np.uint8)
+            ])
+            return Image.fromarray(out)
+
+        # 12. Blueprint (Plano técnico cianotipo arquitectónico)
+        elif sh in ("blueprint", "cyanotype", "cad"):
+            gray = np.dot(arr[..., :3], [0.2126, 0.7152, 0.0722])
+            t = np.clip(gray / 255.0, 0, 1)
+            out = np.zeros((h, w, 3), dtype=np.uint8)
+            out[:, :, 0] = np.clip(15 + t * 215, 0, 255).astype(np.uint8)
+            out[:, :, 1] = np.clip(35 + t * 210, 0, 255).astype(np.uint8)
+            out[:, :, 2] = np.clip(75 + t * 180, 0, 255).astype(np.uint8)
+            return Image.fromarray(out)
+
         else:
             return image
     except Exception:
@@ -4637,7 +4686,7 @@ def get_formatted_lumart_help():
     lines.append(section_header("EJEMPLOS PRÁCTICOS & RECETAS RÁPIDAS" if is_es else "PRACTICAL EXAMPLES & QUICK RECIPES"))
     examples = [
         ("lumart foto.jpg", "Fotorrealismo automático con Mary Apex 3.5 en Sextantes 2x3" if is_es else "Automatic photorealism with Mary Apex 3.5 on 2x3 Sextants"),
-        ("lumart anim.gif --fps 60", "Reproducción ultra-fluida a 60 FPS con reloj monotónico" if is_es else "Ultra-fluid 60 FPS animated playback with monotonic timer"),
+        ("lumart anim.gif --fps 60", "Reproducción ultra-fluida a 70 FPS Turbo con reloj monotónico" if is_es else "Ultra-fluid 60 FPS animated playback with monotonic timer"),
         ("lumart foto.jpg -I", "Estudio interactivo en vivo con controles en caliente y buffer" if is_es else "Interactive live studio with real-time controls and buffer"),
         ("lumart foto.jpg -r --bg-tolerance 40", "Eliminar fondo con tolerancia afinada y alpha feathering" if is_es else "Remove background with tuned tolerance and alpha feathering"),
         ("lumart foto.jpg -E trumble --boost", "Cel-shading anime vibrante estilo arcade Capcom CPS-2" if is_es else "Vibrant anime cel-shading in Capcom CPS-2 arcade style"),
@@ -5590,6 +5639,252 @@ def export_ansi_to_image(ansi_text, out_path=None, transparent=False, font_size=
     return True
 
 # ==============================================================================
+def export_ansi_to_html(ansi_text: str, out_path: str, title: str = "Luma Terminal Art") -> bool:
+    """
+    Convierte arte terminal ANSI TrueColor/Unicode a una página HTML standalone elegante
+    con diseño de terminal oscura, estilos CSS de alta fidelidad y botón interactivo para copiar.
+    """
+    import html as html_lib
+    import re
+    
+    ansi_re = re.compile(r'\x1b\[([0-9;]*)m')
+    palette_16 = {
+        0: "#000000", 1: "#cd3131", 2: "#0dbc79", 3: "#e5e510",
+        4: "#2472c8", 5: "#bc3fbc", 6: "#11a8cd", 7: "#e5e5e5",
+        8: "#666666", 9: "#f14c4c", 10: "#23d18b", 11: "#f5f543",
+        12: "#3b8eea", 13: "#d670d6", 14: "#29b8db", 15: "#ffffff"
+    }
+    
+    html_lines = []
+    for line in ansi_text.splitlines():
+        pos = 0
+        cur_fg = None
+        cur_bg = None
+        cur_bold = False
+        span_open = False
+        line_out = []
+        
+        for match in ansi_re.finditer(line):
+            text_chunk = line[pos:match.start()]
+            if text_chunk:
+                line_out.append(html_lib.escape(text_chunk))
+            
+            raw_codes = match.group(1)
+            codes = [int(c) for c in raw_codes.split(';')] if raw_codes else [0]
+            pos = match.end()
+            
+            i = 0
+            while i < len(codes):
+                c = codes[i]
+                if c == 0:
+                    cur_fg = None
+                    cur_bg = None
+                    cur_bold = False
+                elif c == 1:
+                    cur_bold = True
+                elif c == 22:
+                    cur_bold = False
+                elif c == 39:
+                    cur_fg = None
+                elif c == 49:
+                    cur_bg = None
+                elif 30 <= c <= 37:
+                    cur_fg = palette_16.get(c - 30)
+                elif 90 <= c <= 97:
+                    cur_fg = palette_16.get(c - 90 + 8)
+                elif 40 <= c <= 47:
+                    cur_bg = palette_16.get(c - 40)
+                elif 100 <= c <= 107:
+                    cur_bg = palette_16.get(c - 100 + 8)
+                elif c == 38 and i + 4 < len(codes) and codes[i+1] == 2:
+                    cur_fg = f"#{codes[i+2]:02x}{codes[i+3]:02x}{codes[i+4]:02x}"
+                    i += 4
+                elif c == 48 and i + 4 < len(codes) and codes[i+1] == 2:
+                    cur_bg = f"#{codes[i+2]:02x}{codes[i+3]:02x}{codes[i+4]:02x}"
+                    i += 4
+                elif c == 38 and i + 2 < len(codes) and codes[i+1] == 5:
+                    col_idx = codes[i+2]
+                    if col_idx < 16:
+                        cur_fg = palette_16.get(col_idx)
+                    elif col_idx < 232:
+                        idx = col_idx - 16
+                        r = (idx // 36) * 51
+                        g = ((idx % 36) // 6) * 51
+                        b = (idx % 6) * 51
+                        cur_fg = f"#{r:02x}{g:02x}{b:02x}"
+                    else:
+                        gray = 8 + (col_idx - 232) * 10
+                        cur_fg = f"#{gray:02x}{gray:02x}{gray:02x}"
+                    i += 2
+                i += 1
+            
+            if span_open:
+                line_out.append("</span>")
+                span_open = False
+                
+            styles = []
+            if cur_fg:
+                styles.append(f"color:{cur_fg}")
+            if cur_bg:
+                styles.append(f"background-color:{cur_bg}")
+            if cur_bold:
+                styles.append("font-weight:bold")
+                
+            if styles:
+                line_out.append(f'<span style="{";".join(styles)}">')
+                span_open = True
+                
+        text_chunk = line[pos:]
+        if text_chunk:
+            line_out.append(html_lib.escape(text_chunk))
+        if span_open:
+            line_out.append("</span>")
+            
+        html_lines.append("".join(line_out))
+        
+    html_content = "\n".join(html_lines)
+    
+    html_doc = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{html_lib.escape(title)} • Lumart v2.5.1</title>
+  <style>
+    * {{ box-sizing: border-box; }}
+    body {{
+      background: #090d16;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      margin: 0;
+      padding: 32px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }}
+    .terminal-card {{
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+      max-width: 98vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }}
+    .terminal-bar {{
+      background: #161b22;
+      border-bottom: 1px solid #21262d;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }}
+    .terminal-dots {{
+      display: flex;
+      gap: 8px;
+    }}
+    .dot {{
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }}
+    .dot-red {{ background: #ff5f56; }}
+    .dot-yellow {{ background: #ffbd2e; }}
+    .dot-green {{ background: #27c93f; }}
+    .terminal-title {{
+      font-size: 13px;
+      color: #8b949e;
+      font-weight: 600;
+      font-family: monospace;
+      letter-spacing: 0.5px;
+    }}
+    .copy-btn {{
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }}
+    .copy-btn:hover {{
+      background: #30363d;
+      color: #58a6ff;
+    }}
+    pre.art-content {{
+      margin: 0;
+      padding: 20px 24px;
+      background: #090d16;
+      font-family: "JetBrains Mono", "Cascadia Code", "Fira Code", monospace;
+      font-size: 13px;
+      line-height: 1.0;
+      letter-spacing: 0px;
+      white-space: pre;
+      overflow-x: auto;
+      user-select: text;
+    }}
+    .footer-tag {{
+      margin-top: 16px;
+      font-size: 12px;
+      color: #6e7681;
+      font-family: monospace;
+    }}
+    .footer-tag a {{
+      color: #58a6ff;
+      text-decoration: none;
+    }}
+    .footer-tag a:hover {{
+      text-decoration: underline;
+    }}
+  </style>
+</head>
+<body>
+  <div class="terminal-card">
+    <div class="terminal-bar">
+      <div class="terminal-dots">
+        <span class="dot dot-red"></span>
+        <span class="dot dot-yellow"></span>
+        <span class="dot dot-green"></span>
+      </div>
+      <span class="terminal-title">◆ Lumart v2.5.1 • Apex Nova</span>
+      <button class="copy-btn" onclick="copyArt()">Copiar Arte</button>
+    </div>
+    <pre id="ascii-art" class="art-content">{html_content}</pre>
+  </div>
+  <div class="footer-tag">
+    Generado con <a href="https://github.com/SilentBlox01/Luma" target="_blank">Luma / Lumart v2.5.1</a>
+  </div>
+  <script>
+    function copyArt() {{
+      const el = document.getElementById('ascii-art');
+      const text = el.innerText || el.textContent;
+      navigator.clipboard.writeText(text).then(() => {{
+        const btn = document.querySelector('.copy-btn');
+        btn.innerText = '✓ ¡Copiado!';
+        setTimeout(() => {{ btn.innerText = 'Copiar Arte'; }}, 2000);
+      }});
+    }}
+  </script>
+</body>
+</html>
+"""
+    try:
+        out_dir = os.path.dirname(os.path.abspath(out_path))
+        if out_dir and not os.path.exists(out_dir):
+            os.makedirs(out_dir, exist_ok=True)
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(html_doc)
+        return True
+    except Exception as e:
+        print(f"❌ Error al exportar HTML: {e}")
+        return False
+
 # EFECTO REVEAL (ESCÁNER LÁSER PROGRESIVO)
 # ==============================================================================
 def print_with_reveal(ansi_text, instant=True, delay=0.0015):
@@ -5821,6 +6116,8 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
     fps_count = 0
     fps_start = time.time()
     cur_fps = source_fps
+    stream_cli_fps = getattr(args, "fps", None) if args else None
+    target_fps_stream = float(stream_cli_fps) if stream_cli_fps and float(stream_cli_fps) > 0 else 70.0
     active_filter = 0
     active_texture = 0
     is_paused = False
@@ -5845,7 +6142,9 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
         "Solarize",
         f"Theme Sync ({active_theme.capitalize()})",
         "Synthwave 80s",
-        "GameBoy Retro"
+        "GameBoy Retro",
+        "VHS Analog Tape",
+        "Blueprint CAD"
     ]
 
     TEXTURE_NAMES = [
@@ -5905,7 +6204,19 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
                                 cv2.imwrite(snap_name, last_frame_raw)
                                 status_msg = f"📸 Snapshot guardado: {snap_name}"
                                 status_timer = time.time() + 2.5
-                        elif ch in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
+                        elif ch in ('7', 'f', 'F'):
+                            target_fps_stream = 70.0
+                            status_msg = "⚡ Modo 70 FPS Turbo Activado"
+                            status_timer = time.time() + 1.5
+                        elif ch in ('v', 'V'):
+                            active_filter = 14
+                            status_msg = "📼 Shader VHS Analog Tape"
+                            status_timer = time.time() + 1.5
+                        elif ch in ('b', 'B'):
+                            active_filter = 15
+                            status_msg = "📐 Shader Blueprint CAD"
+                            status_timer = time.time() + 1.5
+                        elif ch in ('1', '2', '3', '4', '5', '6', '8', '9'):
                             active_filter = int(ch) - 1
                         elif ch == '0':
                             active_filter = 9
@@ -6045,6 +6356,26 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
                 ], dtype=np.uint8)
                 idx = np.clip(gray // 64, 0, 3)
                 frame_rgb = gb_lut[idx]
+            elif active_filter == 14:
+                # VHS Analog Tape
+                frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
+                shift = max(1, target_width // 60)
+                r_c = np.roll(frame_rgb[:, :, 0], shift, axis=1)
+                b_c = np.roll(frame_rgb[:, :, 2], -shift, axis=1)
+                frame_rgb = np.dstack([
+                    np.clip(r_c.astype(np.float32) * 1.15 + 10, 0, 255).astype(np.uint8),
+                    np.clip(frame_rgb[:, :, 1].astype(np.float32) * 0.95, 0, 255).astype(np.uint8),
+                    np.clip(b_c.astype(np.float32) * 1.10, 0, 255).astype(np.uint8)
+                ])
+            elif active_filter == 15:
+                # Blueprint CAD
+                gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
+                t = gray.astype(np.float32) / 255.0
+                bp = np.zeros((frame_h_px, target_width, 3), dtype=np.uint8)
+                bp[:, :, 0] = np.clip(15 + t * 215, 0, 255).astype(np.uint8)
+                bp[:, :, 1] = np.clip(35 + t * 210, 0, 255).astype(np.uint8)
+                bp[:, :, 2] = np.clip(75 + t * 180, 0, 255).astype(np.uint8)
+                frame_rgb = bp
             else:
                 frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
 
@@ -6202,8 +6533,7 @@ def run_spectra_stream(source=0, target_width=None, font_ratio=0.5, args=None):
             sys.stdout.flush()
 
             # Temporización del fotograma de microsegundo sin jitter
-            stream_cli_fps = getattr(args, "fps", None) if args else None
-            effective_fps = float(stream_cli_fps) if stream_cli_fps and float(stream_cli_fps) > 0 else source_fps
+            effective_fps = target_fps_stream if 'target_fps_stream' in locals() else source_fps
             target_dur = (1.0 / effective_fps) / speed_mult
             while not is_paused and (time.perf_counter() - t_frame_start < target_dur):
                 rem = target_dur - (time.perf_counter() - t_frame_start)
@@ -7248,19 +7578,24 @@ def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, inve
     fps_target = float(cli_fps) if cli_fps and cli_fps > 0 else (60.0 if is_preload else None)
 
     if is_preload:
-        print(f"\033[1;36m[Lumart 60FPS]\033[0m Pre-cargando {total_frames} frames en memoria RAM para reproducción continua...")
-        for f_i in range(total_frames):
-            c_img, c_dur = frames_data[f_i]
-            c_art = render_frame_to_art(c_img, args, engine, mode, is_raw_colors, invert_mode, font_ratio)
-            cached_arts[f_i] = (c_art, c_dur)
-            pct = int(((f_i + 1) / total_frames) * 100)
-            bar_len = 30
-            filled = int(bar_len * (f_i + 1) / total_frames)
-            bar = "█" * filled + "░" * (bar_len - filled)
-            sys.stdout.write(f"\r  \033[1;32m[{bar}]\033[0m {pct}% ({f_i + 1}/{total_frames})")
-            sys.stdout.flush()
-        print("\n\033[1;32m✓ ¡Todos los fotogramas cacheados en RAM!\033[0m Iniciando a 60 FPS...")
-        time.sleep(0.3)
+        print(f"\033[1;36m[Lumart 70FPS Turbo]\033[0m Pre-cargando {total_frames} frames en memoria RAM (Multi-Thread)...")
+        from concurrent.futures import ThreadPoolExecutor
+        def _render_one(idx_and_data):
+            idx, (f_img, f_dur) = idx_and_data
+            a = render_frame_to_art(f_img, args, engine, mode, is_raw_colors, invert_mode, font_ratio)
+            return idx, (a, f_dur)
+
+        with ThreadPoolExecutor() as executor:
+            for idx, res in executor.map(_render_one, enumerate(frames_data)):
+                cached_arts[idx] = res
+                pct = int(((idx + 1) / total_frames) * 100)
+                bar_len = 30
+                filled = int(bar_len * (idx + 1) / total_frames)
+                bar = "█" * filled + "░" * (bar_len - filled)
+                sys.stdout.write(f"\r  \033[1;32m[{bar}]\033[0m {pct}% ({idx + 1}/{total_frames})")
+                sys.stdout.flush()
+        print("\n\033[1;32m✓ ¡Todos los fotogramas cacheados en RAM a máxima velocidad!\033[0m Iniciando a 70 FPS Turbo...")
+        time.sleep(0.2)
     
     # Medidor de FPS reales
     fps_start = time.perf_counter()
@@ -7300,12 +7635,12 @@ def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, inve
             fps_badge = f"\033[1;32m{real_fps:.1f} FPS\033[0m" if real_fps >= 45.0 else f"\033[1;33m{real_fps:.1f} FPS\033[0m"
             target_str = f" [Objetivo: {fps_target:.0f} FPS]" if fps_target else ""
             status_tag = (
-                f"\033[1;30;46m ⚡ LUMART 60FPS GIF \033[0m \033[1;37mFrame: {cur_idx + 1}/{total_frames} | "
+                f"\033[1;30;46m ⚡ LUMART 70FPS ENGINE \033[0m \033[1;37mFrame: {cur_idx + 1}/{total_frames} | "
                 f"{fps_badge}{target_str} | Vel: {speed_txt} | "
             )
             if is_paused:
                 status_tag += "\033[1;33m[PAUSADO]\033[0m "
-            status_tag += "[Espacio] Pausa | [◄/►] Frame | [6] 60FPS | [3] 30FPS | [0] Nativo | [+/-] Vel | [S] Foto | [Q] Salir\033[0m"
+            status_tag += "[Espacio] Pausa | [◄/►] Frame | [7] 70FPS | [6] 60FPS | [3] 30FPS | [0] Nativo | [+/-] Vel | [S] Foto | [Q] Salir\033[0m"
             if status_msg and time.time() < status_timer:
                 status_tag += f" \033[1;32m{status_msg}\033[0m"
 
@@ -7335,6 +7670,11 @@ def play_or_save_animation(image_source, args, engine, mode, is_raw_colors, inve
                                 return
                             elif ch == ' ':
                                 is_paused = not is_paused
+                                break
+                            elif ch in ('7', 'f', 'F'):
+                                fps_target = 70.0
+                                status_msg = "⚡ Modo 70 FPS Turbo Activado"
+                                status_timer = time.time() + 1.5
                                 break
                             elif ch == '6':
                                 fps_target = 60.0
@@ -7620,6 +7960,7 @@ def main():
     parser.add_argument("--center", action="store_true", help=_("help_center"))
     parser.add_argument("--preload", "--smooth", dest="smooth", action="store_true", help=_("help_preload"))
     parser.add_argument("--bench", "--benchmark", dest="bench", action="store_true", help=_("help_bench"))
+    parser.add_argument("--mobile", action="store_true", help="Calibrate output dimensions, line height and font ratio for mobile screens / Termux.")
     parser.add_argument("--theme", "--palette", choices=list(THEME_PALETTES.keys()), default=None, help=_("help_theme"))
     parser.add_argument("--crt", "--scanlines", choices=["green", "amber", "color", "scanlines"], nargs="?", const="color", default=None, help=_("help_crt"))
     parser.add_argument("--matrix", action="store_true", help=_("help_matrix"))
@@ -7635,7 +7976,7 @@ def main():
     parser.add_argument("--showcase", action="store_true", help=_("help_showcase"))
     parser.add_argument("--info", "--inspect", dest="info", action="store_true", help=_("help_info"))
     parser.add_argument("--fetch-preset", action="store_true", help=_("help_fetch_preset"))
-    parser.add_argument("--shader", choices=["neon", "cyberpunk", "thermal", "tron", "matrix", "amber", "manga", "theme", "normal", "hologram", "glitch", "phosphor-bloom", "solarize"], default=None, help=_("help_shader"))
+    parser.add_argument("--shader", choices=["neon", "cyberpunk", "thermal", "tron", "matrix", "amber", "manga", "theme", "normal", "hologram", "glitch", "phosphor-bloom", "solarize", "vhs", "blueprint"], default=None, help=_("help_shader"))
     parser.add_argument("extra_images", nargs="*", default=[], help=argparse.SUPPRESS)
 
     # Utilidades del sistema
@@ -7909,6 +8250,15 @@ def main():
             engine = "mary"
             args.color = True
 
+    # Detección inteligente de modo móvil / smartphone (Termux)
+    is_termux = bool(os.environ.get("PREFIX") and "com.termux" in os.environ.get("PREFIX", "")) or bool(os.environ.get("TERMUX_VERSION"))
+    if getattr(args, "mobile", False) or is_termux:
+        term_cols = shutil.get_terminal_size((50, 30)).columns
+        if args.width is None:
+            args.width = min(term_cols, 54) if term_cols > 20 else 48
+        if getattr(args, "font_ratio", None) is None:
+            args.font_ratio = 0.48
+
     # Calibración de proporción de caracteres terminal
     font_ratio = getattr(args, "font_ratio", 0.5) or 0.5
 
@@ -7943,6 +8293,8 @@ def main():
                 if args.output.lower().endswith(".ans"):
                     with open(args.output, "w", encoding="utf-8") as f:
                         f.write(art)
+                elif args.output.lower().endswith((".html", ".htm")):
+                    export_ansi_to_html(art, args.output, title=os.path.basename(raw_source) if 'raw_source' in locals() else "Spectra Weep")
                 else:
                     export_ansi_to_image(art, args.output)
                 print(_("export_success", args.output))
@@ -8307,6 +8659,14 @@ def main():
             try:
                 export_ansi_to_image(ascii_art, args.output, transparent=effective_transparent)
                 print(_("export_success", args.output))
+            except Exception as e:
+                print(_("export_error", e))
+        elif ext in (".html", ".htm"):
+            try:
+                src_name = os.path.basename(src) if 'src' in locals() and src else "Luma Art"
+                success = export_ansi_to_html(ascii_art, args.output, title=src_name)
+                if success:
+                    print(_("export_success", args.output))
             except Exception as e:
                 print(_("export_error", e))
         elif ext in (".ans", ".asc"):
