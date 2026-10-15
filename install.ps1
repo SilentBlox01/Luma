@@ -9,7 +9,7 @@ param (
 )
 
 $ErrorActionPreference = "Stop"
-$VERSION = "2.5.0"
+$VERSION = "2.5.1"
 
 # Autodetección de idioma
 if ($Lang -eq "auto") {
@@ -88,6 +88,11 @@ if ($scriptDir -and (Test-Path "$scriptDir\lumart.py")) {
     try {
         Invoke-WebRequest -Uri "$repoUrl/mary.py" -OutFile "$shareDir\mary.py" -UseBasicParsing
     } catch {}
+    foreach ($src in @("monochrome.cpp", "mary.cpp", "stb_image.h", "stb_image_resize2.h")) {
+        try {
+            Invoke-WebRequest -Uri "$repoUrl/$src" -OutFile "$shareDir\$src" -UseBasicParsing
+        } catch {}
+    }
 }
 
 # 4. Crear archivos .cmd para ejecución global

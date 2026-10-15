@@ -1,4 +1,4 @@
-# 🔧 Lumart (Luma) v2.5.0 Master Troubleshooting Guide & Technical Manual
+# 🔧 Lumart (Luma) v2.5.1 Master Troubleshooting Guide & Technical Manual
 
 [English (Default)](TROUBLESHOOTING.md) | [Español](TROUBLESHOOTING.es.md) | [Português](TROUBLESHOOTING.pt.md) | [Français](TROUBLESHOOTING.fr.md) | [Deutsch](TROUBLESHOOTING.de.md) | [Русский](TROUBLESHOOTING.ru.md) | [日本語](TROUBLESHOOTING.ja.md) | [한국어](TROUBLESHOOTING.ko.md)
 
@@ -268,11 +268,11 @@ Luma provides distribution-specific packaging and build scripts:
   *(Installs `/usr/bin/lumart`, `/usr/bin/luma`, native C++ acceleration libraries in `/usr/lib/`, shell completions for bash/zsh/fish, and man pages).*
 - **Debian / Ubuntu / Linux Mint (`.deb`)**:
   ```bash
-  sudo apt install ./dist/lumart-2.5.0.deb
+  sudo apt install ./dist/lumart-2.5.1.deb
   ```
 - **Fedora / RHEL / openSUSE (`.rpm`)**:
   ```bash
-  sudo dnf install ./dist/lumart-2.5.0-1.x86_64.rpm
+  sudo dnf install ./dist/lumart-2.5.1-1.x86_64.rpm
   ```
 - **Windows 10 / 11 (Native PowerShell Installer)**:
   Run the automated Windows PowerShell installer:

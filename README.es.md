@@ -7,11 +7,11 @@
   ██║     ██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗   ██║   
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
-   Modern Terminal Visual Suite • v2.5.0 (Apex Nova)
+   Modern Terminal Visual Suite • v2.5.1 (Apex Nova)
    [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]
 ```
 
-# Lumart (Luma) v2.5.0
+# Lumart (Luma) v2.5.1
 
 > [!TIP]
 > 📖 **¿Buscas el manual maestro de solución de problemas y guía técnica?** Consulta el documento insignia [**TROUBLESHOOTING.es.md**](TROUBLESHOOTING.es.md) (o [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)) con listas de diagnóstico rápido, lo que se debe y no se debe hacer, walkthrough de comandos, todas las opciones y recetas.

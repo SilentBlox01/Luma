@@ -694,7 +694,7 @@ extern "C" {
 static void print_banner() {
     std::cout << "\033[1;37m"
               << " █    █ █ █▄ ▄█ ▄▀▄   █▄ ▄█ ▄▀▄ █▄ █ ▄▀▄\n"
-              << " █▄▄▄ ▀▄█ █ ▀ █ █▀█ ▀ █ ▀ █ ▀▄▀ █ ▀█ ▀▄▀ (B&W Engine v2.5.0)\033[0m\n\n";
+              << " █▄▄▄ ▀▄█ █ ▀ █ █▀█ ▀ █ ▀ █ ▀▄▀ █ ▀█ ▀▄▀ (B&W Engine v2.5.1)\033[0m\n\n";
 }
 
 static void print_usage(const char* prog) {

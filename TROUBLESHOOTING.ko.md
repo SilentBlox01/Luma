@@ -1,4 +1,4 @@
-# 🔧 Lumart (Luma) v2.5.0 마스터 매뉴얼, 기술 사양서 & 문제 해결 가이드
+# 🔧 Lumart (Luma) v2.5.1 마스터 매뉴얼, 기술 사양서 & 문제 해결 가이드
 
 [English](TROUBLESHOOTING.md) | [Español](TROUBLESHOOTING.es.md) | [Português](TROUBLESHOOTING.pt.md) | [Français](TROUBLESHOOTING.fr.md) | [Deutsch](TROUBLESHOOTING.de.md) | [Русский](TROUBLESHOOTING.ru.md) | [日本語](TROUBLESHOOTING.ja.md) | [한국어](TROUBLESHOOTING.ko.md)
 

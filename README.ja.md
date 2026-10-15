@@ -7,11 +7,11 @@
   ██║     ██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗   ██║   
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
-   Modern Terminal Visual Suite • v2.5.0 (Apex Nova)
+   Modern Terminal Visual Suite • v2.5.1 (Apex Nova)
    [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]
 ```
 
-# Lumart (Luma) v2.5.0
+# Lumart (Luma) v2.5.1
 
 > [!TIP]
 > 📖 **技術仕様書およびトラブルシューティングのマスターマニュアルをお探しですか？** 診断チェックリスト、推奨・禁止事項、全コマンドウォークスルー、全オプションを網羅したフラグシップ文書 [**TROUBLESHOOTING.ja.md**](TROUBLESHOOTING.ja.md) (または [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)) をご覧ください。
@@ -204,11 +204,11 @@ chmod +x install.sh
   ```
 * **Debian / Ubuntu / Linux Mint (`.deb`)**:
   ```bash
-  sudo apt install ./dist/deb/lumart_2.5.0-1_all.deb
+  sudo apt install ./dist/deb/lumart_2.5.1-1_all.deb
   ```
 * **Fedora / RHEL / AlmaLinux (`.rpm`)**:
   ```bash
-  sudo dnf install ./dist/rpm/lumart-2.5.0-1.noarch.rpm
+  sudo dnf install ./dist/rpm/lumart-2.5.1-1.noarch.rpm
   ```
 *(注: インストーラおよび各パッケージはCLIバイナリとmanページのみを導入し、不要なデスクトップアイコンで散らかすことはありません)。*
 

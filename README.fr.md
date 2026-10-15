@@ -7,11 +7,11 @@
   ██║     ██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗   ██║   
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
-   Modern Terminal Visual Suite • v2.5.0 (Apex Nova)
+   Modern Terminal Visual Suite • v2.5.1 (Apex Nova)
    [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]
 ```
 
-# Lumart (Luma) v2.5.0
+# Lumart (Luma) v2.5.1
 
 > [!TIP]
 > 📖 **Besoin du guide maître de dépannage et manuel technique complet ?** Consultez le document phare [**TROUBLESHOOTING.fr.md**](TROUBLESHOOTING.fr.md) (ou [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)) avec checklists de diagnostic, guide visuel, walkthrough CLI et toutes les options.
@@ -206,11 +206,11 @@ chmod +x install.sh
   ```
 * **Debian / Ubuntu / Linux Mint (`.deb`)** :
   ```bash
-  sudo apt install ./dist/deb/lumart_2.5.0-1_all.deb
+  sudo apt install ./dist/deb/lumart_2.5.1-1_all.deb
   ```
 * **Fedora / RHEL / AlmaLinux (`.rpm`)** :
   ```bash
-  sudo dnf install ./dist/rpm/lumart-2.5.0-1.noarch.rpm
+  sudo dnf install ./dist/rpm/lumart-2.5.1-1.noarch.rpm
   ```
 *(Remarque : L'installateur et les paquets installent des exécutables propres et les pages man sans encombrer le bureau d'icônes inutiles).*
 

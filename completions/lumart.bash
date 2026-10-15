@@ -1,5 +1,5 @@
 # Bash completion for lumart and luma
-# Generated for Lumart v2.5.0 "Apex Nova"
+# Generated for Lumart v2.5.1 "Apex Nova"
 
 _lumart_completions() {
     local cur prev words cword

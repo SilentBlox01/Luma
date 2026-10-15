@@ -84,7 +84,7 @@ except ImportError:
         mary = None
 
 
-VERSION = "2.5.0"
+VERSION = "2.5.1"
 CODENAME = "Apex Nova"
 GITHUB_REPO = "SilentBlox01/Luma"
 GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/lumart.py"
@@ -6492,6 +6492,14 @@ def generate_shell_completions(shell_name: str) -> str:
     search_dirs.append("/usr/share/luma/completions")
     search_dirs.append("/usr/share/bash-completion/completions" if shell == "bash" else "/usr/share/zsh/site-functions")
     search_dirs.append("/usr/share/fish/vendor_completions.d")
+    prefix = os.environ.get("PREFIX", "")
+    if prefix:
+        search_dirs.extend([
+            os.path.join(prefix, "share", "luma", "completions"),
+            os.path.join(prefix, "share", "bash-completion", "completions"),
+            os.path.join(prefix, "share", "zsh", "site-functions"),
+            os.path.join(prefix, "share", "fish", "vendor_completions.d")
+        ])
 
     for d in search_dirs:
         p = os.path.join(d, target_file)
@@ -6518,7 +6526,7 @@ def generate_shell_completions(shell_name: str) -> str:
     )
     if shell == "bash":
         return f"""# Bash completion for lumart and luma
-# Generated for Lumart v2.5.0 "Apex Nova"
+# Generated for Lumart v{VERSION} "Apex Nova"
 _lumart_completions() {{
     local cur prev words cword
     _init_completion || return
@@ -6564,7 +6572,7 @@ complete -F _lumart_completions luma
 """
     elif shell == "fish":
         return f"""# Fish completion for lumart and luma
-# Generated for Lumart v2.5.0 "Apex Nova"
+# Generated for Lumart v{VERSION} "Apex Nova"
 for c in lumart luma
     complete -c $c -s h -l help -d "Show usage and options help"
     complete -c $c -s v -l version -d "Display hardware and engine status"
@@ -6627,7 +6635,7 @@ end
 """
     elif shell == "zsh":
         return f"""#compdef lumart luma
-# Generated for Lumart v2.5.0 "Apex Nova"
+# Generated for Lumart v{VERSION} "Apex Nova"
 _lumart() {{
     local context state state_descr line
     typeset -A opt_args

@@ -5,6 +5,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ---
 
+## [2.5.1] — 2026-10-14
+
+### 📱 Android (Termux) & Universal Installation Resilience
+
+* **Android / Termux Native Support**:
+  * Added auto-detection for Android / Termux environment (`TERMUX_VERSION`, `$PREFIX`).
+  * Installation target directory automatically switches to `$PREFIX/bin` and `$PREFIX/share/luma`, eliminating `command not found` path errors.
+  * Added dynamic bash shebang resolution (`$(command -v bash)`) and automatic `termux-fix-shebang` invocation, resolving `bad interpreter: /bin/bash: No such file or directory`.
+  * Integrated precompiled `python-pillow` automated installation via `pkg install -y python python-pillow clang make libomp`.
+  * Enabled native C++ compilation with `clang++` and OpenMP threading on Android mobile hardware.
+* **Universal POSIX Installer (`install.sh`)**:
+  * Verified end-to-end multi-distro deployment across Fedora, Debian, Ubuntu, Arch Linux, openSUSE, Void Linux, Alpine Linux, Gentoo, NixOS, and macOS.
+  * Added execution verification step (`lumart --version`) prior to declaring installation success.
+  * Added automatic PATH configuration across `~/.bashrc`, `~/.zshrc`, and `~/.profile`.
+* **Cross-Platform Tooling**:
+  * Updated Windows PowerShell installer (`install.ps1`) for v2.5.1.
+  * Updated Arch Linux `PKGBUILD` and `dist/arch/PKGBUILD` to v2.5.1.
+  * Updated `pyproject.toml` and packaging builders (`build_packages.sh`) to v2.5.1.
+
+---
+
 ## [2.5.0] — "Apex Nova" — 2026-10-03
 
 > *"To bring graphics into the terminal is not to compromise; it is to elevate text into an art form."*

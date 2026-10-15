@@ -1,4 +1,4 @@
-# 🔧 Guía Maestra de Solución de Problemas (Troubleshooting) y Manual Técnico de Lumart (Luma) v2.5.0
+# 🔧 Guía Maestra de Solución de Problemas (Troubleshooting) y Manual Técnico de Lumart (Luma) v2.5.1
 
 [English](TROUBLESHOOTING.md) | [Español (Predeterminado)](TROUBLESHOOTING.es.md) | [Português](TROUBLESHOOTING.pt.md) | [Français](TROUBLESHOOTING.fr.md) | [Deutsch](TROUBLESHOOTING.de.md) | [Русский](TROUBLESHOOTING.ru.md) | [日本語](TROUBLESHOOTING.ja.md) | [한국어](TROUBLESHOOTING.ko.md)
 
@@ -265,11 +265,11 @@ Luma ofrece soporte oficial para gestores de paquetes nativos:
   *(Instala `/usr/bin/lumart`, `/usr/bin/luma`, librerías nativas C++ en `/usr/lib/`, autocompletado en bash/zsh/fish y páginas man).*
 - **Debian / Ubuntu / Linux Mint (`.deb`)**:
   ```bash
-  sudo apt install ./dist/lumart-2.5.0.deb
+  sudo apt install ./dist/lumart-2.5.1.deb
   ```
 - **Fedora / RHEL / openSUSE (`.rpm`)**:
   ```bash
-  sudo dnf install ./dist/lumart-2.5.0-1.x86_64.rpm
+  sudo dnf install ./dist/lumart-2.5.1-1.x86_64.rpm
   ```
 - **Windows 10 / 11 (Instalador Nativo de PowerShell)**:
   Ejecuta el instalador automático en PowerShell:

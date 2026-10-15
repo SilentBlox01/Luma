@@ -57,20 +57,27 @@ pyinstaller --clean --onefile --name lumart --hidden-import=mary "$SCRIPT_DIR/lu
 
 mkdir -p dist
 
-if command -v g++ &>/dev/null && [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
+CXX_BIN=""
+if command -v g++ &>/dev/null; then
+    CXX_BIN="g++"
+elif command -v clang++ &>/dev/null; then
+    CXX_BIN="clang++"
+fi
+
+if [ -n "$CXX_BIN" ] && [ -f "$SCRIPT_DIR/monochrome.cpp" ]; then
     echo "Compiling native C++ monochrome engine (luma-mono)..."
-    g++ -O3 -std=c++17 -fopenmp -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/luma-mono 2>/dev/null || \
-    g++ -O3 -std=c++17 -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/luma-mono
-    g++ -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/libmonochrome.so 2>/dev/null || \
-    g++ -O3 -std=c++17 -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/libmonochrome.so
+    $CXX_BIN -O3 -std=c++17 -fopenmp -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/luma-mono 2>/dev/null || \
+    $CXX_BIN -O3 -std=c++17 -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/luma-mono
+    $CXX_BIN -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/libmonochrome.so 2>/dev/null || \
+    $CXX_BIN -O3 -std=c++17 -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/monochrome.cpp" -o dist/libmonochrome.so
 fi
 
 if command -v g++ &>/dev/null && [ -f "$SCRIPT_DIR/mary.cpp" ]; then
     echo "Compiling native C++ Mary color super-engine (luma-mary)..."
-    g++ -O3 -std=c++17 -fopenmp -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/luma-mary 2>/dev/null || \
-    g++ -O3 -std=c++17 -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/luma-mary
-    g++ -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/libmary.so 2>/dev/null || \
-    g++ -O3 -std=c++17 -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/libmary.so
+    $CXX_BIN -O3 -std=c++17 -fopenmp -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/luma-mary 2>/dev/null || \
+    $CXX_BIN -O3 -std=c++17 -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/luma-mary
+    $CXX_BIN -O3 -std=c++17 -fopenmp -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/libmary.so 2>/dev/null || \
+    $CXX_BIN -O3 -std=c++17 -fPIC -shared -I"$SCRIPT_DIR" "$SCRIPT_DIR/mary.cpp" -o dist/libmary.so
 fi
 
 # 1. DEB Package

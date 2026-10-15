@@ -1,6 +1,6 @@
 # Maintainer: SilentBlox_01 <silentblox@users.noreply.github.com>
 pkgname=lumart
-pkgver=2.5.0
+pkgver=2.5.1
 pkgrel=1
 pkgdesc="Modern Terminal Visual Suite (Mary Apex 3.5, Trumble Orelx 2.2, Luris Mono 2.6, Spectra Weep 2.0)"
 arch=('x86_64' 'aarch64')

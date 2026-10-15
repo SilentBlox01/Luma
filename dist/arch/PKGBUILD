@@ -1,6 +1,6 @@
 # Maintainer: SilentBlox_01
 pkgname=lumart-bin
-pkgver=2.5.0
+pkgver=2.5.1
 pkgrel=1
 pkgdesc="High-Fidelity Terminal Visual Suite (Mary Apex, Trumble Orelx, Luris Mono, Spectra Weep)"
 arch=('x86_64')

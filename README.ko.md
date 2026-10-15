@@ -7,11 +7,11 @@
   ██║     ██║   ██║██║╚██╔╝██║██╔══██║██╔══██╗   ██║   
   ███████╗╚██████╔╝██║ ╚═╝ ██║██║  ██║██║  ██║   ██║   
   ╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
-   Modern Terminal Visual Suite • v2.5.0 (Apex Nova)
+   Modern Terminal Visual Suite • v2.5.1 (Apex Nova)
    [ Mary Apex 3.5 • Trumble Orelx 2.2 • Luris Mono 2.6 • Spectra Weep 2.0 ]
 ```
 
-# Lumart (Luma) v2.5.0
+# Lumart (Luma) v2.5.1
 
 > [!TIP]
 > 📖 **마스터 기술 매뉴얼 및 문제 해결 가이드가 필요하신가요?** 진단 체크리스트, 권장/금지 사항, 전체 CLI 워크스루 및 모든 플래그를 총망라한 플래그십 문서 [**TROUBLESHOOTING.ko.md**](TROUBLESHOOTING.ko.md) (또는 [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md))를 확인하세요.
@@ -204,11 +204,11 @@ chmod +x install.sh
   ```
 * **Debian / Ubuntu / Linux Mint (`.deb`)**:
   ```bash
-  sudo apt install ./dist/deb/lumart_2.5.0-1_all.deb
+  sudo apt install ./dist/deb/lumart_2.5.1-1_all.deb
   ```
 * **Fedora / RHEL / AlmaLinux (`.rpm`)**:
   ```bash
-  sudo dnf install ./dist/rpm/lumart-2.5.0-1.noarch.rpm
+  sudo dnf install ./dist/rpm/lumart-2.5.1-1.noarch.rpm
   ```
 *(참고: 설치 스크립트와 패키지는 바탕화면에 불필요한 아이콘을 생성하지 않고 깔끔한 CLI 바이너리와 man 페이지를 설치합니다).*
 

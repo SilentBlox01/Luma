@@ -6,7 +6,7 @@
 # ==============================================================================
 set -e
 
-VERSION="2.5.0"
+VERSION="2.5.1"
 RAW_BASE="https://raw.githubusercontent.com/SilentBlox01/Luma/main"
 
 # Color helpers
@@ -275,6 +275,14 @@ echo -e "${MSG_CHECK_DEPS}"
 if ! python3 -c "from PIL import Image" &>/dev/null; then
     echo -e "${YELLOW}${MSG_RESOLVING}${NC}"
     INSTALLED=0
+
+    # Opción macOS (Homebrew)
+    if [ "$INSTALLED" -eq 0 ] && ([ "$(uname -s 2>/dev/null)" = "Darwin" ] || [[ "${OSTYPE:-}" == "darwin"* ]]); then
+        if command -v brew &>/dev/null; then
+            echo "📦 Detectado macOS. Instalando Pillow y dependencias vía Homebrew..."
+            brew install pillow libomp && INSTALLED=1 || true
+        fi
+    fi
 
     # Opción Termux (Android)
     if [ "$IS_TERMUX" -eq 1 ] && command -v pkg &>/dev/null; then
